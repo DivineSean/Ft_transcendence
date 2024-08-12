@@ -1,0 +1,18 @@
+data
+.env
+env
+
+# Ignore all .pyc files
+*.pyc
+
+# Ignore __pycache__ directories
+__pycache__/
+
+# Ignore other common Python artifacts
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
