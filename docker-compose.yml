@@ -10,6 +10,7 @@ services:
       - backend
     restart: unless-stopped
     volumes:
+      - ./config/certs/:/home/certs
       - ./frontend/public/:/home/app/public
       - ./frontend/src/:/home/app/src
 
@@ -25,6 +26,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     volumes:
+      - ./config/certs/:/home/certs
       - ./backend/:/home/app
 
   db:
@@ -43,3 +45,9 @@ services:
     restart: unless-stopped
     volumes:
       - ./data:/var/lib/postgresql/data
+
+  ssl:
+    build: ./config
+    container_name: ssl
+    volumes:
+      - ./config/certs/:/config/certs

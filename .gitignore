@@ -1,4 +1,5 @@
 data
+config/certs
 .env
 env
 
