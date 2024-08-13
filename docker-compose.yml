@@ -10,7 +10,7 @@ services:
       - backend
     restart: unless-stopped
     volumes:
-      - ./config/certs/:/home/certs
+      - ./config/certs:/home/certs
       - ./frontend/public/:/home/app/public
       - ./frontend/src/:/home/app/src
 
@@ -26,11 +26,12 @@ services:
         condition: service_healthy
     restart: unless-stopped
     volumes:
-      - ./config/certs/:/home/certs
+      - ./config/certs:/home/certs
       - ./backend/:/home/app
 
   db:
     image: postgres:16-alpine
+    command: "-c ssl=on -c ssl_cert_file=/var/lib/postgresql/certs/server.pem -c ssl_key_file=/var/lib/postgresql/certs/server-key.pem"
     healthcheck:
       test: "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
       interval: 5s
@@ -44,10 +45,11 @@ services:
         - .env
     restart: unless-stopped
     volumes:
+      - ./config/certs:/var/lib/postgresql/certs
       - ./data:/var/lib/postgresql/data
 
   ssl:
     build: ./config
     container_name: ssl
     volumes:
-      - ./config/certs/:/config/certs
+      - ./config/certs:/config/certs
