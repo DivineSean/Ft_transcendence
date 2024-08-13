@@ -37,4 +37,4 @@ RUN		chown -R app:app /home/app/
 
 USER	app
 
-ENTRYPOINT ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
+ENTRYPOINT ["python3", "manage.py", "runserver_plus", "0.0.0.0:8000", "--cert-file", "/home/certs/server.pem", "--key-file", "/home/certs/server-key.pem"]
