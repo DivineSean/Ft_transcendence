@@ -19,18 +19,22 @@ body {
 	.primary-glass {
 		background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2));
 		border-radius: 8px;
-		border: .3px solid #313131;
+		border: .5px solid #313131;
+		backdrop-filter: blur(80px);
+	}
+	.login-glass {
+		background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2));
 		backdrop-filter: blur(80px);
 	}
 	.secondary-glass {
 		background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2));
 		border-radius: 8px;
-		border: .3px solid #5B5B5B;
+		border: .5px solid #5B5B5B;
 		backdrop-filter: blur(40px);
 	}
 	.search-glass {
 		background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2));
-		border: .3px solid #5B5B5B;
+		border: .5px solid #5B5B5B;
 		border-radius: 8px;
 		backdrop-filter: blur(40px);
 	}
