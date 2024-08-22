@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+	@apply  min-h-screen capitalize bg-[url('/images/background.png')] bg-cover text-white;
+}
+@layer utilities {
+	.custom-shadow { box-shadow: inset 0px 20px 35px 0px rgba(0,0,0,0.75); }
+	.no-scrollbar::-webkit-scrollbar { display: none; }
+	.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+	.custom-scrollbar::-webkit-scrollbar { width: 3px; }
+	.custom-scrollbar::-webkit-scrollbar-track { @apply bg-none; }
+	.custom-scrollbar::-webkit-scrollbar-thumb { @apply rounded-full bg-stroke-sc; }
+	.custom-scrollbar::-webkit-scrollbar-thumb:hover { @apply bg-stroke-sc cursor-all-scroll; }
+	.primary-gradient { background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2)); }
+	.secondary-gradient { background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2)); }
+	.cover-gradient {  background: linear-gradient(0deg, rgba(0,0,0,0.8), rgba(0,0,0,0)); }
+	.primary-glass {
+		background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2));
+		border-radius: 8px;
+		border: .5px solid #313131;
+		backdrop-filter: blur(80px);
+	}
+	.login-glass {
+		background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2));
+		backdrop-filter: blur(80px);
+	}
+	.secondary-glass {
+		background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2));
+		border-radius: 8px;
+		border: .5px solid #5B5B5B;
+		backdrop-filter: blur(40px);
+	}
+	.search-glass {
+		background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2));
+		border: .5px solid #5B5B5B;
+		border-radius: 8px;
+		backdrop-filter: blur(40px);
+	}
+	.container {
+		@apply max-w-[1440px] m-auto lg:px-32 px-16 flex flex-col lg:gap-32 gap-16 min-h-screen;
+	}
+	.custom-container {
+		@apply md:hidden;
+	}
+	.glass-component {
+		@apply primary-glass flex lg:p-16 md:px-32 p-16 text-white;
+	}
+	/* -------- start login -------- */
+	.login-input {
+		background: none;
+		outline: none;
+	}
+	/* -------- end login -------- */
+}
+
+/* -------- start menu -------- */
+.humberger-menu .menu-linkes:hover {
+	background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2));
+	border-radius: 8px;
+	border: .3px solid #5B5B5B;
+	backdrop-filter: blur(40px);
+}
+/* -------- end menu -------- */
+
+/* -------- start home -------- */
+.side-online-friends-container {
+	height: calc(100vh - 125px);
+}
+/* -------- end home -------- */
