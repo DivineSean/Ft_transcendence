@@ -10,7 +10,7 @@ ENV		PYTHONUNBUFFERED 1
 ENV 	PYTHONDONTWRITEBYTECODE 1
 
 # Copy dependencies list
-COPY	requirements.txt .
+COPY	./backend/requirements.txt .
 
 # Build wheel archives (for smaller image sizes and faster installation)
 RUN		pip wheel --no-cache-dir --no-deps --wheel-dir /app/backend/wheels -r requirements.txt
@@ -31,7 +31,11 @@ COPY	--from=builder /app/backend/requirements.txt .
 RUN		pip install --upgrade pip
 RUN		pip install --no-cache /wheels/*
 
-COPY	. .
+RUN		mkdir -p /home/certs
+COPY		certs/server-key.pem /home/certs
+COPY		certs/server.pem /home/certs
+
+COPY	./backend/ .
 
 RUN		chown -R app:app /home/app/
 

@@ -20,13 +20,15 @@ clean: stop
 	docker stop $$(docker ps -qa) || true
 	sleep 1
 	docker rm $$(docker ps -qa) || true
-	docker rmi -f $$(docker images -qa) || true
 	docker volume rm $$(docker volume ls -q) || true
 	docker network rm $$(docker network ls -q) || true
 
+fclean: clean
+	docker rmi -f $$(docker images -qa) || true
+
 re: clean up
 
-prune: clean
+prune: fclean
 	docker system prune -a --volumes -f
 
 .PHONY: all up down stop start build clean re prune

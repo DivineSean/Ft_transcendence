@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   frontend:
-    build: ./frontend
+    build:
+      context: ./
+      dockerfile: ./frontend/Dockerfile
     ports:
       - 3000:3000
     container_name: frontend
@@ -10,12 +12,13 @@ services:
       - backend
     restart: unless-stopped
     volumes:
-      - ./config/certs:/home/certs
       - ./frontend/public/:/home/app/public
       - ./frontend/src/:/home/app/src
 
   backend:
-    build: ./backend
+    build: 
+      context: ./
+      dockerfile: ./backend/Dockerfile
     ports:
       - 8000:8000
     container_name: backend
@@ -26,12 +29,14 @@ services:
         condition: service_healthy
     restart: unless-stopped
     volumes:
-      - ./config/certs:/home/certs
       - ./backend/:/home/app
 
   db:
-    image: postgres:16-alpine
-    command: "-c ssl=on -c ssl_cert_file=/var/lib/postgresql/certs/server.pem -c ssl_key_file=/var/lib/postgresql/certs/server-key.pem"
+    #image: postgres:16-alpine
+    #command: "-c ssl=on -c ssl_cert_file=/var/lib/postgresql/certs/server.pem -c ssl_key_file=/var/lib/postgresql/certs/server-key.pem"
+    build:
+      context: ./
+      dockerfile: ./db/Dockerfile
     healthcheck:
       test: "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
       interval: 5s
@@ -45,11 +50,10 @@ services:
         - .env
     restart: unless-stopped
     volumes:
-      - ./config/certs:/var/lib/postgresql/certs
-      - ./data:/var/lib/postgresql/data
+      - ./db/data:/var/lib/postgresql/data
 
-  ssl:
-    build: ./config
-    container_name: ssl
-    volumes:
-      - ./config/certs:/config/certs
+        #  ssl:
+        #    build: ./config
+        #    container_name: ssl
+        #    volumes:
+        #      - ./config/certs:/config/certs
