@@ -1,0 +1,2 @@
+psql -h <hostname or ip address> -p <port number of remote machine> -d <database name which you want to connect> -U <username of the database server>
+psql -h db -p 5432 -d django -U mmisskin
