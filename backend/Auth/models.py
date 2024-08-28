@@ -1,7 +1,7 @@
 from django.db import models
 
-class IntraUser(models.Model):
-    intraID = models.IntegerField(unique=True)
+class Users(models.Model):
+    userID = models.CharField(max_length = 100,unique=True)
     login = models.CharField(max_length = 100, unique= True)
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=100)
