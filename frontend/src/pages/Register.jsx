@@ -1,8 +1,12 @@
 import { Si42 } from "react-icons/si";
 import { FcGoogle } from "react-icons/fc";
 import { Link } from "react-router-dom";
+import { useContext } from "react";
+import AuthContext from "../context/AuthContext";
 
 const SignUp = () => {
+	const {register} = useContext(AuthContext);
+
 	return (
 		<>
 		<div className="absolute min-h-screen w-screen backdrop-blur-xl"></div>
@@ -16,19 +20,62 @@ const SignUp = () => {
 						<h1 className="md:text-h-lg-xl text-h-sm-xl font-bold">get started</h1>
 						<p className="md:text-txt-lg text-txt-sm">create your account now</p>
 					</div>
-					<form className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
-						<input type="text" required className="py-16 login-input border-b-2 border-stroke-sc" placeholder="Username"/>
-						<input type="text" required className="py-16 login-input border-b-2 border-stroke-sc" placeholder="Email or username"/>
-						<input type="text" required className="py-16 login-input border-b-2 border-stroke-sc" placeholder="Password"/>
+
+					<form onSubmit={register} className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
+						<div className="flex gap-20">
+							<input
+								required
+								name="first_name"
+								type="text"
+								placeholder="First Name"
+								className="py-16 login-input border-b-2 border-stroke-sc grow"
+							/>
+							<input
+								required
+								name="last_name"
+								type="text"
+								placeholder="Last Name"
+								className="py-16 login-input border-b-2 border-stroke-sc grow"
+								/>
+						</div>
+						<input
+							required
+							name="email"
+							type="text"
+							placeholder="Email"
+							className="py-16 login-input border-b-2 border-stroke-sc"
+						/>
+						<input
+							required
+							name="password"
+							type="password"
+							placeholder="Password"
+							className="py-16 login-input border-b-2 border-stroke-sc"
+						/>
+						<input
+							required
+							name="password2"
+							type="password"
+							placeholder="Confirm Password"
+							className="py-16 login-input border-b-2 border-stroke-sc"
+						/>
+
 						<div className="flex justify-end">
 							<a href="#" className="underline">forget password?</a>
 						</div>
-						<button className="bg-green text-black text-h-sm-lg font-bold py-8 rounded capitalize">register</button>
+						<button
+							type="submit"
+							className="bg-green text-black text-h-sm-lg font-bold py-8 rounded capitalize cursor-pointer"
+						>
+							register
+						</button>
 						<div className="flex gap-8 justify-center md:text-txt-md text-txt-sm">
 							<p className="">already have an account?</p>
 							<Link to='/login' className="font-bold">log in</Link>
 						</div>
 					</form>
+
+
 					<div className="flex gap-16 items-center">
 						<hr className="grow text-stroke-sc" />
 						<p className="">or</p>

@@ -1,8 +1,12 @@
 import { Si42 } from "react-icons/si";
 import { FcGoogle } from "react-icons/fc";
 import { Link } from "react-router-dom";
+import { useContext } from "react";
+import AuthContext from "../context/AuthContext";
 
 const Login = () => {
+	const {login} = useContext(AuthContext);
+
 	return (
 		<>
 			<div className="absolute min-h-screen w-screen backdrop-blur-xl"></div>
@@ -13,18 +17,35 @@ const Login = () => {
 							<h1 className="md:text-h-lg-xl text-h-sm-xl font-bold">Welcome back, Player</h1>
 							<p className="md:text-txt-lg text-txt-sm">Welcome back! Please enter your details</p>
 						</div>
-						<form className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
-							<input type="text" required className="py-16 login-input border-b-2 border-stroke-sc" placeholder="Email or username"/>
-							<input type="text" required className="py-16 login-input border-b-2 border-stroke-sc" placeholder="Password"/>
+
+
+						<form onSubmit={login} className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
+							<input
+								required
+								name="email"
+								type="text"
+								className="py-16 login-input border-b-2 border-stroke-sc"
+								placeholder="Email or username"
+							/>
+							<input
+								required
+								name="password"
+								type="password"
+								className="py-16 login-input border-b-2 border-stroke-sc"
+								placeholder="Password"
+							/>
 							<div className="flex justify-end">
 								<a href="#" className="underline">forget password?</a>
 							</div>
-							<button className="bg-green text-black text-h-sm-lg font-bold py-8 rounded">Log In</button>
+							<button type="submit" className="bg-green text-black text-h-sm-lg font-bold py-8 rounded">Log In</button>
 							<div className="flex gap-8 justify-center md:text-txt-md text-txt-sm">
 								<p className="">don't have an account?</p>
-								<Link to='/register' className="font-bold">Sign up</Link>
+								<Link to='/register' className="font-bold">register</Link>
 							</div>
 						</form>
+
+
+
 						<div className="flex gap-16 items-center">
 							<hr className="grow text-stroke-sc" />
 							<p className="">or</p>

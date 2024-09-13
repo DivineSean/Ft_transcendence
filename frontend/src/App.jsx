@@ -1,16 +1,27 @@
-import Login from './components/Login'
-import {BrowserRouter, Routes, Route, Link} from 'react-router-dom'
-import SignUp from './components/SignUp'
+import Login from './pages/Login'
+import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom'
+import SignUp from './pages/Register'
+import { AuthProvider } from './context/AuthContext'
 
+const Home = () => {
+	return (
+		<div>
+			hello	khouna
+		</div>
+	)
+}
 function App() {
   return (
     <>
-			<BrowserRouter>
-				<Routes>
-					<Route path='login/' element={<Login />} />
-					<Route path='register/' element={<SignUp />} />
-				</Routes>
-			</BrowserRouter>
+			<Router>
+				<AuthProvider>
+					<Routes>
+						<Route path='login/' element={<Login />} />
+						<Route path='register/' element={<SignUp />} />
+						<Route path='home/' element={<Home />} />
+					</Routes>
+				</AuthProvider>
+			</Router>
     </>
   )
 }
