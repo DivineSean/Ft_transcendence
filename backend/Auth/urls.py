@@ -7,6 +7,11 @@ from .views import registerView, CustomTokenObtainPairView, CustomTokenRefreshVi
 import re
 import   os
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 match = re.search(r'/(?P<pattern>[^/]+)$', str(os.environ.get("REDIRECT_URL")))
 RedirectURL = match.group('pattern') + '/'
 

@@ -29,6 +29,7 @@ export const AuthProvider = ({children}) => {
 
 			if (response.ok) {
 				setUser(data);
+				console.log(data);
 				console.log('user registred successfuly');
 				navigate('/login');
 			} else {
@@ -65,7 +66,7 @@ export const AuthProvider = ({children}) => {
 				console.log('user logedin successfuly');
 				navigate('/home');
 			} else {
-				console.log('Error: ' + JSON.stringify(data));
+				console.log('Error: ' + JSON.stringify(data), response.status);
 			}
 		} catch (error) {
 			console.error('error: ', error);

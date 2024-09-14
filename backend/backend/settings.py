@@ -91,6 +91,13 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
+CORS_ALLOWED_ORIGINS = [
+    "https://localhost:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -195,11 +202,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'Auth.Users'
 
-CORS_ALLOWED_ORIGINS = [
-    "https://localhost:3000",
-]
 
-CORS_ALLOW_CREDENTIALS = True
-
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
