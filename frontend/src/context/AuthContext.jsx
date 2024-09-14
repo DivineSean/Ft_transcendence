@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom'
+import {jwtDecode} from 'jwt-decode';
 
 const AuthContext = createContext();
 
@@ -61,7 +62,7 @@ export const AuthProvider = ({children}) => {
 			const data = await response.json();
 
 			if (response.ok) {
-				console.log(data);
+				console.log(jwtDecode(data.access));
 				setUser(data);
 				console.log('user logedin successfuly');
 				navigate('/home');

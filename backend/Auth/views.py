@@ -26,7 +26,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 		response = HttpResponse(content_type='application/json')
 		response.set_cookie('refreshToken', refresh_token, samesite='Lax')
-		data = {"acess": access_token}
+		data = {"access": access_token}
 		dump = json.dumps(data)
 		response.content = dump
 
