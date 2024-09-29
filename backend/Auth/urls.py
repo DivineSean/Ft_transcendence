@@ -3,7 +3,7 @@ from django.urls import path,include
 from . import views
 from . import Oauth2
 from . import G_Oauth2
-from .views import registerView, CustomTokenObtainPairView, CustomTokenRefreshView
+from .views import registerView, CustomTokenObtainPairView, CustomTokenRefreshView, checkAuth
 import re
 import   os
 
@@ -22,6 +22,7 @@ urlpatterns = [
     path(RedirectURL, Oauth2.home, name='hello'),
     path('api/users/', Oauth2.show_users, name='users'),
 
+		path('api/check_auth/', checkAuth, name='check_auth'),
 		path('api/register/', registerView, name='register'),
 		# path('api/login', loginView, name='login'),
 		path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),

@@ -1,13 +1,14 @@
 import { createContext, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom'
 import {jwtDecode} from 'jwt-decode';
+import Cookies from 'js-cookie'
 
 const AuthContext = createContext();
 
 export default AuthContext;
 
 export const AuthProvider = ({children}) => {
-	const [user, setUser] = useState(null);
+	const [user, setUser] = useState(() => Cookies.get('accessToken') ? Cookies.get('accessToken') : null);
 	const navigate = useNavigate();
 	const validationErrors = {};
 	const emailRegex = /\S+@\S+\.\S+/;
@@ -23,10 +24,6 @@ export const AuthProvider = ({children}) => {
 	})
 	const [error, setError] = useState({});
 
-	/**
-	 * check empty inputs
-	 * @param {event} e 
-	 */
 	const handleBlur = (e) => {
 		const {name, value} = e.target;
 		if (!value.trim()) {
@@ -56,10 +53,43 @@ export const AuthProvider = ({children}) => {
 		setError(validationErrors);
 	}
 
-	/**
-	 * register a new account
-	 * @param {event} e 
-	 */
+	const checkAuth = async () => {
+		const accessToken = Cookies.get('accessToken');
+		if (!accessToken)
+			return;
+		try {
+			const authResponse = await fetch('https://localhost:8000/api/check_auth/', {
+					method: 'GET',
+					credentials: 'include'
+				});
+				console.log(authResponse);
+				if (authResponse.ok) {
+					const authData = await authResponse.json();
+					if (authData.authenticated) {
+						navigate('/home');
+					} else {
+						navigate('/login');
+					}
+				}
+				if (authResponse.statusText === 'Unauthorized') {
+					const refreshResponse = await fetch('https://localhost:8000/api/token/refresh/', {
+						method: 'POST',
+						credentials: 'include'
+					});
+					if (refreshResponse.statusText === 'Unauthorized') {
+						Cookies.remove('accessToken');
+						navigate('/login');
+					}
+					if (refreshResponse.ok) {
+						navigate('/home');
+					}
+					console.log(refreshResponse);
+				}
+		} catch(error) {
+			navigate('/login');
+		}
+	}
+
 	const register = async (e) => {
 		e.preventDefault();
 
@@ -109,10 +139,6 @@ export const AuthProvider = ({children}) => {
 		}
 	}
 
-	/**
-	 * login an account
-	 * @param {event} e 
-	 */
 	const login = async (e) => {
 		e.preventDefault();
 		for (const data in formData) {
@@ -164,6 +190,7 @@ export const AuthProvider = ({children}) => {
 		login: login,
 		handleBlur: handleBlur,
 		handleChange: handleChange,
+		checkAuth: checkAuth
 	}
 
 	return (

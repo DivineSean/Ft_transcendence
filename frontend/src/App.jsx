@@ -1,10 +1,13 @@
 import Login from './pages/Login'
 import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom'
 import SignUp from './pages/Register'
-import { AuthProvider } from './context/AuthContext'
+import AuthContext, { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './utils/PrivateRoute'
+import { useContext } from 'react'
 
 const Home = () => {
+	const {user} = useContext(AuthContext);
+	console.log('hello user: ', user);
 	return (
 		<div>
 			hello	khouna

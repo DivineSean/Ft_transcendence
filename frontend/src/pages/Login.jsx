@@ -5,7 +5,9 @@ import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
 
 const Login = () => {
-	const {login, handleChange, handleBlur, error} = useContext(AuthContext);
+	const {login, handleChange, handleBlur, error, checkAuth} = useContext(AuthContext);
+
+	checkAuth();
 
 	return (
 		<>

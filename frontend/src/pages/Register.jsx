@@ -5,8 +5,9 @@ import { useContext, useState } from "react";
 import AuthContext from "../context/AuthContext";
 
 const SignUp = () => {
-	const {register, handleBlur, handleChange, error} = useContext(AuthContext);
-
+	const {register, handleBlur, handleChange, error, checkAuth} = useContext(AuthContext);
+	checkAuth();
+	
 	return (
 		<>
 			<div className="absolute min-h-full w-full backdrop-blur-xl"></div>
