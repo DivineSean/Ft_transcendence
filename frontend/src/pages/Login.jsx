@@ -5,7 +5,7 @@ import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
 
 const Login = () => {
-	const {login} = useContext(AuthContext);
+	const {login, handleChange, handleBlur, error} = useContext(AuthContext);
 
 	return (
 		<>
@@ -20,20 +20,28 @@ const Login = () => {
 
 
 						<form onSubmit={login} className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
-							<input
-								required
-								name="email"
-								type="text"
-								className="py-16 login-input border-b-2 border-stroke-sc"
-								placeholder="Email or username"
-							/>
-							<input
-								required
-								name="password"
-								type="password"
-								className="py-16 login-input border-b-2 border-stroke-sc"
-								placeholder="Password"
-							/>
+							<div className="flex flex-col gap-10">
+								<input
+									name="email"
+									type="text"
+									placeholder="Example@gmail.com"
+									onChange={handleChange}
+									onBlur={handleBlur}
+									className="py-16 login-input border-b-2 border-stroke-sc"
+									/>
+								{error.email && <span className="text-red">{error.email}</span>}
+							</div>
+							<div className="flex flex-col gap-10">
+								<input
+									name="password"
+									type="password"
+									onChange={handleChange}
+									onBlur={handleBlur}
+									placeholder="Password"
+									className="py-16 login-input border-b-2 border-stroke-sc"
+								/>
+								{error.password && <span className="text-red">{error.password}</span>}
+							</div>
 							<div className="flex justify-end">
 								<a href="#" className="underline">forget password?</a>
 							</div>
