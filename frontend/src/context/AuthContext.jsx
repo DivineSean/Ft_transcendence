@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState } from "react";
 import { useNavigate } from 'react-router-dom'
 import {jwtDecode} from 'jwt-decode';
 import Cookies from 'js-cookie'
@@ -8,13 +8,13 @@ const AuthContext = createContext();
 export default AuthContext;
 
 export const AuthProvider = ({children}) => {
+
 	const [user, setUser] = useState(() => Cookies.get('accessToken') ? Cookies.get('accessToken') : null);
 	const navigate = useNavigate();
 	const validationErrors = {};
 	const emailRegex = /\S+@\S+\.\S+/;
 	const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+={}'";:,.<>])[A-Za-z\d!@#$%^&*()_+={}'";:,.<>]{6,}$/;
 
-	// validation form
 	const [formData, setFormData] = useState({
 		firstName: '',
 		lastName: '',
@@ -23,6 +23,7 @@ export const AuthProvider = ({children}) => {
 		confirmPassword: ''
 	})
 	const [error, setError] = useState({});
+	const [loginError, setLoginError] = useState('');
 
 	const handleBlur = (e) => {
 		const {name, value} = e.target;
@@ -53,41 +54,11 @@ export const AuthProvider = ({children}) => {
 		setError(validationErrors);
 	}
 
-	const checkAuth = async () => {
-		const accessToken = Cookies.get('accessToken');
-		if (!accessToken)
-			return;
-		try {
-			const authResponse = await fetch('https://localhost:8000/api/check_auth/', {
-					method: 'GET',
-					credentials: 'include'
-				});
-				console.log(authResponse);
-				if (authResponse.ok) {
-					const authData = await authResponse.json();
-					if (authData.authenticated) {
-						navigate('/home');
-					} else {
-						navigate('/login');
-					}
-				}
-				if (authResponse.statusText === 'Unauthorized') {
-					const refreshResponse = await fetch('https://localhost:8000/api/token/refresh/', {
-						method: 'POST',
-						credentials: 'include'
-					});
-					if (refreshResponse.statusText === 'Unauthorized') {
-						Cookies.remove('accessToken');
-						navigate('/login');
-					}
-					if (refreshResponse.ok) {
-						navigate('/home');
-					}
-					console.log(refreshResponse);
-				}
-		} catch(error) {
-			navigate('/login');
-		}
+	const handleChangePassLogin = (e) => {
+		const {name, value} = e.target;
+		setFormData({
+			...formData, [name]: value
+		})
 	}
 
 	const register = async (e) => {
@@ -142,17 +113,20 @@ export const AuthProvider = ({children}) => {
 	const login = async (e) => {
 		e.preventDefault();
 		for (const data in formData) {
+
 			if (data === 'email' && !emailRegex.test(formData[data]))
-				validationErrors[data] = `${data} is not valid!`;
-			if (data === 'email' && !formData[data].trim()) {
+				validationErrors[data] = `invalid ${data}!`;
+
+			if (data === 'email' && !formData[data].trim())
 				validationErrors[data] = `${data} is required!`;
-			}
+
+			if (data === 'password' && !formData[data].trim())
+				validationErrors[data] = `${data} is required!`;
 		}
 		setError(validationErrors);
 
+
 		if (Object.keys(validationErrors).length === 0) {
-			console.log('email', e.target.email.value);
-			console.log('password', e.target.password.value);
 			try {
 				const response = await fetch('https://localhost:8000/api/token/', {
 					method: 'POST',
@@ -174,7 +148,10 @@ export const AuthProvider = ({children}) => {
 					console.log('user logedin successfuly');
 					navigate('/home');
 				} else {
-					console.log('Error: ' + JSON.stringify(data), response.status);
+					if (response.status === 401) {
+						setLoginError('invalid email or password! please try again.');
+					}
+					// console.log('Error: ' + JSON.stringify(data), response.status);
 				}
 			} catch (error) {
 				console.error('error: ', error);
@@ -186,11 +163,12 @@ export const AuthProvider = ({children}) => {
 	const contextData = {
 		user: user,
 		error: error,
+		loginError: loginError,
 		register: register,
 		login: login,
 		handleBlur: handleBlur,
 		handleChange: handleChange,
-		checkAuth: checkAuth
+		handleChangePassLogin: handleChangePassLogin
 	}
 
 	return (

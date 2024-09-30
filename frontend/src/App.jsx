@@ -1,21 +1,11 @@
 import Login from './pages/Login'
 import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom'
 import SignUp from './pages/Register'
-import AuthContext, { AuthProvider } from './context/AuthContext'
+import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './utils/PrivateRoute'
 import Home from './pages/Home'
 import Chat from './pages/Chat'
 
-// const Home = () => {
-// 	const {user} = useContext(AuthContext);
-// 	console.log('hello user: ', user);
-// 	return (
-// 		<div>
-// 			<Header link='home' />
-// 			hello	khouna
-// 		</div>
-// 	)
-// }
 function App() {
   return (
     <>
