@@ -1,6 +1,5 @@
-import { createContext, useState } from "react";
-import { useNavigate } from 'react-router-dom'
-import {jwtDecode} from 'jwt-decode';
+import { createContext, useState, useEffect } from "react";
+import { useNavigate, useLocation } from 'react-router-dom'
 import Cookies from 'js-cookie'
 
 const AuthContext = createContext();
@@ -24,6 +23,17 @@ export const AuthProvider = ({children}) => {
 	})
 	const [error, setError] = useState({});
 	const [loginError, setLoginError] = useState('');
+	const [registerError, setRegisterError] = useState('');
+
+	const location = useLocation();
+
+	console.log(location.pathname);
+	useEffect(() => {
+		if (location.pathname !== '/login')
+			setLoginError('');
+		else if (location.pathname !== '/register')
+			setRegisterError('');
+	}, [location.pathname])
 
 	const handleBlur = (e) => {
 		const {name, value} = e.target;
@@ -92,7 +102,7 @@ export const AuthProvider = ({children}) => {
 						'password': e.target.password.value
 					})
 				});
-	
+				console.log(response);
 				const data = await response.json();
 	
 				if (response.ok) {
@@ -101,11 +111,16 @@ export const AuthProvider = ({children}) => {
 					console.log('user registred successfuly');
 					navigate('/login');
 				} else {
-					console.log('Error: ' + JSON.stringify(data));
+
+					if (response.status === 400)
+						setRegisterError('user with this email already exists.');
+
 				}
 			} catch (error) {
+
 				console.error('error: ', error);
 				console.log('an error accured, please try again');
+
 			}
 		}
 	}
@@ -143,19 +158,21 @@ export const AuthProvider = ({children}) => {
 				const data = await response.json();
 	
 				if (response.ok) {
-					console.log(jwtDecode(data.access));
+
 					setUser(data);
-					console.log('user logedin successfuly');
 					navigate('/home');
+
 				} else {
-					if (response.status === 401) {
+
+					if (response.status === 401)
 						setLoginError('invalid email or password! please try again.');
-					}
-					// console.log('Error: ' + JSON.stringify(data), response.status);
+
 				}
 			} catch (error) {
+
 				console.error('error: ', error);
 				console.log('an error accured, please try again');
+
 			}
 		}
 	}
@@ -164,6 +181,7 @@ export const AuthProvider = ({children}) => {
 		user: user,
 		error: error,
 		loginError: loginError,
+		registerError: registerError,
 		register: register,
 		login: login,
 		handleBlur: handleBlur,

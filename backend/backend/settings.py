@@ -91,11 +91,17 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost:3000',
+]
+
 CORS_ALLOWED_ORIGINS = [
     "https://localhost:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+# CORS_ALLOW_ALL_ORIGINS = True
 
 
 MIDDLEWARE = [
@@ -115,7 +121,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR/'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -205,3 +211,13 @@ AUTH_USER_MODEL = 'Auth.Users'
 
 # CSRF_COOKIE_SECURE = True
 # SESSION_COOKIE_SECURE = True
+
+
+# email configurations
+EMAIL_BACKEND =	'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'transcendence'
+EMAIL_HOST_USER = 'elyaagoubi.works@gmail.com'
+EMAIL_HOST_PASSWORD = 'cbqe wtws qedp iure'

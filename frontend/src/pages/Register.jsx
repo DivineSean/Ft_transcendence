@@ -1,13 +1,13 @@
 import { Si42 } from "react-icons/si";
 import { FcGoogle } from "react-icons/fc";
 import { Link } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
 import useAuth from "../customHooks/useAuth";
-import InputFieled from "../context/InputField";
+import InputFieled from "../components/InputField";
 
 const SignUp = () => {
-	const {register, handleBlur, handleChange, error} = useContext(AuthContext);
+	const {register, handleBlur, handleChange, error, registerError} = useContext(AuthContext);
 	const loading = useAuth();
 	
 	return (
@@ -29,6 +29,8 @@ const SignUp = () => {
 									<h1 className="md:text-h-lg-xl text-h-sm-xl font-bold">get started</h1>
 									<p className="md:text-txt-lg text-txt-sm">create your account now</p>
 								</div>
+
+								<span className="text-red">{registerError}</span>
 
 								<form onSubmit={register} className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
 
@@ -57,11 +59,7 @@ const SignUp = () => {
 										{error.confirmPassword && <span className="text-red text-txt-sm">{error.confirmPassword}</span>}
 									</div>
 
-									<div className="flex justify-end">
-										<a href="#" className="underline">forget password?</a>
-									</div>
-
-									<button type="submit" className="bg-green text-black text-h-sm-lg font-bold py-8 rounded capitalize cursor-pointer">
+									<button type="submit" className="mt-16 bg-green text-black text-h-sm-lg font-bold py-8 rounded capitalize cursor-pointer">
 										register
 									</button>
 

@@ -5,6 +5,16 @@ import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './utils/PrivateRoute'
 import Home from './pages/Home'
 import Chat from './pages/Chat'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
+
+const Reset = () => {
+	return (
+		<div>
+			reset password here
+		</div>
+	)
+}
 
 function App() {
   return (
@@ -12,6 +22,8 @@ function App() {
 			<Router>
 				<AuthProvider>
 					<Routes>
+						<Route path='forgot_password' element={<ForgotPassword />} />
+						<Route path='api/reset/:uid/:token' element={<ResetPassword />} />
 						<Route path='login/' element={<Login />} />
 						<Route path='register/' element={<SignUp />} />
 						<Route path='home/' element={<PrivateRoute><Home /></PrivateRoute>} />

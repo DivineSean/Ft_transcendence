@@ -8,7 +8,12 @@ from rest_framework import exceptions
 from .serializers import RegisterSerializer
 from django.http import JsonResponse, HttpResponse
 from .models import Users
+from django.contrib.auth.views import PasswordResetView
 import json
+
+class CustomPasswordResetView(PasswordResetView):
+	html_email_template_name = 'registration/password_reset_email.html'
+	subject_template_name = 'registration/password_reset_subject.txt'
 
 @api_view(['GET'])
 def checkAuth(request):

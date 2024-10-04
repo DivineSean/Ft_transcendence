@@ -4,8 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../context/AuthContext";
 import useAuth from "../customHooks/useAuth";
-import Cookies from 'js-cookie'
-import InputFieled from "../context/InputField";
+import InputFieled from "../components/InputField";
 
 const Login = () => {
 	
