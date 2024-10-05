@@ -27,7 +27,6 @@ export const AuthProvider = ({children}) => {
 
 	const location = useLocation();
 
-	console.log(location.pathname);
 	useEffect(() => {
 		if (location.pathname !== '/login')
 			setLoginError('');

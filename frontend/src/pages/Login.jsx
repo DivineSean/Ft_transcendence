@@ -40,7 +40,7 @@ const Login = () => {
 								</div>
 
 								<div className="flex justify-end">
-									<a href="#" className="underline">forget password?</a>
+									<Link to="/forgot_password" className="underline">forget password?</Link>
 								</div>
 
 								<button type="submit" className="bg-green text-black text-h-sm-lg font-bold py-8 rounded">Log In</button>

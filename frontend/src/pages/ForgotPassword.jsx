@@ -1,60 +1,13 @@
 import AuthContext from "../context/AuthContext";
 import InputFieled from "../components/InputField";
-import { useContext, useState, useEffect } from "react";
-import Cookies from 'js-cookie'
+import { useContext, useState } from "react";
 
 const ForgotPassword = () => {
 	const { handleBlur, handleChange, error} = useContext(AuthContext);
 	const [sent, setSent] = useState(false);
 
-
-	// console.log(Cookies.get('csrftoken'));
-
 	const send = async (e) => {
 		e.preventDefault();
-
-		console.log('hello');
-		console.log(e.target.email.value);
-		const response = await fetch('https://localhost:8000/api/reset_password', {
-			method: 'POST',
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': Cookies.get('csrftoken'),
-			},
-			body: JSON.stringify({
-				'email': e.target.email.value
-			}),
-			redirect: 'follow'
-		});
-		// const response = await fetch('https://localhost:8000/api/reset_password', {
-		// 	method: 'POST',
-		// 	credentials: 'include',
-		// 	headers: {
-		// 		'Content-Type': 'application/json',
-		// 		'X-CSRFToken': Cookies.get('csrftoken'),
-		// 	},
-		// 	body: JSON.stringify({
-		// 		'email': e.target.email.value,
-		// 	})
-		// });
-		console.log(response);
-		if (response.ok) {
-			console.log('all good');
-			const resetResponse = await fetch('https://localhost:8000/api/password_reset_done', {
-				method: 'GET',
-				credentials: 'include',
-				headers: {
-					// 'Content-Type': 'application/json',
-					'X-CSRFToken': Cookies.get('csrftoken'),
-				},
-				// body: JSON.stringify({
-				// 	'email': e.target.email.value,
-				// })
-			})
-			console.log(resetResponse);
-			setSent(true);
-		}
 	}
 
 	return (
@@ -72,10 +25,10 @@ const ForgotPassword = () => {
 						</div>
 
 						{!sent &&
-							<form onSubmit={send} className="md:py-32 py-16 flex flex-col gap-48">
+							<form for="id_email" onSubmit={send} className="md:py-32 py-16 flex flex-col gap-48">
 
 								<div className="flex flex-col gap-10">
-									<InputFieled name="email" type="text" placeholder="Example@gmail.com" onChange={handleChange} onBlur={handleBlur} error={error.email} />
+									<InputFieled name="email" type="email" placeholder="Example@gmail.com" onChange={handleChange} onBlur={handleBlur} error={error.email} />
 									{error.email && <span className="text-red text-txt-sm">{error.email}</span>}
 								</div>
 

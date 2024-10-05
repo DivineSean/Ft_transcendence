@@ -70,6 +70,8 @@ const Chat = () => {
 			chatFriends.push(<FriendsChat date='05/30/14' messages={3} key={i}/>)
 	}
 	return (
+		<>
+		<div className="z-[-1] absolute min-h-screen w-screen backdrop-blur-md"></div>
 		<div className="container">
 			<Header link='chat' />
 			<div className="primary-glass p-16 flex gap-16 grow">
@@ -92,6 +94,7 @@ const Chat = () => {
 				<div className="w-[320px] lg:block hidden"></div>
 			</div>
 		</div>
+		</>
 	)
 }
 
