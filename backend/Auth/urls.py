@@ -21,12 +21,12 @@ urlpatterns = [
   
     path(RedirectURL, Oauth2.home, name='hello'),
     path('api/users/', Oauth2.show_users, name='users'),
-
+	
 		# path('login', loginView, name='login'),
 		path('api/check_auth/', views.checkAuth, name='check_auth'),
 		path('api/register/', views.registerView, name='register'),
 		path('api/token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', views.CustomTokenRefreshView.as_view(), name='token_refresh'),
+    	path('api/token/refresh/', views.CustomTokenRefreshView.as_view(), name='token_refresh'),
 
 		#reset password
 		# path('api/reset_password/', views.CustomPasswordResetView.as_view(), name='password_reset'),

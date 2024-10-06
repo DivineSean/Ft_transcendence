@@ -11,7 +11,14 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from .models import Users
 from django.contrib.auth.hashers import make_password
+from .views import CustomTokenObtainPairView, registerView
+import requests
 
+import secrets 
+import string 
+import json
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
@@ -25,26 +32,45 @@ G_CLIENT_SECRET = os.environ.get("G_CLIENT_SECRET")
 def CreateUserIfNotExists(user_data):
 
     userID = user_data.get('id')
-    login = user_data.get('login', '')   
+    
+    login = user_data.get('login')   
+    #login == None
     email = user_data.get('email')
-    first_name = user_data.get('first_name') or user_data.get('given_name')
-    last_name = user_data.get('last_name') or user_data.get('family_name')
-    password =  ""
+    
+    first_name = user_data.get('first_name')
+    
+    if first_name == None:
+        first_name = user_data.get("name")
+    
+    last_name = user_data.get('last_name')
+    
+    if last_name == None:
+        last_name = user_data.get('family_name') 
+    
+    alphabet = string.ascii_letters + string.digits 
+
+    # password = ''.join(secrets.choice(alphabet) for i in range(15)) 
+    password = "hello"
+    data = { 
+        "first_name" : first_name,
+        "last_name" : last_name,
+        "email" : email,
+        "password" : password
+    }
     try:
-        user, created = Users.objects.get_or_create(
+        user, created = Users.objects.get_or_create(   
             email=email,
                 defaults={
-                    'userID': str(userID),
-                    'login': login,
+                    'username': login,
                     'first_name': first_name,
                     'last_name': last_name,
-                    'password' : make_password(None)
+                    'password' : password
                 }
          )
-        return created
-    except IntegrityError as e:
-        print(f"Error creating user: {e}")
-        return False
+        
+        return created, data   
+    except IntegrityError as e:      
+        return str(e)
 
 @api_view(['GET'])
 def login42(request):
@@ -106,11 +132,21 @@ def  home(request):
 
     if user_response.status_code == 200:
         user_data = user_response.json()
-        is_new_user = CreateUserIfNotExists(user_data)
+        # is_new_user, data = CreateUserIfNotExists(user_data)   
+        data = { 
+        "first_name" : user_data.get("first_name"),
+        "last_name" :user_data.get("last_name"),
+        "email" : user_data.get("email"),
+        "password" : ""
+        }    
+    
+        response = requests.post("https://localhost:8000/api/register/",data=data, verify=False)
+        # response = requests.post("https://localhost:8000/api/token/",data=data, verify=False)
         return Response({
             'access_token': access_token,
             'user_data': user_data,
-            'isNewUser' : is_new_user
+            # 'isNewUser' : is_new_user,
+            "response" : str(response)
         })
         # To test
     else:
