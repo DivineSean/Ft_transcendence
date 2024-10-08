@@ -48,10 +48,10 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 		response = HttpResponse(content_type='application/json')
 		response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
 		response.set_cookie('accessToken', access_token, secure=True)
-		data = {"access": access_token}
+		data = {"message": "ok"}
 		dump = json.dumps(data)
 		response.content = dump
-
+		
 		return response
 
 
@@ -70,7 +70,7 @@ class CustomTokenRefreshView(TokenRefreshView):
 			access_token = response.data.get('access')
 			refresh_token = response.data.get('refresh')
 
-			response.set_cookie('accessToken', access_token, secure=True)
+			response.set_cookie('accessToken', access_token, httponly=True, secure=True, samesite='Lax')
 			response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
 
 		return response

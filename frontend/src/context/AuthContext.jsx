@@ -70,6 +70,28 @@ export const AuthProvider = ({children}) => {
 		})
 	}
 
+	const intraAuth = async (e) => {
+		e.preventDefault();
+
+		try {
+			const response = await fetch('https://localhost:8000/api/intra_login', {
+					method: 'GET',
+					// headers: {
+					// 	'Content-Type': 'application/json',
+					// },
+					// body: JSON.stringify({
+					// 	'first_name': e.target.firstName.value,
+					// 	'last_name': e.target.lastName.value,
+					// 	'email': e.target.email.value,
+					// 	'password': e.target.password.value
+					// })
+				});
+			console.log(response);
+		} catch (error) {
+			console.log('error akhouna mn exception intra', error);
+		}
+	}
+
 	const register = async (e) => {
 		e.preventDefault();
 
@@ -185,7 +207,8 @@ export const AuthProvider = ({children}) => {
 		login: login,
 		handleBlur: handleBlur,
 		handleChange: handleChange,
-		handleChangePassLogin: handleChangePassLogin
+		handleChangePassLogin: handleChangePassLogin,
+		intraAuth: intraAuth
 	}
 
 	return (
