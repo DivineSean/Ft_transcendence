@@ -92,16 +92,16 @@ SIMPLE_JWT = {
 }
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://localhost:3000',
+	'https://localhost:3000',
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "https://localhost:3000",
+	"https://localhost:3000",
+	"https://api.intra.42.fr"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
-# CORS_ALLOW_ALL_ORIGINS = True
 
 
 MIDDLEWARE = [

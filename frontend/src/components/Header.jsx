@@ -25,7 +25,7 @@ const Header = ({...props}) => {
 	})
 
 	return (
-		<header className="header flex items-center lg:gap-32 gap-16 py-16">
+		<header className="header flex items-center lg:gap-32 gap-16 py-16 md:px-0 px-16">
 			<div className="text-white lg:text-h-lg-lg text-h-sm-lg font-semibold">
 				Ad.
 				<span className="text-green">Ture</span>

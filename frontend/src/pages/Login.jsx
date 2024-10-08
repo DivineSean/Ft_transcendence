@@ -8,7 +8,15 @@ import InputFieled from "../components/InputField";
 
 const Login = () => {
 	
-	const {login, handleChange, handleChangePassLogin, handleBlur, error, loginError} = useContext(AuthContext);
+	const {
+		login,
+		handleChange,
+		handleChangePassLogin,
+		handleBlur,
+		error,
+		loginError,
+		intraAuth
+	} = useContext(AuthContext);
 	const loading = useAuth();
 	
 	return (
@@ -58,10 +66,10 @@ const Login = () => {
 								<hr className="grow text-stroke-sc" />
 							</div>
 
-							<a href="#" className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
+							<button onClick={intraAuth} className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
 								<Si42 className="text-txt-3xl"/>
 								<p className="">log in with intra</p>
-							</a>
+							</button>
 
 							<a href="#" className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
 								<FcGoogle className="text-txt-3xl"/>

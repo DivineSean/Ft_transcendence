@@ -70,7 +70,7 @@ class CustomTokenRefreshView(TokenRefreshView):
 			access_token = response.data.get('access')
 			refresh_token = response.data.get('refresh')
 
-			response.set_cookie('accessToken', access_token, secure=True)
+			response.set_cookie('accessToken', access_token, httponly=True, secure=True, samesite='Lax')
 			response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
 
 		return response
