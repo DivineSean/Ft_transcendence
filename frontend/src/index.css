@@ -32,6 +32,10 @@ body {
 		border: .5px solid #5B5B5B;
 		backdrop-filter: blur(40px);
 	}
+	.sc-overview-glass {
+		background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2));
+		backdrop-filter: blur(40px);
+	}
 	.search-glass {
 		background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2));
 		border: .5px solid #5B5B5B;
