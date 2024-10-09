@@ -31,14 +31,9 @@ COPY	--from=builder /app/backend/requirements.txt .
 RUN		pip install --upgrade pip
 RUN		pip install --no-cache /wheels/*
 
-RUN		mkdir -p /home/certs
-COPY		certs/server-key.pem /home/certs
-COPY		certs/server.pem /home/certs
-
 COPY	./backend/ .
 
 RUN		chown -R app:app /home/app/
 
 USER	app
-
-ENTRYPOINT ["python3", "manage.py", "runserver_plus", "0.0.0.0:8000", "--cert-file", "/home/certs/server.pem", "--key-file", "/home/certs/server-key.pem"]
+ENTRYPOINT ["uvicorn", "backend.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]

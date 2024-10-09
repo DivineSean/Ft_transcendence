@@ -19,3 +19,7 @@ urllib3==2.2.2
 werkzeug==3.0.3
 djangorestframework-simplejwt==5.3.1
 PyJWT==2.9.0
+channels==4.1.0
+click==8.1.7
+h11==0.14.0
+uvicorn==0.30.6
