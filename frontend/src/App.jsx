@@ -1,16 +1,36 @@
-import Login from './components/Login'
-import {BrowserRouter, Routes, Route, Link} from 'react-router-dom'
-import SignUp from './components/SignUp'
+import Login from './pages/Login'
+import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom'
+import SignUp from './pages/Register'
+import { AuthProvider } from './context/AuthContext'
+import PrivateRoute from './utils/PrivateRoute'
+import Home from './pages/Home'
+import Chat from './pages/Chat'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
+
+const Reset = () => {
+	return (
+		<div>
+			reset password here
+		</div>
+	)
+}
 
 function App() {
   return (
     <>
-			<BrowserRouter>
-				<Routes>
-					<Route path='login/' element={<Login />} />
-					<Route path='register/' element={<SignUp />} />
-				</Routes>
-			</BrowserRouter>
+			<Router>
+				<AuthProvider>
+					<Routes>
+						<Route path='forgot_password' element={<ForgotPassword />} />
+						<Route path='api/reset/:uid/:token' element={<ResetPassword />} />
+						<Route path='login/' element={<Login />} />
+						<Route path='register/' element={<SignUp />} />
+						<Route path='home/' element={<PrivateRoute><Home /></PrivateRoute>} />
+						<Route path='chat/' element={<PrivateRoute><Chat /></PrivateRoute>} />
+					</Routes>
+				</AuthProvider>
+			</Router>
     </>
   )
 }
