@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   frontend:
     build:
       context: ./
       dockerfile: ./frontend/Dockerfile
-    ports:
-      - 3000:3000
+    # ports:
+    #   - 3000:3000
     container_name: frontend
     depends_on:
       - backend
@@ -19,8 +17,8 @@ services:
     build: 
       context: ./
       dockerfile: ./backend/Dockerfile
-    ports:
-      - 8000:8000
+    # ports:
+    #   - 8000:8000
     container_name: backend
     env_file:
         - .env
@@ -32,8 +30,6 @@ services:
       - ./backend/:/home/app
 
   db:
-    #image: postgres:16-alpine
-    #command: "-c ssl=on -c ssl_cert_file=/var/lib/postgresql/certs/server.pem -c ssl_key_file=/var/lib/postgresql/certs/server-key.pem"
     build:
       context: ./
       dockerfile: ./db/Dockerfile
@@ -50,10 +46,19 @@ services:
         - .env
     restart: unless-stopped
     volumes:
-      - ./db/data:/var/lib/postgresql/data
+      - data:/var/lib/postgresql/data
 
-        #  ssl:
-        #    build: ./config
-        #    container_name: ssl
-        #    volumes:
-        #      - ./config/certs:/config/certs
+  nginx:
+    build: 
+      context: ./
+      dockerfile: ./nginx/Dockerfile
+    ports:
+      - 8000:8000
+      - 3000:3000
+    container_name: nginx
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  data:

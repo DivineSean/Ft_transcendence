@@ -1,0 +1,37 @@
+name: Test Docker Compose Infrastructure
+
+on:
+  push:
+    branches:
+      - testing
+      - main
+  pull_request:
+    branches:
+      - testing
+      - main
+  workflow_dispatch:
+
+jobs:
+  test-infrastructure:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Add SSL certificates
+        run: |
+          mkdir certs
+          echo "${{ secrets.SSL_PUBLIC }}" > certs/server.pem
+          echo "${{ secrets.SSL_PRIVATE }}" > certs/server-key.pem
+      - name: Create .env file
+        run: echo "${{ secrets.ENV }}" > .env
+      - name: Docker Compose with Tests Action
+        uses: adambirds/docker-compose-action@v1.4.0
+        with:
+          up-flags: "--build"
+          down-flags: "--volumes"
