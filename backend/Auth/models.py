@@ -20,11 +20,11 @@ class CustomUserManager(BaseUserManager):
 
 class Users(AbstractUser):
 	email = models.EmailField(max_length=255, unique=True)
-	password = models.CharField(max_length=255)
+	password = models.CharField(max_length=255, blank=True, null=True)
 	first_name = models.CharField(max_length=255)
 	last_name = models.CharField(max_length=255)
 	username = models.CharField(max_length=255, null=True, blank=True)
-
+	
 	objects = CustomUserManager()
 
 	USERNAME_FIELD = 'email'

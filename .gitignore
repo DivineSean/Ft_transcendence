@@ -3,6 +3,8 @@ certs
 .env
 env
 
+.DS_Store
+
 # Ignore all .pyc files
 *.pyc
 
