@@ -16,10 +16,10 @@ export default defineConfig({
 		strictPort: true,
 	},
 	server: {
-		// https: {
-		// 	key: fs.readFileSync('/home/certs/server-key.pem'),
-		// 	cert: fs.readFileSync('/home/certs/server.pem'),
-		// },
+		https: {
+			key: fs.readFileSync('/home/certs/server-key.pem'),
+			cert: fs.readFileSync('/home/certs/server.pem'),
+		},
 		port: 3000,
 		strictPort: true,
 		host: true,
