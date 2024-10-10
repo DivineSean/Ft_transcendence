@@ -3,8 +3,8 @@ services:
     build:
       context: ./
       dockerfile: ./frontend/Dockerfile
-    ports:
-      - 3000:3000
+    # ports:
+    #   - 3000:3000
     container_name: frontend
     depends_on:
       - backend
@@ -54,6 +54,7 @@ services:
       dockerfile: ./nginx/Dockerfile
     ports:
       - 8000:8000
+      - 3000:3000
     container_name: nginx
     depends_on:
       - backend
