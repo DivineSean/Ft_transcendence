@@ -15,11 +15,11 @@ const Login = () => {
 		handleBlur,
 		error,
 		loginError,
-		intraAuth
+		authProvider
 	} = useContext(AuthContext);
 	const navigate = useNavigate();
 	
-	const sendCode = async (code) => {
+	const sendCode = async (code, prompt) => {
 		const response = await fetch('https://localhost:8000/api/callback/', {
 			method: 'POST',
 			headers: {
@@ -27,7 +27,8 @@ const Login = () => {
 			},
 			credentials: 'include',
 			body: JSON.stringify({
-				'code': code
+				'code': code,
+				'prompt': prompt
 			})
 		});
 		console.log(response);
@@ -40,13 +41,15 @@ const Login = () => {
 	useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const code = urlParams.get('code');
+		const prompt = urlParams.get('prompt');
 		if (code) {
 			console.log(code);
-			sendCode(code);
+			console.log(prompt);
+			sendCode(code, prompt);
 		}
 	}, []);
 	
-	const loading = useAuth();
+	const loading = false;
 
 	return (
 		<>
@@ -95,15 +98,15 @@ const Login = () => {
 								<hr className="grow text-stroke-sc" />
 							</div>
 
-							<button onClick={intraAuth} className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
+							<button onClick={() => authProvider('intra')} className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
 								<Si42 className="text-txt-3xl"/>
 								<p className="">log in with intra</p>
 							</button>
 
-							<a href="#" className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
+							<button onClick={() => authProvider('google')} className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
 								<FcGoogle className="text-txt-3xl"/>
 								<p>log in with intra</p>
-							</a>
+							</button>
 
 						</div>
 

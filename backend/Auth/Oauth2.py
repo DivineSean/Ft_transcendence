@@ -68,7 +68,13 @@ def login42(request):
 
 @api_view(['GET'])
 def loginGoogle(request):
-	return redirect(f'https://accounts.google.com/o/oauth2/v2/auth?client_id={G_CLIENT_ID}&redirect_uri={REDIRECT_URL}&response_type=code&scope=email%20profile')
+	response = HttpResponse(content_type='application/json')
+	data = {"url": f'https://accounts.google.com/o/oauth2/v2/auth?client_id={G_CLIENT_ID}&redirect_uri={REDIRECT_URL}&response_type=code&scope=email%20profile'}
+	dump = json.dumps(data)
+	response.content = dump
+
+	return response
+	# return redirect(f'https://accounts.google.com/o/oauth2/v2/auth?client_id={G_CLIENT_ID}&redirect_uri={REDIRECT_URL}&response_type=code&scope=email%20profile')
 
 @api_view(['GET'])
 def show_users(request):
@@ -80,24 +86,40 @@ def show_users(request):
 def  callback(request):
 	reqBody = json.loads(request.body)
 	code = reqBody.get('code', None)
+	prompt = reqBody.get('prompt', None)
 
-	# if code:
-	token_response = requests.post(
-		'https://api.intra.42.fr/oauth/token',
-		data={
-			'grant_type': 'authorization_code',
-			'client_id': CLIENT_ID,
-			'client_secret': CLIENT_SECRET,
-			'code': code,
-			'redirect_uri': REDIRECT_URL
-		}
-	)
+	if not prompt:
+		token_response = requests.post(
+			'https://api.intra.42.fr/oauth/token',
+			data={
+				'grant_type': 'authorization_code',
+				'client_id': CLIENT_ID,
+				'client_secret': CLIENT_SECRET,
+				'code': code,
+				'redirect_uri': REDIRECT_URL
+			}
+		)
+	else:
+		token_response = requests.post(
+			'https://oauth2.googleapis.com/token',
+			data={
+				'grant_type': 'authorization_code',
+				'client_id': G_CLIENT_ID,
+				'client_secret': G_CLIENT_SECRET,
+				'code': code,
+				'redirect_uri': REDIRECT_URL,
+			}
+		)
+	
 	access_token = token_response.json().get('access_token')
 	if not access_token:
 		return Response({'error': 'Failed to obtain access token'}, status=400)
 
-	user_response = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}'})
-	
+	if not prompt:
+		user_response = requests.get('https://api.intra.42.fr/v2/me', headers={'Authorization': f'Bearer {access_token}'})
+	else:
+		user_response = requests.get('https://www.googleapis.com/oauth2/v2/userinfo', headers={'Authorization': f'Bearer {access_token}'})
+		
 	if user_response.status_code == 200:
 
 		user_data = user_response.json()

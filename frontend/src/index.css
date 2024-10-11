@@ -16,6 +16,11 @@ body {
 	.primary-gradient { background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2)); }
 	.secondary-gradient { background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2)); }
 	.cover-gradient {  background: linear-gradient(0deg, rgba(0,0,0,0.8), rgba(0,0,0,0)); }
+	.transition-items:hover {
+		/* background-color: black; */
+		@apply bg-black;
+		transition: 1s ease-in-out;
+	}
 	.primary-glass {
 		background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2));
 		border-radius: 8px;

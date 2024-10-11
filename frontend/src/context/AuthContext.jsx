@@ -70,12 +70,15 @@ export const AuthProvider = ({children}) => {
 		})
 	}
 
-	const intraAuth = async (e) => {
-		e.preventDefault();
-		// window.location.href = 'https://localhost:8000/api/intra_login/';
+	const authProvider = async (provider) => {
+		let url;
+		if (provider === 'intra')
+			url = 'https://localhost:8000/api/intra/';
+		else
+			url = 'https://localhost:8000/api/google/';
 		try {
 
-			const response = await fetch('https://localhost:8000/api/intra_login/', {
+			const response = await fetch(url, {
 				method: 'GET'
 			});
 			console.log('response from intra auth: ', response);
@@ -92,6 +95,28 @@ export const AuthProvider = ({children}) => {
 
 		}
 	}
+
+	const googleAuth = async () => {
+		try {
+
+			const response = await fetch('https://localhost:8000/api/google/', {
+				method: 'GET'
+			});
+			console.log('response from google auth: ', response);
+
+			const data = await response.json();
+			if (response.ok) {
+				console.log(data.url);
+				window.location.href = data.url;
+			}
+
+		} catch(error) {
+
+			console.log('error from intra auth:', error);
+
+		}
+	}
+
 
 	const register = async (e) => {
 		e.preventDefault();
@@ -209,7 +234,8 @@ export const AuthProvider = ({children}) => {
 		handleBlur: handleBlur,
 		handleChange: handleChange,
 		handleChangePassLogin: handleChangePassLogin,
-		intraAuth: intraAuth
+		// intraAuth: intraAuth,
+		authProvider: authProvider
 	}
 
 	return (

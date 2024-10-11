@@ -7,7 +7,7 @@ import useAuth from "../customHooks/useAuth";
 import InputFieled from "../components/InputField";
 
 const SignUp = () => {
-	const {register, handleBlur, handleChange, error, registerError} = useContext(AuthContext);
+	const {register, handleBlur, handleChange, error, registerError, authProvider} = useContext(AuthContext);
 	const loading = useAuth();
 	
 	return (
@@ -77,15 +77,15 @@ const SignUp = () => {
 									<hr className="grow text-stroke-sc" />
 								</div>
 
-								<a href="#" className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
+								<button onClick={() => authProvider('intra')}  className="transition duration-700 ease-in-out flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc hover:bg-left-gradient-p">
 									<Si42 className="text-txt-3xl"/>
 									<p className="">log in with intra</p>
-								</a>
+								</button>
 
-								<a href="#" className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
+								<button onClick={() => authProvider('google')} className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
 									<FcGoogle className="text-txt-3xl"/>
 									<p>log in with intra</p>
-								</a>
+								</button>
 
 							</div>
 						</div>
