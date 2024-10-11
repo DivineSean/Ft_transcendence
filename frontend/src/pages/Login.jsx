@@ -17,8 +17,37 @@ const Login = () => {
 		loginError,
 		intraAuth
 	} = useContext(AuthContext);
-	const loading = useAuth();
+	const navigate = useNavigate();
 	
+	const sendCode = async (code) => {
+		const response = await fetch('https://localhost:8000/api/callback/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			credentials: 'include',
+			body: JSON.stringify({
+				'code': code
+			})
+		});
+		console.log(response);
+		const data = await response.json();
+		console.log(data);
+		if (response.ok)
+			navigate('/home');
+	}
+	
+	useEffect(() => {
+		const urlParams = new URLSearchParams(window.location.search);
+		const code = urlParams.get('code');
+		if (code) {
+			console.log(code);
+			sendCode(code);
+		}
+	}, []);
+	
+	const loading = useAuth();
+
 	return (
 		<>
 		{loading && <div className="primary-glass h-screen flex justify-center items-center">Loading...</div>}

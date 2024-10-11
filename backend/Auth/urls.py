@@ -17,9 +17,10 @@ RedirectURL = match.group('pattern') + '/'
 
 urlpatterns = [
     path('api/intra_login/', Oauth2.login42, name='42login'),
+    path('api/callback/', Oauth2.callback, name='42login'),
     path('api/Glogin/', Oauth2.loginGoogle, name='loginGoogle'),
   
-    path(RedirectURL, Oauth2.home, name='hello'),
+    # path(RedirectURL, Oauth2.home, name='hello'),
     path('api/users/', Oauth2.show_users, name='users'),
 	
 		# path('login', loginView, name='login'),
