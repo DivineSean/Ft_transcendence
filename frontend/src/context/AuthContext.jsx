@@ -81,11 +81,11 @@ export const AuthProvider = ({children}) => {
 			const response = await fetch(url, {
 				method: 'GET'
 			});
-			console.log('response from intra auth: ', response);
+			// console.log('response from intra auth: ', response);
 
 			const data = await response.json();
 			if (response.ok) {
-				console.log(data.url);
+				// console.log(data.url);
 				window.location.href = data.url;
 			}
 
@@ -95,28 +95,6 @@ export const AuthProvider = ({children}) => {
 
 		}
 	}
-
-	const googleAuth = async () => {
-		try {
-
-			const response = await fetch('https://localhost:8000/api/google/', {
-				method: 'GET'
-			});
-			console.log('response from google auth: ', response);
-
-			const data = await response.json();
-			if (response.ok) {
-				console.log(data.url);
-				window.location.href = data.url;
-			}
-
-		} catch(error) {
-
-			console.log('error from intra auth:', error);
-
-		}
-	}
-
 
 	const register = async (e) => {
 		e.preventDefault();
@@ -149,13 +127,13 @@ export const AuthProvider = ({children}) => {
 						'password': e.target.password.value
 					})
 				});
-				console.log(response);
+				// console.log(response);
 				const data = await response.json();
 	
 				if (response.ok) {
 					setUser(data);
-					console.log(data);
-					console.log('user registred successfuly');
+					// console.log(data);
+					// console.log('user registred successfuly');
 					navigate('/login');
 				} else {
 
@@ -166,7 +144,7 @@ export const AuthProvider = ({children}) => {
 			} catch (error) {
 
 				console.error('error: ', error);
-				console.log('an error accured, please try again');
+				// console.log('an error accured, please try again');
 
 			}
 		}
@@ -201,7 +179,7 @@ export const AuthProvider = ({children}) => {
 						'password': e.target.password.value
 					})
 				});
-				console.log('response', response);
+				// console.log('response', response);
 				const data = await response.json();
 	
 				if (response.ok) {
@@ -218,7 +196,7 @@ export const AuthProvider = ({children}) => {
 			} catch (error) {
 
 				console.error('error: ', error);
-				console.log('an error accured, please try again');
+				// console.log('an error accured, please try again');
 
 			}
 		}
@@ -234,7 +212,6 @@ export const AuthProvider = ({children}) => {
 		handleBlur: handleBlur,
 		handleChange: handleChange,
 		handleChangePassLogin: handleChangePassLogin,
-		// intraAuth: intraAuth,
 		authProvider: authProvider
 	}
 

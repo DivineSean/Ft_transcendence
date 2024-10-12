@@ -12,7 +12,7 @@ const useAuth = () => {
 				method: 'GET',
 				credentials: 'include',
 			});
-			console.log(response);
+			// console.log(response);
 			if (response.ok) {
 
 				const data = await response.json();

@@ -64,7 +64,6 @@ def login42(request):
 	response.content = dump
 	
 	return response
-	# return Response({'hello': f'https://api.intra.42.fr/oauth/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URL}&response_type=code'})
 
 @api_view(['GET'])
 def loginGoogle(request):
@@ -74,7 +73,6 @@ def loginGoogle(request):
 	response.content = dump
 
 	return response
-	# return redirect(f'https://accounts.google.com/o/oauth2/v2/auth?client_id={G_CLIENT_ID}&redirect_uri={REDIRECT_URL}&response_type=code&scope=email%20profile')
 
 @api_view(['GET'])
 def show_users(request):
@@ -88,7 +86,7 @@ def  callback(request):
 	code = reqBody.get('code', None)
 	prompt = reqBody.get('prompt', None)
 
-	if not prompt:
+	if not prompt: #for intra provider
 		token_response = requests.post(
 			'https://api.intra.42.fr/oauth/token',
 			data={
@@ -99,7 +97,7 @@ def  callback(request):
 				'redirect_uri': REDIRECT_URL
 			}
 		)
-	else:
+	else: # for google provider
 		token_response = requests.post(
 			'https://oauth2.googleapis.com/token',
 			data={
@@ -137,16 +135,17 @@ def  callback(request):
 		response = HttpResponse(content_type='application/json')
 		response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
 		response.set_cookie('accessToken', access, httponly=True, secure=True, samesite='Lax')
-		resData = {
-			"refresh": str(refresh_token),
-			"access": access,
-			"user": str(user),
-			"url": 'hello man',
-			"data": reqBody,
-			"hello": code,
-			"token_response": token_response.json().get('access_token'),
-			"user_data": user_data
-		}
+		# resData = {
+		# 	"refresh": str(refresh_token),
+		# 	"access": access,
+		# 	"user": str(user),
+		# 	"url": 'hello man',
+		# 	"data": reqBody,
+		# 	"hello": code,
+		# 	"token_response": token_response.json().get('access_token'),
+		# 	"user_data": user_data
+		# }
+		resData = {'message': 'ok'}
 		dump = json.dumps(resData)
 		response.content = dump
 		

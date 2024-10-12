@@ -5,6 +5,9 @@ import { useContext, useEffect, useState } from "react";
 import AuthContext from "../context/AuthContext";
 import useAuth from "../customHooks/useAuth";
 import InputFieled from "../components/InputField";
+import LoadingPage from "./LoadingPage";
+
+
 
 const Login = () => {
 	
@@ -18,6 +21,7 @@ const Login = () => {
 		authProvider
 	} = useContext(AuthContext);
 	const navigate = useNavigate();
+	const [load, setLoad] = useState(true);
 	
 	const sendCode = async (code, prompt) => {
 		const response = await fetch('https://localhost:8000/api/callback/', {
@@ -31,9 +35,9 @@ const Login = () => {
 				'prompt': prompt
 			})
 		});
-		console.log(response);
+		// console.log(response);
 		const data = await response.json();
-		console.log(data);
+		// console.log(data);
 		if (response.ok)
 			navigate('/home');
 	}
@@ -43,21 +47,27 @@ const Login = () => {
 		const code = urlParams.get('code');
 		const prompt = urlParams.get('prompt');
 		if (code) {
-			console.log(code);
-			console.log(prompt);
+			// console.log(code);
+			// console.log(prompt);
 			sendCode(code, prompt);
+		} else {
+			setLoad(false);
 		}
+
+		
 	}, []);
+
+	const loading = useAuth();
 	
-	const loading = false;
 
 	return (
-		<>
-		{loading && <div className="primary-glass h-screen flex justify-center items-center">Loading...</div>}
-		{!loading &&
-			<>
-				<div className="absolute min-h-screen w-screen backdrop-blur-xl"></div>
+		<div className="grow">
+			{(loading || load) && 
+				<LoadingPage />
+			}
+			{!loading && !load &&
 				<div className="max-w-[1440px] m-auto lg:px-32 md:px-16 md:py-32 flex flex-col lg:gap-32 gap-16 min-h-screen">
+					<div className="backdrop-blur-md w-full h-full absolute top-0 right-0"></div>
 					<div className="lg:grid lg:grid-cols-[1fr_1fr] login-glass overflow-hidden flex flex-col grow md:rounded-[8px] md:border-[0.5px] md:border-stroke-pr">
 						<div className="md:px-64 px-32 flex flex-col justify-center md:gap-32 gap-24 lg:py-64 py-32 grow">
 							<div className="flex flex-col gap-8">
@@ -113,12 +123,10 @@ const Login = () => {
 						<div className="bg-[url('/images/login/login.jpeg')] bg-cover bg-bottom flex flex-col">
 							<div className="cover-gradient grow"></div>
 						</div>
-						
 					</div>
 				</div>
-				</>
 			}
-		</>
+		</div>
 	)
 }
 

@@ -3,7 +3,11 @@
 @tailwind utilities;
 
 body {
-	@apply  min-h-screen capitalize bg-[url('/images/background.png')] bg-cover text-white;
+	@apply  min-h-screen capitalize bg-[url('/images/background.png')] bg-cover bg-fixed text-white flex flex-col relative;
+}
+#root {
+	display: flex;
+	flex-grow: 1;
 }
 @layer utilities {
 	.custom-shadow { box-shadow: inset 0px 20px 35px 0px rgba(0,0,0,0.75); }
@@ -58,7 +62,7 @@ body {
 		backdrop-filter: blur(40px);
 	}
 	.container {
-		@apply max-w-[1440px] m-auto lg:px-32 px-16 flex flex-col lg:gap-32 gap-16 min-h-screen;
+		@apply max-w-[1440px] m-auto lg:px-32 px-16 flex flex-col lg:gap-32 gap-16 grow;
 	}
 	.custom-container {
 		@apply md:hidden;
@@ -85,6 +89,34 @@ body {
 
 /* -------- start home -------- */
 .side-online-friends-container {
-	height: calc(100vh - 125px);
+	height: calc(100vh - 109px);
 }
 /* -------- end home -------- */
+
+/* -------- start loading animation -------- */
+
+.rl-loading {
+	box-shadow: 0 0 12px 3px #31E78B;
+	animation: rl-loading-animation 1.5s ease-in-out infinite;
+}
+.loading-1 {
+	animation-delay: 0s;
+}
+.loading-2 {
+	animation-delay: 0.5s;
+}
+.loading-3 {
+	animation-delay: 1s;
+}
+@keyframes rl-loading-animation {
+	0% {}
+	20% {
+			background: white;
+			transform: scale(1.5);
+	}
+	40% {
+			background: #41f3fd;
+			transform: scale(1);
+	}
+}
+/* -------- end loading animation -------- */
