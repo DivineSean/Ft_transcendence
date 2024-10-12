@@ -41,6 +41,11 @@ def registerView(request):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
 	def post(self, request, *args, **kwargs):
+		
+		user = Users.objects.get(email=request.POST.get('email'))
+		if not user.password:
+			return Response({'message': 'bad request'}, status=400)
+		
 		userTokens = super().post(request, *args, **kwargs)
 		refresh_token = userTokens.data.get('refresh')
 		access_token = userTokens.data.get('access')
@@ -48,7 +53,9 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 		response = HttpResponse(content_type='application/json')
 		response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
 		response.set_cookie('accessToken', access_token, secure=True)
-		data = {"message": "ok"}
+		data = {
+			"message": "ok"
+		}
 		dump = json.dumps(data)
 		response.content = dump
 		
