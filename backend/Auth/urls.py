@@ -16,10 +16,11 @@ match = re.search(r'/(?P<pattern>[^/]+)$', str(os.environ.get("REDIRECT_URL")))
 RedirectURL = match.group('pattern') + '/'
 
 urlpatterns = [
-    path('api/intra_login/', Oauth2.login42, name='42login'),
-    path('api/Glogin/', Oauth2.loginGoogle, name='loginGoogle'),
+    path('api/intra/', Oauth2.login42, name='42login'),
+    path('api/callback/', Oauth2.callback, name='42login'),
+    path('api/google/', Oauth2.loginGoogle, name='loginGoogle'),
   
-    path(RedirectURL, Oauth2.home, name='hello'),
+    # path(RedirectURL, Oauth2.home, name='hello'),
     path('api/users/', Oauth2.show_users, name='users'),
 	
 		# path('login', loginView, name='login'),

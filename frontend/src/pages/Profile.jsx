@@ -10,8 +10,9 @@ import { FaFire } from "react-icons/fa6";
 
 const Profile = () => {
     return (
+			<div className="flex flex-col grow">
+				<Header link='profile' />
         <div className="container">
-            <Header link='profile' />
             <div className="flex grow primary-glass p-16 gap-32 relative overflow-hidden">
                 <div className='absolute top-0 left-0 w-full h-[232px] overflow-hidden'>
                     <div className="w-full h-full absolute cover-gradient h-full"></div>
@@ -145,6 +146,7 @@ const Profile = () => {
                 </div>
             </div>
         </div>
+			</div>
     );
 }
 

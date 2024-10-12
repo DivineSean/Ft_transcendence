@@ -15,11 +15,11 @@ const Home = () => {
 	}
 
 	return (
-		<>
-			<div className="z-[-1] absolute min-h-screen w-screen backdrop-blur-sm"></div>
+		<div className="flex flex-col grow">
+			<Header link='home' />
 			<div className="container">
-				<Header link='home' />
-				<section className="flex lg:gap-32 gap-16">
+				<section className="flex lg:gap-32 gap-16 justify-end">
+					<div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
 					<article className="flex flex-col gap-32 grow">
 						<div className="grid lg:grid-cols-[1.1fr_1fr] lg:gap-32 gap-16">
 							<Card 
@@ -45,16 +45,17 @@ const Home = () => {
 							<OnlineMatches />
 							<OnlineMatches />
 						</div>
-						<div className="primary-glass h-full"></div>
+						<div className="primary-glass h-[500px]"></div>
 					</article>
-					<article className="side-online-friends-container py-16 primary-glass lg:flex hidden flex-col gap-16 items-center ">
+					<div className="min-w-[83px] lg:flex hidden"></div>
+					<article className="fixed side-online-friends-container py-16 primary-glass lg:flex hidden flex-col gap-16 items-center ">
 						<div className="px-8 custom-scrollbar overflow-y-scroll">
 							{friends}
 						</div>
 					</article>
 				</section>
 			</div>
-		</>
+		</div>
 	)
 }
 

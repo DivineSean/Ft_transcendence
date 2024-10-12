@@ -112,10 +112,11 @@ const Chat = () => {
 
 	console.log(conversation);
 	return (
-		<>
-		<div className="z-[-1] absolute min-h-screen w-screen backdrop-blur-sm"></div>
-		<div className="max-w-[1440px] m-auto md:px-32 flex flex-col lg:gap-32 gap-16 h-screen">
-			<Header link='chat' />
+		<div className="flex flex-col grow">
+		<Header link='chat' />
+		{/* <div className="z-[-1] absolute min-h-screen w-full backdrop-blur-lg"></div> */}
+		<div className="container">
+			<div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
 			<div className="primary-glass p-16 flex gap-16 grow">
 				<div className="lg:w-[320px] md:flex hidden flex-col gap-32">
 					{/* search bar */}
@@ -192,7 +193,7 @@ const Chat = () => {
 				</div>
 			</div>
 		</div>
-		</>
+		</div>
 	)
 }
 

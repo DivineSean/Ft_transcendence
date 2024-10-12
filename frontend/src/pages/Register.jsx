@@ -5,18 +5,18 @@ import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
 import useAuth from "../customHooks/useAuth";
 import InputFieled from "../components/InputField";
+import LoadingPage from "./LoadingPage";
 
 const SignUp = () => {
-	const {register, handleBlur, handleChange, error, registerError} = useContext(AuthContext);
+	const {register, handleBlur, handleChange, error, registerError, authProvider} = useContext(AuthContext);
 	const loading = useAuth();
 	
 	return (
-		<>
-			{loading && <div className="primary-glass h-screen flex justify-center items-center">Loading...</div>}
+		<div className="grow">
+			{loading && <LoadingPage />}
 			{!loading && 
-				<>
-					<div className="absolute min-h-full w-full backdrop-blur-xl"></div>
 					<div className="max-w-[1440px] m-auto lg:px-32 md:px-16 md:py-32 flex flex-col lg:gap-32 gap-16 min-h-screen">
+						<div className="backdrop-blur-md w-full h-full absolute top-0 right-0"></div>
 						<div className="lg:grid lg:grid-cols-[1fr_1fr] login-glass overflow-hidden flex flex-col grow md:rounded-[8px] md:border-[0.5px] md:border-stroke-pr">
 							
 							<div className="bg-[url('/images/login/register.jpeg')] bg-cover bg-bottom flex flex-col">
@@ -77,22 +77,21 @@ const SignUp = () => {
 									<hr className="grow text-stroke-sc" />
 								</div>
 
-								<a href="#" className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
+								<button onClick={() => authProvider('intra')}  className="transition duration-700 ease-in-out flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc hover:bg-left-gradient-p">
 									<Si42 className="text-txt-3xl"/>
 									<p className="">log in with intra</p>
-								</a>
+								</button>
 
-								<a href="#" className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
+								<button onClick={() => authProvider('google')} className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
 									<FcGoogle className="text-txt-3xl"/>
 									<p>log in with intra</p>
-								</a>
+								</button>
 
 							</div>
 						</div>
 					</div>
-				</>
 			}
-		</>
+		</div>
 	)
 }
 
