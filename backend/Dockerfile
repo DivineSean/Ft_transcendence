@@ -33,7 +33,8 @@ RUN		pip install --no-cache /wheels/*
 
 COPY	./backend/ .
 
+RUN		chmod +x /home/app/entrypoint.sh
 RUN		chown -R app:app /home/app/
 
 USER	app
-ENTRYPOINT ["uvicorn", "backend.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
+ENTRYPOINT ["bash", "./entrypoint.sh"]
