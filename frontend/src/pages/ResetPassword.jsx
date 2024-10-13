@@ -8,7 +8,7 @@ const ResetPassword = () => {
 	let { uid, token } = useParams();
 
 	return (
-		<>
+		<div className="grow">
 			<div className="absolute min-h-screen w-screen backdrop-blur-xl"></div>
 			<div className="max-w-[1440px] m-auto lg:px-32 md:px-16 md:py-32 flex flex-col lg:gap-32 gap-16 min-h-screen">
 				<div className="lg:grid lg:grid-cols-[1fr_1fr] login-glass overflow-hidden flex flex-col grow md:rounded-[8px] md:border-[0.5px] md:border-stroke-pr">
@@ -42,7 +42,7 @@ const ResetPassword = () => {
 					
 				</div>
 			</div>
-		</>
+		</div>
 	)
 }
 

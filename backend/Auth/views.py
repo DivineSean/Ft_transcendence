@@ -17,11 +17,8 @@ import json
 
 @api_view(['GET'])
 def checkAuth(request):
-	print('hello world', flush=True)
 	token = request.COOKIES.get('accessToken')
-	print(token, flush=True)
 	if not token:
-		print('token is not good', flush=True)
 		return Response({'authenticated': False}, status=401)
 	try:
 		JWTAuthentication().get_validated_token(token)
@@ -43,9 +40,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 	def post(self, request, *args, **kwargs):
 		
 		try:
-			body_unicode = request.body.decode('utf-8')
-			body_data = json.loads(body_unicode)
-			email = body_data.get('email')
+			email = request.POST.get('email')
 			user = Users.objects.get(email=email)
 		except Users.DoesNotExist:
 			return Response({'message': 'User not found'}, status=401)
@@ -53,7 +48,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			return Response({'message': 'Multiple users found with the same email'}, status=401)
 
 		if user and not user.password:
-			return Response({'message': 'bad request'}, status=400)
+			return Response({'message': 'User not found'}, status=401)
 		
 		userTokens = super().post(request, *args, **kwargs)
 		refresh_token = userTokens.data.get('refresh')

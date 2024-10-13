@@ -17,7 +17,6 @@ const FriendsChat = ({...props}) => {
 		if (activeRef.current) {
 			if(props.isAcitve) {
 				activeRef.current.classList.add('secondary-gradient')
-				console.log(activeRef.current);
 			}
 		}
 	}, [])
@@ -110,11 +109,9 @@ const Chat = () => {
 			conversation.push(<Message side='right' message='Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.' key={i} />)
 	}
 
-	console.log(conversation);
 	return (
 		<div className="flex flex-col grow">
 		<Header link='chat' />
-		{/* <div className="z-[-1] absolute min-h-screen w-full backdrop-blur-lg"></div> */}
 		<div className="container">
 			<div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
 			<div className="primary-glass p-16 flex gap-16 grow">

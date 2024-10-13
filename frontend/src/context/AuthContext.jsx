@@ -8,7 +8,6 @@ export default AuthContext;
 
 export const AuthProvider = ({children}) => {
 
-	const [user, setUser] = useState(() => Cookies.get('accessToken') ? Cookies.get('accessToken') : null);
 	const navigate = useNavigate();
 	const validationErrors = {};
 	const emailRegex = /\S+@\S+\.\S+/;
@@ -26,6 +25,7 @@ export const AuthProvider = ({children}) => {
 	const [registerError, setRegisterError] = useState('');
 
 	const location = useLocation();
+
 
 	useEffect(() => {
 		if (location.pathname !== '/login')
@@ -81,11 +81,9 @@ export const AuthProvider = ({children}) => {
 			const response = await fetch(url, {
 				method: 'GET'
 			});
-			// console.log('response from intra auth: ', response);
 
 			const data = await response.json();
 			if (response.ok) {
-				// console.log(data.url);
 				window.location.href = data.url;
 			}
 
@@ -127,13 +125,8 @@ export const AuthProvider = ({children}) => {
 						'password': e.target.password.value
 					})
 				});
-				// console.log(response);
-				const data = await response.json();
-	
+				
 				if (response.ok) {
-					setUser(data);
-					// console.log(data);
-					// console.log('user registred successfuly');
 					navigate('/login');
 				} else {
 
@@ -144,7 +137,6 @@ export const AuthProvider = ({children}) => {
 			} catch (error) {
 
 				console.error('error: ', error);
-				// console.log('an error accured, please try again');
 
 			}
 		}
@@ -153,13 +145,10 @@ export const AuthProvider = ({children}) => {
 	const login = async (e) => {
 		e.preventDefault();
 		for (const data in formData) {
-
 			if (data === 'email' && !emailRegex.test(formData[data]))
 				validationErrors[data] = `invalid ${data}!`;
-
 			if (data === 'email' && !formData[data].trim())
 				validationErrors[data] = `${data} is required!`;
-
 			if (data === 'password' && !formData[data].trim())
 				validationErrors[data] = `${data} is required!`;
 		}
@@ -167,43 +156,34 @@ export const AuthProvider = ({children}) => {
 
 
 		if (Object.keys(validationErrors).length === 0) {
+			
+			const postFormData = new FormData();
+			const email = e.target.email.value;
+			const password = e.target.password.value;
+			postFormData.append('email', email);
+			postFormData.append('password', password);
+
 			try {
 				const response = await fetch('https://localhost:8000/api/token/', {
 					method: 'POST',
 					credentials: 'include',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						'email': e.target.email.value,
-						'password': e.target.password.value
-					})
+					body: postFormData
 				});
-				// console.log('response', response);
-				const data = await response.json();
-	
-				if (response.ok) {
-
-					setUser(data);
+		
+				if (response.ok)
 					navigate('/home');
-
-				} else {
-
+				else {
 					if (response.status === 401)
 						setLoginError('invalid email or password! please try again.');
-
 				}
 			} catch (error) {
-
 				console.error('error: ', error);
-				// console.log('an error accured, please try again');
-
 			}
+
 		}
 	}
 
 	const contextData = {
-		user: user,
 		error: error,
 		loginError: loginError,
 		registerError: registerError,

@@ -207,7 +207,6 @@ def  callback(request):
 
 		
 # 		user = Users.objects.get(email=user_data.get('email'))
-# 		print(f'user: {user}', flush=True)
 # 		refresh_token = RefreshToken.for_user(user)
 # 		access = str(refresh_token.access_token)
 
@@ -225,7 +224,6 @@ def  callback(request):
 # 		}
 # 		dump = json.dumps(responseData)
 # 		response.content = dump
-# 		print(f'cookies: {response.cookies}', flush=True)
 
 # 		return response
 
