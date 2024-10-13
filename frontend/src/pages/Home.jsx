@@ -19,7 +19,7 @@ const Home = () => {
 			<Header link='home' />
 			<div className="container">
 				<section className="flex lg:gap-32 gap-16 justify-end">
-					<div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
+					<div className="backdrop-blur-sm w-full h-full absolute top-0 right-0 z-[-1]"></div>
 					<article className="flex flex-col gap-32 grow">
 						<div className="grid lg:grid-cols-[1.1fr_1fr] lg:gap-32 gap-16">
 							<Card 
@@ -45,11 +45,10 @@ const Home = () => {
 							<OnlineMatches />
 							<OnlineMatches />
 						</div>
-						<div className="primary-glass h-[500px]">
+						<div className="primary-glass">
 						</div>
 					</article>
-					<div className="min-w-[83px] lg:flex hidden">
-					</div>
+					<div className="min-w-[83px] lg:flex hidden"></div>
 					<article className="fixed side-online-friends-container py-16 primary-glass lg:flex hidden flex-col gap-16 items-center ">
 						<div className="px-8 custom-scrollbar overflow-y-scroll">
 							{friends}
