@@ -1,119 +1,5 @@
-/* variables */
-/* Reset */
-*,
-*::after,
-*::before {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  user-select: none;
-}
+.main { animation: bmo 0.2s linear alternate infinite; }
 
-/* Generic */
-body {
-  width: 100wh;
-  height: 100vh;
-  display: flex;
-	flex-direction: column;
-  /* justify-content: center; */
-  /* align-items: center; */
-  overflow: hidden;
-  font-size: 24px;
-  background: url(background.png);
-	background-repeat: no-repeat;
-	background-size: cover;
-}
-
-.pattern {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: absolute;
-  width: 100%;
-  height: 100vh;
-  display: none;
-}
-.pattern__score {
-  position: absolute;
-  top: 50px;
-  left: 50px;
-  color: #007b9e;
-}
-.pattern__icon {
-  color: #008fb8;
-  font-size: 30px;
-  filter: blur(2px);
-}
-.pattern__line {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  width: 200%;
-  height: 50px;
-  animation: pattern 16s linear infinite;
-}
-
-.loading-container, .loading {
-	height: 100%;
-	width: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	backdrop-filter: blur(10px);
-}
-.loading-container {
-	backdrop-filter: blur(10px);
-}
-
-.main {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	width: 300px;
-	height: 400px;
-	animation: bmo 0.2s linear alternate infinite;
-}
-
-@media (max-width: 800px) {
-  .loading {
-    transform: scale(0.75);
-  }
-}
-@media (max-width: 600px) {
-  .loading {
-    transform: scale(0.5);
-  }
-}
-
-
-.bmo {
-  position: relative;
-  width: 61%;
-  height: 55%;
-  border-radius: 20px;
-  background-color: #1c8852;
-}
-.bmo::before {
-  content: "";
-  position: absolute;
-  height: 100%;
-  width: 80%;
-  border-radius: 20px;
-  background-color: #31E78B;
-}
-
-.face {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  top: 8%;
-  left: 10%;
-  width: 61%;
-  height: 49%;
-  border-radius: 20px;
-  background-color: #219b5e;
-}
 .face::before, .face::after {
   content: "";
   position: absolute;
@@ -130,20 +16,7 @@ body {
   height: 90%;
   background-color: #b7f8d7;
 }
-.face__eye {
-  width: 8%;
-  height: 23%;
-  background-color: #001d31;
-  z-index: 1000;
-  animation: eye 4s infinite;
-}
-.face__mouth {
-  width: 23%;
-  height: 8%;
-  margin: 0 7%;
-  background-color: #001d31;
-  z-index: 1000;
-}
+
 .face__l {
   position: absolute;
   width: 100%;
@@ -295,12 +168,9 @@ body {
   height: 4%;
   background-color: #0e4f2f;
 }
-.line__3:nth-of-type(4) {
-  bottom: 65%;
-}
-.line__3:nth-of-type(5) {
-  bottom: 58%;
-}
+
+.line__3:nth-of-type(4) { bottom: 65%; }
+.line__3:nth-of-type(5) { bottom: 58%; }
 
 .ln {
   position: absolute;
@@ -332,28 +202,16 @@ body {
 
 /**/
 @keyframes pattern {
-  0% {
-    transform: translateX(-50%);
-  }
-  100% {
-    transform: translateX(0);
-  }
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
 }
 @keyframes floor {
-  0% {
-    width: 100px;
-  }
-  100% {
-    width: 165px;
-  }
+  0% { width: 100px; }
+  100% { width: 165px; }
 }
 @keyframes bmo {
-  0%, 20% {
-    transform: rotateZ(-3deg);
-  }
-  100% {
-    transform: rotateZ(3deg);
-  }
+  0%, 20% { transform: rotateZ(-3deg); }
+  100% { transform: rotateZ(3deg); }
 }
 @keyframes arm-r {
   0% {
@@ -376,32 +234,14 @@ body {
   }
 }
 @keyframes leg-l {
-  0%, 20% {
-    left: 50%;
-    bottom: 0%;
-  }
-  50% {
-    left: 20%;
-    bottom: -8%;
-  }
-  100% {
-    left: 50%;
-    bottom: -8%;
-  }
+  0%, 20% { left: 50%; bottom: 0%; }
+  50% { left: 20%; bottom: -8%; }
+  100% { left: 50%; bottom: -8%; }
 }
 @keyframes leg-r {
-  0%, 20% {
-    left: 40%;
-    bottom: -8%;
-  }
-  50% {
-    left: 60%;
-    bottom: -8%;
-  }
-  100% {
-    left: 60%;
-    bottom: 0%;
-  }
+  0%, 20% { left: 40%; bottom: -8%; }
+  50% { left: 60%; bottom: -8%; }
+  100% { left: 60%; bottom: 0%; }
 }
 @keyframes head {
   0% {
@@ -414,40 +254,19 @@ body {
   }
 }
 @keyframes eye {
-  0%, 90% {
-    height: 23%;
-  }
-  100% {
-    height: 5%;
-  }
+  0%, 90% { height: 23%; }
+  100% { height: 5%; }
 }
 @keyframes drop {
-  0%, 50% {
-    opacity: 0;
-    top: 15%;
-  }
-  80% {
-    opacity: 1;
-    top: 20%;
-  }
-  100% {
-    opacity: 0;
-    top: 30%;
-  }
+  0%, 50% { opacity: 0; top: 15%; }
+  80% { opacity: 1; top: 20%; }
+  100% { opacity: 0; top: 30%; }
 }
 @keyframes light {
-  0% {
-    background-position: 0;
-  }
-  100% {
-    background-position: 100%;
-  }
+  0% { background-position: 0; }
+  100% { background-position: 100%; }
 }
 @keyframes line {
-  0% {
-    bottom: 39%;
-  }
-  100% {
-    bottom: 41%;
-  }
+  0% { bottom: 39%; }
+  100% { bottom: 41%; }
 }

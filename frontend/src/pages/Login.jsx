@@ -35,9 +35,7 @@ const Login = () => {
 				'prompt': prompt
 			})
 		});
-		// console.log(response);
 		const data = await response.json();
-		// console.log(data);
 		if (response.ok)
 			navigate('/home');
 	}
@@ -47,8 +45,6 @@ const Login = () => {
 		const code = urlParams.get('code');
 		const prompt = urlParams.get('prompt');
 		if (code) {
-			// console.log(code);
-			// console.log(prompt);
 			sendCode(code, prompt);
 		} else {
 			setLoad(false);

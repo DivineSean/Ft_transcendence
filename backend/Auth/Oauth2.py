@@ -2,7 +2,7 @@ from django.shortcuts import render
 import requests
 from django.shortcuts import redirect
 from django.http import HttpResponse
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth.models import User
@@ -135,16 +135,6 @@ def  callback(request):
 		response = HttpResponse(content_type='application/json')
 		response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
 		response.set_cookie('accessToken', access, httponly=True, secure=True, samesite='Lax')
-		# resData = {
-		# 	"refresh": str(refresh_token),
-		# 	"access": access,
-		# 	"user": str(user),
-		# 	"url": 'hello man',
-		# 	"data": reqBody,
-		# 	"hello": code,
-		# 	"token_response": token_response.json().get('access_token'),
-		# 	"user_data": user_data
-		# }
 		resData = {'message': 'ok'}
 		dump = json.dumps(resData)
 		response.content = dump

@@ -42,8 +42,17 @@ def registerView(request):
 class CustomTokenObtainPairView(TokenObtainPairView):
 	def post(self, request, *args, **kwargs):
 		
-		user = Users.objects.get(email=request.POST.get('email'))
-		if not user.password:
+		try:
+			body_unicode = request.body.decode('utf-8')
+			body_data = json.loads(body_unicode)
+			email = body_data.get('email')
+			user = Users.objects.get(email=email)
+		except Users.DoesNotExist:
+			return Response({'message': 'User not found'}, status=401)
+		except Users.MutlipleObjectsReturned:
+			return Response({'message': 'Multiple users found with the same email'}, status=401)
+
+		if user and not user.password:
 			return Response({'message': 'bad request'}, status=400)
 		
 		userTokens = super().post(request, *args, **kwargs)
@@ -53,9 +62,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 		response = HttpResponse(content_type='application/json')
 		response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
 		response.set_cookie('accessToken', access_token, secure=True)
-		data = {
-			"message": "ok"
-		}
+		data = { "message": "ok" }
 		dump = json.dumps(data)
 		response.content = dump
 		

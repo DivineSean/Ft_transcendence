@@ -27,8 +27,9 @@ const Header = ({...props}) => {
 	return (
 		<header className="backdrop-blur-3xl sticky top-0 z-[2] lg:mb-32 mb-16 lg:px-32 px-16">
 			<div className="flex items-center lg:gap-32 gap-16 py-16 md:px-0 px-16 max-w-[1440px] m-auto lg:px-32 px-16">
-				<Link to='/home' className="text-white lg:text-h-lg-lg text-h-sm-lg font-semibold cursor-pointer">
-					Ad. <span className="text-green">Ture</span>
+				<Link to='/home' className="text-white lg:text-h-md-lg text-h-sm-lg font-semibold cursor-pointer">
+					<img src="images/logo.png" alt="logo" className="w-full h-[50px]" />
+					{/* Ad. <span className="text-green">Ture</span> */}
 				</Link>
 				<nav className="lg:flex grow hidden lg:justify-center justify-end">
 					<ul className="flex lg:gap-32 gap-16 itmes-center"> {linkes} </ul>

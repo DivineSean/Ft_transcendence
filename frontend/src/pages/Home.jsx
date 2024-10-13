@@ -45,9 +45,11 @@ const Home = () => {
 							<OnlineMatches />
 							<OnlineMatches />
 						</div>
-						<div className="primary-glass h-[500px]"></div>
+						<div className="primary-glass h-[500px]">
+						</div>
 					</article>
-					<div className="min-w-[83px] lg:flex hidden"></div>
+					<div className="min-w-[83px] lg:flex hidden">
+					</div>
 					<article className="fixed side-online-friends-container py-16 primary-glass lg:flex hidden flex-col gap-16 items-center ">
 						<div className="px-8 custom-scrollbar overflow-y-scroll">
 							{friends}
