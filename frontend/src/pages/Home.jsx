@@ -45,8 +45,7 @@ const Home = () => {
 							<OnlineMatches />
 							<OnlineMatches />
 						</div>
-						<div className="primary-glass">
-						</div>
+						<div className="primary-glass"></div>
 					</article>
 					<div className="min-w-[83px] lg:flex hidden"></div>
 					<article className="fixed side-online-friends-container py-16 primary-glass lg:flex hidden flex-col gap-16 items-center ">
