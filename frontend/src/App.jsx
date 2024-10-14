@@ -9,6 +9,7 @@ import Profile from './pages/Profile'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Menu from './components/Menu'
+import NotFound from './pages/NotFound'
 
 const Reset = () => {
 	return (
@@ -30,8 +31,9 @@ function App() {
 						<Route path='menu/' element={<Menu />} />
 						<Route path='profile/' element={<Profile />} />
 						<Route path='register/' element={<SignUp />} />
-						<Route path='home/' element={<PrivateRoute><Home /></PrivateRoute>} />
-						<Route path='chat/' element={<PrivateRoute><Chat /></PrivateRoute>} />
+						<Route path='home/' element={<Home />} />
+						<Route path='chat/' element={<Chat />} />
+						<Route path='*' element={<NotFound />} />
 					</Routes>
 				</AuthProvider>
 			</Router>

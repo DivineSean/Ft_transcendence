@@ -48,7 +48,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			return Response({'message': 'Multiple users found with the same email'}, status=401)
 
 		if user and not user.password:
-			return Response({'message': 'User not found'}, status=401)
+			return Response({'message': 'this email cannot logged in with password'}, status=401)
 		
 		userTokens = super().post(request, *args, **kwargs)
 		refresh_token = userTokens.data.get('refresh')
