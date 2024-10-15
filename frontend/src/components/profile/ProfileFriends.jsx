@@ -17,7 +17,7 @@ const ProfileFriends = () => {
         </div>
         <div className="flex gap-32">
             {/* Ligne 1*/}
-            <div className="flex flex-col h-full w-[330px] gap-8">
+            <div className="lg:flex hidden flex-col h-full w-[330px] gap-8">
                 <div className="flex secondary-glass h-[72px] w-full gap-16 p-8 items-center">
                     <img 
                         src="images/profile.png" 
