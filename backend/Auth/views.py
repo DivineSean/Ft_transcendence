@@ -7,9 +7,15 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import exceptions
 from .serializers import RegisterSerializer
 from django.http import JsonResponse, HttpResponse
-from .models import Users
+from .models import Users, TwoFactorCode
 from django.contrib.auth.views import PasswordResetView
 import json
+from django.core.mail import get_connection, EmailMessage
+
+from django.core.cache import cache
+
+from django.conf import settings
+
 
 # class CustomPasswordResetView(PasswordResetView):
 # 	html_email_template_name = 'registration/password_reset_email.html'
@@ -22,9 +28,13 @@ def checkAuth(request):
 		return Response({'authenticated': False}, status=401)
 	try:
 		JWTAuthentication().get_validated_token(token)
+		# we should check if 2FA is enabled (I m assuming that 2FA is enabled by default)
+		# I should do a 2FA sending mail here 
+
 		return Response({'authenticated': True})
 	except Exception as e:
 		return Response({'authenticated': False, 'error': str(e)}, status=401)
+
 
 
 @api_view(['POST'])
@@ -36,30 +46,65 @@ def registerView(request):
 	return Response(serializer.data)
 
 
+
 class CustomTokenObtainPairView(TokenObtainPairView):
+	# En gros, khsek checki daba wlit kan verifyi wach 2fa_code katpassih f post, ila la rah kan returni status code 400, khsek checkiha fl front w dir UI dyal 2fa
+	#You can test f postman , jrb t sendi post request l api/token bla 2fa_code, ghaytsifet lik email fih 2fa code, 3awd sift request post l nefs l enpoint wzid 3tih 2fa_code li 3titlk fl email
+	def generate_2fa_code(self, user):
+		return TwoFactorCode.generate_code(user)
+
+	def send_2fa_code(self, user_email, code):
+		with get_connection(
+			host=os.environ.get("EMAIL_HOST"), 
+			port=os.environ.get("EMAIL_PORT"),
+			username=os.environ.get("EMAIL_HOST_USER"), 
+			password=os.environ.get("EMAIL_HOST_PASSWORD"),  #hada machi password dyal email dyalek, khasek t enabli 2fa f gmail w ki3tiwek wahed l app passowrd, googli sinon use my env
+			use_tls=True
+		) as connection:  
+			subject = "2FA CODE"
+			email_from = settings.EMAIL_HOST_USER  
+			recipient_list = [user_email]  
+			message = f"Your 2FA CODE : {code}"  
+			EmailMessage(subject, message, email_from, recipient_list, connection=connection).send()
+
 	def post(self, request, *args, **kwargs):
-		
 		try:
-			email = request.POST.get('email')
+			email = request.data.get('email')
 			user = Users.objects.get(email=email)
 		except Users.DoesNotExist:
 			return Response({'message': 'User not found'}, status=401)
-		except Users.MutlipleObjectsReturned:
+		except Users.MultipleObjectsReturned:
 			return Response({'message': 'Multiple users found with the same email'}, status=401)
 
 		if user and not user.password:
-			return Response({'message': 'this email cannot logged in with password'}, status=401)
-		
-		userTokens = super().post(request, *args, **kwargs)
-		refresh_token = userTokens.data.get('refresh')
-		access_token = userTokens.data.get('access')
+			return Response({'message': 'This email cannot be logged in with a password'}, status=401)
 
-		response = HttpResponse(content_type='application/json')
-		response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
-		response.set_cookie('accessToken', access_token, secure=True)
-		data = { "message": "ok" }
-		dump = json.dumps(data)
-		response.content = dump
+		
+		response = super().post(request, *args, **kwargs)
+		
+		if response.status_code == 200:
+			
+			submitted_2fa_code = request.data.get('2fa_code') #hna kanakhed l code li kaypassih l user f 2FA, swblih UI dyalo w dir request l nefs l endpoint
+			if not submitted_2fa_code:
+				two_factor_code = self.generate_2fa_code(user)
+				self.send_2fa_code(user.email, two_factor_code.code)
+				return Response({'message': '2FA code sent', 'requires_2fa': True}, status=200)
+			
+			# Hna kan verifyi wach l code li passiti liya fl post method hwa nit li 3titek fl mail
+			if not TwoFactorCode.validate_code(user, submitted_2fa_code):
+				print("here", flush = True)
+				return Response({'message': 'Invalid 2FA code'}, status=400)
+			
+			refresh_token = response.data.get('refresh')
+			access_token = response.data.get('access')
+
+			http_response = HttpResponse(content_type='application/json')
+			http_response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
+			http_response.set_cookie('accessToken', access_token, secure=True)
+			data = {"message": "ok"}
+			http_response.content = json.dumps(data)
+			return http_response
+		
 		
 		return response
 
@@ -90,4 +135,4 @@ class CustomTokenRefreshView(TokenRefreshView):
 		# 	return Response({'authenticated': False}, status=401)
 
 def hello(request):
-    return HttpResponse("Hello, world!")
+	return HttpResponse("Hello, world!")

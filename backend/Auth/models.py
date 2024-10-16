@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
+import random 
+from django.utils import timezone
 
 class CustomUserManager(BaseUserManager):
 	def create_user(self, email, password=None, **extra_fields):
@@ -29,6 +31,36 @@ class Users(AbstractUser):
 
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = []
+
+
+class TwoFactorCode(models.Model):
+	user = models.ForeignKey('Users', on_delete=models.CASCADE)
+	code = models.CharField(max_length=6)
+	created_at = models.DateTimeField(auto_now_add=True)
+	expires_at = models.DateTimeField()
+
+
+	@classmethod
+	def generate_code(cls, user):
+		
+		cls.objects.filter(user=user).delete()
+		
+		code = str(random.randint(100000, 999999))
+		expires_at = timezone.now() + timezone.timedelta(minutes=5)
+		return cls.objects.create(user=user, code=code, expires_at=expires_at)
+	
+	@classmethod
+	def validate_code(cls, user, code):
+		try:
+			stored_code = cls.objects.get(
+				user=user,
+				code=code,
+				expires_at__gt=timezone.now()
+			)
+			stored_code.delete()
+			return True
+		except cls.DoesNotExist:
+			return False
 
 # class Users(models.Model):
 #     userID = models.CharField(max_length = 100,unique=True)
