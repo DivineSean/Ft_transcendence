@@ -47,9 +47,14 @@ body {
 		border: .5px solid #5B5B5B;
 		backdrop-filter: blur(40px);
 	}
+	.secondary-glass-friends {
+		background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2));
+		border-radius: 8px;
+		border: .5px solid #5B5B5B;
+	}
 	.sc-overview-glass {
 		background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2));
-  }
+  	}
 	.message-glass {
 		background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2));
 		border: .5px solid #5B5B5B;
@@ -76,6 +81,14 @@ body {
 		outline: none;
 	}
 	/* -------- end login -------- */
+	.get-height {
+		height: calc(100vh - 109px);
+	}
+	@media (max-width: 1101px) {
+		.get-height {
+			height: calc(100vh - 84px);
+		}	
+	}
 }
 
 /* -------- start menu -------- */
