@@ -4,7 +4,7 @@ import { FaFire } from "react-icons/fa6";
 const ProfileOverview  = () => {
     return (
     <div className='flex gap-32'>
-        <div className='flex flex-col h-[288px] lg:w-[450px] w-full rounded-[8px] border-[0.5px] border-stroke-sc overflow-hidden'>
+        <div className='flex flex-col h-[288px] grow xl:grow-0 rounded-[8px] border-[0.5px] border-stroke-sc overflow-hidden'>
             <div className='p-32 relative h-[150px] overflow-hidden flex items-end bg-[url("images/pong-overview.webp")] bg-cover bg-center'>
                 <div className='absolute top-0 left-0 w-full h-full overflow-hidden cover-gradient'></div>
                 <h2 className='absolute font-bold text-h-lg-lg'>ping pong</h2>

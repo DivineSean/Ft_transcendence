@@ -15,13 +15,14 @@ import { Link } from "react-router-dom";
 const profileMenu = ['overview', 'statistics', 'achievements', 'friends'];
 
 const Profile = () => {
-    const [selectedMenu, setSelectedMenu] = useState('overview');
+    const [selectedMenu, setSelectedMenu] = useState('friends');
         return (
         <div className="flex flex-col grow">
             <Header link='profile' />
             <div className="container">
-                <div className="flex grow primary-glass p-16 lg:gap-32 gap-16 relative overflow-hidden">
-                    <div className='absolute top-0 left-0 w-full lg:h-[232px] h-[200px] overflow-hidden'>
+                <div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
+                <div className="flex primary-glass p-16 lg:gap-32 gap-16 relative overflow-hidden get-height">
+                    <div className='absolute top-0 left-0 w-full lg:h-[232px] h-[200px]'>
                         <div className="w-full h-full absolute cover-gradient"></div>
                         <img 
                             className="object-cover w-full h-full object-center" 
@@ -29,7 +30,7 @@ const Profile = () => {
                             alt="Profile Cover image" 
                         />
                     </div>
-                    <div className="lg:flex hidden flex-col secondary-glass p-16 gap-16 w-[320px] overflow-hidden">
+                    <div className="lg:flex hidden flex-col secondary-glass p-16 gap-16 min-w-[320px] max-w-[320px]">
                         <div className="flex flex-col gap-8 items-center">
                             <img
                                 className="border-4 border-green w-[120px] h-[120px] rounded-full"
@@ -65,7 +66,7 @@ const Profile = () => {
                         <div className='flex flex-col gap-8'>
                             <h1 className='text-h-lg-md font-bold'>about</h1> 
                             <p className='text-txt-xs leading-16'>
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
                             </p>
                         </div>
                         <div className='bg-stroke-sc h-[1px] w-full'></div>
@@ -79,14 +80,13 @@ const Profile = () => {
                     </div>
                     <div className="flex flex-col grow z-[1] gap-16">
 
-                        <div className='flex flex-col gap-32 md:items-start items-center lg:h-[216px]'>
+                        <div className='flex flex-col gap-32 md:items-start items-center lg:min-h-[216px]'>
 
                             <div className="flex h-[184px] flex-col gap-8 py-16 items-center lg:hidden">
                                 <img className="flex flex-col border-4 border-green rounded-full h-[96px] w-[96px]" src="images/profile.png" alt="Profile image" />
                                 <h1 className="text-h-sm-sm font-bold">simhammed stoune</h1>
                                 <h2 className="text-txt-xs">@sistoune</h2>
                             </div>
-
                             <div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">
                                 <div className="flex w-[213px] items-center">
                                     <img className="flex w-[140px] h-[166px]" src="images/bmo.png" alt="Player Caractere" />
@@ -97,7 +97,6 @@ const Profile = () => {
                                 </div>
                             </div>
                         </div>
-
                         <div className='flex'>
                             {profileMenu.map(menu => (
                                 <div 
@@ -110,7 +109,6 @@ const Profile = () => {
                                 </div>
                             ))}
                         </div>
-
                         { selectedMenu === 'overview' && <ProfileOverview /> }
                         { selectedMenu === 'statistics' && <ProfileStatistics /> }
                         { selectedMenu === 'achievements' && <ProfileAchievements /> }
