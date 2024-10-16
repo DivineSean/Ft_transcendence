@@ -24,14 +24,5 @@ class RegisterOAuthSerializer(serializers.ModelSerializer):
 	def create(self, validated_data):
 		password = validated_data.pop('password', None)
 		instance = self.Meta.model(**validated_data)
-		print('hello from serializer', flush=True)
 		instance.save()
 		return instance
-
-
-# {
-#     "id": 3,
-#     "first_name": "test",
-#     "last_name": "test1",
-#     "email": "test@gmail.com"
-# }

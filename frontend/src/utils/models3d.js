@@ -54,7 +54,7 @@ export const create3DModel = (canvas, modelFolderName) => {
 	leftBehindLight.position.set(-25, 0, -25)
 	scene.add(leftBehindLight)
 
-	const loader = new GLTFLoader(manager).setPath('planet/');
+	const loader = new GLTFLoader(manager).setPath(modelFolderName);
 	loader.load('scene.gltf', (gltf) => {
 		const mesh = gltf.scene;
 		scene.add(mesh);

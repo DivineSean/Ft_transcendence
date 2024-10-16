@@ -17,11 +17,8 @@ import json
 
 @api_view(['GET'])
 def checkAuth(request):
-	print('hello world', flush=True)
 	token = request.COOKIES.get('accessToken')
-	print(token, flush=True)
 	if not token:
-		print('token is not good', flush=True)
 		return Response({'authenticated': False}, status=401)
 	try:
 		JWTAuthentication().get_validated_token(token)
@@ -42,9 +39,16 @@ def registerView(request):
 class CustomTokenObtainPairView(TokenObtainPairView):
 	def post(self, request, *args, **kwargs):
 		
-		user = Users.objects.get(email=request.POST.get('email'))
-		if not user.password:
-			return Response({'message': 'bad request'}, status=400)
+		try:
+			email = request.POST.get('email')
+			user = Users.objects.get(email=email)
+		except Users.DoesNotExist:
+			return Response({'message': 'User not found'}, status=401)
+		except Users.MutlipleObjectsReturned:
+			return Response({'message': 'Multiple users found with the same email'}, status=401)
+
+		if user and not user.password:
+			return Response({'message': 'this email cannot logged in with password'}, status=401)
 		
 		userTokens = super().post(request, *args, **kwargs)
 		refresh_token = userTokens.data.get('refresh')
@@ -53,9 +57,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 		response = HttpResponse(content_type='application/json')
 		response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
 		response.set_cookie('accessToken', access_token, secure=True)
-		data = {
-			"message": "ok"
-		}
+		data = { "message": "ok" }
 		dump = json.dumps(data)
 		response.content = dump
 		

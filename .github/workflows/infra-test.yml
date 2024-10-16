@@ -1,10 +1,10 @@
 name: Test Docker Compose Infrastructure
 
 on:
-  push:
-    branches:
-      - testing
-      - main
+  # push:
+  #   branches:
+  #     - testing
+  #     - main
   pull_request:
     branches:
       - testing
