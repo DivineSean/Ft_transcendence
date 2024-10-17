@@ -30,6 +30,7 @@ function App() {
 						<Route path='login/' element={<Login />} />
 						<Route path='menu/' element={<Menu />} />
 						<Route path='profile/' element={<Profile />} />
+						<Route path='profile/:section' element={<Profile />} />
 						<Route path='register/' element={<SignUp />} />
 						<Route path='home/' element={<Home />} />
 						<Route path='chat/' element={<Chat />} />

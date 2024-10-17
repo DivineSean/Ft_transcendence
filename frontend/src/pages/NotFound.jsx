@@ -15,7 +15,7 @@ const NotFound = () => {
 	const canvasRef = useRef(null);
 	useEffect(() => {
 		if (canvasRef.current) {
-			bmo3DModel(canvasRef.current, 'bmo/');
+			bmo3DModel(canvasRef.current, '/bmo/');
 		}
 	}, []);
 	return (

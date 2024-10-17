@@ -77,14 +77,14 @@ const SignUp = () => {
 									<hr className="grow text-stroke-sc" />
 								</div>
 
-								<button onClick={() => authProvider('intra')}  className="transition duration-700 ease-in-out flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc hover:bg-left-gradient-p">
+								<button onClick={() => authProvider('intra')}  className="transition duration-700 capitalize ease-in-out flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc hover:bg-left-gradient-p">
 									<Si42 className="text-txt-3xl"/>
 									<p className="">log in with intra</p>
 								</button>
 
-								<button onClick={() => authProvider('google')} className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
+								<button onClick={() => authProvider('google')} className="flex gap-16 py-8 capitalize justify-center items-center rounded border border-stroke-sc">
 									<FcGoogle className="text-txt-3xl"/>
-									<p>log in with intra</p>
+									<p>log in with google</p>
 								</button>
 
 							</div>
