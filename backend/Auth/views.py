@@ -11,9 +11,10 @@ from .models import Users, TwoFactorCode
 from django.contrib.auth.views import PasswordResetView
 import json
 from django.core.mail import get_connection, EmailMessage
-
+from rest_framework import status
 from django.core.cache import cache
-
+from django.http import HttpResponseRedirect
+import os
 from django.conf import settings
 
 
@@ -103,11 +104,22 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			http_response.set_cookie('accessToken', access_token, secure=True)
 			data = {"message": "ok"}
 			http_response.content = json.dumps(data)
+			
 			return http_response
-		
-		
+
 		return response
 
+@api_view(["POST"]) # its ok ila passiti liya l body khawi, ghir khliha POST 7it rah loggout hada 
+def logout(request):
+	refresh_token = request.COOKIES.get('refreshToken')
+	if refresh_token:
+		token = RefreshToken(refresh_token)
+		token.blacklist()
+	response = HttpResponseRedirect(os.environ.get("REDIRECT_URL"))
+	response = Response({"message": "Logged Out"}, status=status.HTTP_200_OK)
+	response.delete_cookie("accessToken")
+	response.delete_cookie("refreshToken")
+	return response
 
 class CustomTokenRefreshView(TokenRefreshView):
 	def post(self, request, *args, **kwargs):
@@ -134,5 +146,24 @@ class CustomTokenRefreshView(TokenRefreshView):
 		# if not refresh_token:
 		# 	return Response({'authenticated': False}, status=401)
 
-def hello(request):
-	return HttpResponse("Hello, world!")
+@api_view(["POST"])
+def logout(request):
+    try:
+        refresh_token = request.COOKIES.get('refreshToken')
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist()  # Invalidate the token server-side
+
+        response = Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
+        response.delete_cookie("accessToken")
+        response.delete_cookie("refreshToken")
+
+        # Check if redirect is needed (e.g., for web browsers)
+        if request.query_params.get('redirect'):
+            redirect_url = request.query_params.get('redirect_url') or settings.LOGIN_URL
+            return HttpResponseRedirect(redirect_url)
+
+        return response
+
+    except Exception as e:
+        return Response({"detail": f"An error occurred during logout: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
