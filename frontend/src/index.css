@@ -82,11 +82,11 @@ body {
 	}
 	/* -------- end login -------- */
 	.get-height {
-		height: calc(100vh - 109px);
+		height: calc(100vh - 116px);
 	}
-	@media (max-width: 1101px) {
+	@media (max-width: 1099px) {
 		.get-height {
-			height: calc(100vh - 84px);
+			height: 100%;
 		}	
 	}
 }

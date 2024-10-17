@@ -56,8 +56,8 @@ export const bmo3DModel = (canvas, modelFolderName) => {
 	// leftBehindLight.position.set(-25, 0, -25)
 	// scene.add(leftBehindLight)
 
-	const loader = new GLTFLoader();
-	loader.load('bmo/scene.gltf', (gltf) => {
+	const loader = new GLTFLoader().setPath(modelFolderName);
+	loader.load('scene.gltf', (gltf) => {
 			const mesh = gltf.scene;
 			scene.add(mesh);
 		},
