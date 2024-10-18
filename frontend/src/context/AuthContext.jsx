@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from 'react-router-dom'
 import Cookies from 'js-cookie'
 
@@ -27,11 +27,45 @@ export const AuthProvider = ({children}) => {
 	const location = useLocation();
 
 
+	const [values2FA, setValues2FA] = useState(Array(6).fill(''));
+	const [email, setEmail] = useState('');
+	const inputs = useRef([]);
+
+	const handleChange2FA = (e, index) => {
+		const value = e.target.value;
+		if (/^[0-9]$/.test(value)) {
+			const newValues = [...values2FA];
+			newValues[index] = value;
+			setValues2FA(newValues);
+			if (index < 5 && value) {
+				inputs.current[index + 1].focus();
+			}
+		}
+	};
+
+	const handleKeyDown2FA = (e, index) => {
+		if (e.key === 'Backspace') {
+			const newValues = [...values2FA];
+			if (newValues[index]) {
+				newValues[index] = '';
+				setValues2FA(newValues);
+			} else if (index > 0) {
+				inputs.current[index - 1].focus();
+				const prevValues = [...values2FA];
+				prevValues[index - 1] = '';
+				setValues2FA(prevValues);
+			}
+		}
+	}
+
+
 	useEffect(() => {
 		if (location.pathname !== '/login')
 			setLoginError('');
 		else if (location.pathname !== '/register')
 			setRegisterError('');
+		if (location.pathname !== '/twofa')
+			setValues2FA(Array(6).fill(''));
 	}, [location.pathname])
 
 	const handleBlur = (e) => {
@@ -170,11 +204,17 @@ export const AuthProvider = ({children}) => {
 					body: postFormData
 				});
 				console.log('response: ', response);
-				const data = await response.json();
-				console.log(data);
-				if (response.ok) {}
-					// navigate('/home');
-				else {
+				if (response.ok) {
+					const data = await response.json();
+					if (data.requires_2fa) {
+						setEmail(data.email);
+						console.log(email);
+						navigate('/twofa')
+					} else {
+						console.log(data);
+						navigate('/home');
+					}
+				} else {
 					if (response.status === 401)
 						setLoginError('invalid email or password! please try again.');
 				}
@@ -185,16 +225,48 @@ export const AuthProvider = ({children}) => {
 		}
 	}
 
+	const authorization2FA = async (e) => {
+		e.preventDefault();
+		// console.log(values2FA.join(''));
+		// console.log(email);
+		const postFormData = new FormData();
+		postFormData.append('email', email)
+		postFormData.append('2fa_code', values2FA.join(''));
+		postFormData.forEach((value, key) => {
+			console.log(key + ': ' + value);
+		});
+		try {
+			const response = await fetch('https://localhost:8000/api/token/', {
+				method: 'POST',
+				credentials: 'include',
+				body: postFormData
+			});
+			console.log('2af response: ', response);
+			const data = await response.json();
+			console.log(data);
+			if (response.ok) {
+				navigate('/home');
+			}
+		} catch (error) {
+			console.log('error: ', error);
+		}
+	}
+
 	const contextData = {
 		error: error,
 		loginError: loginError,
 		registerError: registerError,
+		values2FA: values2FA,
+		inputs: inputs,
 		register: register,
 		login: login,
 		handleBlur: handleBlur,
 		handleChange: handleChange,
 		handleChangePassLogin: handleChangePassLogin,
-		authProvider: authProvider
+		authProvider: authProvider,
+		handleChange2FA: handleChange2FA,
+		handleKeyDown2FA: handleKeyDown2FA,
+		authorization2FA: authorization2FA
 	}
 
 	return (
