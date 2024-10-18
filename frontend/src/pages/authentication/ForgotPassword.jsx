@@ -1,5 +1,5 @@
-import AuthContext from "../context/AuthContext";
-import InputFieled from "../components/InputField";
+import AuthContext from "../../context/AuthContext";
+import InputFieled from "../../components/InputField";
 import { useContext, useState } from "react";
 
 const ForgotPassword = () => {

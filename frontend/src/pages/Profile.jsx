@@ -8,9 +8,6 @@ import { GiCrossedSwords } from "react-icons/gi";
 import { FaClover } from "react-icons/fa6";
 import { GiFlamedLeaf } from "react-icons/gi";
 import { LiaMedalSolid } from "react-icons/lia";
-import { MdGames } from "react-icons/md";
-import { FaFire } from "react-icons/fa6";
-import { Link } from "react-router-dom";
 
 const profileMenu = ['overview', 'statistics', 'achievements', 'friends'];
 

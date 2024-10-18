@@ -1,10 +1,10 @@
-import AuthContext from "../context/AuthContext";
-import InputFieled from "../components/InputField";
+import AuthContext from "../../context/AuthContext";
+import InputFieled from "../../components/InputField";
 import { useContext, useState } from "react";
 import { useParams } from 'react-router-dom'
 
-const ResetPassword = () => {
-	const {handleBlur, handleChange, error} = useContext(AuthContext);
+const TwoFA = () => {
+	const {handleBlur, handleChange} = useContext(AuthContext);
 	let { uid, token } = useParams();
 
 	return (
@@ -19,15 +19,13 @@ const ResetPassword = () => {
 						</div>
 
 						<form className="md:py-32 py-16 flex flex-col gap-48">
-
-							<div className="flex flex-col gap-10">
-								<InputFieled name="password" type="password" placeholder="Password" onChange={handleChange} onBlur={handleBlur} error={error.password} />
-								{error.password && <span className="text-red text-txt-sm">{error.password}</span>}
-							</div>
-
-							<div className="flex flex-col gap-10">
-								<InputFieled name="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} onBlur={handleBlur} error={error.confirmPassword} />
-								{error.confirmPassword && <span className="text-red text-txt-sm">{error.confirmPassword}</span>}
+							<div className="flex gap-32  grow">
+									<input type="text" className="bg-transparent border-b-2 border-stroke-sc grow" />
+									<input type="text" className="bg-transparent border-b-2 border-stroke-sc grow" />
+									<input type="text" className="bg-transparent border-b-2 border-stroke-sc w-8" />
+									<input type="text" className="bg-transparent border-b-2 border-stroke-sc w-8" />
+									<input type="text" className="bg-transparent border-b-2 border-stroke-sc w-8" />
+									<input type="text" className="bg-transparent border-b-2 border-stroke-sc w-8" />
 							</div>
 
 							<button type="submit" className="bg-green text-black text-h-sm-lg font-bold py-8 rounded">Send</button>
@@ -46,4 +44,4 @@ const ResetPassword = () => {
 	)
 }
 
-export default ResetPassword;
+export default TwoFA;

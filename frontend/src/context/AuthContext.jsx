@@ -169,9 +169,11 @@ export const AuthProvider = ({children}) => {
 					credentials: 'include',
 					body: postFormData
 				});
-		
-				if (response.ok)
-					navigate('/home');
+				console.log('response: ', response);
+				const data = await response.json();
+				console.log(data);
+				if (response.ok) {}
+					// navigate('/home');
 				else {
 					if (response.status === 401)
 						setLoginError('invalid email or password! please try again.');

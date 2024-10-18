@@ -14,6 +14,7 @@ from django.core.mail import get_connection, EmailMessage
 from rest_framework import status
 from django.core.cache import cache
 from django.http import HttpResponseRedirect
+from rest_framework_simplejwt.tokens import RefreshToken
 import os
 from django.conf import settings
 
@@ -81,30 +82,30 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			return Response({'message': 'This email cannot be logged in with a password'}, status=401)
 
 		
-		response = super().post(request, *args, **kwargs)
-		
-		if response.status_code == 200:
-			
-			submitted_2fa_code = request.data.get('2fa_code') #hna kanakhed l code li kaypassih l user f 2FA, swblih UI dyalo w dir request l nefs l endpoint
-			if not submitted_2fa_code:
+		submitted_2fa_code = request.data.get('2fa_code') #hna kanakhed l code li kaypassih l user f 2FA, swblih UI dyalo w dir request l nefs l endpoint
+		if not submitted_2fa_code:
+			response = super().post(request, *args, **kwargs)
+			if response.status_code == 200:
 				two_factor_code = self.generate_2fa_code(user)
 				self.send_2fa_code(user.email, two_factor_code.code)
 				return Response({'message': '2FA code sent', 'requires_2fa': True}, status=200)
-			
+		else:
 			# Hna kan verifyi wach l code li passiti liya fl post method hwa nit li 3titek fl mail
 			if not TwoFactorCode.validate_code(user, submitted_2fa_code):
 				print("here", flush = True)
 				return Response({'message': 'Invalid 2FA code'}, status=400)
+
+			refresh_token = RefreshToken.for_user(user)
+			access_token =str(refresh_token.access_token)
 			
-			refresh_token = response.data.get('refresh')
-			access_token = response.data.get('access')
+			# refresh_token = response.data.get('refresh')
+			# access_token = response.data.get('access')
 
 			http_response = HttpResponse(content_type='application/json')
 			http_response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
 			http_response.set_cookie('accessToken', access_token, secure=True)
 			data = {"message": "ok"}
 			http_response.content = json.dumps(data)
-			
 			return http_response
 
 		return response

@@ -2,10 +2,10 @@ import { Si42 } from "react-icons/si";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import AuthContext from "../context/AuthContext";
-import useAuth from "../customHooks/useAuth";
-import InputFieled from "../components/InputField";
-import LoadingPage from "./LoadingPage";
+import AuthContext from "../../context/AuthContext";
+import useAuth from "../../customHooks/useAuth";
+import InputFieled from "../../components/InputField";
+import LoadingPage from "../LoadingPage";
 
 
 
