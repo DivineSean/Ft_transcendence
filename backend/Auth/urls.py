@@ -7,17 +7,20 @@ import re
 import   os
 
 urlpatterns = [
-    path('api/intra/', Oauth2.login42, name='42login'),
-    path('api/callback/', Oauth2.callback, name='42login'),
-    path('api/google/', Oauth2.loginGoogle, name='loginGoogle'),
-  
-    path('api/users/', Oauth2.show_users, name='users'),
-	
-		path('api/check_auth/', views.checkAuth, name='check_auth'),
-		path('api/register/', views.registerView, name='register'),
-		path('api/token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', views.CustomTokenRefreshView.as_view(), name='token_refresh'),
+	path('api/intra/', Oauth2.login42, name='42login'),
+	path('api/callback/', Oauth2.callback, name='42login'),
+	path('api/google/', Oauth2.loginGoogle, name='loginGoogle'),
 
+	path('api/users/', Oauth2.show_users, name='users'),
+	
+	path('api/check_auth/', views.checkAuth, name='check_auth'),
+	path('api/resent2fa/', views.resend2FACode, name='resend_2fa_code'),
+	path('api/register/', views.registerView, name='register'),
+	path('api/token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+  path('api/token/refresh/', views.CustomTokenRefreshView.as_view(), name='token_refresh'),
+
+	
+    path('logout/', views.logout,),
 		#reset password
 		# path('api/reset_password/', views.CustomPasswordResetView.as_view(), name='password_reset'),
 		# path('api/password_reset_done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),

@@ -15,6 +15,7 @@ from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 import requests
 import os, json
 
+
 CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
 REDIRECT_URL = os.environ.get("REDIRECT_URL") #change reedirect url
@@ -38,8 +39,6 @@ def CreateUserIfNotExists(user_data):
 		last_name = user_data.get('family_name') 
 
 	password = None
-
-
 	data = { 
 	    "first_name" : first_name,
 	    "last_name" : last_name,
