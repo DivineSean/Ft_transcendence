@@ -20,12 +20,36 @@ const Games = () => {
 	));
 	const mountRef = useRef(null);
 	let playing = false;
+	let player;
 
 	const handleMessage = (event) => {
 		const msg = JSON.parse(event.data);
-		console.log(msg);
-		const pos = msg.message.position;
-		paddle1.position.x = pos;
+		if (msg.type == "role") {
+			player = msg.message;
+			console.log("hello i'm player ", player);
+		} else if (msg.type == "update") {
+			console.log(msg);
+			const pos = msg.message.position;
+			// if (msg.message.player == 1) {
+			// 	if (player == 1)
+			// 		paddle1.position.x = pos;
+			// 	else
+			// 		paddle2.position.x = -pos;
+			// } else {
+			// 	if (player == 2)
+			// 		paddle1.position.x = pos;
+			// 	else
+			// 		paddle2.position.x = -pos;
+			// }
+			if (msg.message.player != player)
+				paddle2.position.x = -pos;
+			else
+				paddle1.position.x = pos;
+			// ball.position.x = msg.message.ball.x;
+			// ball.position.y = msg.message.ball.y;
+			// ball.position.z = msg.message.ball.z;
+			// ballVelocity = msg.message.velocity;
+		}
 	}
 
 	const update = (delta) => {
@@ -56,28 +80,34 @@ const Games = () => {
 
 	const KeyDown = (event) => {
 		console.log(event);
-		let p1_pos = paddle1.position.x;
-		let p2_pos = paddle2.position.x;
+		let pos = paddle1.position.x;
 
 		if (event.code == 'KeyA')
-			p1_pos -= 0.1;
+			pos -= 0.1;
 		else if (event.code == 'KeyD')
-			p1_pos += 0.1;
+			pos += 0.1;
 
-		if (event.code == 'ArrowRight')
-			p2_pos -= 0.1;
-		else if (event.code == 'ArrowLeft')
-			p2_pos += 0.1;
+		// if (!playing) {
+		// 	ballVelocity.y = 0.05;
+		// 	playing = true;
+		// }
 
-		if (event.code == PLAYER1_SHOOT)
-			p1Shoot = true;
-		if (event.code == PLAYER2_SHOOT)
-			p2Shoot = true;
+		// if (event.code == 'ArrowRight')
+		// 	p2_pos -= 0.1;
+		// else if (event.code == 'ArrowLeft')
+		// 	p2_pos += 0.1;
+		//
+		// if (event.code == PLAYER1_SHOOT)
+		// 	p1Shoot = true;
+		// if (event.code == PLAYER2_SHOOT)
+		// 	p2Shoot = true;
 
 		const data = {
 			"message": {
-				"player": 1,
-				"position": p1_pos,
+				"player": player,
+				"position": pos,
+				"ball": ball,
+				"velocity": ballVelocity,
 			}
 		}
 		ws.current.send(JSON.stringify(data));
