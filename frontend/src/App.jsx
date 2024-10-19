@@ -1,11 +1,12 @@
 import Login from './pages/Login'
-import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import SignUp from './pages/Register'
 import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './utils/PrivateRoute'
 import Home from './pages/Home'
 import Chat from './pages/Chat'
 import Profile from './pages/Profile'
+import Games from './pages/Games'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Menu from './components/Menu'
@@ -20,8 +21,8 @@ const Reset = () => {
 }
 
 function App() {
-  return (
-    <>
+	return (
+		<>
 			<Router>
 				<AuthProvider>
 					<Routes>
@@ -30,6 +31,7 @@ function App() {
 						<Route path='login/' element={<Login />} />
 						<Route path='menu/' element={<Menu />} />
 						<Route path='profile/' element={<Profile />} />
+						<Route path='games/' element={<Games />} />
 						<Route path='register/' element={<SignUp />} />
 						<Route path='home/' element={<Home />} />
 						<Route path='chat/' element={<Chat />} />
@@ -37,8 +39,8 @@ function App() {
 					</Routes>
 				</AuthProvider>
 			</Router>
-    </>
-  )
+		</>
+	)
 }
 
 export default App
