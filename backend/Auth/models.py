@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
-import random 
+import random
+import uuid
 from django.utils import timezone
 
 class CustomUserManager(BaseUserManager):
@@ -21,6 +22,7 @@ class CustomUserManager(BaseUserManager):
 
 
 class Users(AbstractUser):
+	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
 	email = models.EmailField(max_length=255, unique=True)
 	password = models.CharField(max_length=255, blank=True, null=True)
 	first_name = models.CharField(max_length=255)

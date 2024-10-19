@@ -49,8 +49,8 @@ def registerView(request):
 @api_view(['POST'])
 def resend2FACode(request):
 	try:
-		email = request.data.get('email')
-		user = Users.objects.get(email=email)
+		user_id = request.data.get('id')
+		user = Users.objects.get(id=user_id)
 	except Users.DoesNotExist:
 		return Response({'message': 'User not  found'}, status=401)
 	except Users.MultipleObjectsReturned:
@@ -89,26 +89,36 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			EmailMessage(subject, message, email_from, recipient_list, connection=connection).send()
 		
 	def post(self, request, *args, **kwargs):
-		try:
-			email = request.data.get('email')
-			user = Users.objects.get(email=email)
-		except Users.DoesNotExist:
-			return Response({'message': 'User not found'}, status=401)
-		except Users.MultipleObjectsReturned:
-			return Response({'message': 'Multiple users found with the same email'}, status=401)
-
-		if user and not user.password:
-			return Response({'message': 'This email cannot be logged in with a password'}, status=401)
-
-		
 		submitted_2fa_code = request.data.get('2fa_code')
 		if not submitted_2fa_code:
+			try:
+				email = request.data.get('email')
+				user = Users.objects.get(email=email)
+			except Users.DoesNotExist:
+				return Response({'message': 'User not found'}, status=401)
+			except Users.MultipleObjectsReturned:
+				return Response({'message': 'Multiple users found with the same email'}, status=401)
+
+			if user and not user.password:
+				return Response({'message': 'This email cannot be logged in with a password'}, status=401)
+
+			user_id = user.id
 			userTokens = super().post(request, *args, **kwargs)
 			if userTokens.status_code == 200:
 				two_factor_code = self.generate_2fa_code(user)
 				self.send_2fa_code(user.email, two_factor_code.code)
-				return Response({'message': '2FA code sent', 'email': email, 'requires_2fa': True}, status=200)
+				return Response({'message': '2FA code sent', 'uid': user_id, 'requires_2fa': True}, status=200)
+				
 		else:
+			try:
+				user_id = request.data.get('id')
+				print(user_id, flush=True)
+				user = Users.objects.get(id=user_id)
+			except Users.DoesNotExist:
+				return Response({'message': 'User not found'}, status=401)
+			except Users.MultipleObjectsReturned:
+				return Response({'message': 'Multiple users found with the same id'}, status=401)
+
 			if not TwoFactorCode.validate_code(user, submitted_2fa_code):
 				print("here", flush = True)
 				return Response({'message': 'Invalid 2FA code'}, status=400)

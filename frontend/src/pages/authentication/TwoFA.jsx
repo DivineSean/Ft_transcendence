@@ -4,13 +4,14 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from 'react-router-dom'
 
 const TwoFA = () => {
+	const { uid } = useParams();
 	const { handleChange2FA, handleKeyDown2FA, inputs, values2FA, authorization2FA, resent2FACode } = useContext(AuthContext);
-	const [timer, setTimer] = useState(5);
+	const [timer, setTimer] = useState(150);
 	const [isActive, setIsActive] = useState(false);
 
 	const resetTimer = () => {
-		resent2FACode();
-		setTimer(5);
+		resent2FACode(uid);
+		setTimer(150);
 		setIsActive(false);
 	}
 	
@@ -45,7 +46,7 @@ const TwoFA = () => {
 							<p className="md:text-txt-md text-txt-xs text-gray lg:w-full max-w-[600px]">Protecting your account is our top priority. Please confirm  your account by entering the authorization code sent to</p>
 						</div>
 
-						<form onSubmit={authorization2FA} className="md:py-32 py-16 flex flex-col gap-48">
+						<form onSubmit={(e) => authorization2FA(e, uid)} className="md:py-32 py-16 flex flex-col gap-48">
 							<div className="flex justify-between">
 								{values2FA.map((value, index) => (
 									<input 

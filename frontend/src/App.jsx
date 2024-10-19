@@ -20,7 +20,7 @@ function App() {
 					<Routes>
 						<Route path='forgot_password' element={<ForgotPassword />} />
 						<Route path='reset/' element={<ResetPassword />} />
-						<Route path='Twofa/' element={<TwoFA />} />
+						<Route path='Twofa/:uid' element={<TwoFA />} />
 						<Route path='login/' element={<Login />} />
 						<Route path='menu/' element={<Menu />} />
 						<Route path='profile/' element={<Profile />} />

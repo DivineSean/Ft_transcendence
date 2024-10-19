@@ -28,7 +28,7 @@ export const AuthProvider = ({children}) => {
 
 
 	const [values2FA, setValues2FA] = useState(Array(6).fill(''));
-	const [email, setEmail] = useState('');
+	let uid;
 	const inputs = useRef([]);
 
 	const handleChange2FA = (e, index) => {
@@ -203,15 +203,12 @@ export const AuthProvider = ({children}) => {
 					credentials: 'include',
 					body: postFormData
 				});
-				console.log('response: ', response);
 				if (response.ok) {
 					const data = await response.json();
+					uid = data.uid;
 					if (data.requires_2fa) {
-						setEmail(data.email);
-						console.log(email);
-						navigate('/twofa')
+						navigate(`/twofa/${uid}`)
 					} else {
-						console.log(data);
 						navigate('/home');
 					}
 				} else {
@@ -225,12 +222,10 @@ export const AuthProvider = ({children}) => {
 		}
 	}
 
-	const authorization2FA = async (e) => {
+	const authorization2FA = async (e, userId) => {
 		e.preventDefault();
-		// console.log(values2FA.join(''));
-		// console.log(email);
 		const postFormData = new FormData();
-		postFormData.append('email', email)
+		postFormData.append('id', userId)
 		postFormData.append('2fa_code', values2FA.join(''));
 		try {
 			const response = await fetch('https://localhost:8000/api/token/', {
@@ -238,9 +233,7 @@ export const AuthProvider = ({children}) => {
 				credentials: 'include',
 				body: postFormData
 			});
-			console.log('2af response: ', response);
 			const data = await response.json();
-			console.log(data);
 			if (response.ok) {
 				navigate('/home');
 			}
@@ -249,18 +242,16 @@ export const AuthProvider = ({children}) => {
 		}
 	}
 
-	const resent2FACode = async () => {
+	const resent2FACode = async (userId) => {
 		const postFormData = new FormData();
-		postFormData.append('email', email);
+		postFormData.append('id', userId);
 		try {
 			const response = await fetch('https://localhost:8000/api/resent2fa/', {
 				method: 'POST',
 				credentials: 'include',
 				body: postFormData
 			});
-			console.log(response);
 			const data = await response.json();
-			console.log(data);
 		} catch (error) {
 			console.log('error: ', error);
 		}
