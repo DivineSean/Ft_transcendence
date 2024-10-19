@@ -232,9 +232,6 @@ export const AuthProvider = ({children}) => {
 		const postFormData = new FormData();
 		postFormData.append('email', email)
 		postFormData.append('2fa_code', values2FA.join(''));
-		postFormData.forEach((value, key) => {
-			console.log(key + ': ' + value);
-		});
 		try {
 			const response = await fetch('https://localhost:8000/api/token/', {
 				method: 'POST',
@@ -247,6 +244,23 @@ export const AuthProvider = ({children}) => {
 			if (response.ok) {
 				navigate('/home');
 			}
+		} catch (error) {
+			console.log('error: ', error);
+		}
+	}
+
+	const resent2FACode = async () => {
+		const postFormData = new FormData();
+		postFormData.append('email', email);
+		try {
+			const response = await fetch('https://localhost:8000/api/resent2fa/', {
+				method: 'POST',
+				credentials: 'include',
+				body: postFormData
+			});
+			console.log(response);
+			const data = await response.json();
+			console.log(data);
 		} catch (error) {
 			console.log('error: ', error);
 		}
@@ -266,7 +280,8 @@ export const AuthProvider = ({children}) => {
 		authProvider: authProvider,
 		handleChange2FA: handleChange2FA,
 		handleKeyDown2FA: handleKeyDown2FA,
-		authorization2FA: authorization2FA
+		authorization2FA: authorization2FA,
+		resent2FACode: resent2FACode
 	}
 
 	return (

@@ -18,11 +18,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 import os
 from django.conf import settings
 
-
-# class CustomPasswordResetView(PasswordResetView):
-# 	html_email_template_name = 'registration/password_reset_email.html'
-# 	subject_template_name = 'registration/password_reset_subject.txt'
-
+# this function used when we navigate to the login/register page in frontend
+# to check if the user is already loggedin and redirect it to the home page
 @api_view(['GET'])
 def checkAuth(request):
 	token = request.COOKIES.get('accessToken')
@@ -38,7 +35,6 @@ def checkAuth(request):
 		return Response({'authenticated': False, 'error': str(e)}, status=401)
 
 
-
 @api_view(['POST'])
 def registerView(request):
 	serializer = RegisterSerializer(data=request.data)
@@ -47,8 +43,33 @@ def registerView(request):
 
 	return Response(serializer.data)
 
+# resend2FACode is a post method to resend the 2FA code
+ # -> check the user with the email if it's in the database, otherwise return error
+ # -> then generate a new 2FA code and send it the user's email and return a response
+@api_view(['POST'])
+def resend2FACode(request):
+	try:
+		email = request.data.get('email')
+		user = Users.objects.get(email=email)
+	except Users.DoesNotExist:
+		return Response({'message': 'User not  found'}, status=401)
+	except Users.MultipleObjectsReturned:
+		return Response({'message': 'Multiple users found with the same email'}, status=401)
+
+	twofaOjt = CustomTokenObtainPairView()
+	two_factor_code = twofaOjt.generate_2fa_code(user)
+	twofaOjt.send_2fa_code(user.email, two_factor_code.code)
+	return Response({'message': '2FA code sent', 'required_2fa': True}, status=200)
 
 
+# if the 2fa_code is not set in the body of the request the POST function behave as follow:
+	# -> make sure that the user who send the request is not an Oauth user,
+	#    if it's then return an error (because he can logged in using email and password)
+	# -> logged in the user if the user logged in successfully, then generate the 2FA code and send it the user email
+
+# otherwise the POST behave as follow:
+ # -> check the email for the user if user found then, verify the 2fa_code is valid if it's set the cookies
+ #    and navigate to the home page.
 class CustomTokenObtainPairView(TokenObtainPairView):
 	def generate_2fa_code(self, user):
 		return TwoFactorCode.generate_code(user)
@@ -66,7 +87,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			recipient_list = [user_email]  
 			message = f"Your 2FA CODE : {code}"  
 			EmailMessage(subject, message, email_from, recipient_list, connection=connection).send()
-
+		
 	def post(self, request, *args, **kwargs):
 		try:
 			email = request.data.get('email')
@@ -98,28 +119,12 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			http_response = HttpResponse(content_type='application/json')
 			http_response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
 			http_response.set_cookie('accessToken', access_token, httponly=True, secure=True, samesite='Lax')
-			data = {
-				"message": "ok",
-				"access_token": access_token,
-				"refresh_token": str(refresh_token),
-				"email": email
-			}
+			data = {"message": "ok"}
 			dump = json.dumps(data)
 			http_response.content = dump
 			return http_response
 
-@api_view(["POST"]) # its ok ila passiti liya l body khawi, ghir khliha POST 7it rah loggout hada 
-def logout(request):
-	refresh_token = request.COOKIES.get('refreshToken')
-	if refresh_token:
-		token = RefreshToken(refresh_token)
-		token.blacklist()
-	response = HttpResponseRedirect(os.environ.get("REDIRECT_URL"))
-	response = Response({"message": "Logged Out"}, status=status.HTTP_200_OK)
-	response.delete_cookie("accessToken")
-	response.delete_cookie("refreshToken")
-	return response
-
+# this method to refresh tokens
 class CustomTokenRefreshView(TokenRefreshView):
 	def post(self, request, *args, **kwargs):
 		refresh_token = request.COOKIES.get('refreshToken')
@@ -139,8 +144,15 @@ class CustomTokenRefreshView(TokenRefreshView):
 			response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
 
 		return response
-		# request.data['refresh'] = refresh_token
-		# return super().post(request, *args, **kwargs)
 
-		# if not refresh_token:
-		# 	return Response({'authenticated': False}, status=401)
+@api_view(["POST"]) # its ok ila passiti liya l body khawi, ghir khliha POST 7it rah loggout hada 
+def logout(request):
+	refresh_token = request.COOKIES.get('refreshToken')
+	if refresh_token:
+		token = RefreshToken(refresh_token)
+		token.blacklist()
+	response = HttpResponseRedirect(os.environ.get("REDIRECT_URL"))
+	response = Response({"message": "Logged Out"}, status=status.HTTP_200_OK)
+	response.delete_cookie("accessToken")
+	response.delete_cookie("refreshToken")
+	return response

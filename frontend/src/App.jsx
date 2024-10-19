@@ -19,7 +19,7 @@ function App() {
 				<AuthProvider>
 					<Routes>
 						<Route path='forgot_password' element={<ForgotPassword />} />
-						<Route path='api/reset/' element={<ResetPassword />} />
+						<Route path='reset/' element={<ResetPassword />} />
 						<Route path='Twofa/' element={<TwoFA />} />
 						<Route path='login/' element={<Login />} />
 						<Route path='menu/' element={<Menu />} />
