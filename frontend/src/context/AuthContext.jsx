@@ -1,6 +1,5 @@
 import { createContext, useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from 'react-router-dom'
-import Cookies from 'js-cookie'
 
 const AuthContext = createContext();
 
