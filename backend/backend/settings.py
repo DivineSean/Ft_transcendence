@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
 	'rest_framework_simplejwt',
+    'channels',
     'Auth',
+    'games',
 ]
 
 REST_FRAMEWORK = {

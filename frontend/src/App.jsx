@@ -1,5 +1,5 @@
 import Login from './pages/Login'
-import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import SignUp from './pages/Register'
 import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './utils/PrivateRoute'
@@ -20,8 +20,8 @@ const Reset = () => {
 }
 
 function App() {
-  return (
-    <>
+	return (
+		<>
 			<Router>
 				<AuthProvider>
 					<Routes>
@@ -38,8 +38,8 @@ function App() {
 					</Routes>
 				</AuthProvider>
 			</Router>
-    </>
-  )
+		</>
+	)
 }
 
 export default App
