@@ -190,8 +190,6 @@ class RequestPasswordChange(APIView):
 			return Response({'message': 'User not found'}, status=401)
 		except Users.MultipleObjectsReturned:
 			return Response({'message': 'Multiple users found with the same email'}, status=401)
-		user_password = user.password
-		print(f'user_password: {user_password}', flush=True)
 		user_id = user.id
 
 		obj = CustomTokenObtainPairView()

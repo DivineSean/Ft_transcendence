@@ -26,6 +26,7 @@ export const AuthProvider = ({children}) => {
 	const [registerError, setRegisterError] = useState('');
 
 	const location = useLocation();
+	const [globalErorr, setGlobalError] = useState('');
 
 
 	const [values2FA, setValues2FA] = useState(Array(6).fill(''));
@@ -58,15 +59,12 @@ export const AuthProvider = ({children}) => {
 		}
 	}
 
-
 	useEffect(() => {
-		if (location.pathname !== '/login')
-			setLoginError('');
-		else if (location.pathname !== '/register')
-			setRegisterError('');
-		if (location.pathname !== '/twofa')
-			setValues2FA(Array(6).fill(''));
-	}, [location.pathname])
+		setLoginError('');
+		setRegisterError('');
+		setValues2FA(Array(6).fill(''));
+		setGlobalError('');
+	}, [location])
 
 	const handleBlur = (e) => {
 		const {name, value} = e.target;
@@ -211,8 +209,10 @@ export const AuthProvider = ({children}) => {
 						navigate('/home');
 					}
 				} else {
-					if (response.status === 401)
+					if (response.status === 401) {
 						setLoginError('invalid email or password! please try again.');
+						setGlobalError('invalid email or password! please try again.');
+					}
 				}
 			} catch (error) {
 				console.error('error: ', error);
@@ -320,6 +320,7 @@ export const AuthProvider = ({children}) => {
 		loginError: loginError,
 		registerError: registerError,
 		values2FA: values2FA,
+		globalErorr: globalErorr,
 		inputs: inputs,
 		register: register,
 		login: login,
