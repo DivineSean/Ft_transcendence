@@ -20,10 +20,8 @@ urlpatterns = [
   path('api/token/refresh/', views.CustomTokenRefreshView.as_view(), name='token_refresh'),
 
 	
-    path('logout/', views.logout,),
-		#reset password
-		# path('api/reset_password/', views.CustomPasswordResetView.as_view(), name='password_reset'),
-		# path('api/password_reset_done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
-		# path('api/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-		# path('api/reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+	path('api/requestreset/', views.RequestPasswordChange.as_view(), name='send2FACode'),
+	path('api/changepassword/', views.CheckPasswordChange.as_view(), name='resetPassword'),
+	
+	path('logout/', views.logout,),
 ]

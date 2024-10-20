@@ -13,12 +13,12 @@ const Login = () => {
 	
 	const {
 		login,
-		handleChange,
-		handleChangePassLogin,
-		handleBlur,
 		error,
 		loginError,
-		authProvider
+		handleBlur,
+		authProvider,
+		handleChange,
+		handleChangePassLogin,
 	} = useContext(AuthContext);
 	const navigate = useNavigate();
 	const [load, setLoad] = useState(true);
@@ -86,7 +86,7 @@ const Login = () => {
 								</div>
 
 								<div className="flex justify-end">
-									<Link to="/forgot_password" className="underline">forget password?</Link>
+									<Link to="/forgotpassword" className="underline">forget password?</Link>
 								</div>
 
 								<button type="submit" className="bg-green text-black text-h-sm-lg font-bold py-8 rounded">Log In</button>
