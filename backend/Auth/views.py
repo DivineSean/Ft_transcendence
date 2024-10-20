@@ -1,22 +1,22 @@
-from django.shortcuts import render
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework import exceptions
-from .serializers import RegisterSerializer
-from django.http import JsonResponse, HttpResponse
-from .models import Users, TwoFactorCode
-from django.contrib.auth.views import PasswordResetView
-import json
 from django.core.mail import get_connection, EmailMessage
-from rest_framework import status
-from django.core.cache import cache
-from django.http import HttpResponseRedirect
 from rest_framework_simplejwt.tokens import RefreshToken
-import os
+from django.contrib.auth.views import PasswordResetView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view
+from rest_framework import exceptions, status
+from rest_framework.response import Response
+from .serializers import RegisterSerializer, PasswordUpdateSerializer
+from .models import Users, TwoFactorCode
+from rest_framework.views import APIView
+from django.shortcuts import render
+from django.core.cache import cache
 from django.conf import settings
+import json
+import os
+import uuid
 
 # this function used when we navigate to the login/register page in frontend
 # to check if the user is already loggedin and redirect it to the home page
@@ -50,6 +50,11 @@ def registerView(request):
 def resend2FACode(request):
 	try:
 		user_id = request.data.get('id')
+		uuid.UUID(user_id, version=4)
+	except ValueError:
+		return Response({"error": "invalid id"}, status=400)
+
+	try:
 		user = Users.objects.get(id=user_id)
 	except Users.DoesNotExist:
 		return Response({'message': 'User not  found'}, status=401)
@@ -112,7 +117,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 		else:
 			try:
 				user_id = request.data.get('id')
-				print(user_id, flush=True)
+				uuid.UUID(user_id, version=4)
+			except ValueError:
+				return Response({"error": "invalid id"}, status=400)
+
+			try:
 				user = Users.objects.get(id=user_id)
 			except Users.DoesNotExist:
 				return Response({'message': 'User not found'}, status=401)
@@ -166,3 +175,69 @@ def logout(request):
 	response.delete_cookie("accessToken")
 	response.delete_cookie("refreshToken")
 	return response
+
+
+class RequestPasswordChange(APIView):
+	
+	def post(self, request):
+		return self.getCode(request)
+	
+	def getCode(self, request):
+		try:
+			userEmail = request.data.get("email") 
+			user = Users.objects.get(email=userEmail)
+		except Users.DoesNotExist:
+			return Response({'message': 'User not found'}, status=401)
+		except Users.MultipleObjectsReturned:
+			return Response({'message': 'Multiple users found with the same email'}, status=401)
+		user_password = user.password
+		print(f'user_password: {user_password}', flush=True)
+		user_id = user.id
+
+		obj = CustomTokenObtainPairView()
+		twoFACode = obj.generate_2fa_code(user)
+		
+		obj.send_2fa_code(userEmail,twoFACode.code)
+		
+		return Response({"message": "Code Sent", 'uid': user_id}, status=200)
+
+class CheckPasswordChange(APIView):
+	
+	def post(self, request):
+		return self.checkCode(request)
+	
+	def checkCode(self, request):
+		
+		try:
+			user_id = request.data.get('id')
+			uuid.UUID(user_id, version=4)
+		except ValueError:
+			return Response({"error": "invalid id"}, status=400)
+
+		try:
+			user = Users.objects.get(id=user_id)
+		except Users.DoesNotExist:
+			return Response({'message': 'User not found'}, status=401)
+		except Users.MultipleObjectsReturned:
+			return Response({'message': 'Multiple users found with the same id'}, status=401)
+		
+
+		code = request.data.get("code")
+		if code == None:
+			return Response({'message': 'Code missing'}, status=400)
+		
+		
+		newPassword = request.data.get("newPassword")
+		if newPassword == None:
+			return Response({'message': 'newPassword missing'}, status=400)
+			
+		if TwoFactorCode.validate_code(user, code) == False:	
+			return Response({"message": "Code Invalid"}, status=401)
+		
+		serializer = PasswordUpdateSerializer(user, data={'new_password': newPassword})
+        
+		if serializer.is_valid():
+			serializer.save()
+			return Response({'message': 'Password Updateed'}, status=200)
+		else:
+			return Response(serializer.errors, status=400)

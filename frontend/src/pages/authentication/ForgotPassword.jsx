@@ -1,14 +1,12 @@
 import AuthContext from "../../context/AuthContext";
 import InputFieled from "../../components/InputField";
 import { useContext, useState } from "react";
+import ResetPassword from "./ResetPassword";
+import { useParams } from "react-router-dom";
 
 const ForgotPassword = () => {
-	const { handleBlur, handleChange, error} = useContext(AuthContext);
-	const [sent, setSent] = useState(false);
-
-	const send = async (e) => {
-		e.preventDefault();
-	}
+	const { uid } = useParams();
+	const { handleBlur, handleChange, error, requestResetPassword} = useContext(AuthContext);
 
 	return (
 		<div className="grow">
@@ -19,27 +17,30 @@ const ForgotPassword = () => {
 						<div className="cover-gradient grow"></div>
 					</div>
 					<div className="md:px-64 px-32 flex flex-col justify-center md:gap-32 gap-24 lg:py-64 py-32 grow">
-						<div className="flex flex-col gap-8">
-							<h1 className="md:text-h-lg-xl text-h-sm-xl font-bold">forgot password!</h1>
-							<p className="md:text-txt-lg text-txt-sm">reset your password</p>
-						</div>
-
-						{!sent &&
-							<form for="id_email" onSubmit={send} className="md:py-32 py-16 flex flex-col gap-48">
-
-								<div className="flex flex-col gap-10">
-									<InputFieled name="email" type="email" placeholder="Example@gmail.com" onChange={handleChange} onBlur={handleBlur} error={error.email} />
-									{error.email && <span className="text-red text-txt-sm">{error.email}</span>}
+						{!uid &&
+							<>
+								<div className="flex flex-col gap-8">
+									<h1 className="md:text-h-lg-xl text-h-sm-xl font-bold">forgot password!</h1>
+									<p className="md:text-txt-lg text-txt-sm">reset your password</p>
 								</div>
 
-								<button type="submit" className="bg-green text-black text-h-sm-lg font-bold py-8 rounded">Send</button>
+								<form onSubmit={(e) => requestResetPassword(e)} className="md:py-32 py-16 flex flex-col gap-48">
 
-							</form>
+									<div className="flex flex-col gap-10">
+										<InputFieled name="email" type="email" placeholder="Example@gmail.com" onChange={handleChange} onBlur={handleBlur} error={error.email} />
+										{error.email && <span className="text-red text-txt-sm">{error.email}</span>}
+									</div>
+
+									<button type="submit" className="bg-green text-black text-h-sm-lg font-bold py-8 rounded">Send</button>
+
+								</form>
+							</>
 						} 
-						{sent &&
-							<div className="md:py-32 py-16 flex flex-col gap-48">
-								<p>the email sent seccessfuly check your mail to change your password or go back to login page.</p>
-							</div>
+						{uid &&
+							// <div className="md:py-32 py-16 flex flex-col gap-48">
+							// 	<p>the email sent seccessfuly check your mail to change your password or go back to login page.</p>
+							// </div>
+							<ResetPassword />
 						}
 					</div>
 				</div>
