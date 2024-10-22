@@ -7,8 +7,6 @@ import useAuth from "../../customHooks/useAuth";
 import InputFieled from "../../components/InputField";
 import LoadingPage from "../LoadingPage";
 
-
-
 const Login = () => {
 	
 	const {
@@ -34,7 +32,7 @@ const Login = () => {
 				'code': code,
 				'prompt': prompt
 			})
-		});
+		}); 
 		const data = await response.json();
 		if (response.ok)
 			navigate('/home');
