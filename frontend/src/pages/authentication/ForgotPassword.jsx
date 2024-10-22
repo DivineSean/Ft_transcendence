@@ -3,6 +3,7 @@ import InputFieled from "../../components/InputField";
 import { useContext, useState } from "react";
 import ResetPassword from "./ResetPassword";
 import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const ForgotPassword = () => {
 	const { uid } = useParams();
@@ -32,14 +33,16 @@ const ForgotPassword = () => {
 									</div>
 
 									<button type="submit" className="bg-green text-black text-h-sm-lg font-bold py-8 rounded">Send</button>
+									
+									<div className="flex gap-8 justify-center md:text-txt-md text-txt-sm">
+										<p className="">did you remember your password?</p>
+										<Link to='/login' className="font-bold">log in</Link>
+									</div>
 
 								</form>
 							</>
 						} 
 						{uid &&
-							// <div className="md:py-32 py-16 flex flex-col gap-48">
-							// 	<p>the email sent seccessfuly check your mail to change your password or go back to login page.</p>
-							// </div>
 							<ResetPassword />
 						}
 					</div>

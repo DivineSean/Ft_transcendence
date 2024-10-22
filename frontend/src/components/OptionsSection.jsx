@@ -53,14 +53,20 @@ const OptionsSection = ({data, type, reference}) => {
 								ref={(el) => (sectionRef.current[i] = el)}
 								onClick={() => handleClick(i)}
 								className={`
-									cursor-pointer p-8 w-full rounded flex 
+									cursor-pointer p-8 w-full rounded flex gap-16 items-center
 									${type === 'options' && 'text-txt-sm'}
-									${type === 'options' && section !== 'logout' && 'hover:hover-secondary'}
+									${type === 'options' && section.name !== 'logout' && 'hover:hover-secondary'}
 									${type === 'notification' && 'text-txt-xs justify-start hover:hover-secondary'}
-									${section === 'logout' && 'hover:bg-logout-bg'}
+									${section.name === 'logout' && 'hover:bg-logout-bg'}
 								`}
 							>
-								{section}
+								{type === 'options' &&
+									<>
+										{section.icon}
+										{section.name}
+									</>
+								}
+								{type === 'notification' && section}
 							</li>
 						))
 					}

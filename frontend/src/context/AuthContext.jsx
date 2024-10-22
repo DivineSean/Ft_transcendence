@@ -9,6 +9,8 @@ export default AuthContext;
 
 export const AuthProvider = ({children}) => {
 
+	const [displayMenuGl, setDisplayMenuGl] = useState(false);
+
 	const navigate = useNavigate();
 	const validationErrors = {};
 	const emailRegex = /\S+@\S+\.\S+/;
@@ -22,51 +24,12 @@ export const AuthProvider = ({children}) => {
 		confirmPassword: ''
 	})
 	const [error, setError] = useState({});
-	const [loginError, setLoginError] = useState('');
-	const [registerError, setRegisterError] = useState('');
 
 	const location = useLocation();
 
-
-	const [values2FA, setValues2FA] = useState(Array(6).fill(''));
-	const inputs = useRef([]);
-
-	const handleChange2FA = (e, index) => {
-		const value = e.target.value;
-		if (/^[0-9]$/.test(value)) {
-			const newValues = [...values2FA];
-			newValues[index] = value;
-			setValues2FA(newValues);
-			if (index < 5 && value) {
-				inputs.current[index + 1].focus();
-			}
-		}
-	};
-
-	const handleKeyDown2FA = (e, index) => {
-		if (e.key === 'Backspace') {
-			const newValues = [...values2FA];
-			if (newValues[index]) {
-				newValues[index] = '';
-				setValues2FA(newValues);
-			} else if (index > 0) {
-				inputs.current[index - 1].focus();
-				const prevValues = [...values2FA];
-				prevValues[index - 1] = '';
-				setValues2FA(prevValues);
-			}
-		}
-	}
-
-
 	useEffect(() => {
-		if (location.pathname !== '/login')
-			setLoginError('');
-		else if (location.pathname !== '/register')
-			setRegisterError('');
-		if (location.pathname !== '/twofa')
-			setValues2FA(Array(6).fill(''));
-	}, [location.pathname])
+		setError({});
+	}, [location])
 
 	const handleBlur = (e) => {
 		const {name, value} = e.target;
@@ -128,7 +91,7 @@ export const AuthProvider = ({children}) => {
 		}
 	}
 
-	const register = async (e) => {
+	const register = async (e, setRegisterError) => {
 		e.preventDefault();
 
 		for (const data in formData) {
@@ -176,7 +139,7 @@ export const AuthProvider = ({children}) => {
 		}
 	}
 
-	const login = async (e) => {
+	const login = async (e, setLoginError) => {
 		e.preventDefault();
 		for (const data in formData) {
 			if (data === 'email' && !emailRegex.test(formData[data]))
@@ -211,8 +174,9 @@ export const AuthProvider = ({children}) => {
 						navigate('/home');
 					}
 				} else {
-					if (response.status === 401)
-						setLoginError('invalid email or password! please try again.');
+					const random = Math.random();
+					setLoginError("invalid email or password! " + random);
+					console.log(random);
 				}
 			} catch (error) {
 				console.error('error: ', error);
@@ -221,7 +185,7 @@ export const AuthProvider = ({children}) => {
 		}
 	}
 
-	const authorization2FA = async (e, userId) => {
+	const authorization2FA = async (e, userId, values2FA) => {
 		e.preventDefault();
 		const postFormData = new FormData();
 		postFormData.append('id', userId)
@@ -258,27 +222,39 @@ export const AuthProvider = ({children}) => {
 
 	const requestResetPassword = async (e) => {
 		e.preventDefault();
-		
-		const email = e.target.email.value;
-		const postFormData = new FormData();
-		postFormData.append('email', email)
-		console.log(email);
-		try {
-			const response = await fetch(`${URL}api/requestreset/`, {
-				method: 'POST',
-				credentials: 'include',
-				body: postFormData
-			});
-			const data = await response.json();
-			if (response.ok) {
-				navigate(`/forgotpassword/${data.uid}`)
+		for (const data in formData) {
+			if (data === 'email' && !emailRegex.test(formData[data]))
+				validationErrors[data] = `invalid ${data}!`;
+			if (data === 'email' && !formData[data].trim())
+				validationErrors[data] = `${data} is required!`;
+			if (data === 'password' && !formData[data].trim())
+				validationErrors[data] = `${data} is required!`;
+		}
+		setError(validationErrors);
+
+
+		if (Object.keys(validationErrors).length === 0) {
+			const email = e.target.email.value;
+			const postFormData = new FormData();
+			postFormData.append('email', email)
+			console.log(email);
+			try {
+				const response = await fetch(`${URL}api/requestreset/`, {
+					method: 'POST',
+					credentials: 'include',
+					body: postFormData
+				});
+				const data = await response.json();
+				if (response.ok) {
+					navigate(`/forgotpassword/${data.uid}`)
+				}
+			} catch (error) {
+				alert('error', error);
 			}
-		} catch (error) {
-			alert('error', error);
 		}
 	}
 
-	const changePassword = async (e, userId) => {
+	const changePassword = async (e, userId, values2FA) => {
 		e.preventDefault();
 		for (const data in formData) {
 			if (data === 'password' && !passwordRegex.test(formData[data]))
@@ -315,24 +291,36 @@ export const AuthProvider = ({children}) => {
 		}
 	}
 
+	const logout = async () => {
+		try {
+			const response = await fetch(`${URL}api/logout/`, {
+				method: 'POST',
+				credentials: 'include'
+			});
+			if (response.ok) {
+				navigate('/login');
+				setDisplayMenuGl(false);
+			}
+		} catch (error) {
+			alert('error logout: ', error);
+		}
+	}
+
 	const contextData = {
 		error: error,
-		loginError: loginError,
-		registerError: registerError,
-		values2FA: values2FA,
-		inputs: inputs,
 		register: register,
+		displayMenuGl: displayMenuGl,
 		login: login,
 		handleBlur: handleBlur,
 		handleChange: handleChange,
 		handleChangePassLogin: handleChangePassLogin,
 		authProvider: authProvider,
-		handleChange2FA: handleChange2FA,
-		handleKeyDown2FA: handleKeyDown2FA,
 		authorization2FA: authorization2FA,
 		resent2FACode: resent2FACode,
 		requestResetPassword: requestResetPassword,
 		changePassword: changePassword,
+		logout: logout,
+		setDisplayMenuGl: setDisplayMenuGl,
 	}
 
 	return (
