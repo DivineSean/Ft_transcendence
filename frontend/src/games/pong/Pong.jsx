@@ -8,6 +8,7 @@ import { useEffect, useRef } from 'react';
 const Pong = ({ websocket, player }) => {
 	const sm = useRef(null);
 	const playersRef = useRef(null);
+	const ballRef = useRef(null);
 
 	const keyboard = useRef({});
 	const handleKeyDown = (event) => {
@@ -25,10 +26,25 @@ const Pong = ({ websocket, player }) => {
 		if (msg.type == 'update') {
 			const opp = player == 1 ? 2 : 1;
 
-			if (playersRef.current) {
-				playersRef.current[opp - 1].x = msg.message.x;
-				playersRef.current[opp - 1].y = msg.message.y;
-				playersRef.current[opp - 1].z = msg.message.z;
+			switch (msg.message.info) {
+				case 'paddle':
+					if (playersRef.current) {
+						playersRef.current[opp - 1].x = msg.message.content.x;
+						playersRef.current[opp - 1].y = msg.message.content.y;
+						playersRef.current[opp - 1].z = msg.message.content.z;
+						// playersRef.current.boundingBox.setFrom(playersRef.current.object);
+					}
+					break;
+				case 'ball':
+					if (ballRef.current) {
+						ballRef.current.x = msg.message.content.x;
+						ballRef.current.y = msg.message.content.y;
+						ballRef.current.z = msg.message.content.z;
+						ballRef.current.dx = msg.message.content.dx;
+						ballRef.current.dy = msg.message.content.dy;
+						ballRef.current.dz = msg.message.content.dz;
+					}
+					break;
 			}
 		}
 	}
@@ -38,8 +54,8 @@ const Pong = ({ websocket, player }) => {
 		const table = new Table(sm.current.scene);
 		const ball = new Ball(sm.current.scene);
 		const controls = {
-			up: "",
-			down: "",
+			up: "KeyW",
+			down: "KeyS",
 			left: "KeyA",
 			right: "KeyD",
 		}
@@ -48,6 +64,7 @@ const Pong = ({ websocket, player }) => {
 			new Paddle(sm.current.scene, -1, { x: 0.0, y: -45, z: 5 }, controls, 0x881111)
 		]
 		playersRef.current = players;
+		ballRef.current = ball;
 
 		// override ws onmessage
 		websocket.onmessage = handleMessage;
@@ -62,7 +79,7 @@ const Pong = ({ websocket, player }) => {
 			let dt = clock.getDelta() * 1000;
 
 			table.update();
-			ball.update();
+			ball.update({}, table, players[0], players[1], websocket, dt);
 			players[player - 1].update(keyboard.current, ball, websocket, dt);
 			players[player == 1 ? 1 : 0].updatePos();
 
@@ -70,7 +87,7 @@ const Pong = ({ websocket, player }) => {
 			requestAnimationFrame(animate);
 		}
 
-		animate();
+		requestAnimationFrame(animate);
 
 		window.addEventListener('keydown', handleKeyDown);
 		window.addEventListener('keyup', handleKeyUp);
