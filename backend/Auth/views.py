@@ -62,7 +62,7 @@ def resend2FACode(request):
 		return Response({'message': 'Multiple users found with the same email'}, status=401)
 
 	twofaOjt = CustomTokenObtainPairView()
-	two_factor_code = twofaOjt.generate_2fa_code(user)
+	two_factor_code = twofaOjt.generate_2fa_code(user, "twoFa")
 	twofaOjt.send_2fa_code(user.email, two_factor_code.code)
 	return Response({'message': '2FA code sent', 'required_2fa': True}, status=200)
 
@@ -76,8 +76,8 @@ def resend2FACode(request):
  # -> check the email for the user if user found then, verify the 2fa_code is valid if it's set the cookies
  #    and navigate to the home page.
 class CustomTokenObtainPairView(TokenObtainPairView):
-	def generate_2fa_code(self, user):
-		return TwoFactorCode.generate_code(user)
+	def generate_2fa_code(self, user, codeType):
+		return TwoFactorCode.generate_code(user, codeType)
 
 	def send_2fa_code(self, user_email, code):
 		with get_connection(
@@ -110,7 +110,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			user_id = user.id
 			userTokens = super().post(request, *args, **kwargs)
 			if userTokens.status_code == 200:
-				two_factor_code = self.generate_2fa_code(user)
+				two_factor_code = self.generate_2fa_code(user, "twoFa")
 				self.send_2fa_code(user.email, two_factor_code.code)
 				return Response({'message': '2FA code sent', 'uid': user_id, 'requires_2fa': True}, status=200)
 				
@@ -128,7 +128,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			except Users.MultipleObjectsReturned:
 				return Response({'message': 'Multiple users found with the same id'}, status=401)
 
-			if not TwoFactorCode.validate_code(user, submitted_2fa_code):
+			if not TwoFactorCode.validate_code(user, submitted_2fa_code, "twoFa"):
 				print("here", flush = True)
 				return Response({'message': 'Invalid 2FA code'}, status=400)
 
@@ -195,7 +195,7 @@ class RequestPasswordChange(APIView):
 		user_id = user.id
 
 		obj = CustomTokenObtainPairView()
-		twoFACode = obj.generate_2fa_code(user)
+		twoFACode = obj.generate_2fa_code(user, "password")
 		
 		obj.send_2fa_code(userEmail,twoFACode.code)
 		
@@ -231,7 +231,7 @@ class CheckPasswordChange(APIView):
 		if newPassword == None:
 			return Response({'message': 'newPassword missing'}, status=400)
 			
-		if TwoFactorCode.validate_code(user, code) == False:	
+		if TwoFactorCode.validate_code(user, code, "password") == False:	
 			return Response({"message": "Code Invalid"}, status=401)
 		
 		serializer = PasswordUpdateSerializer(user, data={'new_password': newPassword})
