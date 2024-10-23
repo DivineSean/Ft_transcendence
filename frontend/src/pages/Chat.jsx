@@ -22,7 +22,7 @@ const FriendsChat = ({...props}) => {
 	}, [])
 
 	return (
-		<div className="text-white flex gap-16 p-8 rounded-[8px] hover:secondary-glass cursor-pointer" ref={activeRef} key={props.key}>
+		<div className="text-white flex gap-16 p-8 rounded-[8px] hover:hover-secondary cursor-pointer" ref={activeRef} key={props.key}>
 			{
 				props.online &&
 				<div className="relative">

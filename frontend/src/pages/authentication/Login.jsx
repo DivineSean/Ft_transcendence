@@ -12,7 +12,6 @@ const Login = () => {
 	const {
 		login,
 		error,
-		loginError,
 		handleBlur,
 		authProvider,
 		handleChange,
@@ -20,6 +19,7 @@ const Login = () => {
 	} = useContext(AuthContext);
 	const navigate = useNavigate();
 	const [load, setLoad] = useState(true);
+	const [loginError, setLoginError] = useState('');
 	
 	const sendCode = async (code, prompt) => {
 		const response = await fetch('https://localhost:8000/api/callback/', {
@@ -34,8 +34,12 @@ const Login = () => {
 			})
 		}); 
 		const data = await response.json();
-		if (response.ok)
-			navigate('/home');
+		if (response.ok) {
+			if (data.username === null) {
+				navigate(`/setupusername/${data.uid}`);
+			} else
+				navigate('/home');
+		}
 	}
 	
 	useEffect(() => {
@@ -47,9 +51,7 @@ const Login = () => {
 		} else {
 			setLoad(false);
 		}
-
-		
-	}, []);
+	}, [loginError]);
 
 	const loading = useAuth();
 	
@@ -71,7 +73,7 @@ const Login = () => {
 
 							{loginError && <span className="text-red">{loginError}</span>}
 
-							<form onSubmit={login} className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
+							<form onSubmit={(e) => login(e, setLoginError)} className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
 
 								<div className="flex flex-col gap-10">
 									<InputFieled name="email" type="text" placeholder="Example@gmail.com" onChange={handleChange} onBlur={handleBlur} error={error.email} />

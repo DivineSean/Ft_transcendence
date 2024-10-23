@@ -1,14 +1,15 @@
 import { Si42 } from "react-icons/si";
 import { FcGoogle } from "react-icons/fc";
 import { Link } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import AuthContext from "../../context/AuthContext";
 import useAuth from "../../customHooks/useAuth";
 import InputFieled from "../../components/InputField";
 import LoadingPage from "../LoadingPage";
 
 const SignUp = () => {
-	const {register, handleBlur, handleChange, error, registerError, authProvider} = useContext(AuthContext);
+	const {register, handleBlur, handleChange, error, authProvider} = useContext(AuthContext);
+	const [registerError, setRegisterError] = useState('');
 	const loading = useAuth();
 	
 	return (
@@ -32,7 +33,7 @@ const SignUp = () => {
 
 								<span className="text-red">{registerError}</span>
 
-								<form onSubmit={register} className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
+								<form onSubmit={(e) => register(e, setRegisterError)} className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
 
 									<div className="flex flex-col gap-10">
 										<InputFieled name='firstName' type='text' placeholder='First Name' onChange={handleChange} onBlur={handleBlur} error={error.firstName} />

@@ -23,5 +23,8 @@ urlpatterns = [
 	path('api/requestreset/', views.RequestPasswordChange.as_view(), name='send2FACode'),
 	path('api/changepassword/', views.CheckPasswordChange.as_view(), name='resetPassword'),
 	
-	path('logout/', views.logout,),
+	path('api/logout/', views.logout,),
+
+	path('api/user/', views.getUser, name='firstLastName'),
+	path('api/setupusername/', views.setUpUsername, name='firstLastName'),
 ]
