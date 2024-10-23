@@ -1,5 +1,7 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from 'react-router-dom'
+
+const URL = 'https://localhost:8000/';
 
 const AuthContext = createContext();
 
@@ -26,11 +28,44 @@ export const AuthProvider = ({children}) => {
 	const location = useLocation();
 
 
+	const [values2FA, setValues2FA] = useState(Array(6).fill(''));
+	const inputs = useRef([]);
+
+	const handleChange2FA = (e, index) => {
+		const value = e.target.value;
+		if (/^[0-9]$/.test(value)) {
+			const newValues = [...values2FA];
+			newValues[index] = value;
+			setValues2FA(newValues);
+			if (index < 5 && value) {
+				inputs.current[index + 1].focus();
+			}
+		}
+	};
+
+	const handleKeyDown2FA = (e, index) => {
+		if (e.key === 'Backspace') {
+			const newValues = [...values2FA];
+			if (newValues[index]) {
+				newValues[index] = '';
+				setValues2FA(newValues);
+			} else if (index > 0) {
+				inputs.current[index - 1].focus();
+				const prevValues = [...values2FA];
+				prevValues[index - 1] = '';
+				setValues2FA(prevValues);
+			}
+		}
+	}
+
+
 	useEffect(() => {
 		if (location.pathname !== '/login')
 			setLoginError('');
 		else if (location.pathname !== '/register')
 			setRegisterError('');
+		if (location.pathname !== '/twofa')
+			setValues2FA(Array(6).fill(''));
 	}, [location.pathname])
 
 	const handleBlur = (e) => {
@@ -72,9 +107,9 @@ export const AuthProvider = ({children}) => {
 	const authProvider = async (provider) => {
 		let url;
 		if (provider === 'intra')
-			url = 'https://localhost:8000/api/intra/';
+			url = `${URL}api/intra/`;
 		else
-			url = 'https://localhost:8000/api/google/';
+			url = `${URL}api/google/`;
 		try {
 
 			const response = await fetch(url, {
@@ -112,7 +147,7 @@ export const AuthProvider = ({children}) => {
 
 		if (Object.keys(validationErrors).length === 0) {
 			try {
-				const response = await fetch('https://localhost:8000/api/register/', {
+				const response = await fetch(`${URL}api/register/`, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -163,15 +198,19 @@ export const AuthProvider = ({children}) => {
 			postFormData.append('password', password);
 
 			try {
-				const response = await fetch('https://localhost:8000/api/token/', {
+				const response = await fetch(`${URL}api/token/`, {
 					method: 'POST',
 					credentials: 'include',
 					body: postFormData
 				});
-		
-				if (response.ok)
-					navigate('/home');
-				else {
+				if (response.ok) {
+					const data = await response.json();
+					if (data.requires_2fa) {
+						navigate(`/twofa/${data.uid}`)
+					} else {
+						navigate('/home');
+					}
+				} else {
 					if (response.status === 401)
 						setLoginError('invalid email or password! please try again.');
 				}
@@ -182,16 +221,118 @@ export const AuthProvider = ({children}) => {
 		}
 	}
 
+	const authorization2FA = async (e, userId) => {
+		e.preventDefault();
+		const postFormData = new FormData();
+		postFormData.append('id', userId)
+		postFormData.append('2fa_code', values2FA.join(''));
+		try {
+			const response = await fetch(`${URL}api/token/`, {
+				method: 'POST',
+				credentials: 'include',
+				body: postFormData
+			});
+			const data = await response.json();
+			if (response.ok) {
+				navigate('/home');
+			}
+		} catch (error) {
+			console.log('error: ', error);
+		}
+	}
+
+	const resent2FACode = async (userId) => {
+		const postFormData = new FormData();
+		postFormData.append('id', userId);
+		try {
+			const response = await fetch(`${URL}api/resent2fa/`, {
+				method: 'POST',
+				credentials: 'include',
+				body: postFormData
+			});
+			const data = await response.json();
+		} catch (error) {
+			console.log('error: ', error);
+		}
+	}
+
+	const requestResetPassword = async (e) => {
+		e.preventDefault();
+		
+		const email = e.target.email.value;
+		const postFormData = new FormData();
+		postFormData.append('email', email)
+		console.log(email);
+		try {
+			const response = await fetch(`${URL}api/requestreset/`, {
+				method: 'POST',
+				credentials: 'include',
+				body: postFormData
+			});
+			const data = await response.json();
+			if (response.ok) {
+				navigate(`/forgotpassword/${data.uid}`)
+			}
+		} catch (error) {
+			alert('error', error);
+		}
+	}
+
+	const changePassword = async (e, userId) => {
+		e.preventDefault();
+		for (const data in formData) {
+			if (data === 'password' && !passwordRegex.test(formData[data]))
+				validationErrors[data] = `${data} must contain at least 6 character, uppercase, lowercase, number and special character.`;
+			if (data === 'confirmPassword' && formData.password != formData[data])
+				validationErrors[data] = 'password does not matched!';
+
+			if (!formData[data].trim() && (data === 'password' || data === 'confirmPassword')) {
+				validationErrors[data] = `${data} is required!`;
+			}
+		}
+		setError(validationErrors);
+
+		if (Object.keys(validationErrors).length === 0) {
+			const postFormData = new FormData();
+			const newPassword = e.target.password.value;
+			console.log(userId);
+			postFormData.append('id', userId);
+			postFormData.append('newPassword', newPassword);
+			postFormData.append('code', values2FA.join(''));
+			try {
+				const response = await fetch(`${URL}api/changepassword/`, {
+					method: 'POST',
+					credentials: 'include',
+					body: postFormData
+				});
+				if(response.ok)
+					navigate('/login');
+			} catch (error) {
+				alert('error', error);
+			}
+		} else {
+			console.log('hello man');
+		}
+	}
+
 	const contextData = {
 		error: error,
 		loginError: loginError,
 		registerError: registerError,
+		values2FA: values2FA,
+		inputs: inputs,
 		register: register,
 		login: login,
 		handleBlur: handleBlur,
 		handleChange: handleChange,
 		handleChangePassLogin: handleChangePassLogin,
-		authProvider: authProvider
+		authProvider: authProvider,
+		handleChange2FA: handleChange2FA,
+		handleKeyDown2FA: handleKeyDown2FA,
+		authorization2FA: authorization2FA,
+		resent2FACode: resent2FACode,
+		requestResetPassword: requestResetPassword,
+		changePassword: changePassword,
 	}
 
 	return (

@@ -2,23 +2,21 @@ import { Si42 } from "react-icons/si";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import AuthContext from "../context/AuthContext";
-import useAuth from "../customHooks/useAuth";
-import InputFieled from "../components/InputField";
-import LoadingPage from "./LoadingPage";
-
-
+import AuthContext from "../../context/AuthContext";
+import useAuth from "../../customHooks/useAuth";
+import InputFieled from "../../components/InputField";
+import LoadingPage from "../LoadingPage";
 
 const Login = () => {
 	
 	const {
 		login,
-		handleChange,
-		handleChangePassLogin,
-		handleBlur,
 		error,
 		loginError,
-		authProvider
+		handleBlur,
+		authProvider,
+		handleChange,
+		handleChangePassLogin,
 	} = useContext(AuthContext);
 	const navigate = useNavigate();
 	const [load, setLoad] = useState(true);
@@ -34,7 +32,7 @@ const Login = () => {
 				'code': code,
 				'prompt': prompt
 			})
-		});
+		}); 
 		const data = await response.json();
 		if (response.ok)
 			navigate('/home');
@@ -86,7 +84,7 @@ const Login = () => {
 								</div>
 
 								<div className="flex justify-end">
-									<Link to="/forgot_password" className="underline">forget password?</Link>
+									<Link to="/forgotpassword" className="underline">forget password?</Link>
 								</div>
 
 								<button type="submit" className="bg-green text-black text-h-sm-lg font-bold py-8 rounded">Log In</button>
