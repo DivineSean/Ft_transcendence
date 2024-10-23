@@ -141,7 +141,7 @@ export const AuthProvider = ({children}) => {
 		}
 	}
 
-	const login = async (e, setLoginError) => {
+	const login = async (e) => {
 		e.preventDefault();
 		for (const data in formData) {
 			if (data === 'email' && !emailRegex.test(formData[data]))
@@ -343,8 +343,9 @@ export const AuthProvider = ({children}) => {
 
 	const contextData = {
 		error: error,
-		register: register,
+		globalError: globalError,
 		displayMenuGl: displayMenuGl,
+		register: register,
 		login: login,
 		handleBlur: handleBlur,
 		handleChange: handleChange,
@@ -354,7 +355,7 @@ export const AuthProvider = ({children}) => {
 		resent2FACode: resent2FACode,
 		requestResetPassword: requestResetPassword,
 		changePassword: changePassword,
-		setGlobalError: setGlobalError
+		setGlobalError: setGlobalError,
 		logout: logout,
 		setDisplayMenuGl: setDisplayMenuGl,
 		setUpUsername: setUpUsername
