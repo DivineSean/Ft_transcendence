@@ -11,16 +11,17 @@ import ResetPassword from './pages/authentication/ResetPassword'
 import Menu from './components/Menu'
 import NotFound from './pages/NotFound'
 import TwoFA from './pages/authentication/TwoFA'
+import SetUpUsername from './pages/authentication/SetUpUsername'
 
 function App() {
-  return (
-    <>
+	return (
+		<>
 			<Router>
 				<AuthProvider>
 					<Routes>
 						<Route path='forgotpassword/' element={<ForgotPassword />} />
 						<Route path='forgotpassword/:uid' element={<ForgotPassword />} />
-						{/* <Route path='reset/' element={<ResetPassword />} /> */}
+						<Route path='setupusername/:uid' element={<SetUpUsername />} />
 						<Route path='Twofa/:uid' element={<TwoFA />} />
 						<Route path='login/' element={<Login />} />
 						<Route path='menu/' element={<Menu />} />
@@ -33,8 +34,8 @@ function App() {
 					</Routes>
 				</AuthProvider>
 			</Router>
-    </>
-  )
+		</>
+	)
 }
 
 export default App

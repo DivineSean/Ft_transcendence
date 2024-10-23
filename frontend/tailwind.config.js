@@ -19,6 +19,7 @@ export default {
 				'right-gradient-p': 'rgba(36,36,36,0.2))',
 				'left-gradient-s': 'rgba(80,80,80,0.4)',
 				'right-gradient-s': 'rgba(80,80,80,0.2))',
+				'logout-bg': 'rgba(255, 0, 0, 0.2)',
 				'stroke-pr': '#313131',
 				'stroke-sc': '#5B5B5B'
 			},

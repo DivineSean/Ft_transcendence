@@ -8,8 +8,6 @@ import InputFieled from "../../components/InputField";
 import LoadingPage from "../LoadingPage";
 import Toast from "../../components/Toast";
 
-
-
 const Login = () => {
 	
 	const {
@@ -25,6 +23,7 @@ const Login = () => {
 
 	const navigate = useNavigate();
 	const [load, setLoad] = useState(true);
+	const [loginError, setLoginError] = useState('');
 	
 	const sendCode = async (code, prompt) => {
 		const response = await fetch('https://localhost:8000/api/callback/', {
@@ -37,10 +36,14 @@ const Login = () => {
 				'code': code,
 				'prompt': prompt
 			})
-		});
+		}); 
 		const data = await response.json();
-		if (response.ok)
-			navigate('/home');
+		if (response.ok) {
+			if (data.username === null) {
+				navigate(`/setupusername/${data.uid}`);
+			} else
+				navigate('/home');
+		}
 	}
 	
 	useEffect(() => {

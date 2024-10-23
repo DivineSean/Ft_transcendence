@@ -1,7 +1,7 @@
 import { Si42 } from "react-icons/si";
 import { FcGoogle } from "react-icons/fc";
 import { Link } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import AuthContext from "../../context/AuthContext";
 import useAuth from "../../customHooks/useAuth";
 import InputFieled from "../../components/InputField";
