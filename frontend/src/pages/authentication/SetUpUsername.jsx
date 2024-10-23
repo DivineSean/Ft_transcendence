@@ -3,10 +3,11 @@ import InputFieled from "../../components/InputField";
 import { useContext, useEffect, useState } from "react";
 import ResetPassword from "./ResetPassword";
 import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const SetUpUsername = () => {
 	const { uid } = useParams();
+	const navigate = useNavigate();
 	const { handleBlur, handleChange, error, setUpUsername } = useContext(AuthContext);
 	let [userData, setUserData] = useState({});
 
@@ -20,6 +21,13 @@ const SetUpUsername = () => {
 			});
 			const data = await response.json();
 			setUserData(data);
+			if (response.ok) {
+				if (data.user.username != null) {
+					navigate('/home');
+				}
+			} else {
+				navigate('/login');
+			}
 		} catch (error) {
 			console.log(error);
 		}
