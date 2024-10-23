@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from 'react-router-dom'
+import Toast from "../components/Toast";
 
 const URL = 'https://localhost:8000/';
 
@@ -28,6 +29,8 @@ export const AuthProvider = ({children}) => {
 	const [error, setError] = useState({});
 
 	const location = useLocation();
+	const [globalError, setGlobalError] = useState('');
+
 
 	useEffect(() => {
 		setError({});
@@ -127,14 +130,12 @@ export const AuthProvider = ({children}) => {
 				if (response.ok) {
 					navigate('/login');
 				} else {
-
 					if (response.status === 400)
-						setRegisterError('user with this email already exists.');
-
+						setGlobalError('user with this email already exists.');
 				}
 			} catch (error) {
 
-				console.error('error: ', error);
+				setGlobalError('something went wrong!');
 
 			}
 		}
@@ -175,12 +176,12 @@ export const AuthProvider = ({children}) => {
 						navigate('/home');
 					}
 				} else {
-					const random = Math.random();
-					setLoginError("invalid email or password! " + random);
-					console.log(random);
+					if (response.status === 401) {
+						setGlobalError('invalid email or password! please try again.');
+					}
 				}
 			} catch (error) {
-				console.error('error: ', error);
+				setGlobalError('something went wrong!');
 			}
 
 		}
@@ -197,8 +198,8 @@ export const AuthProvider = ({children}) => {
 				credentials: 'include',
 				body: postFormData
 			});
-			const data = await response.json();
-			console.log(data);
+
+			console.log(response);
 			if (response.ok) {
 				if (data.username === null)
 					navigate(`setupusername/${data.uid}`);
@@ -353,6 +354,7 @@ export const AuthProvider = ({children}) => {
 		resent2FACode: resent2FACode,
 		requestResetPassword: requestResetPassword,
 		changePassword: changePassword,
+		setGlobalError: setGlobalError
 		logout: logout,
 		setDisplayMenuGl: setDisplayMenuGl,
 		setUpUsername: setUpUsername

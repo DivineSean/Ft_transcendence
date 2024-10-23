@@ -6,17 +6,29 @@ import AuthContext from "../../context/AuthContext";
 import useAuth from "../../customHooks/useAuth";
 import InputFieled from "../../components/InputField";
 import LoadingPage from "../LoadingPage";
+import Toast from "../../components/Toast";
 
 const SignUp = () => {
-	const {register, handleBlur, handleChange, error, authProvider} = useContext(AuthContext);
-	const [registerError, setRegisterError] = useState('');
+	const {
+		register,
+		handleBlur,
+		handleChange,
+		error,
+		authProvider,
+		globalError,
+		setGlobalError
+	} = useContext(AuthContext);
+
 	const loading = useAuth();
+
+	const clearGlobalError = () => { setGlobalError(''); }
 	
 	return (
 		<div className="grow">
 			{loading && <LoadingPage />}
 			{!loading && 
 					<div className="max-w-[1440px] m-auto lg:px-32 md:px-16 md:py-32 flex flex-col lg:gap-32 gap-16 min-h-screen">
+						{globalError && <Toast message={globalError} onClose={clearGlobalError}/>}
 						<div className="backdrop-blur-md w-full h-full absolute top-0 right-0"></div>
 						<div className="lg:grid lg:grid-cols-[1fr_1fr] login-glass overflow-hidden flex flex-col grow md:rounded-[8px] md:border-[0.5px] md:border-stroke-pr">
 							
@@ -31,9 +43,7 @@ const SignUp = () => {
 									<p className="md:text-txt-lg text-txt-sm">create your account now</p>
 								</div>
 
-								<span className="text-red">{registerError}</span>
-
-								<form onSubmit={(e) => register(e, setRegisterError)} className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
+								<form onSubmit={register} className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
 
 									<div className="flex flex-col gap-10">
 										<InputFieled name='firstName' type='text' placeholder='First Name' onChange={handleChange} onBlur={handleBlur} error={error.firstName} />

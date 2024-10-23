@@ -6,6 +6,7 @@ import AuthContext from "../../context/AuthContext";
 import useAuth from "../../customHooks/useAuth";
 import InputFieled from "../../components/InputField";
 import LoadingPage from "../LoadingPage";
+import Toast from "../../components/Toast";
 
 const Login = () => {
 	
@@ -16,7 +17,10 @@ const Login = () => {
 		authProvider,
 		handleChange,
 		handleChangePassLogin,
+		globalError,
+		setGlobalError
 	} = useContext(AuthContext);
+
 	const navigate = useNavigate();
 	const [load, setLoad] = useState(true);
 	const [loginError, setLoginError] = useState('');
@@ -51,9 +55,11 @@ const Login = () => {
 		} else {
 			setLoad(false);
 		}
-	}, [loginError]);
+	}, []);
 
 	const loading = useAuth();
+
+	const clearGlobalError = () => { setGlobalError(''); }
 	
 
 	return (
@@ -63,6 +69,7 @@ const Login = () => {
 			}
 			{!loading && !load &&
 				<div className="max-w-[1440px] m-auto lg:px-32 md:px-16 md:py-32 flex flex-col lg:gap-32 gap-16 min-h-screen">
+					{globalError && <Toast message={globalError} onClose={clearGlobalError}/>}
 					<div className="backdrop-blur-md w-full h-full absolute top-0 right-0"></div>
 					<div className="lg:grid lg:grid-cols-[1fr_1fr] login-glass overflow-hidden flex flex-col grow md:rounded-[8px] md:border-[0.5px] md:border-stroke-pr">
 						<div className="md:px-64 px-32 flex flex-col justify-center md:gap-32 gap-24 lg:py-64 py-32 grow">
@@ -71,9 +78,7 @@ const Login = () => {
 								<p className="md:text-txt-lg text-txt-sm">Welcome back! Please enter your details</p>
 							</div>
 
-							{loginError && <span className="text-red">{loginError}</span>}
-
-							<form onSubmit={(e) => login(e, setLoginError)} className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
+							<form onSubmit={login} className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
 
 								<div className="flex flex-col gap-10">
 									<InputFieled name="email" type="text" placeholder="Example@gmail.com" onChange={handleChange} onBlur={handleBlur} error={error.email} />
