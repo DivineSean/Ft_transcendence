@@ -13,8 +13,8 @@ import NotFound from './pages/NotFound'
 import TwoFA from './pages/authentication/TwoFA'
 
 function App() {
-  return (
-    <>
+	return (
+		<>
 			<Router>
 				<AuthProvider>
 					<Routes>
@@ -33,8 +33,8 @@ function App() {
 					</Routes>
 				</AuthProvider>
 			</Router>
-    </>
-  )
+		</>
+	)
 }
 
 export default App
