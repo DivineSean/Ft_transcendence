@@ -4,11 +4,19 @@ import { useContext, useEffect, useState } from "react";
 import ResetPassword from "./ResetPassword";
 import { useParams } from "react-router-dom";
 import { Link, useNavigate } from "react-router-dom";
+import Toast from "../../components/Toast";
 
 const SetUpUsername = () => {
 	const { uid } = useParams();
 	const navigate = useNavigate();
-	const { handleBlur, handleChange, error, setUpUsername } = useContext(AuthContext);
+	const {
+		handleBlur,
+		handleChange,
+		error,
+		setUpUsername,
+		globalMessage,
+		setGlobalMessage
+	} = useContext(AuthContext);
 	let [userData, setUserData] = useState({});
 
 	const getFirstLastName = async () => {
@@ -41,6 +49,13 @@ const SetUpUsername = () => {
 
 	return (
 		<div className="grow">
+			{globalMessage.message &&
+				<Toast
+					message={globalMessage.message}
+					error={globalMessage.isError}
+					onClose={setGlobalMessage}
+				/>
+			}
 			<div className="max-w-[1440px] m-auto lg:px-32 md:px-16 md:py-32 flex flex-col lg:gap-32 gap-16 min-h-screen">
 				<div className="backdrop-blur-md w-full h-full absolute top-0 right-0"></div>
 				<div className="login-glass overflow-hidden md:p-32 p-0 flex justify-center items-center grow md:rounded-[8px] md:border-[0.5px] md:border-stroke-pr">

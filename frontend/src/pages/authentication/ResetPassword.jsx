@@ -2,6 +2,7 @@ import AuthContext from "../../context/AuthContext";
 import InputFieled from "../../components/InputField";
 import { useContext, useState, useEffect, useRef } from "react";
 import { useParams } from 'react-router-dom'
+import Toast from "../../components/Toast";
 
 const ResetPassword = () => {
 	const {
@@ -9,7 +10,7 @@ const ResetPassword = () => {
 		error,
 		handleBlur,
 		handleChange,
-		changePassword
+		changePassword,
 
 	} = useContext(AuthContext);
 
@@ -53,6 +54,15 @@ const ResetPassword = () => {
 			</div>
 
 			<form onSubmit={(e) => changePassword(e, uid, values2FA)} className="md:py-32 py-16 flex flex-col gap-48">
+				<div className="flex flex-col gap-10">
+					<InputFieled name="password" type="password" placeholder="Password" onChange={handleChange} onBlur={handleBlur} error={error.password} />
+					{error.password && <span className="text-red text-txt-sm">{error.password}</span>}
+				</div>
+
+				<div className="flex flex-col gap-10">
+					<InputFieled name="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} onBlur={handleBlur} error={error.confirmPassword} />
+					{error.confirmPassword && <span className="text-red text-txt-sm">{error.confirmPassword}</span>}
+				</div>
 				<div className="flex justify-between">
 					{values2FA.map((value, index) => (
 						<input 
@@ -66,15 +76,6 @@ const ResetPassword = () => {
 							className="bg-transparent outline-none text-center border-b-2 border-stroke-sc max-w-40 focus:border-green"
 						/>
 					))}
-				</div>
-				<div className="flex flex-col gap-10">
-					<InputFieled name="password" type="password" placeholder="Password" onChange={handleChange} onBlur={handleBlur} error={error.password} />
-					{error.password && <span className="text-red text-txt-sm">{error.password}</span>}
-				</div>
-
-				<div className="flex flex-col gap-10">
-					<InputFieled name="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} onBlur={handleBlur} error={error.confirmPassword} />
-					{error.confirmPassword && <span className="text-red text-txt-sm">{error.confirmPassword}</span>}
 				</div>
 
 				<button type="submit" className="bg-green text-black text-h-sm-lg font-bold py-8 rounded">Send</button>

@@ -21,7 +21,7 @@ const Toast = ({
 
 	const removeToast = () => {
 		setIsVisible(false);
-		if (onClose) onClose();
+		if (onClose) onClose({message: '', isError: true});
 	}
 
 	useEffect(() => {
@@ -35,7 +35,7 @@ const Toast = ({
 
     const timeoutVisible = setTimeout(() => {
       setIsVisible(false);
-			if (onClose) onClose();
+			if (onClose) onClose({message: '', isError: true});
     }, duration + 1000);
 
     return () => {
@@ -49,9 +49,10 @@ const Toast = ({
 		isVisible && message &&
 		<div 
 			className={`
+				left-1/2 transform -translate-x-1/2
 				py-8 px-16 fixed z-[10000] overflow-hidden backdrop-blur-2xl
-				flex gap-8 items-center lg:right-32 right-16 top-32 rounded-lg 
-				border-[0.5px] border-stroke-sc max-w-[340px] transition-opacity
+				flex gap-8 items-center lg:right-32 top-32 rounded-lg 
+				border-[0.5px] border-stroke-sc max-w-[300px] transition-opacity
 				duration-800 ${opacity ? 'opacity-100' : 'opacity-0'}
 			`}
 		>
