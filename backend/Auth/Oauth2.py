@@ -14,7 +14,7 @@ from .serializers import RegisterOAuthSerializer
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 import requests
 import os, json
-
+import uuid
 
 CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
@@ -128,16 +128,28 @@ def  callback(request):
 			serializer.save()
 		
 		user = Users.objects.get(email=user_data.get('email'))
-		refresh_token = RefreshToken.for_user(user)
-		access = str(refresh_token.access_token)
+		username = user.username
+		if not username:
+			http_response = HttpResponse(content_type='application/json')
+			data = {
+				"message": "ok",
+				"username": username,
+				"uid": str(user.id)
+			}
+			dump = json.dumps(data)
+			http_response.content = dump
+			return http_response
+		else:
+			refresh_token = RefreshToken.for_user(user)
+			access = str(refresh_token.access_token)
 
-		response = HttpResponse(content_type='application/json')
-		response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
-		response.set_cookie('accessToken', access, httponly=True, secure=True, samesite='Lax')
-		resData = {'message': 'ok'}
-		dump = json.dumps(resData)
-		response.content = dump
-		
-		return response
+			response = HttpResponse(content_type='application/json')
+			response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
+			response.set_cookie('accessToken', access, httponly=True, secure=True, samesite='Lax')
+			resData = {'message': 'ok'}
+			dump = json.dumps(resData)
+			response.content = dump
+			
+			return response
 	else:
 		return Response({'error': 'chihaja machi hiya hadik akhouna'}, status=400)

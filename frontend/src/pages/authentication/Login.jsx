@@ -34,8 +34,12 @@ const Login = () => {
 			})
 		}); 
 		const data = await response.json();
-		if (response.ok)
-			navigate('/home');
+		if (response.ok) {
+			if (data.username === null) {
+				navigate(`/setupusername/${data.uid}`);
+			} else
+				navigate('/home');
+		}
 	}
 	
 	useEffect(() => {

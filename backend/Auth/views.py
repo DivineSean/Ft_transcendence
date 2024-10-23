@@ -1,14 +1,15 @@
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from .serializers import RegisterSerializer, PasswordUpdateSerializer
 from django.core.mail import get_connection, EmailMessage
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.views import PasswordResetView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
+from django.forms.models import model_to_dict
 from rest_framework import exceptions, status
 from rest_framework.response import Response
-from .serializers import RegisterSerializer, PasswordUpdateSerializer
 from .models import Users, TwoFactorCode
 from rest_framework.views import APIView
 from django.shortcuts import render
@@ -112,8 +113,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			if userTokens.status_code == 200:
 				two_factor_code = self.generate_2fa_code(user, "twoFa")
 				self.send_2fa_code(user.email, two_factor_code.code)
-				return Response({'message': '2FA code sent', 'uid': user_id, 'requires_2fa': True}, status=200)
-				
+				return Response({'message': '2FA code sent', 'uid': user_id, 'requires_2fa': True}, status=200)	
 		else:
 			try:
 				user_id = request.data.get('id')
@@ -132,16 +132,30 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 				print("here", flush = True)
 				return Response({'message': 'Invalid 2FA code'}, status=400)
 
-			refresh_token = RefreshToken.for_user(user)
-			access_token = str(refresh_token.access_token)
+			user_username = user.username
+			if not user_username:
+				http_response = HttpResponse(content_type='application/json')
+				data = {
+					"message": "ok",
+					"username": user_username,
+					"uid": user_id
+				}
+				dump = json.dumps(data)
+				http_response.content = dump
+				return http_response
+			else:
+				refresh_token = RefreshToken.for_user(user)
+				access_token = str(refresh_token.access_token)
 
-			http_response = HttpResponse(content_type='application/json')
-			http_response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
-			http_response.set_cookie('accessToken', access_token, httponly=True, secure=True, samesite='Lax')
-			data = {"message": "ok"}
-			dump = json.dumps(data)
-			http_response.content = dump
-			return http_response
+				http_response = HttpResponse(content_type='application/json')
+				http_response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
+				http_response.set_cookie('accessToken', access_token, httponly=True, secure=True, samesite='Lax')
+				data = {
+					"message": "ok",
+				}
+				dump = json.dumps(data)
+				http_response.content = dump
+				return http_response
 
 # this method to refresh tokens
 class CustomTokenRefreshView(TokenRefreshView):
@@ -241,3 +255,63 @@ class CheckPasswordChange(APIView):
 			return Response({'message': 'Password Updateed'}, status=200)
 		else:
 			return Response(serializer.errors, status=400)
+
+@api_view(['POST'])
+def getUser(request):
+	try:
+		user_id = request.data.get('id')
+		uuid.UUID(user_id, version=4)
+	except ValueError:
+		return Response({"error": "invalid id"}, status=400)
+	
+	try:
+		user = Users.objects.get(id=user_id)
+	except Users.DoesNotExist:
+		return Response({'message': 'User not found'}, status=401)
+	except Users.MultipleObjectsReturned:
+		return Response({'message': 'Multiple users found with the same id'}, status=401)
+
+	user_data = model_to_dict(user, exclude=['password'])
+	return Response({
+		"user": user_data,
+	})
+
+
+@api_view(['POST'])
+def setUpUsername(request):
+	try:
+		user_id = request.data.get('id')
+		uuid.UUID(user_id, version=4)
+	except ValueError:
+		return Response({"error": "invalid id"}, status=400)
+	
+	try:
+		user = Users.objects.get(id=user_id)
+	except Users.DoesNotExist:
+		return Response({'message': 'User not found'}, status=401)
+	except Users.MultipleObjectsReturned:
+		return Response({'message': 'Multiple users found with the same id'}, status=401)
+
+	username = request.data.get('username')
+	
+	if not username:
+		return Response({'error': 'username is required'}, status=400)
+	
+	if Users.objects.filter(username=username).exists():
+		return Response({'error': 'This username is already taken.'}, status=400)
+	
+	user.username = username
+	user.save()
+
+	refresh_token = RefreshToken.for_user(user)
+	access_token = str(refresh_token.access_token)
+
+	http_response = HttpResponse(content_type='application/json')
+	http_response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
+	http_response.set_cookie('accessToken', access_token, httponly=True, secure=True, samesite='Lax')
+	data = {
+		"message": "username has been set up",
+	}
+	dump = json.dumps(data)
+	http_response.content = dump
+	return http_response

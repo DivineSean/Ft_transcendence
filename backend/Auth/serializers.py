@@ -23,7 +23,6 @@ class PasswordUpdateSerializer(serializers.Serializer):
         instance.save()
         return instance
 
-
 class RegisterOAuthSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Users

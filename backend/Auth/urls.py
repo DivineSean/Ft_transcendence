@@ -24,4 +24,7 @@ urlpatterns = [
 	path('api/changepassword/', views.CheckPasswordChange.as_view(), name='resetPassword'),
 	
 	path('api/logout/', views.logout,),
+
+	path('api/user/', views.getUser, name='firstLastName'),
+	path('api/setupusername/', views.setUpUsername, name='firstLastName'),
 ]
