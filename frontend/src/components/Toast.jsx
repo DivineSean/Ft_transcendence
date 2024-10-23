@@ -4,16 +4,24 @@ import { IoMdClose } from "react-icons/io";
 const Toast = ({
 	duration = 5000,
 	error = true,
-	message
+	message,
+	onClose
 }) => {
-	const [isVisible, setIsVisible] = useState(message ? true : false);
+	const [isVisible, setIsVisible] = useState(true);
 	const [opacity, setOpacity] = useState(true);
 	const [progress, setProgress] = useState(0);
 
-	console.log('is visible', isVisible);
+	useEffect(() => {
+		if (message) {
+			setIsVisible(true);
+			setOpacity(true);
+			setProgress(0);
+		}
+	}, [message]);
 
 	const removeToast = () => {
 		setIsVisible(false);
+		if (onClose) onClose();
 	}
 
 	useEffect(() => {
@@ -27,6 +35,7 @@ const Toast = ({
 
     const timeoutVisible = setTimeout(() => {
       setIsVisible(false);
+			if (onClose) onClose();
     }, duration + 1000);
 
     return () => {
@@ -34,10 +43,10 @@ const Toast = ({
       clearTimeout(timeout);
       clearTimeout(timeoutVisible);
     };
-  }, [duration, isVisible]);
+  }, [duration, onClose]);
 
 	return (
-		isVisible &&
+		isVisible && message &&
 		<div 
 			className={`
 				py-8 px-16 fixed z-[10000] overflow-hidden backdrop-blur-2xl
@@ -57,57 +66,3 @@ const Toast = ({
 }
 
 export default Toast;
-
-// import React, { useEffect, useState } from "react";
-
-// const Toast = ({ message, duration = 5000, onClose }) => {
-//   const [progress, setProgress] = useState(0);
-
-  // useEffect(() => {
-  //   // Increment the progress over time
-  //   const interval = setInterval(() => {
-  //     setProgress((prev) => (prev < 100 ? prev + 1 : 100));
-  //   }, duration / 100); // Divide total duration by 100 to fill in that time
-
-  //   // Automatically close the toast after the duration
-  //   const timeout = setTimeout(() => {
-  //     onClose();
-  //   }, duration);
-
-  //   return () => {
-  //     clearInterval(interval);
-  //     clearTimeout(timeout);
-  //   };
-  // }, [duration, onClose]);
-
-//   return (
-//     <div style={styles.toastContainer}>
-//       <div style={{ ...styles.toast, backgroundSize: `${progress}% 100%` }}>
-//         {message}
-//       </div>
-//     </div>
-//   );
-// };
-
-// const styles = {
-//   toastContainer: {
-//     position: "fixed",
-//     bottom: "20px",
-//     right: "20px",
-//     zIndex: 1000,
-//   },
-//   toast: {
-//     padding: "10px 20px",
-//     backgroundColor: "#333",
-//     color: "#fff",
-//     borderRadius: "5px",
-//     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-//     backgroundImage: "linear-gradient(to right, #4caf50, #4caf50)",
-//     backgroundRepeat: "no-repeat",
-//     backgroundSize: "0% 100%", // Progress will animate this
-//     transition: "background-size 0.1s linear", // Smooth transition for progress
-//     overflow: "hidden",
-//   },
-// };
-
-// export default Toast;

@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from 'react-router-dom'
+import Toast from "../components/Toast";
 
 const URL = 'https://localhost:8000/';
 
@@ -22,11 +23,9 @@ export const AuthProvider = ({children}) => {
 		confirmPassword: ''
 	})
 	const [error, setError] = useState({});
-	const [loginError, setLoginError] = useState('');
-	const [registerError, setRegisterError] = useState('');
 
 	const location = useLocation();
-	const [globalErorr, setGlobalError] = useState('');
+	const [globalError, setGlobalError] = useState('');
 
 
 	const [values2FA, setValues2FA] = useState(Array(6).fill(''));
@@ -60,8 +59,6 @@ export const AuthProvider = ({children}) => {
 	}
 
 	useEffect(() => {
-		setLoginError('');
-		setRegisterError('');
 		setValues2FA(Array(6).fill(''));
 		setGlobalError('');
 	}, [location])
@@ -161,14 +158,12 @@ export const AuthProvider = ({children}) => {
 				if (response.ok) {
 					navigate('/login');
 				} else {
-
 					if (response.status === 400)
-						setRegisterError('user with this email already exists.');
-
+						setGlobalError('user with this email already exists.');
 				}
 			} catch (error) {
 
-				console.error('error: ', error);
+				setGlobalError('something went wrong!');
 
 			}
 		}
@@ -210,12 +205,11 @@ export const AuthProvider = ({children}) => {
 					}
 				} else {
 					if (response.status === 401) {
-						setLoginError('invalid email or password! please try again.');
 						setGlobalError('invalid email or password! please try again.');
 					}
 				}
 			} catch (error) {
-				console.error('error: ', error);
+				setGlobalError('something went wrong!');
 			}
 
 		}
@@ -232,7 +226,7 @@ export const AuthProvider = ({children}) => {
 				credentials: 'include',
 				body: postFormData
 			});
-			const data = await response.json();
+			console.log(response);
 			if (response.ok) {
 				navigate('/home');
 			}
@@ -317,10 +311,8 @@ export const AuthProvider = ({children}) => {
 
 	const contextData = {
 		error: error,
-		loginError: loginError,
-		registerError: registerError,
 		values2FA: values2FA,
-		globalErorr: globalErorr,
+		globalError: globalError,
 		inputs: inputs,
 		register: register,
 		login: login,
@@ -334,6 +326,7 @@ export const AuthProvider = ({children}) => {
 		resent2FACode: resent2FACode,
 		requestResetPassword: requestResetPassword,
 		changePassword: changePassword,
+		setGlobalError: setGlobalError
 	}
 
 	return (

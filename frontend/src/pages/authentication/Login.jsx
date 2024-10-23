@@ -15,13 +15,12 @@ const Login = () => {
 	const {
 		login,
 		error,
-		loginError,
 		handleBlur,
 		authProvider,
 		handleChange,
 		handleChangePassLogin,
-		globalErorr,
-
+		globalError,
+		setGlobalError
 	} = useContext(AuthContext);
 
 	const navigate = useNavigate();
@@ -56,6 +55,8 @@ const Login = () => {
 	}, []);
 
 	const loading = useAuth();
+
+	const clearGlobalError = () => { setGlobalError(''); }
 	
 
 	return (
@@ -65,7 +66,7 @@ const Login = () => {
 			}
 			{!loading && !load &&
 				<div className="max-w-[1440px] m-auto lg:px-32 md:px-16 md:py-32 flex flex-col lg:gap-32 gap-16 min-h-screen">
-					{globalErorr && <Toast message={globalErorr} />}
+					{globalError && <Toast message={globalError} onClose={clearGlobalError}/>}
 					<div className="backdrop-blur-md w-full h-full absolute top-0 right-0"></div>
 					<div className="lg:grid lg:grid-cols-[1fr_1fr] login-glass overflow-hidden flex flex-col grow md:rounded-[8px] md:border-[0.5px] md:border-stroke-pr">
 						<div className="md:px-64 px-32 flex flex-col justify-center md:gap-32 gap-24 lg:py-64 py-32 grow">
@@ -73,8 +74,6 @@ const Login = () => {
 								<h1 className="md:text-h-lg-xl text-h-sm-xl font-bold">Welcome back, Player</h1>
 								<p className="md:text-txt-lg text-txt-sm">Welcome back! Please enter your details</p>
 							</div>
-
-							{loginError && <span className="text-red">{loginError}</span>}
 
 							<form onSubmit={login} className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
 
