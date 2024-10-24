@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'channels',
     'Auth',
     'games',
+    'chat',
 ]
 
 REST_FRAMEWORK = {
