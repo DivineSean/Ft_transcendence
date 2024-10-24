@@ -8,9 +8,9 @@ class Ball {
 		this.boundingSphere = undefined;
 		this.object = undefined;
 
-		this.x = 0;
-		this.y = 20;
-		this.z = 20;
+		this.x = 24;
+		this.y = 5;
+		this.z = 5;
 
 		this.dx = 0;
 		this.dy = 0;
@@ -20,10 +20,10 @@ class Ball {
 	update(net, table, player1, player2, ws, dt, player) {
 
 		// Gravity
-		this.dz -= G;
+		this.dy -= G;
 		if (this.boundingSphere.intersectsBox(table.boundingBox)) {
-			this.z = table.boundingBox.max.z + 1;
-			this.dz *= -0.8;
+			this.y = table.boundingBox.max.y + 1;
+			this.dy *= -0.8;
 		}
 
 		// Paddles

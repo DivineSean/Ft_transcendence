@@ -39,8 +39,8 @@ const Pong = ({ websocket, player, stats }) => {
 			right: "KeyD",
 		}
 		const players = [
-			new Paddle(sm.current.scene, 1, { x: 0.0, y: 45, z: 5 }, controls, 0x118811),
-			new Paddle(sm.current.scene, -1, { x: 0.0, y: -45, z: 5 }, controls, 0x881111)
+			new Paddle(sm.current.scene, 1, { x: 36, y: 2.5, z: 0}, controls, 0x118811),
+			new Paddle(sm.current.scene, -1, { x: -36 , y: 2.5, z: 0 }, controls, 0x881111)
 		]
 		// playersRef.current = players;
 		// ballRef.current = ball;

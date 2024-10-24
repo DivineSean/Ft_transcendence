@@ -28,18 +28,19 @@ class Paddle {
 		this.dy *= 0.8;
 		this.dz *= 0.8;
 
-		// console.log(keyboard);
-		if (keyboard[this.controls.left]) this.dx += 0.008 * this.player;
-		if (keyboard[this.controls.right]) this.dx -= 0.008 * this.player;
-		if (keyboard[this.controls.down]) this.dy += 0.008 * this.player;
-		if (keyboard[this.controls.up]) this.dy -= 0.008 * this.player;
+		console.log(keyboard);
+		if (keyboard[this.controls.left]) this.dz += 0.008 * this.player;
+		if (keyboard[this.controls.right]) this.dz -= 0.008 * this.player;
+		if (keyboard[this.controls.down]) this.dx += 0.008 * this.player;
+		if (keyboard[this.controls.up]) this.dx -= 0.008 * this.player;
 
+		this.z = this.z + this.dz * dt;
 		this.x = this.x + this.dx * dt;
 
 		if (this.player == -1)
-			this.y = Math.min(this.y + this.dy * dt, -5);
+			this.x = Math.min(this.x + this.dx * dt, -5);
 		else
-			this.y = Math.max(this.y + this.dy * dt, 5);
+			this.x = Math.max(this.x + this.dx * dt, 5);
 
 		this.object.position.set(this.x, this.y, this.z);
 
@@ -55,8 +56,7 @@ class Paddle {
 		// 	});
 
 		if (Math.abs(this.dx) > 0.001
-			|| Math.abs(this.dy) > 0.001) {// send new position as long as the ball is moving
-			console.log('ana: ', this.boundingBox);
+			|| Math.abs(this.dz) > 0.001) {// send new position as long as the ball is moving
 			const data = {
 				'message': {
 					'content': 'paddle',
@@ -71,32 +71,20 @@ class Paddle {
 		}
 	}
 
-	hit(ball, ws) {
+	hit(ball, ws)
+	{
 		// console.log("hit them balls");
 
 		if (this.player === 1) {
-			ball.y = this.boundingBox.min.y - 2;
+			ball.x = this.boundingBox.min.x - 2;
 		} else {
-			ball.y = this.boundingBox.max.y + 2;
+			ball.x = this.boundingBox.max.x + 2;
 		}
-		// ball.y = this.player == -1 ? this.boundingBox.max.y : this.boundingBox.min.y;
-		// ball.y -= this.player * 5;
-		// ball.z = Math.min(ball.z, 50);
 
-		console.log('Damn son: ', ball.dy);
-		ball.dy = Math.min(Math.abs(ball.dy) + 0.05, BALL_MAX_SPEED);
-		ball.dy *= -this.player;
-		// ball.dz += 0.03;
-		// ball.dz *= -0.8;
+		console.log('Damn son: ', ball.dx);
+		ball.dx = Math.min(Math.abs(ball.dx) + 0.05, BALL_MAX_SPEED);
+		ball.dx *= -this.player;
 
-		// this.send(ws, 'ball', {
-		// 	x: ball.x,
-		// 	y: ball.y,
-		// 	z: ball.z,
-		// 	dx: ball.dx,
-		// 	dy: ball.dy,
-		// 	dz: ball.dz,
-		// });
 		const data = {
 			'message': {
 				'content': 'ball',
@@ -119,7 +107,7 @@ class Paddle {
 	}
 
 	render() {
-		const geometry = new THREE.BoxGeometry(25, 5, 5);
+		const geometry = new THREE.BoxGeometry(5, 2.5, 10);
 		const material = new THREE.MeshBasicMaterial({ color: this.color });
 		this.object = new THREE.Mesh(geometry, material);
 		this.object.position.set(this.x, this.y, this.z);
