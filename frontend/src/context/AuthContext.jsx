@@ -16,7 +16,7 @@ export const AuthProvider = ({children}) => {
 	const validationErrors = {};
 	const emailRegex = /\S+@\S+\.\S+/;
 	const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+={}'";:,.<>])[A-Za-z\d!@#$%^&*()_+={}'";:,.<>]{6,}$/;
-	const usernameRegex = /^[a-zA-Z][a-zA-Z0-9!@#$%^&*()\-_=+{}\[\]|\\;:'",.<>?]*$/;
+	const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_-]*$/;
 
 	const [formData, setFormData] = useState({
 		username: '',
@@ -29,7 +29,7 @@ export const AuthProvider = ({children}) => {
 	const [error, setError] = useState({});
 
 	const location = useLocation();
-	const [globalError, setGlobalError] = useState('');
+	const [globalMessage, setGlobalMessage] = useState({message: '', isError: false});
 
 
 	useEffect(() => {
@@ -87,16 +87,14 @@ export const AuthProvider = ({children}) => {
 			const data = await response.json();
 			if (response.ok) {
 				window.location.href = data.url;
-			}
-
+			} else
+				setGlobalMessage({message: data.error, isError: true});
 		} catch(error) {
-
-			console.log('error from intra auth:', error);
-
+			setGlobalMessage({message: 'something went wrong!', isError: true});
 		}
 	}
 
-	const register = async (e, setRegisterError) => {
+	const register = async (e) => {
 		e.preventDefault();
 
 		for (const data in formData) {
@@ -127,15 +125,13 @@ export const AuthProvider = ({children}) => {
 						'password': e.target.password.value
 					})
 				});
-				if (response.ok) {
+				if (response.ok)
 					navigate('/login');
-				} else {
-					if (response.status === 400)
-						setGlobalError('user with this email already exists.');
-				}
+				else
+					setGlobalMessage({message: data.error, isError: true});
 			} catch (error) {
 
-				setGlobalError('something went wrong!');
+				setGlobalMessage({message: 'something went wrong!', isError: true});
 
 			}
 		}
@@ -176,12 +172,13 @@ export const AuthProvider = ({children}) => {
 						navigate('/home');
 					}
 				} else {
-					if (response.status === 401) {
-						setGlobalError('invalid email or password! please try again.');
-					}
+					if (response.status === 401)
+						setGlobalMessage({message: 'invalid email or password!', isError: true});
+					else 
+						setGlobalMessage({message: 'something went wrong!', isError: true});
 				}
 			} catch (error) {
-				setGlobalError('something went wrong!');
+				setGlobalMessage({message: `error: ${error.message}`, isError: true});
 			}
 
 		}
@@ -198,16 +195,17 @@ export const AuthProvider = ({children}) => {
 				credentials: 'include',
 				body: postFormData
 			});
-
-			console.log(response);
+			const data = await response.json();
+			console.log(data);
 			if (response.ok) {
 				if (data.username === null)
 					navigate(`setupusername/${data.uid}`);
 				else
 					navigate('/home');
-			}
+			} else
+				setGlobalMessage({message: data.error, isError: true});
 		} catch (error) {
-			console.log('error: ', error);
+			setGlobalMessage({message: `error: ${error.message}`, isError: true});
 		}
 	}
 
@@ -220,9 +218,8 @@ export const AuthProvider = ({children}) => {
 				credentials: 'include',
 				body: postFormData
 			});
-			const data = await response.json();
 		} catch (error) {
-			console.log('error: ', error);
+			setGlobalMessage({message: `error: ${error.message}`, isError: true});
 		}
 	}
 
@@ -240,7 +237,6 @@ export const AuthProvider = ({children}) => {
 			const email = e.target.email.value;
 			const postFormData = new FormData();
 			postFormData.append('email', email)
-			console.log(email);
 			try {
 				const response = await fetch(`${URL}api/requestreset/`, {
 					method: 'POST',
@@ -248,12 +244,12 @@ export const AuthProvider = ({children}) => {
 					body: postFormData
 				});
 				const data = await response.json();
-				console.log(response);
-				if (response.ok) {
+				if (response.ok)
 					navigate(`/forgotpassword/${data.uid}`)
-				}
+				else
+					setGlobalMessage({message: data.error, isError: true});
 			} catch (error) {
-				alert('error', error);
+				setGlobalMessage({message: `error: ${error.message}`, isError: true});
 			}
 		}
 	}
@@ -275,7 +271,6 @@ export const AuthProvider = ({children}) => {
 		if (Object.keys(validationErrors).length === 0) {
 			const postFormData = new FormData();
 			const newPassword = e.target.password.value;
-			console.log(userId);
 			postFormData.append('id', userId);
 			postFormData.append('newPassword', newPassword);
 			postFormData.append('code', values2FA.join(''));
@@ -287,11 +282,11 @@ export const AuthProvider = ({children}) => {
 				});
 				if(response.ok)
 					navigate('/login');
+				else
+					setGlobalMessage({message: data.error, isError: true});
 			} catch (error) {
-				alert('error', error);
+				setGlobalMessage({message: `error: ${error.message}`, isError: true});
 			}
-		} else {
-			console.log('hello man');
 		}
 	}
 
@@ -303,10 +298,12 @@ export const AuthProvider = ({children}) => {
 			});
 			if (response.ok) {
 				navigate('/login');
+				setGlobalMessage({message: 'you have successfully logged out!', isError: false});
 				setDisplayMenuGl(false);
-			}
+			} else 
+				setGlobalMessage({message: data.error, isError: true});
 		} catch (error) {
-			alert('error logout: ', error);
+			setGlobalMessage({message: `error: ${error.message}`, isError: true});
 		}
 	}
 
@@ -316,7 +313,7 @@ export const AuthProvider = ({children}) => {
 			if (data === 'username' && (!formData[data].trim() && !usernameRegex.test(formData[data])))
 				validationErrors[data] = `${data} is required!`;
 			if (data === 'username' && !usernameRegex.test(formData[data]))
-				validationErrors[data] = `invalid ${data}!`;
+				validationErrors[data] = `invalid ${data}! examples, user123, user_123, user-123`;
 		}
 		setError(validationErrors);
 
@@ -332,31 +329,38 @@ export const AuthProvider = ({children}) => {
 					credentials: 'include',
 					body: postFormData
 				});
-				if (response.ok) {
+				const data = await response.json();
+				if (response.ok)
 					navigate('/home');
-				}
+				else
+					setGlobalMessage({message: data.error, isError: true});
 			} catch (error) {
-				alert('error', error);
+				setGlobalMessage({message: `error: ${error.message}`, isError: true});
 			}
 		}
 	}
 
 	const contextData = {
 		error: error,
-		globalError: globalError,
+		globalMessage: globalMessage,
 		displayMenuGl: displayMenuGl,
+		displayMenuGl: displayMenuGl,
+	
 		register: register,
 		login: login,
-		handleBlur: handleBlur,
-		handleChange: handleChange,
-		handleChangePassLogin: handleChangePassLogin,
+		logout: logout,
+
 		authProvider: authProvider,
 		authorization2FA: authorization2FA,
 		resent2FACode: resent2FACode,
 		requestResetPassword: requestResetPassword,
 		changePassword: changePassword,
-		setGlobalError: setGlobalError,
-		logout: logout,
+
+		handleBlur: handleBlur,
+		handleChange: handleChange,
+		handleChangePassLogin: handleChangePassLogin,
+		
+		setGlobalMessage: setGlobalMessage,
 		setDisplayMenuGl: setDisplayMenuGl,
 		setUpUsername: setUpUsername
 	}

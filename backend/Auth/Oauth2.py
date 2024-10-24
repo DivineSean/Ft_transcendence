@@ -132,7 +132,7 @@ def  callback(request):
 		if not username:
 			http_response = HttpResponse(content_type='application/json')
 			data = {
-				"message": "ok",
+				"message": "logged in successfully!",
 				"username": username,
 				"uid": str(user.id)
 			}
@@ -146,10 +146,10 @@ def  callback(request):
 			response = HttpResponse(content_type='application/json')
 			response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
 			response.set_cookie('accessToken', access, httponly=True, secure=True, samesite='Lax')
-			resData = {'message': 'ok'}
+			resData = {'message': 'logged in successfully!'}
 			dump = json.dumps(resData)
 			response.content = dump
 			
 			return response
 	else:
-		return Response({'error': 'chihaja machi hiya hadik akhouna'}, status=400)
+		return Response({'error': 'error cannot login!'}, status=400)

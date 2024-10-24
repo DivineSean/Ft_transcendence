@@ -58,9 +58,9 @@ def resend2FACode(request):
 	try:
 		user = Users.objects.get(id=user_id)
 	except Users.DoesNotExist:
-		return Response({'message': 'User not  found'}, status=401)
+		return Response({'error': 'User not  found'}, status=401)
 	except Users.MultipleObjectsReturned:
-		return Response({'message': 'Multiple users found with the same email'}, status=401)
+		return Response({'error': 'Multiple users found with the same email'}, status=401)
 
 	twofaOjt = CustomTokenObtainPairView()
 	two_factor_code = twofaOjt.generate_2fa_code(user, "twoFa")
@@ -101,12 +101,12 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 				email = request.data.get('email')
 				user = Users.objects.get(email=email)
 			except Users.DoesNotExist:
-				return Response({'message': 'User not found'}, status=401)
+				return Response({'error': 'User not found'}, status=401)
 			except Users.MultipleObjectsReturned:
-				return Response({'message': 'Multiple users found with the same email'}, status=401)
+				return Response({'error': 'Multiple users found with the same email'}, status=401)
 
 			if user and not user.password:
-				return Response({'message': 'This email cannot be logged in with a password'}, status=401)
+				return Response({'error': 'invalid email or password'}, status=401)
 
 			user_id = user.id
 			userTokens = super().post(request, *args, **kwargs)
@@ -124,13 +124,13 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			try:
 				user = Users.objects.get(id=user_id)
 			except Users.DoesNotExist:
-				return Response({'message': 'User not found'}, status=401)
+				return Response({'error': 'User not found'}, status=401)
 			except Users.MultipleObjectsReturned:
-				return Response({'message': 'Multiple users found with the same id'}, status=401)
+				return Response({'error': 'Multiple users found with the same id'}, status=401)
 
 			if not TwoFactorCode.validate_code(user, submitted_2fa_code, "twoFa"):
 				print("here", flush = True)
-				return Response({'message': 'Invalid 2FA code'}, status=400)
+				return Response({'error': 'Invalid 2FA code'}, status=400)
 
 			user_username = user.username
 			if not user_username:
@@ -151,7 +151,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 				http_response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
 				http_response.set_cookie('accessToken', access_token, httponly=True, secure=True, samesite='Lax')
 				data = {
-					"message": "ok",
+					"message": "logged in successfully!",
 				}
 				dump = json.dumps(data)
 				http_response.content = dump
@@ -178,7 +178,7 @@ class CustomTokenRefreshView(TokenRefreshView):
 
 		return response
 
-@api_view(["POST"]) # its ok ila passiti liya l body khawi, ghir khliha POST 7it rah loggout hada 
+@api_view(["POST"])
 def logout(request):
 	refresh_token = request.COOKIES.get('refreshToken')
 	if refresh_token:
@@ -201,9 +201,9 @@ class RequestPasswordChange(APIView):
 			userEmail = request.data.get("email") 
 			user = Users.objects.get(email=userEmail)
 		except Users.DoesNotExist:
-			return Response({'message': 'User not found'}, status=401)
+			return Response({'error': 'User not found'}, status=401)
 		except Users.MultipleObjectsReturned:
-			return Response({'message': 'Multiple users found with the same email'}, status=401)
+			return Response({'error': 'Multiple users found with the same email'}, status=401)
 		user_id = user.id
 
 		obj = CustomTokenObtainPairView()
@@ -229,28 +229,28 @@ class CheckPasswordChange(APIView):
 		try:
 			user = Users.objects.get(id=user_id)
 		except Users.DoesNotExist:
-			return Response({'message': 'User not found'}, status=401)
+			return Response({'error': 'User not found'}, status=401)
 		except Users.MultipleObjectsReturned:
-			return Response({'message': 'Multiple users found with the same id'}, status=401)
+			return Response({'error': 'Multiple users found with the same id'}, status=401)
 		
 
 		code = request.data.get("code")
 		if code == None:
-			return Response({'message': 'Code missing'}, status=400)
+			return Response({'error': 'Code missing'}, status=400)
 		
 		
 		newPassword = request.data.get("newPassword")
 		if newPassword == None:
-			return Response({'message': 'newPassword missing'}, status=400)
+			return Response({'error': 'newPassword missing'}, status=400)
 			
 		if TwoFactorCode.validate_code(user, code, "password") == False:	
-			return Response({"message": "Code Invalid"}, status=401)
+			return Response({"error": "Code Invalid"}, status=401)
 		
 		serializer = PasswordUpdateSerializer(user, data={'new_password': newPassword})
         
 		if serializer.is_valid():
 			serializer.save()
-			return Response({'message': 'Password Updateed'}, status=200)
+			return Response({'error': 'Password Updateed'}, status=200)
 		else:
 			return Response(serializer.errors, status=400)
 
@@ -265,14 +265,12 @@ def getUser(request):
 	try:
 		user = Users.objects.get(id=user_id)
 	except Users.DoesNotExist:
-		return Response({'message': 'User not found'}, status=401)
+		return Response({'error': 'User not found'}, status=401)
 	except Users.MultipleObjectsReturned:
-		return Response({'message': 'Multiple users found with the same id'}, status=401)
+		return Response({'error': 'Multiple users found with the same id'}, status=401)
 
 	user_data = model_to_dict(user, exclude=['password'])
-	return Response({
-		"user": user_data,
-	})
+	return Response({"user": user_data}, status=200)
 
 
 @api_view(['POST'])
@@ -286,12 +284,13 @@ def setUpUsername(request):
 	try:
 		user = Users.objects.get(id=user_id)
 	except Users.DoesNotExist:
-		return Response({'message': 'User not found'}, status=401)
+		return Response({'error': 'User not found'}, status=401)
 	except Users.MultipleObjectsReturned:
-		return Response({'message': 'Multiple users found with the same id'}, status=401)
+		return Response({'error': 'Multiple users found with the same id'}, status=401)
 
 	username = request.data.get('username')
-	
+	username = username.lower()
+	print(username, flush=True)
 	if not username:
 		return Response({'error': 'username is required'}, status=400)
 	
@@ -307,9 +306,7 @@ def setUpUsername(request):
 	http_response = HttpResponse(content_type='application/json')
 	http_response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
 	http_response.set_cookie('accessToken', access_token, httponly=True, secure=True, samesite='Lax')
-	data = {
-		"message": "username has been set up",
-	}
+	data = {"message": "username has been set up"}
 	dump = json.dumps(data)
 	http_response.content = dump
 	return http_response
