@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 
+const BALL_MAX_SPEED = 0.1;
+
 class Paddle {
 	constructor(scene, player, position, controls, color) {
 		this.scene = scene;
@@ -21,9 +23,6 @@ class Paddle {
 
 	update(keyboard, ball, ws, dt) {
 
-		// recalculate boundingBox
-		this.boundingBox.setFromObject(this.object);
-
 		// apply friction
 		this.dx *= 0.8;
 		this.dy *= 0.8;
@@ -44,25 +43,49 @@ class Paddle {
 
 		this.object.position.set(this.x, this.y, this.z);
 
+		// recalculate boundingBox
+		this.boundingBox.setFromObject(this.object);
+
+		// if (Math.abs(this.dx) > 0.001
+		// 	|| Math.abs(this.dy) > 0.001) // send new position as long as the ball is moving
+		// 	this.send(ws, 'paddle', {
+		// 		x: this.x,
+		// 		y: this.y,
+		// 		z: this.z,
+		// 	});
+
 		if (Math.abs(this.dx) > 0.001
-			|| Math.abs(this.dy) > 0.001) // send new position as long as the ball is moving
-			this.send(ws, 'paddle', {
-				x: this.x,
-				y: this.y,
-				z: this.z,
-			});
+			|| Math.abs(this.dy) > 0.001) {// send new position as long as the ball is moving
+			console.log('ana: ', this.boundingBox);
+			const data = {
+				'message': {
+					'content': 'paddle',
+					'paddle': {
+						x: this.x,
+						y: this.y,
+						z: this.z,
+					},
+				}
+			}
+			ws.send(JSON.stringify(data));
+		}
 	}
 
 	hit(ball, ws) {
 		// console.log("hit them balls");
 
-		ball.y = this.player == -1 ? this.boundingBox.max.y : this.boundingBox.min.y;
-		ball.y -= this.player;
+		if (this.player === 1) {
+			ball.y = this.boundingBox.min.y - 2;
+		} else {
+			ball.y = this.boundingBox.max.y + 2;
+		}
+		// ball.y = this.player == -1 ? this.boundingBox.max.y : this.boundingBox.min.y;
+		// ball.y -= this.player * 5;
 		// ball.z = Math.min(ball.z, 50);
 
 		console.log('Damn son: ', ball.dy);
-		ball.dy = Math.min(ball.dy + this.player * 0.05, 0.02);
-		ball.dy *= -0.8;
+		ball.dy = Math.min(Math.abs(ball.dy) + 0.05, BALL_MAX_SPEED);
+		ball.dy *= -this.player;
 		// ball.dz += 0.03;
 		// ball.dz *= -0.8;
 
@@ -74,6 +97,20 @@ class Paddle {
 		// 	dy: ball.dy,
 		// 	dz: ball.dz,
 		// });
+		const data = {
+			'message': {
+				'content': 'ball',
+				'ball': {
+					x: ball.x,
+					y: ball.y,
+					z: ball.z,
+					dx: ball.dx,
+					dy: ball.dy,
+					dz: ball.dz,
+				}
+			}
+		}
+		ws.send(JSON.stringify(data));
 	}
 
 	updatePos() {

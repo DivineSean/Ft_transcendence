@@ -8,8 +8,7 @@ class SceneManager {
 
 		this.renderer = new THREE.WebGLRenderer({ canvas: document.querySelector("#pong") });
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
-		// this.renderer.setPixelRatio(window.devicePixelRatio);
-		// this.renderer.setSize(window.innerWidth, window.innerHeight);
+		this.renderer.setPixelRatio(window.devicePixelRatio);
 
 		// camera
 		this.camera = new THREE.PerspectiveCamera(
@@ -21,7 +20,7 @@ class SceneManager {
 		);
 
 		this.camera.up.set(0, 0, 1);
-		this.camera.position.set(0, 60 * player, 150);
+		this.camera.position.set(0, 60 * player, 90);
 		this.camera.lookAt(0, 0, 0);
 
 		// lighting

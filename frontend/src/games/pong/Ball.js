@@ -27,10 +27,16 @@ class Ball {
 		}
 
 		// Paddles
-		if (this.boundingSphere.intersectsBox(player1.boundingBox))
+		if (this.boundingSphere.intersectsBox(player1.boundingBox)) {
+
+			console.log('player1: ', player1.boundingBox);
 			player1.hit(this, ws);
-		if (this.boundingSphere.intersectsBox(player2.boundingBox))
+		}
+		if (this.boundingSphere.intersectsBox(player2.boundingBox)) {
+
+			console.log('player2: ', player2.boundingBox);
 			player2.hit(this, ws);
+		}
 
 		// Movement
 		this.x += this.dx * dt;
