@@ -16,7 +16,7 @@ export const AuthProvider = ({children}) => {
 	const validationErrors = {};
 	const emailRegex = /\S+@\S+\.\S+/;
 	const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+={}'";:,.<>])[A-Za-z\d!@#$%^&*()_+={}'";:,.<>]{6,}$/;
-	const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_-]*$/;
+	const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_-]{3,}$/;
 
 	const [formData, setFormData] = useState({
 		username: '',
@@ -52,7 +52,7 @@ export const AuthProvider = ({children}) => {
 			}
 		} else if (name === 'password') {
 			if (!passwordRegex.test(value)) {
-				validationErrors.password = 'password must contain at least 6 character, uppercase, lowercase, number and special character.';
+				validationErrors.password = 'password must contain at least 6 characters, uppercase, lowercase, number and special character.';
 			}
 		} else if (name === 'confirmPassword') {
 			if (value !== formData.password) {
@@ -101,7 +101,7 @@ export const AuthProvider = ({children}) => {
 			if (data === 'email' && !emailRegex.test(formData[data]))
 				validationErrors[data] = `${data} is not valid!`;
 			if (data === 'password' && !passwordRegex.test(formData[data]))
-				validationErrors[data] = `${data} must contain at least 6 character, uppercase, lowercase, number and special character.`;
+				validationErrors[data] = `${data} must contain at least 6 characters, uppercase, lowercase, number and special character.`;
 			if (data === 'confirmPassword' && formData.password != formData[data])
 				validationErrors[data] = 'password does not matched!';
 
@@ -258,7 +258,7 @@ export const AuthProvider = ({children}) => {
 		e.preventDefault();
 		for (const data in formData) {
 			if (data === 'password' && !passwordRegex.test(formData[data]))
-				validationErrors[data] = `${data} must contain at least 6 character, uppercase, lowercase, number and special character.`;
+				validationErrors[data] = `${data} must contain at least 6 characters, uppercase, lowercase, number and special character.`;
 			if (data === 'confirmPassword' && formData.password != formData[data])
 				validationErrors[data] = 'password does not matched!';
 
@@ -313,7 +313,7 @@ export const AuthProvider = ({children}) => {
 			if (data === 'username' && (!formData[data].trim() && !usernameRegex.test(formData[data])))
 				validationErrors[data] = `${data} is required!`;
 			if (data === 'username' && !usernameRegex.test(formData[data]))
-				validationErrors[data] = `invalid ${data}! examples, user123, user_123, user-123`;
+				validationErrors[data] = `${data} must contain at least 4 characters! examples, user123, user_123, user-123`;
 		}
 		setError(validationErrors);
 
