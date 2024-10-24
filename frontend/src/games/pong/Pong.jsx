@@ -4,12 +4,21 @@ import Paddle from './Paddle';
 import Ball from './Ball';
 import { Clock } from 'three';
 import { useEffect, useRef } from 'react';
-
-const Pong = ({ websocket, player }) => {
+let vars = false;
+const Pong = ({ websocket, player, stats }) => {
 	const sm = useRef(null);
+	if (stats && !vars)
+	{
+		const data = {
+			'message': {
+				'content': 'Play',
+			}
+		}
+		websocket.send(JSON.stringify(data));
+	}
+	vars = true;
 	// const playersRef = useRef(null);
 	// const ballRef = useRef(null);
-
 	const keyboard = useRef({});
 	const handleKeyDown = (event) => {
 		// console.log(event);
@@ -45,7 +54,9 @@ const Pong = ({ websocket, player }) => {
 			console.log(msg);
 			// if (msg.message.content == 'ready')
 			// 	ready = true;
-			if (msg.message.content == 'paddle') {
+			if (msg.message.content === 'Play')
+				stats = true;
+			else if (msg.message.content == 'paddle') {
 				const opp = player == 1 ? 2 : 1;
 
 				// switch (msg.message.info) {
@@ -73,7 +84,6 @@ const Pong = ({ websocket, player }) => {
 				players[opp - 1].y = msg.message.paddle.y;
 				players[opp - 1].z = msg.message.paddle.z;
 				players[opp - 1].updatePos();
-				console.log('chof wach bs7: ', players[opp - 1].boundingBox);
 			}
 			else if (msg.message.content == 'ball') {
 
@@ -103,7 +113,7 @@ const Pong = ({ websocket, player }) => {
 		// }))
 		const clock = new Clock();
 		const animate = () => {
-			// if (!ready) return;
+			if (!stats ) return;
 
 			let dt = clock.getDelta() * 1000;
 
@@ -120,7 +130,7 @@ const Pong = ({ websocket, player }) => {
 				ball.z += ball.dz * (dt / 1000);
 			}
 
-			ball.update({}, table, players[0], players[1], websocket, dt);
+			ball.update({}, table, players[0], players[1], websocket, dt, player);
 			players[player - 1].update(keyboard.current, ball, websocket, dt);
 			// players[player == 1 ? 1 : 0].updatePos();
 
