@@ -137,7 +137,7 @@ export const AuthProvider = ({children}) => {
 		}
 	}
 
-	const login = async (e, setLoginError) => {
+	const login = async (e) => {
 		e.preventDefault();
 		for (const data in formData) {
 			if (data === 'email' && !emailRegex.test(formData[data]))
