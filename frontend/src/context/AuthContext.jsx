@@ -16,7 +16,7 @@ export const AuthProvider = ({children}) => {
 	const validationErrors = {};
 	const emailRegex = /\S+@\S+\.\S+/;
 	const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+={}'";:,.<>])[A-Za-z\d!@#$%^&*()_+={}'";:,.<>]{6,}$/;
-	const usernameRegex = /^[a-zA-Z][a-zA-Z0-9!@#$%^&*()\-_=+{}\[\]|\\;:'",.<>?]*$/;
+	const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_-]*$/;
 
 	const [formData, setFormData] = useState({
 		username: '',
@@ -298,6 +298,7 @@ export const AuthProvider = ({children}) => {
 			});
 			if (response.ok) {
 				navigate('/login');
+				setGlobalMessage({message: 'you have successfully logged out!', isError: false});
 				setDisplayMenuGl(false);
 			} else 
 				setGlobalMessage({message: data.error, isError: true});
@@ -312,7 +313,7 @@ export const AuthProvider = ({children}) => {
 			if (data === 'username' && (!formData[data].trim() && !usernameRegex.test(formData[data])))
 				validationErrors[data] = `${data} is required!`;
 			if (data === 'username' && !usernameRegex.test(formData[data]))
-				validationErrors[data] = `invalid ${data}!`;
+				validationErrors[data] = `invalid ${data}! examples, user123, user_123, user-123`;
 		}
 		setError(validationErrors);
 
@@ -343,19 +344,23 @@ export const AuthProvider = ({children}) => {
 		error: error,
 		globalMessage: globalMessage,
 		displayMenuGl: displayMenuGl,
-		register: register,
 		displayMenuGl: displayMenuGl,
+	
+		register: register,
 		login: login,
-		handleBlur: handleBlur,
-		handleChange: handleChange,
-		handleChangePassLogin: handleChangePassLogin,
+		logout: logout,
+
 		authProvider: authProvider,
 		authorization2FA: authorization2FA,
 		resent2FACode: resent2FACode,
 		requestResetPassword: requestResetPassword,
 		changePassword: changePassword,
+
+		handleBlur: handleBlur,
+		handleChange: handleChange,
+		handleChangePassLogin: handleChangePassLogin,
+		
 		setGlobalMessage: setGlobalMessage,
-		logout: logout,
 		setDisplayMenuGl: setDisplayMenuGl,
 		setUpUsername: setUpUsername
 	}

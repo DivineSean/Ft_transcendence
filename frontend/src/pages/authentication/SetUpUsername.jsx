@@ -85,7 +85,7 @@ const SetUpUsername = () => {
 											onBlur={handleBlur}
 											error={error.username} 
 										/>
-										{error.username && <span className="text-red text-txt-sm">{error.username}</span>}
+										{error.username && <span className="text-red text-txt-sm lowercase">{error.username}</span>}
 									</div>
 
 									<button type="submit" className="bg-green text-black text-h-sm-lg font-bold py-8 rounded">Set Up</button>

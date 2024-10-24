@@ -289,7 +289,8 @@ def setUpUsername(request):
 		return Response({'error': 'Multiple users found with the same id'}, status=401)
 
 	username = request.data.get('username')
-	
+	username = username.lower()
+	print(username, flush=True)
 	if not username:
 		return Response({'error': 'username is required'}, status=400)
 	
