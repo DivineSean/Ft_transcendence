@@ -19,6 +19,7 @@ export class SceneManager {
         // lighting
         const ambientLight = new THREE.AmbientLight(0xffffff);
         this.scene.add(ambientLight);
+
         // helpers
         const gridHelper = new THREE.GridHelper(200, 50);
         const axesHelper = new THREE.AxesHelper(15);

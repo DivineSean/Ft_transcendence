@@ -1,12 +1,15 @@
 import SceneManager from './SceneManager';
 import Table from './Table';
 import Paddle from './Paddle';
+import Net from './Net';
 import Ball from './Ball';
 import { Clock } from 'three';
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef } from 'react';
 let vars = false;
 const Pong = ({ websocket, player, stats }) => {
 	const sm = useRef(null);
+	const loaderRef = useRef(null);
 	if (stats && !vars)
 	{
 		const data = {
@@ -31,6 +34,8 @@ const Pong = ({ websocket, player, stats }) => {
 	useEffect(() => {
 		sm.current = new SceneManager(player == 2 ? -1 : 1);
 		const table = new Table(sm.current.scene);
+		loaderRef.current = new GLTFLoader();
+		const net = new Net(sm.current.scene, loaderRef.current);
 		const ball = new Ball(sm.current.scene);
 		const controls = {
 			up: "KeyW",
@@ -39,8 +44,8 @@ const Pong = ({ websocket, player, stats }) => {
 			right: "KeyD",
 		}
 		const players = [
-			new Paddle(sm.current.scene, 1, { x: 36, y: 2.5, z: 0}, controls, 0x118811),
-			new Paddle(sm.current.scene, -1, { x: -36 , y: 2.5, z: 0 }, controls, 0x881111)
+			new Paddle(sm.current.scene, 1, { x: 36, y: 2.5, z: 0}, controls, 0x118811,loaderRef.current ),
+			new Paddle(sm.current.scene, -1, { x: -36 , y: 2.5, z: 0 }, controls, 0x881111, loaderRef.current)
 		]
 		// playersRef.current = players;
 		// ballRef.current = ball;
@@ -95,13 +100,14 @@ const Pong = ({ websocket, player, stats }) => {
 				ball.dy = msg.message.ball.dy;
 				ball.dz = msg.message.ball.dz;
 
-				ball.object.position.set(ball.x, ball.y, ball.z);
-				ball.boundingSphere.set(ball.object.position, 1);
+				ball.model.position.set(ball.x, ball.y, ball.z);
+				ball.boundingSphere.set(ball.model.position, 1);
 			}
 		}
 
 
 		table.render();
+		net.render();
 		ball.render();
 		players[0].render();
 		players[1].render();
@@ -130,7 +136,7 @@ const Pong = ({ websocket, player, stats }) => {
 				ball.z += ball.dz * (dt / 1000);
 			}
 
-			ball.update({}, table, players[0], players[1], websocket, dt, player);
+			ball.update(net, table, players[0], players[1], websocket, dt, player);
 			players[player - 1].update(keyboard.current, ball, websocket, dt);
 			// players[player == 1 ? 1 : 0].updatePos();
 
