@@ -63,19 +63,22 @@ const ResetPassword = () => {
 					<InputFieled name="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} onBlur={handleBlur} error={error.confirmPassword} />
 					{error.confirmPassword && <span className="text-red text-txt-sm">{error.confirmPassword}</span>}
 				</div>
-				<div className="flex justify-between">
-					{values2FA.map((value, index) => (
-						<input 
-							key={index}
-							type="text"
-							maxLength={1}
-							value={value}
-							onChange={(e) => handleChange2FA(e, index)}
-							onKeyDown={(e) => handleKeyDown2FA(e, index)}
-							ref={(el) => (inputs.current[index] = el)}
-							className="bg-transparent outline-none text-center border-b-2 border-stroke-sc max-w-40 focus:border-green"
-						/>
-					))}
+				<div className="flex flex-col gap-16">
+					<p className="text-gray">enter the code </p>
+					<div className="flex justify-between">
+						{values2FA.map((value, index) => (
+							<input 
+								key={index}
+								type="text"
+								maxLength={1}
+								value={value}
+								onChange={(e) => handleChange2FA(e, index)}
+								onKeyDown={(e) => handleKeyDown2FA(e, index)}
+								ref={(el) => (inputs.current[index] = el)}
+								className="bg-transparent outline-none text-center border-b-2 border-stroke-sc max-w-40 focus:border-green"
+							/>
+						))}
+					</div>
 				</div>
 
 				<button type="submit" className="bg-green text-black text-h-sm-lg font-bold py-8 rounded">Send</button>

@@ -20,12 +20,15 @@ const SetUpUsername = () => {
 	let [userData, setUserData] = useState({});
 
 	const getFirstLastName = async () => {
-		const postFormData = new FormData();
-		postFormData.append('id', uid);
 		try {
 			const response = await fetch('https://localhost:8000/api/user/', {
 				method: 'POST',
-				body: postFormData,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					'id': uid,
+				})
 			});
 			const data = await response.json();
 			setUserData(data);
