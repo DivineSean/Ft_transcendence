@@ -52,22 +52,30 @@ const Toast = ({
 		<div 
 			className={`
 				left-1/2 transform -translate-x-1/2 justify-between
-				py-8 px-16 fixed z-[10000] overflow-hidden backdrop-blur-2xl
+				py-8 px-16 fixed z-[10] overflow-hidden backdrop-blur-2xl
 				flex gap-8 items-center lg:right-32 top-32 rounded-lg 
-				border-[0.5px] border-stroke-sc max-w-[300px] transition-opacity
+				border-[0.5px] border-stroke-sc max-w-[400px] min-w-[10px] transition-opacity
 				duration-800 ${opacity ? 'opacity-100' : 'opacity-0'}
 			`}
 		>
 			<div
-				className={`${error ? 'bg-red' : 'bg-green'} h-full w-[10%] absolute top-0 left-0 opacity-40 z-[-1]`}
+				className={`${error ? 'bg-red' : 'bg-green'} h-full absolute top-0 left-0 opacity-40 z-[-1]`}
 				style={{ width: `${progress}%` }}
 			></div>
 			<div className="flex gap-8 items-center">
-				{ error && <VscError className="text-red text-txt-md" /> }
-				{ !error && <GrStatusGood className="text-green text-txt-md" /> }
+				{ error &&
+					<div className="min-w-16 max-w-16">
+						<VscError className="text-red text-txt-md" />
+					</div> 
+				}
+				{ !error && 
+						<div className="min-w-16 max-w-16">
+							<GrStatusGood className="text-green text-txt-md" />
+						</div> 
+				}
 				<p className="font-light tracking-wide text-txt-sm">{message}</p>
 			</div>
-			<IoMdClose onClick={removeToast} className="cursor-pointer text-txt-xl" />
+			<IoMdClose onClick={removeToast} className="cursor-pointer text-txt-xl min-w-16" />
 		</div>
 	)
 }

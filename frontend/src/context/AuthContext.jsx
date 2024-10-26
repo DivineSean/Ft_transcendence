@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from 'react-router-dom'
-import Toast from "../components/Toast";
+import FetchWrapper from "../utils/fetchWrapper";
+
 
 const URL = 'https://localhost:8000/';
 
@@ -10,6 +11,7 @@ export default AuthContext;
 
 export const AuthProvider = ({children}) => {
 
+	const FetchData = new FetchWrapper(URL);
 	const [displayMenuGl, setDisplayMenuGl] = useState(false);
 
 	const navigate = useNavigate();
@@ -75,17 +77,13 @@ export const AuthProvider = ({children}) => {
 	const authProvider = async (provider) => {
 		let url;
 		if (provider === 'intra')
-			url = `${URL}api/intra/`;
+			url = 'api/intra/';
 		else
-			url = `${URL}api/google/`;
+			url = 'api/google/';
 		try {
-
-			const response = await fetch(url, {
-				method: 'GET'
-			});
-
-			const data = await response.json();
-			if (response.ok) {
+			const res = await FetchData.get(url);
+			const data = await res.json();
+			if (res.ok) {
 				window.location.href = data.url;
 			} else
 				setGlobalMessage({message: data.error, isError: true});
@@ -113,22 +111,20 @@ export const AuthProvider = ({children}) => {
 
 		if (Object.keys(validationErrors).length === 0) {
 			try {
-				const response = await fetch(`${URL}api/register/`, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						'first_name': e.target.firstName.value,
-						'last_name': e.target.lastName.value,
-						'email': e.target.email.value,
-						'password': e.target.password.value
-					})
+				const res = await FetchData.post('api/register/', {
+					'first_name': e.target.firstName.value,
+					'last_name': e.target.lastName.value,
+					'email': e.target.email.value,
+					'password': e.target.password.value
 				});
-				if (response.ok)
+				if (res.status === 200) {
 					navigate('/login');
-				else
-					setGlobalMessage({message: data.error, isError: true});
+				} else {
+					if (res.status === 404)
+						setGlobalMessage({message: 'the url you have reached is not found!', isError: true});
+					else
+						setGlobalMessage({message: 'email already exists or some cridentials not correct!', isError: true});
+				}
 			} catch (error) {
 
 				setGlobalMessage({message: 'something went wrong!', isError: true});
@@ -153,32 +149,27 @@ export const AuthProvider = ({children}) => {
 		if (Object.keys(validationErrors).length === 0) {
 
 			try {
-				const response = await fetch(`${URL}api/token/`, {
-					method: 'POST',
-					credentials: 'include',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						'email': e.target.email.value,
-						'password': e.target.password.value,
-					})
+				const res = await FetchData.post('api/token/', {
+					'email': e.target.email.value,
+					'password': e.target.password.value,
 				});
-				if (response.ok) {
-					const data = await response.json();
-					if (data.requires_2fa) {
-						navigate(`/twofa/${data.uid}`)
-					} else {
+				if (res.ok) {
+					const data = await res.json();
+					if (data.requires_2fa)
+						navigate(`/twofa/${data.uid}`);
+					else
 						navigate('/home');
-					}
 				} else {
-					if (response.status === 401)
-						setGlobalMessage({message: 'invalid email or password!', isError: true});
-					else 
-						setGlobalMessage({message: 'something went wrong!', isError: true});
+					if (res.status === 404)
+						setGlobalMessage({message: 'the url you have reached is not found!', isError: true});
+					else {
+						const data = await res.json();
+						setGlobalMessage({message: `error: ${data.detail}`, isError: true});
+					}
 				}
+
 			} catch (error) {
-				setGlobalMessage({message: `error: ${error.message}`, isError: true});
+				setGlobalMessage({message: `error: ${error}`, isError: true});
 			}
 
 		}
@@ -187,19 +178,13 @@ export const AuthProvider = ({children}) => {
 	const authorization2FA = async (e, userId, values2FA) => {
 		e.preventDefault();
 		try {
-			const response = await fetch(`${URL}api/token/`, {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-						'Content-Type': 'application/json',
-					},
-				body: JSON.stringify({
-					'id': userId,
-					'2fa_code': values2FA.join(''),
-				})
+			const res = await FetchData.post('api/token/', {
+				'id': userId,
+				'2fa_code': values2FA.join(''),
 			});
-			const data = await response.json();
-			if (response.ok) {
+
+			const data = await res.json();
+			if (res.ok) {
 				if (data.username === null)
 					navigate(`setupusername/${data.uid}`);
 				else
@@ -207,24 +192,16 @@ export const AuthProvider = ({children}) => {
 			} else
 				setGlobalMessage({message: data.error, isError: true});
 		} catch (error) {
-			setGlobalMessage({message: `error: ${error.message}`, isError: true});
+			setGlobalMessage({message: `error: ${error}`, isError: true});
 		}
 	}
 
 	const resent2FACode = async (userId) => {
-		const postFormData = new FormData();
-		postFormData.append('id', userId);
 		try {
-			const response = await fetch(`${URL}api/resent2fa/`, {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-						'Content-Type': 'application/json',
-					},
-				body: JSON.stringify({
-					'id': userId,
-				})
-			});
+			const res = await FetchData.post('api/resent2fa/', { 'id': userId });
+			console.log(res);
+			if (!res.ok)
+				setGlobalMessage({message: 'something went wrong!', isError: true});
 		} catch (error) {
 			setGlobalMessage({message: `error: ${error.message}`, isError: true});
 		}
@@ -242,18 +219,9 @@ export const AuthProvider = ({children}) => {
 		
 		if (Object.keys(validationErrors).length === 0) {
 			try {
-				const response = await fetch(`${URL}api/requestreset/`, {
-					method: 'POST',
-					credentials: 'include',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						'email': e.target.email.value,
-					})
-				});
-				const data = await response.json();
-				if (response.ok)
+				const res = await FetchData.post('api/requestreset/', { 'email': e.target.email.value });
+				const data = await res.json();
+				if (res.ok)
 					navigate(`/forgotpassword/${data.uid}`)
 				else
 					setGlobalMessage({message: data.error, isError: true});
@@ -279,19 +247,12 @@ export const AuthProvider = ({children}) => {
 
 		if (Object.keys(validationErrors).length === 0) {
 			try {
-				const response = await fetch(`${URL}api/changepassword/`, {
-					method: 'POST',
-					credentials: 'include',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						'id': userId,
-						'newPassword': e.target.password.value,
-						'code': values2FA.join(''),
-					})
-				});
-				if(response.ok)
+				const res = await FetchData.post('api/changepassword/', {
+					'id': userId,
+					'newPassword': e.target.password.value,
+					'code': values2FA.join(''),
+				})
+				if(res.ok)
 					navigate('/login');
 				else
 					setGlobalMessage({message: data.error, isError: true});
@@ -303,11 +264,8 @@ export const AuthProvider = ({children}) => {
 
 	const logout = async () => {
 		try {
-			const response = await fetch(`${URL}api/logout/`, {
-				method: 'POST',
-				credentials: 'include'
-			});
-			if (response.ok) {
+			const res = await FetchData.post('api/logout/');
+			if (res.ok) {
 				navigate('/login');
 				setGlobalMessage({message: 'you have successfully logged out!', isError: false});
 				setDisplayMenuGl(false);
@@ -331,19 +289,12 @@ export const AuthProvider = ({children}) => {
 
 		if (Object.keys(validationErrors).length === 0) {
 			try {
-				const response = await fetch(`${URL}api/setupusername/`, {
-					method: 'POST',
-					credentials: 'include',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						'id': userId,
-						'username': e.target.username.value,
-					})
+				const res = await FetchData.post('api/setupusername/', {
+					'id': userId,
+					'username': e.target.username.value,
 				});
-				const data = await response.json();
-				if (response.ok)
+				const data = await res.json();
+				if (res.ok)
 					navigate('/home');
 				else
 					setGlobalMessage({message: data.error, isError: true});
