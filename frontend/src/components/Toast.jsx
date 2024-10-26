@@ -4,7 +4,7 @@ import { VscError } from "react-icons/vsc";
 import { GrStatusGood } from "react-icons/gr";
 
 const Toast = ({
-	duration = 5000,
+	duration = 3000,
 	error = true,
 	message,
 	onClose
