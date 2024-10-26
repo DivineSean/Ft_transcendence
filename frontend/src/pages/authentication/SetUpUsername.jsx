@@ -5,6 +5,7 @@ import ResetPassword from "./ResetPassword";
 import { useParams } from "react-router-dom";
 import { Link, useNavigate } from "react-router-dom";
 import Toast from "../../components/Toast";
+import FetchWrapper from "../../utils/fetchWrapper";
 
 const SetUpUsername = () => {
 	const { uid } = useParams();
@@ -18,21 +19,14 @@ const SetUpUsername = () => {
 		setGlobalMessage
 	} = useContext(AuthContext);
 	let [userData, setUserData] = useState({});
+	const FetchData = new FetchWrapper('https://localhost:8000/');
 
 	const getFirstLastName = async () => {
 		try {
-			const response = await fetch('https://localhost:8000/api/user/', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					'id': uid,
-				})
-			});
-			const data = await response.json();
+			const res = await FetchData.post('api/user/', { 'id': uid });
+			const data = await res.json();
 			setUserData(data);
-			if (response.ok) {
+			if (res.ok) {
 				if (data.user.username != null) {
 					navigate('/home');
 				}

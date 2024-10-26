@@ -11,7 +11,7 @@ const TwoFA = () => {
 		setGlobalMessage
 	} = useContext(AuthContext);
 	const { uid } = useParams();
-	const [timer, setTimer] = useState(150);
+	const [timer, setTimer] = useState(5);
 	const [isActive, setIsActive] = useState(false);
 	const [values2FA, setValues2FA] = useState(Array(6).fill(''));
 	const inputs = useRef([]);
@@ -47,7 +47,7 @@ const TwoFA = () => {
 
 	const resetTimer = () => {
 		resent2FACode(uid);
-		setTimer(150);
+		setTimer(5);
 		setIsActive(false);
 	}
 	

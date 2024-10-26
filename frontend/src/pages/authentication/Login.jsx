@@ -7,6 +7,7 @@ import useAuth from "../../customHooks/useAuth";
 import InputFieled from "../../components/InputField";
 import LoadingPage from "../LoadingPage";
 import Toast from "../../components/Toast";
+import FetchWrapper from "../../utils/fetchWrapper";
 
 const Login = () => {
 	
@@ -21,34 +22,26 @@ const Login = () => {
 		setGlobalMessage
 	} = useContext(AuthContext);
 	const location = useLocation();
-
+	const FetchData = new FetchWrapper('https://localhost:8000/');
 	const navigate = useNavigate();
 	const [load, setLoad] = useState(true);
 	
 	const sendCode = async (code, prompt) => {
 		try {
-			const response = await fetch('https://localhost:8000/api/callback/', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				credentials: 'include',
-				body: JSON.stringify({
-					'code': code,
-					'prompt': prompt
-				})
-			}); 
-			const data = await response.json();
-			if (response.ok) {
-				if (data.username === null) {
+			const res = await FetchData.post('api/callback/', {
+				'code': code,
+				'prompt': prompt
+			});
+			const data = await res.json();
+			if (res.ok) {
+				if (data.username === null)
 					navigate(`/setupusername/${data.uid}`);
-				} else
+				else
 					navigate('/home');
-			} else {
+			} else
 				navigate('/login');
-			}
 		} catch (error) {
-			setGlobalMessage({message: `error: ${error.message}`, isError: true});
+			setGlobalMessage({message: `error: ${error}`, isError: true});
 		}
 	}
 	
