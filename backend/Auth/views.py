@@ -95,10 +95,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			EmailMessage(subject, message, email_from, recipient_list, connection=connection).send()
 		
 	def post(self, request, *args, **kwargs):
-		submitted_2fa_code = request.data.get('2fa_code')
+		json_data = json.loads(request.body)
+		submitted_2fa_code = json_data.get('2fa_code')
 		if not submitted_2fa_code:
 			try:
-				email = request.data.get('email')
+				email = json_data.get('email')
 				user = Users.objects.get(email=email)
 			except Users.DoesNotExist:
 				return Response({'error': 'User not found'}, status=401)
@@ -109,14 +110,16 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 				return Response({'error': 'invalid email or password'}, status=401)
 
 			user_id = user.id
+			print('hello 9bel mn post', flush=True)
 			userTokens = super().post(request, *args, **kwargs)
+			print('hello be3d mn post', flush=True)
 			if userTokens.status_code == 200:
 				two_factor_code = self.generate_2fa_code(user, "twoFa")
 				self.send_2fa_code(user.email, two_factor_code.code)
 				return Response({'message': '2FA code sent', 'uid': user_id, 'requires_2fa': True}, status=200)	
 		else:
 			try:
-				user_id = request.data.get('id')
+				user_id = json_data.get('id')
 				uuid.UUID(user_id, version=4)
 			except ValueError:
 				return Response({"error": "invalid id"}, status=400)
@@ -197,11 +200,12 @@ class RequestPasswordChange(APIView):
 		return self.getCode(request)
 	
 	def getCode(self, request):
+		json_data = json.loads(request.body)
 		try:
-			userEmail = request.data.get("email") 
+			userEmail = json_data.get("email") 
 			user = Users.objects.get(email=userEmail)
 		except Users.DoesNotExist:
-			return Response({'error': 'User not found'}, status=401)
+			return Response({'error': 'User with this email is not found'}, status=401)
 		except Users.MultipleObjectsReturned:
 			return Response({'error': 'Multiple users found with the same email'}, status=401)
 		user_id = user.id
@@ -219,9 +223,9 @@ class CheckPasswordChange(APIView):
 		return self.checkCode(request)
 	
 	def checkCode(self, request):
-		
+		json_data = json.loads(request.body)
 		try:
-			user_id = request.data.get('id')
+			user_id = json_data.get('id')
 			uuid.UUID(user_id, version=4)
 		except ValueError:
 			return Response({"error": "invalid id"}, status=400)
@@ -234,12 +238,12 @@ class CheckPasswordChange(APIView):
 			return Response({'error': 'Multiple users found with the same id'}, status=401)
 		
 
-		code = request.data.get("code")
+		code = json_data.get("code")
 		if code == None:
 			return Response({'error': 'Code missing'}, status=400)
 		
 		
-		newPassword = request.data.get("newPassword")
+		newPassword = json_data.get("newPassword")
 		if newPassword == None:
 			return Response({'error': 'newPassword missing'}, status=400)
 			
@@ -256,8 +260,9 @@ class CheckPasswordChange(APIView):
 
 @api_view(['POST'])
 def getUser(request):
+	json_data = json.loads(request.body)
 	try:
-		user_id = request.data.get('id')
+		user_id = json_data.get('id')
 		uuid.UUID(user_id, version=4)
 	except ValueError:
 		return Response({"error": "invalid id"}, status=400)
@@ -275,8 +280,9 @@ def getUser(request):
 
 @api_view(['POST'])
 def setUpUsername(request):
+	json_data = json.loads(request.body)
 	try:
-		user_id = request.data.get('id')
+		user_id = json_data.get('id')
 		uuid.UUID(user_id, version=4)
 	except ValueError:
 		return Response({"error": "invalid id"}, status=400)
@@ -288,7 +294,7 @@ def setUpUsername(request):
 	except Users.MultipleObjectsReturned:
 		return Response({'error': 'Multiple users found with the same id'}, status=401)
 
-	username = request.data.get('username')
+	username = json_data.get('username')
 	username = username.lower()
 	print(username, flush=True)
 	if not username:

@@ -151,18 +151,18 @@ export const AuthProvider = ({children}) => {
 
 
 		if (Object.keys(validationErrors).length === 0) {
-			
-			const postFormData = new FormData();
-			const email = e.target.email.value;
-			const password = e.target.password.value;
-			postFormData.append('email', email);
-			postFormData.append('password', password);
 
 			try {
 				const response = await fetch(`${URL}api/token/`, {
 					method: 'POST',
 					credentials: 'include',
-					body: postFormData
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						'email': e.target.email.value,
+						'password': e.target.password.value,
+					})
 				});
 				if (response.ok) {
 					const data = await response.json();
@@ -186,17 +186,19 @@ export const AuthProvider = ({children}) => {
 
 	const authorization2FA = async (e, userId, values2FA) => {
 		e.preventDefault();
-		const postFormData = new FormData();
-		postFormData.append('id', userId)
-		postFormData.append('2fa_code', values2FA.join(''));
 		try {
 			const response = await fetch(`${URL}api/token/`, {
 				method: 'POST',
 				credentials: 'include',
-				body: postFormData
+				headers: {
+						'Content-Type': 'application/json',
+					},
+				body: JSON.stringify({
+					'id': userId,
+					'2fa_code': values2FA.join(''),
+				})
 			});
 			const data = await response.json();
-			console.log(data);
 			if (response.ok) {
 				if (data.username === null)
 					navigate(`setupusername/${data.uid}`);
@@ -216,7 +218,12 @@ export const AuthProvider = ({children}) => {
 			const response = await fetch(`${URL}api/resent2fa/`, {
 				method: 'POST',
 				credentials: 'include',
-				body: postFormData
+				headers: {
+						'Content-Type': 'application/json',
+					},
+				body: JSON.stringify({
+					'id': userId,
+				})
 			});
 		} catch (error) {
 			setGlobalMessage({message: `error: ${error.message}`, isError: true});
@@ -234,14 +241,16 @@ export const AuthProvider = ({children}) => {
 		setError(validationErrors);
 		
 		if (Object.keys(validationErrors).length === 0) {
-			const email = e.target.email.value;
-			const postFormData = new FormData();
-			postFormData.append('email', email)
 			try {
 				const response = await fetch(`${URL}api/requestreset/`, {
 					method: 'POST',
 					credentials: 'include',
-					body: postFormData
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						'email': e.target.email.value,
+					})
 				});
 				const data = await response.json();
 				if (response.ok)
@@ -269,16 +278,18 @@ export const AuthProvider = ({children}) => {
 		setError(validationErrors);
 
 		if (Object.keys(validationErrors).length === 0) {
-			const postFormData = new FormData();
-			const newPassword = e.target.password.value;
-			postFormData.append('id', userId);
-			postFormData.append('newPassword', newPassword);
-			postFormData.append('code', values2FA.join(''));
 			try {
 				const response = await fetch(`${URL}api/changepassword/`, {
 					method: 'POST',
 					credentials: 'include',
-					body: postFormData
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						'id': userId,
+						'newPassword': e.target.password.value,
+						'code': values2FA.join(''),
+					})
 				});
 				if(response.ok)
 					navigate('/login');
@@ -319,15 +330,17 @@ export const AuthProvider = ({children}) => {
 
 
 		if (Object.keys(validationErrors).length === 0) {
-			const username = e.target.username.value;
-			const postFormData = new FormData();
-			postFormData.append('id', userId);
-			postFormData.append('username', username)
 			try {
 				const response = await fetch(`${URL}api/setupusername/`, {
 					method: 'POST',
 					credentials: 'include',
-					body: postFormData
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						'id': userId,
+						'username': e.target.username.value,
+					})
 				});
 				const data = await response.json();
 				if (response.ok)

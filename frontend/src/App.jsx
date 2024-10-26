@@ -22,7 +22,7 @@ function App() {
 						<Route path='forgotpassword/' element={<ForgotPassword />} />
 						<Route path='forgotpassword/:uid' element={<ForgotPassword />} />
 						<Route path='setupusername/:uid' element={<SetUpUsername />} />
-						<Route path='Twofa/:uid' element={<TwoFA />} />
+						<Route path='twofa/:uid' element={<TwoFA />} />
 						<Route path='login/' element={<Login />} />
 						<Route path='menu/' element={<Menu />} />
 						<Route path='profile/' element={<Profile />} />
