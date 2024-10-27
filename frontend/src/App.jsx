@@ -30,6 +30,7 @@ function App() {
 						<Route path='register/' element={<SignUp />} />
 						<Route path='home/' element={<Home />} />
 						<Route path='chat/' element={<Chat />} />
+						<Route path='chat/:uid' element={<Chat />} />
 						<Route path='*' element={<NotFound />} />
 					</Routes>
 				</AuthProvider>
