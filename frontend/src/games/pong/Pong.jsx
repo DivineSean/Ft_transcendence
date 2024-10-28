@@ -115,7 +115,7 @@ const Pong = ({ websocket, player, stats }) => {
 				ball.z += ball.dz * (dt / 1000);
 			}
 
-			ball.update(net, table, players[0], players[1], websocket, dt, player, keyboard.current);
+			ball.update(net, table, players[player - 1], websocket, dt, player, keyboard.current);
 			players[player - 1].update(keyboard.current, ball, websocket, dt);
 			// players[player == 1 ? 1 : 0].updatePos();
 
