@@ -1,10 +1,10 @@
+import InputFieled from "../../components/authentication/InputField";
 import AuthContext from "../../context/AuthContext";
-import InputFieled from "../../components/InputField";
-import { useContext, useState } from "react";
-import ResetPassword from "./ResetPassword";
 import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import ResetPassword from "./ResetPassword";
 import Toast from "../../components/Toast";
+import { Link } from "react-router-dom";
+import { useContext } from "react";
 
 const ForgotPassword = () => {
 	const { uid } = useParams();

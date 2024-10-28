@@ -1,6 +1,6 @@
-import { BiSolidSend } from "react-icons/bi";
-import { IoArrowBackOutline } from "react-icons/io5";
 import { IoIosInformationCircleOutline } from "react-icons/io";
+import { IoArrowBackOutline } from "react-icons/io5";
+import { BiSolidSend } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 
 

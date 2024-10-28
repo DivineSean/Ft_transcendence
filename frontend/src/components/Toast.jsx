@@ -1,7 +1,7 @@
+import { GrStatusGood } from "react-icons/gr";
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { VscError } from "react-icons/vsc";
-import { GrStatusGood } from "react-icons/gr";
 
 const Toast = ({
 	duration = 3000,

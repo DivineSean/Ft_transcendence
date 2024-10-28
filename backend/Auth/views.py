@@ -49,8 +49,9 @@ def registerView(request):
  # -> then generate a new 2FA code and send it the user's email and return a response
 @api_view(['POST'])
 def resend2FACode(request):
+	json_data = json.loads(request.body)
 	try:
-		user_id = request.data.get('id')
+		user_id = json_data.get('id')
 		uuid.UUID(user_id, version=4)
 	except ValueError:
 		return Response({"error": "invalid id"}, status=400)
@@ -62,8 +63,12 @@ def resend2FACode(request):
 	except Users.MultipleObjectsReturned:
 		return Response({'error': 'Multiple users found with the same email'}, status=401)
 
+	code_type = json_data.get('type')
 	twofaOjt = CustomTokenObtainPairView()
-	two_factor_code = twofaOjt.generate_2fa_code(user, "twoFa")
+	if (code_type == 'reset'):
+		two_factor_code = twofaOjt.generate_2fa_code(user, "password")
+	else:
+		two_factor_code = twofaOjt.generate_2fa_code(user, "twoFa")
 	twofaOjt.send_2fa_code(user.email, two_factor_code.code)
 	return Response({'message': '2FA code sent', 'required_2fa': True}, status=200)
 
@@ -110,9 +115,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 				return Response({'error': 'invalid email or password'}, status=401)
 
 			user_id = user.id
-			print('hello 9bel mn post', flush=True)
 			userTokens = super().post(request, *args, **kwargs)
-			print('hello be3d mn post', flush=True)
 			if userTokens.status_code == 200:
 				two_factor_code = self.generate_2fa_code(user, "twoFa")
 				self.send_2fa_code(user.email, two_factor_code.code)

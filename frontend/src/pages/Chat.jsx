@@ -1,9 +1,9 @@
-import Header from "../components/Header";
-import { useParams } from "react-router-dom";
-import Conversation from "../components/chat/Conversation";
 import ProfileOptions from "../components/chat/ProfileOptions";
+import Conversation from "../components/chat/Conversation";
 import ChatFriends from "../components/chat/ChatFriends";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import Header from "../components/Header";
 
 const Chat = () => {
 	const { uid } = useParams();

@@ -1,11 +1,10 @@
-import AuthContext from "../../context/AuthContext";
-import InputFieled from "../../components/InputField";
+import InputFieled from "../../components/authentication/InputField";
 import { useContext, useEffect, useState } from "react";
-import ResetPassword from "./ResetPassword";
-import { useParams } from "react-router-dom";
-import { Link, useNavigate } from "react-router-dom";
-import Toast from "../../components/Toast";
+import AuthContext from "../../context/AuthContext";
 import FetchWrapper from "../../utils/fetchWrapper";
+import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import Toast from "../../components/Toast";
 
 const SetUpUsername = () => {
 	const { uid } = useParams();

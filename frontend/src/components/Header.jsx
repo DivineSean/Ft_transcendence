@@ -1,12 +1,12 @@
-import { useContext, useEffect, useRef, useState } from "react";
 import { IoSearchOutline, IoNotificationsOutline, IoNotifications } from "react-icons/io5";
+import { useContext, useEffect, useRef, useState } from "react";
+import { IoSettingsOutline } from "react-icons/io5";
+import AuthContext from "../context/AuthContext";
+import OptionsSection from "./OptionsSection";
+import { TbLogout2 } from "react-icons/tb";
 import { SlMenu } from "react-icons/sl";
 import { Link } from "react-router-dom";
 import Menu from "./Menu";
-import OptionsSection from "./OptionsSection";
-import AuthContext from "../context/AuthContext";
-import { IoSettingsOutline, IoChevronBack } from "react-icons/io5";
-import { TbLogout2 } from "react-icons/tb";
 
 const navLinks = ['home', 'profile', 'chat', 'rankings', 'games', 'explore'];
 

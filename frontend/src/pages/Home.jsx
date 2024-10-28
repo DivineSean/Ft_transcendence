@@ -1,9 +1,9 @@
-import Header from "../components/Header";
 import SideOnlineFriends from "../components/home/SideOnlineFriends";
-import Card from "../components/home/Card";
 import OnlineMatches from "../components/home/OnlineMatches";
-import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
+import Card from "../components/home/Card";
+import Header from "../components/Header";
+import { useContext } from "react";
 
 const Home = () => {
 	const { displayMenuGl } = useContext(AuthContext);
