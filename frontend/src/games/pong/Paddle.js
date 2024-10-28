@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { vec3 } from 'three/webgpu';
+import { rotate } from 'three/webgpu';
 import { distance } from 'three/webgpu';
 
 const BALL_MAX_SPEED = 0.05;
@@ -179,8 +181,7 @@ class Paddle {
 		let targetRotationY;
 		let targetRotationX = undefined;
 
-
-		if (this.left) {
+		if (this.left){
 			targetRotationY = initialRotationY - Math.PI / 4; // Rotate 45 degrees to the left
 			targetRotationZ = initialRotationZ + Math.PI / 8; // Rotate 22.5 degrees around X
 			if (this.ball.y > this.boundingBox.max.y)
@@ -192,7 +193,8 @@ class Paddle {
 					targetRotationX = initialRotationX + Math.PI / 2;
 				}
 			}
-		} else if (this.right) {
+		}
+		else if (this.right){
 			targetRotationY = initialRotationY + Math.PI / 4; // Rotate 45 degrees to the right
 			targetRotationZ = initialRotationZ + Math.PI / 8; // Rotate 22.5 degrees around X
 			if (this.ball.y > this.boundingBox.max.y)
@@ -201,7 +203,7 @@ class Paddle {
 				targetRotationX = initialRotationX + Math.PI / 2;
 			}
 		}
-		else return;
+		else { this.rotating = false; return; }
 		const start = Date.now();
 	
 		const animateRotation = () => {
@@ -266,10 +268,7 @@ class Paddle {
 			if (t < 1) {
 				requestAnimationFrame(animateReset);
 			}
-			else
-			{
-				this.rotating = false;
-			}
+			else this.rotating = false;
 		};
 		animateReset();
 	}
