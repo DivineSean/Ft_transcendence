@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { PiEyeClosedBold, PiEyeBold } from "react-icons/pi";
+import { useState } from "react";
 
 const InputFieled = ({...props}) => {
 	const isPassword = props.type === 'password';

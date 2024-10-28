@@ -1,16 +1,16 @@
-import React, { useContext, useState } from 'react';
-import Header from '../components/Header';
-import ProfileOverview from '../components/profile/ProfileOverview';
-import ProfileStatistics from '../components/profile/ProfileStatistics';
 import ProfileAchievements from '../components/profile/ProfileAchievements'
-import ProfileFriends from '../components/profile/ProfileFriends'
-import { GiCrossedSwords } from "react-icons/gi";
-import { FaClover } from "react-icons/fa6";
-import { GiFlamedLeaf } from "react-icons/gi";
-import { LiaMedalSolid } from "react-icons/lia";
+import ProfileStatistics from '../components/profile/ProfileStatistics';
+import ProfileOverview from '../components/profile/ProfileOverview';
+import ProfileFriends from '../components/profile/ProfileFriends';
+import React, { useContext, useState } from 'react';
 import { useParams, Link } from "react-router-dom";
-import NotFound from './NotFound';
+import { GiCrossedSwords } from "react-icons/gi";
 import AuthContext from '../context/AuthContext';
+import { LiaMedalSolid } from "react-icons/lia";
+import { GiFlamedLeaf } from "react-icons/gi";
+import { FaClover } from "react-icons/fa6";
+import Header from '../components/Header';
+import NotFound from './NotFound';
 
 const profileMenu = ['overview', 'statistics', 'achievements', 'friends'];
 

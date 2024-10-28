@@ -1,13 +1,13 @@
-import { GoHome } from "react-icons/go";
-import { FaRegUser } from "react-icons/fa";
 import { IoChatbubbleEllipsesOutline, IoSettingsOutline, IoChevronBack } from "react-icons/io5";
-import { PiRanking } from "react-icons/pi";
-import { RiGamepadLine } from "react-icons/ri";
 import { MdOutlineExplore } from "react-icons/md";
-import { TbLogout2 } from "react-icons/tb";
-import { Link } from "react-router-dom";
-import { useContext, useEffect } from "react";
 import AuthContext from "../context/AuthContext";
+import { RiGamepadLine } from "react-icons/ri";
+import { FaRegUser } from "react-icons/fa";
+import { TbLogout2 } from "react-icons/tb";
+import { PiRanking } from "react-icons/pi";
+import { Link } from "react-router-dom";
+import { GoHome } from "react-icons/go";
+import { useContext } from "react";
 
 const navLinks = [
 	{

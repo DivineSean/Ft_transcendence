@@ -164,7 +164,7 @@ export const AuthProvider = ({children}) => {
 						setGlobalMessage({message: 'the url you have reached is not found!', isError: true});
 					else {
 						const data = await res.json();
-						setGlobalMessage({message: `error: ${data.detail}`, isError: true});
+						setGlobalMessage({message: `error: email or password are invalid please try again!`, isError: true});
 					}
 				}
 
@@ -196,14 +196,13 @@ export const AuthProvider = ({children}) => {
 		}
 	}
 
-	const resent2FACode = async (userId) => {
+	const resent2FACode = async (userId, type) => {
 		try {
-			const res = await FetchData.post('api/resent2fa/', { 'id': userId });
-			console.log(res);
+			const res = await FetchData.post('api/resent2fa/', { 'id': userId, 'type': type });
 			if (!res.ok)
 				setGlobalMessage({message: 'something went wrong!', isError: true});
 		} catch (error) {
-			setGlobalMessage({message: `error: ${error.message}`, isError: true});
+			setGlobalMessage({message: `error: ${error}`, isError: true});
 		}
 	}
 
@@ -226,7 +225,7 @@ export const AuthProvider = ({children}) => {
 				else
 					setGlobalMessage({message: data.error, isError: true});
 			} catch (error) {
-				setGlobalMessage({message: `error: ${error.message}`, isError: true});
+				setGlobalMessage({message: `error: ${error}`, isError: true});
 			}
 		}
 	}
@@ -251,13 +250,15 @@ export const AuthProvider = ({children}) => {
 					'id': userId,
 					'newPassword': e.target.password.value,
 					'code': values2FA.join(''),
-				})
+				});
 				if(res.ok)
 					navigate('/login');
-				else
+				else {
+					const data = await res.json();
 					setGlobalMessage({message: data.error, isError: true});
+				}
 			} catch (error) {
-				setGlobalMessage({message: `error: ${error.message}`, isError: true});
+				setGlobalMessage({message: `error: ${error}`, isError: true});
 			}
 		}
 	}
@@ -272,7 +273,7 @@ export const AuthProvider = ({children}) => {
 			} else 
 				setGlobalMessage({message: data.error, isError: true});
 		} catch (error) {
-			setGlobalMessage({message: `error: ${error.message}`, isError: true});
+			setGlobalMessage({message: `error: ${error}`, isError: true});
 		}
 	}
 
@@ -299,7 +300,7 @@ export const AuthProvider = ({children}) => {
 				else
 					setGlobalMessage({message: data.error, isError: true});
 			} catch (error) {
-				setGlobalMessage({message: `error: ${error.message}`, isError: true});
+				setGlobalMessage({message: `error: ${error}`, isError: true});
 			}
 		}
 	}

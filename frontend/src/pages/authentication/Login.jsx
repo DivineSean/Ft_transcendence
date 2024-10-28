@@ -1,13 +1,13 @@
-import { Si42 } from "react-icons/si";
-import { FcGoogle } from "react-icons/fc";
+import InputFieled from "../../components/authentication/InputField"
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../../context/AuthContext";
-import useAuth from "../../customHooks/useAuth";
-import InputFieled from "../../components/InputField";
-import LoadingPage from "../LoadingPage";
-import Toast from "../../components/Toast";
 import FetchWrapper from "../../utils/fetchWrapper";
+import useAuth from "../../customHooks/useAuth";
+import Toast from "../../components/Toast";
+import { FcGoogle } from "react-icons/fc";
+import LoadingPage from "../LoadingPage";
+import { Si42 } from "react-icons/si";
 
 const Login = () => {
 	
