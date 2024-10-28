@@ -7,7 +7,7 @@ const GameManager = () => {
 	const ws = useRef(null);
 
 	const connectWebSocket = useCallback(() => {
-		ws.current = new WebSocket('wss://localhost:8000/ws/games/');
+		ws.current = new WebSocket(`wss://${window.location.hostname}:8000/ws/games/`);
 
 		ws.current.onopen = () => {
 			console.log('WebSocket connected');

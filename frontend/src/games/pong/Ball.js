@@ -11,7 +11,7 @@ class Ball {
         this.boundingSphere = undefined;
 
 		this.x = 24;
-		this.y = 5;
+		this.y = 2.5;
 		this.z = 5;
 
 		this.dx = 0;
@@ -19,10 +19,10 @@ class Ball {
 		this.dz = 0;
 	}
 
-	update(net, table, player1, player2, ws, dt, player) {
+	update(net, table, player1, player2, ws, dt, player, keyboard) {
         if (!this.model || !net.boundingBox)
             return;
-		if (this.y < -0.3) //reset the ball BUGGGGGGG EVERYWHERE*********
+		if (this.y < -36 && player === 2) //reset the ball BUGGGGGGG EVERYWHERE*********
 		{
 			this.x = 24;
 			this.y = 5;
@@ -31,7 +31,22 @@ class Ball {
 			this.dx = 0;
 			this.dy = 0;
 			this.dz = 0;
+			const data = {
+				'message': {
+					'content': 'ball',
+					'ball': {
+						x: this.x,
+						y: this.y,
+						z: this.z,
+						dx: this.dx,
+						dy: this.dy,
+						dz: this.dz,
+					}
+				}
+			}
+			ws.send(JSON.stringify(data));
 			this.model.position.set(this.x, this.y, this.z);
+			return;
 		}
 		// Gravity
 		this.dy -= G;
@@ -47,10 +62,12 @@ class Ball {
 		// Paddles
 		if (player == 1 && this.boundingSphere.intersectsBox(player1.boundingBox)) {
 			console.log('player1: ', player1.boundingBox);
+			// player1.rotatePaddle(keyboard);
 			player1.hit(net, this, ws);
 		}
 		if (player == 2 && this.boundingSphere.intersectsBox(player2.boundingBox)) {
 			console.log('player2: ', player2.boundingBox);
+			// player2.rotatePaddle(this, keyboard);
 			player2.hit(net, this, ws);
 		}
 
@@ -61,13 +78,12 @@ class Ball {
 
 		this.model.position.set(this.x, this.y, this.z);
 
-		let shadowScale = (25 - this.y) / 25;
-        this.shadow.scale.set(shadowScale, shadowScale, shadowScale);
-        this.shadow.position.set(this.x, 0.015, this.z);
+		// let shadowScale = (25 - this.y) / 25;
+        // this.shadow.scale.set(shadowScale, shadowScale, shadowScale);
+        // this.shadow.position.set(this.x, 0.015, this.z);
 
 		// recalculate boundingSphere
 		this.boundingSphere.set(this.model.position, 1);
-
 	}
 
 	render() {
@@ -75,16 +91,9 @@ class Ball {
         const ballGeometry = new THREE.SphereGeometry(0.5, 32, 16);
         const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xfcb404 });
         this.model = new THREE.Mesh(ballGeometry, ballMaterial);
+		this.model.castShadow = true;
         this.model.position.set(this.x, this.y, this.z);
         this.scene.add(this.model);
-        
-        // shadow
-        const shadowGeometry = new THREE.CircleGeometry(0.8, 32);
-        const shadowMaterial = new THREE.MeshBasicMaterial({ color: 0x9a7208, side: THREE.DoubleSide });
-        this.shadow = new THREE.Mesh(shadowGeometry, shadowMaterial);
-        this.shadow.position.set(this.x, 0.015, this.z);
-        this.shadow.rotateX(Math.PI / 2);
-        this.scene.add(this.shadow);
         
         // collision 
         this.boundingSphere = new THREE.Sphere(this.model.position, 0.5);

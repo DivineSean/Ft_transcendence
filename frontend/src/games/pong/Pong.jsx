@@ -7,6 +7,7 @@ import { Clock } from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef } from 'react';
 let vars = false;
+let flag = false;
 const Pong = ({ websocket, player, stats }) => {
 	const sm = useRef(null);
 	const loaderRef = useRef(null);
@@ -24,7 +25,6 @@ const Pong = ({ websocket, player, stats }) => {
 	// const ballRef = useRef(null);
 	const keyboard = useRef({});
 	const handleKeyDown = (event) => {
-		// console.log(event);
 		keyboard.current[event.code] = true;
 	}
 	const handleKeyUp = (event) => {
@@ -38,14 +38,15 @@ const Pong = ({ websocket, player, stats }) => {
 		const net = new Net(sm.current.scene, loaderRef.current);
 		const ball = new Ball(sm.current.scene);
 		const controls = {
-			up: "KeyW",
-			down: "KeyS",
-			left: "KeyA",
-			right: "KeyD",
-		}
+			up: "ArrowUp",
+			down: "ArrowDown",
+			left: "ArrowLeft",  // Move left
+			right: "ArrowRight", // Move right
+			space: "Space"      // Space bar action
+		};
 		const players = [
-			new Paddle(sm.current.scene, 1, { x: 36, y: 2.5, z: 0}, controls, 0x118811,loaderRef.current ),
-			new Paddle(sm.current.scene, -1, { x: -36 , y: 2.5, z: 0 }, controls, 0x881111, loaderRef.current)
+			new Paddle(websocket, sm.current.scene, 1, { x: 36, y: 2.5, z: 0}, controls, loaderRef.current, ball),
+			new Paddle(websocket, sm.current.scene, -1, { x: -36 , y: 2.5, z: 0 }, controls, loaderRef.current, ball)
 		]
 		// playersRef.current = players;
 		// ballRef.current = ball;
@@ -63,32 +64,10 @@ const Pong = ({ websocket, player, stats }) => {
 				stats = true;
 			else if (msg.message.content == 'paddle') {
 				const opp = player == 1 ? 2 : 1;
-
-				// switch (msg.message.info) {
-				// 	case 'paddle':
-				// 		if (playersRef.current) {
-				// 			playersRef.current[opp - 1].x = msg.message.content.x;
-				// 			playersRef.current[opp - 1].y = msg.message.content.y;
-				// 			playersRef.current[opp - 1].z = msg.message.content.z;
-				// 			// playersRef.current.boundingBox.setFrom(playersRef.current.object);
-				// 		}
-				// 		break;
-				// 	case 'ball':
-				// 		if (ballRef.current) {
-				// 			ballRef.current.x = msg.message.content.x;
-				// 			ballRef.current.y = msg.message.content.y;
-				// 			ballRef.current.z = msg.message.content.z;
-				// 			ballRef.current.dx = msg.message.content.dx;
-				// 			ballRef.current.dy = msg.message.content.dy;
-				// 			ballRef.current.dz = msg.message.content.dz;
-				// 		}
-				// 		break;
-				// }
-
 				players[opp - 1].x = msg.message.paddle.x;
 				players[opp - 1].y = msg.message.paddle.y;
 				players[opp - 1].z = msg.message.paddle.z;
-				players[opp - 1].updatePos();
+				players[opp - 1].updatePos(msg.message.paddle.rotX, msg.message.paddle.rotY, msg.message.paddle.rotZ);
 			}
 			else if (msg.message.content == 'ball') {
 
@@ -136,7 +115,7 @@ const Pong = ({ websocket, player, stats }) => {
 				ball.z += ball.dz * (dt / 1000);
 			}
 
-			ball.update(net, table, players[0], players[1], websocket, dt, player);
+			ball.update(net, table, players[0], players[1], websocket, dt, player, keyboard.current);
 			players[player - 1].update(keyboard.current, ball, websocket, dt);
 			// players[player == 1 ? 1 : 0].updatePos();
 
