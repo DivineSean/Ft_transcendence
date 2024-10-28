@@ -8,7 +8,7 @@ export class SceneManager {
 
         // camera
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000 );
-        this.camera.position.set(90 * player, 45, 0);
+        this.camera.position.set(90 * player, 60, 0);
         this.camera.lookAt(0, 0, 0);
         
         //rederer
@@ -62,9 +62,9 @@ export class SceneManager {
 
         // helpers
         const gridHelper = new THREE.GridHelper(200, 50);
-        // const axesHelper = new THREE.AxesHelper(15);
+        const axesHelper = new THREE.AxesHelper(150);
         this.scene.add(gridHelper);
-        // this.scene.add(axesHelper);
+        this.scene.add(axesHelper);
     }
 	cleanUp() {
 	

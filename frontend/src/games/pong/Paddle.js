@@ -69,7 +69,7 @@ class Paddle {
 				if (keyboard[this.controls.space] && !this.rotating){
 					this.rotatePaddle(keyboard);
 				}
-				else if (keyboard[this.controls.left]  && !this.rotating)
+				if (keyboard[this.controls.left]  && !this.rotating)
 				{
 					this.dz += 0.008 * this.player;
 					this.z = this.z + this.dz * dt;
@@ -80,7 +80,7 @@ class Paddle {
 					this.right = true;
 	
 				}
-				else if (keyboard[this.controls.right]  && !this.rotating)
+				if (keyboard[this.controls.right]  && !this.rotating)
 				{
 					this.dz -= 0.008 * this.player;
 					this.z = this.z + this.dz * dt;
@@ -90,11 +90,11 @@ class Paddle {
 					this.left = true;
 					this.right = false;
 				}
-				else if (keyboard[this.controls.down] && !this.rotating){
+				if (keyboard[this.controls.down] && !this.rotating){
 					this.dx += 0.008 * this.player;
 					this.x = this.x + this.dx * dt;
 				}
-				else if (keyboard[this.controls.up] && !this.rotating){
+				if (keyboard[this.controls.up] && !this.rotating){
 					this.dx -= 0.008 * this.player;
 					this.x = this.x + this.dx * dt;
 				}
@@ -105,7 +105,7 @@ class Paddle {
 			if (keyboard[this.controls.space] && !this.rotating){
 				this.rotatePaddle(keyboard);
 			}
-			else if (keyboard[this.controls.right] && !this.rotating)
+			if (keyboard[this.controls.right] && !this.rotating)
 			{
 				this.dz -= 0.008 * this.player;
 				this.z = this.z + this.dz * dt;
@@ -116,7 +116,7 @@ class Paddle {
 				this.right = true;
 
 			}
-			else if (keyboard[this.controls.left]  && !this.rotating)
+			if (keyboard[this.controls.left]  && !this.rotating)
 			{
 				this.dz += 0.008 * this.player;
 				this.z = this.z + this.dz * dt;
@@ -126,11 +126,11 @@ class Paddle {
 				this.left = true;
 				this.right = false;
 			}
-			else if (keyboard[this.controls.down] && !this.rotating){
+			if (keyboard[this.controls.down] && !this.rotating){
 				this.dx += 0.008 * this.player;
 				this.x = this.x + this.dx * dt;
 			}
-			else if (keyboard[this.controls.up] && !this.rotating){
+			if (keyboard[this.controls.up] && !this.rotating){
 				this.dx -= 0.008 * this.player;
 				this.x = this.x + this.dx * dt;
 			}
@@ -173,27 +173,35 @@ class Paddle {
 		this.rotating = true;
 		const rotationDuration = 300;
 		const initialRotationY = this.rotationY; // Current rotation around Y axis
-		const initialRotationX = this.rotationX; // Current rotation around X axis
+		const initialRotationZ = this.rotationZ; // Current rotation around X axis
+		const initialRotationX = this.rotationX;
+		let targetRotationZ;
+		let targetRotationY;
+		let targetRotationX = undefined;
 
-		// Calculate the direction to the ball
-		const direction = new THREE.Vector3();
-		const position = new THREE.Vector3(this.x, this.y, this.z);
-		const balldirectoon = new THREE.Vector3(0, this.ball.y, 0);
-		direction.subVectors(balldirectoon, position).normalize();
 
-		// Calculate target rotations based on the ball's direction
-		const targetRotationY = Math.atan2(direction.x, direction.z); // Y-axis rotation
-		const targetRotationX = Math.asin(direction.y); // X-axis rotation
-		// Target rotations based on side
-		// let targetRotationY, targetRotationX;
-		// if (this.left) {
-		// 	targetRotationY = initialRotationY - Math.PI / 4; // Rotate 45 degrees to the left
-		// 	targetRotationX = initialRotationX + Math.PI / 8; // Rotate 22.5 degrees around X
-		// } else if (this.right) {
-		// 	targetRotationY = initialRotationY + Math.PI / 4; // Rotate 45 degrees to the right
-		// 	targetRotationX = initialRotationX + Math.PI / 8; // Rotate 22.5 degrees around X
-		// }
-	
+		if (this.left) {
+			targetRotationY = initialRotationY - Math.PI / 4; // Rotate 45 degrees to the left
+			targetRotationZ = initialRotationZ + Math.PI / 8; // Rotate 22.5 degrees around X
+			if (this.ball.y > this.boundingBox.max.y)
+			{
+				this.rotationX = 0;
+				if (this.player === -1)
+				{
+					this.rotationX = -10;
+					targetRotationX = initialRotationX + Math.PI / 2;
+				}
+			}
+		} else if (this.right) {
+			targetRotationY = initialRotationY + Math.PI / 4; // Rotate 45 degrees to the right
+			targetRotationZ = initialRotationZ + Math.PI / 8; // Rotate 22.5 degrees around X
+			if (this.ball.y > this.boundingBox.max.y)
+			{
+				this.rotationX = -10;
+				targetRotationX = initialRotationX + Math.PI / 2;
+			}
+		}
+		else return;
 		const start = Date.now();
 	
 		const animateRotation = () => {
@@ -205,7 +213,9 @@ class Paddle {
 	
 			// Update rotations
 			this.rotationY = initialRotationY + (targetRotationY - initialRotationY) * easedT;
-			this.rotationX = initialRotationX + (targetRotationX - initialRotationX) * easedT;
+			this.rotationZ = initialRotationZ + (targetRotationZ - initialRotationZ) * easedT;
+			if (targetRotationX != undefined)
+				this.rotationX = initialRotationX + (targetRotationX - initialRotationZ) * easedT;
 			let distance = this.checkCollision();
 			if (distance < 4) {
 				this.shoot(keyboard, distance);
@@ -213,14 +223,14 @@ class Paddle {
 			if (t < 1) {
 				requestAnimationFrame(animateRotation);
 			} else {
-				this.resetPaddleRotation(initialRotationY, initialRotationX);
+				this.resetPaddleRotation(initialRotationY, initialRotationZ, initialRotationX);
 			}
 		};
 		animateRotation();
 	}
 	
 	
-	resetPaddleRotation(initialRotationY, initialRotationX) {
+	resetPaddleRotation(initialRotationY, initialRotationZ, initialRotationX) {
 		const resetDuration = 200;
 		const start = Date.now();
 	
@@ -236,14 +246,21 @@ class Paddle {
 			if (deltaY > Math.PI) deltaY -= 2 * Math.PI;
 			if (deltaY < -Math.PI) deltaY += 2 * Math.PI;
 	
-			// Normalize angle differences for X rotation
+			// Normalize angle differences for Z rotation
+			const currentRotationZ = this.rotationZ;
+			let deltaZ = initialRotationZ - currentRotationZ;
+			if (deltaZ > Math.PI) deltaZ -= 2 * Math.PI;
+			if (deltaZ < -Math.PI) deltaZ += 2 * Math.PI;
+
+
 			const currentRotationX = this.rotationX;
 			let deltaX = initialRotationX - currentRotationX;
 			if (deltaX > Math.PI) deltaX -= 2 * Math.PI;
 			if (deltaX < -Math.PI) deltaX += 2 * Math.PI;
-	
+			
 			// Update rotations
 			this.rotationY = currentRotationY + deltaY * easedT;
+			this.rotationZ = currentRotationZ + deltaZ * easedT;
 			this.rotationX = currentRotationX + deltaX * easedT;
 	
 			if (t < 1) {
@@ -266,7 +283,7 @@ class Paddle {
 			this.ball.x = this.boundingBox.max.x + 1;
 		}
 		let BallMaxSpeed = 0.05;
-		let power = 0;
+		let power = 0.02;
 		// if (distance > 3) {
 		// 	BallMaxSpeed = 0.02; // Longer distance: less speed
 		// 	// power = 0.04; // Less upward force

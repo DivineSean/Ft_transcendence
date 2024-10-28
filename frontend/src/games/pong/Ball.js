@@ -11,7 +11,8 @@ class Ball {
         this.boundingSphere = undefined;
 
         this.x = 36;
-        this.y = 6;
+        // this.y = 6;
+		this.y = 20
         this.z = -12;
 
         this.dx = 0;
@@ -22,7 +23,8 @@ class Ball {
 	serve(ws, sign)
 	{
 		this.x = 36 * sign;
-		this.y = 6;
+		// this.y = 6;
+		this.y = 20;
 		this.z = -12 * sign;
 		
 		this.dx = 0;
@@ -64,7 +66,7 @@ class Ball {
 		}
 
 		// Paddles
-		if (this.boundingSphere.intersectsBox(player1.boundingBox)) {
+		if (this.boundingSphere.intersectsBox(player1.boundingBox) && !player1.rotating) {
 			player1.hit(net, this, ws);
 		}
 
