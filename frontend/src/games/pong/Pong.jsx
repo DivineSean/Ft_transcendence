@@ -5,7 +5,7 @@ import Ball from './Ball';
 import { Clock } from 'three';
 import { useEffect, useRef } from 'react';
 
-const Pong = ({ websocket, player }) => {
+const Pong = ({ websocket, player, ready }) => {
 	const sm = useRef(null);
 	// const playersRef = useRef(null);
 	// const ballRef = useRef(null);
@@ -35,7 +35,6 @@ const Pong = ({ websocket, player }) => {
 		]
 		// playersRef.current = players;
 		// ballRef.current = ball;
-		let ready = false;
 		let lastServerBallUpdate = Date.now();
 
 		// override ws onmessage
@@ -43,8 +42,8 @@ const Pong = ({ websocket, player }) => {
 			// console.log(event);
 			const msg = JSON.parse(event.data);
 			console.log(msg);
-			// if (msg.message.content == 'ready')
-			// 	ready = true;
+			if (msg.message.content == 'Play')
+				ready = true;
 			if (msg.message.content == 'paddle') {
 				const opp = player == 1 ? 2 : 1;
 
@@ -73,7 +72,7 @@ const Pong = ({ websocket, player }) => {
 				players[opp - 1].y = msg.message.paddle.y;
 				players[opp - 1].z = msg.message.paddle.z;
 				players[opp - 1].updatePos();
-				console.log('chof wach bs7: ', players[opp - 1].boundingBox);
+				// console.log('chof wach bs7: ', players[opp - 1].boundingBox);
 			}
 			else if (msg.message.content == 'ball') {
 
@@ -96,14 +95,9 @@ const Pong = ({ websocket, player }) => {
 		players[0].render();
 		players[1].render();
 
-		// websocket.send(JSON.stringify({
-		// 	'message': {
-		// 		'content': 'ready',
-		// 	}
-		// }))
 		const clock = new Clock();
 		const animate = () => {
-			// if (!ready) return;
+			if (!ready) return;
 
 			let dt = clock.getDelta() * 1000;
 
@@ -120,7 +114,7 @@ const Pong = ({ websocket, player }) => {
 				ball.z += ball.dz * (dt / 1000);
 			}
 
-			ball.update({}, table, players[0], players[1], websocket, dt);
+			ball.update({}, table, players[0], players[1], player, websocket, dt);
 			players[player - 1].update(keyboard.current, ball, websocket, dt);
 			// players[player == 1 ? 1 : 0].updatePos();
 
