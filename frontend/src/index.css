@@ -80,7 +80,7 @@ body {
 		backdrop-filter: blur(40px);
 	}
 	.container {
-		@apply max-w-[1440px] m-auto lg:px-32 px-16 flex flex-col lg:gap-32 gap-16 grow;
+		@apply max-w-[1440px] m-auto lg:px-32 flex flex-col lg:gap-32 gap-16 grow;
 	}
 	.custom-container {
 		@apply md:hidden;

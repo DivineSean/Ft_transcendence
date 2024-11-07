@@ -22,7 +22,7 @@ const Chat = () => {
 	return (
 		<div className="flex flex-col grow">
 		<Header link='chat' />
-		<div className="container">
+		<div className="container md:px-16 px-0">
 			<div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
 			<div className="primary-glass p-16 flex gap-16 grow">
 				<ChatFriends uid={uid} />

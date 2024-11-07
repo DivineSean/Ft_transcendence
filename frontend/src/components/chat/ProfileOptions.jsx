@@ -11,7 +11,7 @@ const ProfileOptions = ({uid, displayCoversation, hideSelf, isVisible}) => {
 		<div
 			className={`
 				w-[300px] flex-col gap-32
-				${isVisible ? 'flex md:max-w-[300px] w-full' : 'md:flex hidden'}
+				${isVisible ? 'flex md:max-w-[250px] lg:max-w-[300px] w-full' : 'md:flex hidden'}
 			`}
 		>
 			<IoArrowBackOutline
