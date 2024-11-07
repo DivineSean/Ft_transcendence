@@ -1,3 +1,4 @@
+import { CircularProgressbarWithChildren, buildStyles } from 'react-circular-progressbar';
 import ProfileAchievements from '../components/profile/ProfileAchievements'
 import ProfileStatistics from '../components/profile/ProfileStatistics';
 import ProfileOverview from '../components/profile/ProfileOverview';
@@ -11,7 +12,6 @@ import { GiFlamedLeaf } from "react-icons/gi";
 import { FaClover } from "react-icons/fa6";
 import Header from '../components/Header';
 import NotFound from './NotFound';
-import { CircularProgressbar, CircularProgressbarWithChildren, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
 const profileMenu = ['overview', 'statistics', 'achievements', 'friends'];
@@ -41,13 +41,13 @@ const Profile = () => {
 						<div className="lg:flex hidden flex-col secondary-glass p-16 gap-16 min-w-[320px] max-w-[320px]">
 							<div className="flex flex-col gap-8 items-center justify-center">
 								<CircularProgressbarWithChildren 
-									value={66}
-									className="w-[120px] h-[120px]"
+									value={50}
+									className="w-[120px] h-[120px] bg-black bg-opacity-40 rounded-full"
 									strokeWidth={6}
 									styles={buildStyles({
 										strokeLinecap: 'round',
 										pathColor: '#31E78B',
-										trailColor: 'rgba(36,36,36,0.2)',
+										trailColor: 'rgba(80,80,80,0.2)',
 									})}
 								>
 									<img
@@ -105,12 +105,12 @@ const Profile = () => {
 								<div className="flex h-[184px] flex-col gap-8 py-16 items-center lg:hidden">
 									<CircularProgressbarWithChildren 
 										value={75}
-										className="w-[112px] h-[112px] flex"
+										className="w-[112px] h-[112px] bg-black bg-opacity-40 rounded-full flex"
 										strokeWidth={6}
 										styles={buildStyles({
 											strokeLinecap: 'round',
 											pathColor: '#31E78B',
-											trailColor: 'rgba(36,36,36,0.8)',
+											trailColor: 'rgba(80,80,80,0.2)',
 										})}
 									>
 										<img
