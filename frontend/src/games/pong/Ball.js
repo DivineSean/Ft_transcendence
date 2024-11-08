@@ -12,7 +12,7 @@ class Ball {
 
         this.x = 36;
         // this.y = 6;
-		this.y = 20
+		this.y = 5;
         this.z = -12;
 
         this.dx = 0;
@@ -20,11 +20,11 @@ class Ball {
         this.dz = 0;
 	}
 
-	serve(ws, sign)
+	serve(ws,net, sign)
 	{
 		this.x = 36 * sign;
 		// this.y = 6;
-		this.y = 20;
+		this.y = 5;
 		this.z = -12 * sign;
 		
 		this.dx = 0;
@@ -48,26 +48,49 @@ class Ball {
 	}
 
 	update(net, table, player1, ws, dt, player, keyboard) {
-        if (!this.model || !net.boundingBox)
+        if (!this.model || !net.boundingBox || !this.boundingSphere)
             return;
 		this.dy -= G;
 
 		//serve 
-		if (this.y < -36 && this.x < 0 && player === 2) this.serve(ws, 1);
-		else if (this.y < -36 && this.x > 0 && player === 1) this.serve(ws, -1);
+		if (this.y < -36 && this.x < 0 && player === 2) this.serve(ws, net, 1);
+		else if (this.y < -36 && this.x > 0 && player === 1) this.serve(ws, net, -1);
 
 		// Gravity
 		if (this.boundingSphere.intersectsBox(table.boundingBox)) {
 			this.y = table.boundingBox.max.y + 1;
-			this.dy *= -0.8;
+			this.dy *= -0.5;
 		}
-		else if (this.boundingSphere.intersectsBox(net.boundingBox)) {
-			//reset the ball and the player who hit the net lost
+		if (this.boundingSphere.intersectsBox(net.boundingBox)) {
+			this.dx = Math.min(Math.abs(this.dx) + 0.05, 0.01);
+			if (player === 2) {
+				this.x = net.boundingBox.min.x - 1;//-0.5
+				this.dx *= -1;
+			} else {
+				this.x = net.boundingBox.max.x + 1;//0.5
+			}
+			const data = {
+				'message': {
+					'content': 'ball',
+					'ball': {
+						x: this.x,
+						y: this.y,
+						z: this.z,
+						dx: this.dx,
+						dy: this.dy,
+						dz: this.dz,
+					}
+				}
+			}
+			ws.send(JSON.stringify(data));
 		}
-
 		// Paddles
-		if (this.boundingSphere.intersectsBox(player1.boundingBox) && !player1.rotating) {
-			player1.hit(net, this, ws);
+		if (this.boundingSphere.intersectsBox(player1.boundingBox) && player1.rotating) {
+			player1.shoot(net, keyboard, this, dt);
+		}
+		else if (this.boundingSphere.intersectsBox(player1.boundingBox) && !player1.rotating)
+		{
+			player1.hit(this, ws);
 		}
 
 
@@ -88,10 +111,10 @@ class Ball {
         this.model = new THREE.Mesh(ballGeometry, ballMaterial);
 		this.model.castShadow = true;
         this.model.position.set(this.x, this.y, this.z);
-        this.scene.add(this.model);
-        
         // collision 
         this.boundingSphere = new THREE.Sphere(this.model.position, 0.5);
+        this.scene.add(this.model);
+        
 	}
 }
 

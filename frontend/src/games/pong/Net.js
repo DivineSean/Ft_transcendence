@@ -7,13 +7,16 @@ export class Net {
         this.loader = loader;
         this.model = undefined;
         this.boundingBox = undefined;
+        this.x = 0;
+        this.y = 2.75;
+        this.z = 0;
     }
 
     async render() {
         this.model = await this.loader.loadAsync(`https://${window.location.hostname}:3000/src/games/pong/net.glb`)
             .then(data => data.scene.children[0]);
 
-        this.model.position.set(0, 2.75, 0);
+        this.model.position.set(this.x, this.y, this.z);
         this.model.traverse(child => {
             if (child.isMesh) {
                 child.castShadow = true; // Enable shadow casting

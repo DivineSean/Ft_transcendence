@@ -17,6 +17,8 @@ class Paddle {
 		this.model = undefined;
 		this.shadow = undefined;
 		this.boundingBox = undefined;
+		this.chargeBar = undefined;
+		this.outerBar = undefined;
 
 
 		this.x = position.x;
@@ -38,7 +40,7 @@ class Paddle {
 		this.dy = 0.0;
 		this.dz = 0.0;
 		
-		this.left = false;
+		this.left = true;
 		this.right = false;
 		this.rotating = false;
 	}
@@ -52,60 +54,47 @@ class Paddle {
 		this.dx *= 0.8;
 		this.dy *= 0.8;
 		this.dz *= 0.8;
-
-		console.log(keyboard);
-		// if (keyboard[this.controls.space] && !this.rotating){
-		// 	this.rotatePaddle(keyboard);
-		// }
-		// else if (keyboard[this.controls.left] && !this.rotating) this.dz += 0.008 * this.player;
-		// else if (keyboard[this.controls.right] && !this.rotating) this.dz -= 0.008 * this.player;
-		// else if (keyboard[this.controls.down] && !this.rotating) this.dx += 0.008 * this.player;
-		// else if (keyboard[this.controls.up] && !this.rotating) this.dx -= 0.008 * this.player;
-
-		// this.z = this.z + this.dz * dt;
-		// this.x = this.x + this.dx * dt;
-		
+		//TO DO : FIX RIGHT LEFT WHEN SHOT THE BALL
 		if (this.player == -1)
 		{
 			this.x = Math.min(this.x + this.dx * dt, -5);
-				if (keyboard[this.controls.space] && !this.rotating){
-					this.rotatePaddle(keyboard);
-				}
-				if (keyboard[this.controls.left]  && !this.rotating)
-				{
-					this.dz += 0.008 * this.player;
-					this.z = this.z + this.dz * dt;
-					this.rotationX = Math.PI / 2;
-					this.rotationZ = Math.PI / 2;
-					this.rotationY = 0;
-					this.left = false;
-					this.right = true;
-	
-				}
-				if (keyboard[this.controls.right]  && !this.rotating)
-				{
-					this.dz -= 0.008 * this.player;
-					this.z = this.z + this.dz * dt;
-					this.rotationX = -Math.PI / 2;
-					this.rotationZ = Math.PI / 2;
-					this.rotationY = 0;
-					this.left = true;
-					this.right = false;
-				}
-				if (keyboard[this.controls.down] && !this.rotating){
-					this.dx += 0.008 * this.player;
-					this.x = this.x + this.dx * dt;
-				}
-				if (keyboard[this.controls.up] && !this.rotating){
-					this.dx -= 0.008 * this.player;
-					this.x = this.x + this.dx * dt;
-				}
+			if (keyboard[this.controls.space] && !this.rotating){
+				this.rotatePaddle();
+			}
+			if (keyboard[this.controls.left]  && !this.rotating)
+			{
+				this.dz += 0.008 * this.player;
+				this.z = this.z + this.dz * dt;
+				this.rotationX = Math.PI / 2;
+				this.rotationZ = Math.PI / 2;
+				this.rotationY = 0;
+				this.left = false;
+				this.right = true;
+			}
+			if (keyboard[this.controls.right]  && !this.rotating)
+			{
+				this.dz -= 0.008 * this.player;
+				this.z = this.z + this.dz * dt;
+				this.rotationX = -Math.PI / 2;
+				this.rotationZ = Math.PI / 2;
+				this.rotationY = 0;
+				this.left = true;
+				this.right = false;
+			}
+			if (keyboard[this.controls.down] && !this.rotating){
+				this.dx += 0.008 * this.player;
+				this.x = this.x + this.dx * dt;
+			}
+			if (keyboard[this.controls.up] && !this.rotating){
+				this.dx -= 0.008 * this.player;
+				this.x = this.x + this.dx * dt;
+			}
 		}
 		else
 		{
 			this.x = Math.max(this.x + this.dx * dt, 5);
 			if (keyboard[this.controls.space] && !this.rotating){
-				this.rotatePaddle(keyboard);
+				this.rotatePaddle();
 			}
 			if (keyboard[this.controls.right] && !this.rotating)
 			{
@@ -137,23 +126,12 @@ class Paddle {
 				this.x = this.x + this.dx * dt;
 			}
 		}
-
-		this.model.position.set(this.x, this.y, this.z);
-		this.model.rotation.set(this.rotationX, this.rotationY, this.rotationZ);
-		// recalculate boundingBox
-		this.boundingBox.setFromObject(this.model);
-
-		let s = new THREE.Vector3();
-        this.boundingBox.getCenter(s);
-		if (Math.abs(this.dx) > 0.001
-			|| Math.abs(this.dz) > 0.001) {// send new position as long as the ball is moving
+		if (this.rotating)
+		{
 			const data = {
 				'message': {
-					'content': 'paddle',
+					'content': 'rotating',
 					'paddle': {
-						x: this.x,
-						y: this.y,
-						z: this.z,
 						rotX: this.rotationX,
 						rotY: this.rotationY,
 						rotZ: this.rotationZ,
@@ -162,6 +140,42 @@ class Paddle {
 			}
 			ws.send(JSON.stringify(data));
 		}
+		else if (Math.abs(this.dx) > 0.001 || Math.abs(this.dz) > 0.001)
+		{
+			const data = {
+				'message': {
+					'content': 'paddle',
+					'paddle': {
+						x: this.x,
+						y: this.y,
+						z: this.z,
+						dx: this.dx,
+						dy: this.dy,
+						dz: this.dz,
+						rotX: this.rotationX,
+						rotY: this.rotationY,
+						rotZ: this.rotationZ,
+					},
+				}
+			}
+			ws.send(JSON.stringify(data));
+		}
+		this.model.position.set(this.x, this.y, this.z);
+		this.model.rotation.set(this.rotationX, this.rotationY, this.rotationZ);
+		this.boundingBox.setFromObject(this.model);
+		let s = new THREE.Vector3();
+		this.boundingBox.getCenter(s);
+	}
+	
+	send(ws, info, content) {
+		const data = {
+			'type': 'update',
+			'message': {
+				'info': info,
+				'content': content,
+			},
+		}
+		ws.send(JSON.stringify(data));
 	}
 
 	checkCollision() {
@@ -171,7 +185,9 @@ class Paddle {
 		return Math.abs(distance);
 	}
 
-	rotatePaddle(keyboard) {
+	rotatePaddle() {
+		if (!this.left && !this.right)
+			return;
 		this.rotating = true;
 		const rotationDuration = 300;
 		const initialRotationY = this.rotationY; // Current rotation around Y axis
@@ -203,7 +219,6 @@ class Paddle {
 				targetRotationX = initialRotationX + Math.PI / 2;
 			}
 		}
-		else { this.rotating = false; return; }
 		const start = Date.now();
 	
 		const animateRotation = () => {
@@ -218,10 +233,6 @@ class Paddle {
 			this.rotationZ = initialRotationZ + (targetRotationZ - initialRotationZ) * easedT;
 			if (targetRotationX != undefined)
 				this.rotationX = initialRotationX + (targetRotationX - initialRotationZ) * easedT;
-			let distance = this.checkCollision();
-			if (distance < 4) {
-				this.shoot(keyboard, distance);
-			}
 			if (t < 1) {
 				requestAnimationFrame(animateRotation);
 			} else {
@@ -263,7 +274,8 @@ class Paddle {
 			// Update rotations
 			this.rotationY = currentRotationY + deltaY * easedT;
 			this.rotationZ = currentRotationZ + deltaZ * easedT;
-			this.rotationX = currentRotationX + deltaX * easedT;
+			if (this.rotationX != initialRotationX)
+				this.rotationX = currentRotationX + deltaX * easedT;
 	
 			if (t < 1) {
 				requestAnimationFrame(animateReset);
@@ -274,58 +286,79 @@ class Paddle {
 	}
 	
 
-	shoot(keyboard, distance)
+	shoot(net, keyboard, ball, dt)
 	{
-		if (this.player === 1) {
-			this.ball.x = this.boundingBox.min.x - 1;
-		} else {
-			this.ball.x = this.boundingBox.max.x + 1;
-		}
 		let BallMaxSpeed = 0.05;
 		let power = 0.02;
-		// if (distance > 3) {
-		// 	BallMaxSpeed = 0.02; // Longer distance: less speed
-		// 	// power = 0.04; // Less upward force
-		// } else if (distance > 2) {
-		// 	BallMaxSpeed = 0.04; // Medium distance: moderate speed
-		// 	// power = 0.05; // Moderate upward force
-		// } else {
-		// 	BallMaxSpeed = 0.05; // Close distance: maximum speed
-		// 	// power = 0.02; // Maximum upward force
-		// }
-		// Apply maximum speed limit
-		this.ball.dx = Math.min(Math.abs(this.ball.dx) + 0.05, BallMaxSpeed);
-		this.ball.dx *= -this.player; // Reverse direction based on player
+		ball.dx = Math.min(Math.abs(ball.dx) + 0.05, BallMaxSpeed);
+		ball.dx *= -this.player; // Reverse direction based on player
 	
-		// Set vertical speed based on calculated power
-		this.ball.dy = power * -this.player;
-		
-		if (keyboard[this.controls.left]) this.ball.dz += 0.002 * this.player;
-		if (keyboard[this.controls.right]) this.ball.dz -= 0.002 * this.player;
+		ball.dy = power;
+		ball.y = net.boundingBox.max.y + 2;
+
+		if (keyboard[this.controls.left] && this.rotating){
+			//Medium Range
+			if (this.player === -1)
+				console.log("right", this.z);
+			else
+				console.log("left", this.z);
+			if (this.z > 12)
+			{
+				ball.dz = 0.032 * this.player;
+			}
+			else if (this.z > 0)
+			{
+				ball.dz = 0.016 * this.player;
+			}
+			else if (this.z < 0 && this.z > -12)
+			{
+				ball.dz = 0.008 * this.player;
+			}
+			else {
+				ball.dz = 0.004 * this.player;
+			}
+		}
+		if (keyboard[this.controls.right] && this.rotating){
+			 //medium range
+			 if (this.player === -1)
+				console.log("left", this.z);
+			else
+				console.log("right", this.z);
+			if (this.z > 12)
+			{
+				ball.dz = -0.004 * this.player;
+			}
+			else if (this.z > 0)
+			{
+				ball.dz = -0.008 * this.player;
+			}
+			else if (this.z < 0 && this.z > -12)
+			{
+				ball.dz = -0.016 * this.player;
+			}
+			else {
+				ball.dz = -0.032 * this.player;
+			}
+		}
 
 		const data = {
 			'message': {
 				'content': 'ball',
 				'ball': {
-					x: this.ball.x,
-					y: this.ball.y,
-					z: this.ball.z,
-					dx: this.ball.dx,
-					dy: this.ball.dy,
-					dz: this.ball.dz,
+					x: ball.x,
+					y: ball.y,
+					z: ball.z,
+					dx: ball.dx,
+					dy: ball.dy,
+					dz: ball.dz,
 				}
 			}
 		}
 		this.ws.send(JSON.stringify(data));
 	}
 
-	hit(net, ball, ws)
+	hit(ball, ws)
 	{
-		if (this.player === 1) {
-			ball.x = this.boundingBox.min.x - 2;
-		} else {
-			ball.x = this.boundingBox.max.x + 2;
-		}
 		ball.dx = Math.min(Math.abs(ball.dx) + 0.05, 0.01);
 		ball.dx *= -this.player;
 
@@ -345,16 +378,14 @@ class Paddle {
 		ws.send(JSON.stringify(data));
 	}
 
-	updatePos(rotation_x, rotation_y, rotation_z) {
+	updatePos() {
 		this.model.position.set(this.x, this.y, this.z);
-		this.model.rotation.set(rotation_x, rotation_y, rotation_z);
-		// this.shadow.position.set(this.x, 0.015, this.z);
+		this.model.rotation.set(this.rotationX, this.rotationY, this.rotationZ);
 	}
 
 	async render() {
 		this.model = await this.loader.loadAsync(`https://${window.location.hostname}:3000/src/games/pong/Paddles2.glb`)
             .then(data => data.scene.children[0]);
-		// this.model.scale.set(2,2,2);
         this.model.position.set(this.x, this.y, this.z);
 		this.model.rotation.set(this.rotationX, this.rotationY, this.rotationZ);
         this.model.traverse(child => {
@@ -367,17 +398,6 @@ class Paddle {
 
         // collision
         this.boundingBox = new THREE.Box3().setFromObject(this.model);
-	}
-
-	send(ws, info, content) {
-		const data = {
-			'type': 'update',
-			'message': {
-				'info': info,
-				'content': content,
-			},
-		}
-		ws.send(JSON.stringify(data));
 	}
 }
 
