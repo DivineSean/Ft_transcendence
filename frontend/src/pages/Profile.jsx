@@ -30,7 +30,7 @@ const Profile = () => {
 			{ !displayMenuGl &&
 				<div className="container">
 					<div className="flex primary-glass p-16 lg:gap-32 gap-16 relative overflow-hidden get-height">
-						<div className='absolute top-0 left-0 w-full lg:h-[232px] h-[200px]'>
+						<div className='absolute top-0 left-0 w-full lg:h-[232px] h-[216px]'>
 							<div className="w-full h-full absolute cover-gradient"></div>
 							<img
 								className="object-cover w-full h-full object-center"

@@ -19,7 +19,7 @@ const Rankings = () => {
 	const { displayMenuGl } = useContext(AuthContext);
 	const rankedUsers = [];
 	for (let i = 1; i < 100; i++) {
-		rankedUsers.push(<RankedUsers rank={i} player={'hello'} won={i} winRate={Math.floor(Math.random() * 100)} status={'online'}/>)
+		rankedUsers.push(<RankedUsers rank={i} player={'si mhammed'} won={i} winRate={Math.floor(Math.random() * 100)} status={'online'}/>)
 	}
 	return (
 		<div className="flex flex-col grow">
@@ -28,7 +28,7 @@ const Rankings = () => {
 			{ !displayMenuGl &&
 			<div className="container md:px-16 px-0">
 				<div className="primary-glass grow flex flex-col md:p-32 p-16 gap-32 get-height">
-					<div className="flex justify-center">
+					{/* <div className="flex justify-center">
 						<div className="secondary-glass flex gap-16 px-16 py-4 items-center md:w-[368px] w-full">
 							<IoSearchOutline className='text-gray text-txt-md' />
 							<input
@@ -37,9 +37,9 @@ const Rankings = () => {
 								className="outline-none bg-transparent text-txt-md grow"
 							/>
 						</div>
-					</div>
+					</div> */}
 					<div className="flex flex-col overflow-hidden">
-						<div className="md:flex grid grid-cols-3 gap-32 items-end justify-center md:px-0 px-8">
+						<div className="grid grid-cols-3 md:gap-32 gap-16 items-end justify-center lg:px-64 md:px-16 px-8">
 							<div className="flex flex-col gap-16">
 								<div className="flex flex-col items-center gap-8">
 									<img
@@ -48,7 +48,7 @@ const Rankings = () => {
 									/>
 									<h2 className="text-txt-xs">simohammed</h2>
 								</div>
-								<div className="lg:w-[214px] md:w-[158px] h-[120px] flex justify-center items-center hover-secondary rounded-t-lg">
+								<div className="h-[120px] flex justify-center items-center hover-secondary rounded-t-lg">
 									<p className="text-h-lg-2xl font-bold">2</p>
 								</div>
 							</div>
@@ -60,7 +60,7 @@ const Rankings = () => {
 									/>
 									<h2 className="md:text-txt-md text-txt-xs">simohammed</h2>
 								</div>
-								<div className="lg:w-[336px] md:w-[158px] h-[160px] flex justify-center items-center hover-secondary rounded-t-lg">
+								<div className="h-[160px] flex justify-center items-center hover-secondary rounded-t-lg">
 									<p className="text-h-lg-4xl text-green font-bold">1</p>
 								</div>
 							</div>
@@ -72,7 +72,7 @@ const Rankings = () => {
 									/>
 									<h2 className="text-txt-xs">simohammed</h2>
 								</div>
-								<div className="lg:w-[214px] md:w-[158px] h-[80px] flex justify-center items-center hover-secondary rounded-t-lg">
+								<div className="h-[80px] flex justify-center items-center hover-secondary rounded-t-lg">
 									<p className="text-h-lg-xl font-bold">3</p>
 								</div>
 							</div>
