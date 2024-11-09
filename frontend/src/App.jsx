@@ -32,6 +32,7 @@ function App() {
 						<Route path='menu/' element={<Menu />} />
 						<Route path='profile/' element={<Profile />} />
 						<Route path='games/' element={<Games />} />
+						{/* <Route path='play/:game/:room_id' element={<Game />} /> */}
 						<Route path='register/' element={<SignUp />} />
 						<Route path='home/' element={<Home />} />
 						<Route path='chat/' element={<Chat />} />

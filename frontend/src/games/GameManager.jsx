@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Pong from './pong/Pong';
 
-const GameManager = () => {
+const GameManager = ({ GameDetails }) => {
 	const [playerNumber, setPlayerNumber] = useState(null);
 	const [ready, setReady] = useState(false);
 	const ws = useRef(null);
 
 	const connectWebSocket = useCallback(() => {
-		ws.current = new WebSocket(`wss://${window.location.hostname}:8000/ws/games/`);
+		console.log(GameDetails);
+		const { id } = GameDetails;
+		ws.current = new WebSocket(`wss://${window.location.hostname}:8000/ws/games/${id}`);
 
 		ws.current.onopen = () => {
 			console.log('WebSocket connected');
