@@ -12,6 +12,7 @@ import Menu from './components/Menu'
 import NotFound from './pages/NotFound'
 import TwoFA from './pages/authentication/TwoFA'
 import SetUpUsername from './pages/authentication/SetUpUsername'
+import Rankings from './pages/Rankings'
 
 function App() {
 	return (
@@ -31,6 +32,7 @@ function App() {
 						<Route path='home/' element={<Home />} />
 						<Route path='chat/' element={<Chat />} />
 						<Route path='chat/:uid' element={<Chat />} />
+						<Route path='rankings' element={<Rankings />} />
 						<Route path='*' element={<NotFound />} />
 					</Routes>
 				</AuthProvider>

@@ -7,12 +7,12 @@ import { useNavigate } from "react-router-dom";
 const Message = ({...props}) => {
 	if (props.side === 'right') {
 		return (
-			<div className="flex gap-16 items-end">
+			<div className="flex gap-8 items-end">
 				<div className="grow"></div>
-				<div className="message-glass p-8 rounded-[8px] rounded-br-[2px] max-w-[403px] text-gray text-sm">
+				<div className="message-glass p-8 rounded-[8px] rounded-br-[2px] max-w-[450px] text-gray text-sm tracking-wider">
 					{props.message}
 				</div>
-				<div className="min-w-24 min-h-24 max-w-24 object-cover max-h-24 overflow-hidden flex rounded-full">
+				<div className="min-w-16 min-h-16 max-w-16 object-cover max-h-16 overflow-hidden flex rounded-full">
 					<img src="/images/profile.png" alt="p" />
 				</div>
 			</div>
@@ -21,11 +21,11 @@ const Message = ({...props}) => {
 	} else {
 		
 		return (
-			<div className="flex gap-16 items-end">
-				<div className="min-w-24 min-h-24 max-w-24 object-cover max-h-24 overflow-hidden flex rounded-full">
+			<div className="flex gap-8 items-end">
+				<div className="min-w-16 min-h-16 max-w-16 object-cover max-h-16 overflow-hidden flex rounded-full">
 					<img src="/images/profile.png" alt="p" />
 				</div>
-				<div className="message-glass p-8 rounded-[8px] rounded-bl-[2px] max-w-[403px] text-gray text-sm">
+				<div className="message-glass p-8 rounded-[8px] rounded-bl-[2px] max-w-[450px] text-gray text-sm tracking-wider">
 					{props.message}
 				</div>
 			</div>

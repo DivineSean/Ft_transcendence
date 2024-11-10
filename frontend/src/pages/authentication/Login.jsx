@@ -32,14 +32,16 @@ const Login = () => {
 				'code': code,
 				'prompt': prompt
 			});
-			const data = await res.json();
 			if (res.ok) {
+				const data = await res.json();
 				if (data.username === null)
 					navigate(`/setupusername/${data.uid}`);
 				else
 					navigate('/home');
-			} else
+			} else {
+				setGlobalMessage({message: 'something went wrong', isError: true});
 				navigate('/login');
+			}
 		} catch (error) {
 			setGlobalMessage({message: `error: ${error}`, isError: true});
 		}
