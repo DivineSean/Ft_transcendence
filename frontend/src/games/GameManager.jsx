@@ -3,10 +3,11 @@ import Pong from './pong/Pong';
 
 const GameManager = () => {
 	const [playerNumber, setPlayerNumber] = useState(null);
+	const [flag, setFlag] = useState(false); // Change flag to state
 	const ws = useRef(null);
 
 	const connectWebSocket = useCallback(() => {
-		ws.current = new WebSocket('wss://localhost:8000/ws/games/');
+		ws.current = new WebSocket(`wss://${window.location.hostname}:8000/ws/games/`);
 
 		ws.current.onopen = () => {
 			console.log('WebSocket connected');
@@ -14,11 +15,13 @@ const GameManager = () => {
 
 		ws.current.onmessage = (event) => {
 			const data = JSON.parse(event.data);
-			if (data.type == 'role') {
-				if (data.message == "Player 1")
+			if (data.type === 'role') {
+				if (data.message === "Player 1") {
 					setPlayerNumber(1);
-				else if (data.message == "Player 2")
+				} else if (data.message === "Player 2") {
 					setPlayerNumber(2);
+					setFlag(true);
+				}
 			}
 			console.log('Message from server:', data);
 		};
@@ -32,13 +35,12 @@ const GameManager = () => {
 		};
 	}, []);
 
-	const handleJoinGame = () => {
-		if (!ws.current) {
-			connectWebSocket();
-		}
+		const handleJoinGame = () => {
+			if (!ws.current) {
+				connectWebSocket();
+			}		
 	};
 
-	// Clean-up WebSocket connection on component unmount
 	useEffect(() => {
 		return () => {
 			if (ws.current) {
@@ -52,7 +54,7 @@ const GameManager = () => {
 			{!playerNumber ? (
 				<button onClick={handleJoinGame}>Join Game</button>
 			) : (
-				<Pong websocket={ws.current} player={playerNumber} />
+				<Pong websocket={ws.current} player={playerNumber} stats={flag}/>
 			)}
 		</div>
 	);
