@@ -5,33 +5,33 @@ const MAX_POINTS = 180;
 
 class Ball {
 	constructor(scene) {
-        this.scene = scene;
-        this.model = undefined;
-        this.shadow = undefined;
-        this.boundingSphere = undefined;
+		this.scene = scene;
+		this.model = undefined;
+		this.shadow = undefined;
+		this.boundingSphere = undefined;
 
-        this.x = 36;
-        // this.y = 6;
+		this.x = 36;
+		// this.y = 6;
 		this.y = 5;
-        this.z = -12;
+		this.z = -12;
 
-        this.dx = 0;
-        this.dy = 0;
-        this.dz = 0;
+		this.dx = 0;
+		this.dy = 0;
+		this.dz = 0;
 	}
 
-	serve(ws,net, sign)
-	{
+	serve(ws, net, sign) {
 		this.x = 36 * sign;
 		// this.y = 6;
 		this.y = 5;
 		this.z = -12 * sign;
-		
+
 		this.dx = 0;
 		this.dy = 0;
 		this.dz = 0;
 
 		const data = {
+			'type': 'update',
 			'message': {
 				'content': 'ball',
 				'ball': {
@@ -48,8 +48,8 @@ class Ball {
 	}
 
 	update(net, table, player1, ws, dt, player, keyboard) {
-        if (!this.model || !net.boundingBox || !this.boundingSphere)
-            return;
+		if (!this.model || !net.boundingBox || !this.boundingSphere || !player1.boundingBox)
+			return;
 		this.dy -= G;
 
 		//serve 
@@ -70,6 +70,7 @@ class Ball {
 				this.x = net.boundingBox.max.x + 1;//0.5
 			}
 			const data = {
+				'type': 'update',
 				'message': {
 					'content': 'ball',
 					'ball': {
@@ -88,8 +89,7 @@ class Ball {
 		if (this.boundingSphere.intersectsBox(player1.boundingBox) && player1.rotating) {
 			player1.shoot(net, keyboard, this, dt);
 		}
-		else if (this.boundingSphere.intersectsBox(player1.boundingBox) && !player1.rotating)
-		{
+		else if (this.boundingSphere.intersectsBox(player1.boundingBox) && !player1.rotating) {
 			player1.hit(this, ws);
 		}
 
@@ -101,20 +101,20 @@ class Ball {
 
 		this.model.position.set(this.x, this.y, this.z);
 		this.boundingSphere.set(this.model.position, 1);
-		
+
 	}
 
 	render() {
-        // ball
-        const ballGeometry = new THREE.SphereGeometry(0.5, 32, 16);
-        const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xfcb404 });
-        this.model = new THREE.Mesh(ballGeometry, ballMaterial);
+		// ball
+		const ballGeometry = new THREE.SphereGeometry(0.5, 32, 16);
+		const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xfcb404 });
+		this.model = new THREE.Mesh(ballGeometry, ballMaterial);
 		this.model.castShadow = true;
-        this.model.position.set(this.x, this.y, this.z);
-        // collision 
-        this.boundingSphere = new THREE.Sphere(this.model.position, 0.5);
-        this.scene.add(this.model);
-        
+		this.model.position.set(this.x, this.y, this.z);
+		// collision 
+		this.boundingSphere = new THREE.Sphere(this.model.position, 0.5);
+		this.scene.add(this.model);
+
 	}
 }
 
