@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Pong from './pong/Pong';
 
-const GameManager = () => {
+const GameManager = ({ GameDetails }) => {
 	const [playerNumber, setPlayerNumber] = useState(null);
 	const [flag, setFlag] = useState(false); // Change flag to state
 	const ws = useRef(null);
 
 	const connectWebSocket = useCallback(() => {
+    const { id } = GameDetails;
 		ws.current = new WebSocket(`wss://${window.location.hostname}:8000/ws/games/`);
 
 		ws.current.onopen = () => {

@@ -8,7 +8,7 @@ const useAuth = () => {
 
 	useEffect(() => {
 		const checkAuth = async () => {
-			const response = await fetch('https://localhost:8000/api/check_auth/', {
+			const response = await fetch(`https://${window.location.hostname}:8000/api/check_auth/`, {
 				method: 'GET',
 				credentials: 'include',
 			});
@@ -16,17 +16,17 @@ const useAuth = () => {
 
 				const data = await response.json();
 				if (data.authenticated)
-					navigate('/home', {replace: true});
+					navigate('/home', { replace: true });
 
 			} else {
 
-				const refreshResponse = await fetch('https://localhost:8000/api/token/refresh/', {
+				const refreshResponse = await fetch(`https://${window.location.hostname}:8000/api/token/refresh/`, {
 					method: 'POST',
 					credentials: 'include'
 				});
 
 				if (refreshResponse.ok) {
-					navigate('/home', {replace: true});
+					navigate('/home', { replace: true });
 				}
 				else
 					setLoading(false);

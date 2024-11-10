@@ -6,7 +6,7 @@ const AuthContext = createContext();
 
 export default AuthContext;
 
-export const AuthProvider = ({children}) => {
+export const AuthProvider = ({ children }) => {
 
 	const navigate = useNavigate();
 	const validationErrors = {};
@@ -35,7 +35,7 @@ export const AuthProvider = ({children}) => {
 	}, [location.pathname])
 
 	const handleBlur = (e) => {
-		const {name, value} = e.target;
+		const { name, value } = e.target;
 		if (!value.trim()) {
 			validationErrors[name] = `${name} is required!`;
 		}
@@ -43,7 +43,7 @@ export const AuthProvider = ({children}) => {
 	}
 
 	const handleChange = (e) => {
-		const {name, value} = e.target;
+		const { name, value } = e.target;
 		if (name === 'email') {
 			if (!emailRegex.test(formData.email)) {
 				validationErrors.email = 'email is not valid!';
@@ -64,7 +64,7 @@ export const AuthProvider = ({children}) => {
 	}
 
 	const handleChangePassLogin = (e) => {
-		const {name, value} = e.target;
+		const { name, value } = e.target;
 		setFormData({
 			...formData, [name]: value
 		})
@@ -73,9 +73,9 @@ export const AuthProvider = ({children}) => {
 	const authProvider = async (provider) => {
 		let url;
 		if (provider === 'intra')
-			url = 'https://localhost:8000/api/intra/';
+			url = `https://${window.location.hostname}:8000/api/intra/`;
 		else
-			url = 'https://localhost:8000/api/google/';
+			url = `https://${window.location.hostname}:8000/api/google/`;
 		try {
 
 			const response = await fetch(url, {
@@ -87,7 +87,7 @@ export const AuthProvider = ({children}) => {
 				window.location.href = data.url;
 			}
 
-		} catch(error) {
+		} catch (error) {
 
 			console.log('error from intra auth:', error);
 
@@ -113,7 +113,7 @@ export const AuthProvider = ({children}) => {
 
 		if (Object.keys(validationErrors).length === 0) {
 			try {
-				const response = await fetch('https://localhost:8000/api/register/', {
+				const response = await fetch(`https://${window.location.hostname}:8000/api/register/`, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ export const AuthProvider = ({children}) => {
 						'password': e.target.password.value
 					})
 				});
-				
+
 				if (response.ok) {
 					navigate('/login');
 				} else {
@@ -156,7 +156,7 @@ export const AuthProvider = ({children}) => {
 
 
 		if (Object.keys(validationErrors).length === 0) {
-			
+
 			const postFormData = new FormData();
 			const email = e.target.email.value;
 			const password = e.target.password.value;
@@ -164,12 +164,12 @@ export const AuthProvider = ({children}) => {
 			postFormData.append('password', password);
 
 			try {
-				const response = await fetch('https://localhost:8000/api/token/', {
+				const response = await fetch(`https://${window.location.hostname}:8000/api/token/`, {
 					method: 'POST',
 					credentials: 'include',
 					body: postFormData
 				});
-		
+
 				if (response.ok)
 					navigate('/home');
 				else {
