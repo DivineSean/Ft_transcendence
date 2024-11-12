@@ -189,7 +189,7 @@ class Paddle {
 		if (!this.left && !this.right)
 			return;
 		this.rotating = true;
-		const rotationDuration = 300;
+		const rotationDuration = 200;
 		const initialRotationY = this.rotationY; // Current rotation around Y axis
 		const initialRotationZ = this.rotationZ; // Current rotation around X axis
 		const initialRotationX = this.rotationX;
@@ -244,7 +244,7 @@ class Paddle {
 	
 	
 	resetPaddleRotation(initialRotationY, initialRotationZ, initialRotationX) {
-		const resetDuration = 200;
+		const resetDuration = 100;
 		const start = Date.now();
 	
 		const animateReset = () => {
@@ -295,6 +295,7 @@ class Paddle {
 	
 		ball.dy = power;
 		ball.y = net.boundingBox.max.y + 2;
+		//Player one can shot left properly
 
 		if (keyboard[this.controls.left] && this.rotating){
 			//Medium Range
@@ -384,7 +385,7 @@ class Paddle {
 	}
 
 	async render() {
-		this.model = await this.loader.loadAsync(`https://${window.location.hostname}:3000/src/games/pong/Paddles2.glb`)
+		this.model = await this.loader.loadAsync(`https://${window.location.hostname}:3000/src/games/pong/Paddle_1.glb`)
             .then(data => data.scene.children[0]);
         this.model.position.set(this.x, this.y, this.z);
 		this.model.rotation.set(this.rotationX, this.rotationY, this.rotationZ);

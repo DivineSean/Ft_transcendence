@@ -5,11 +5,13 @@ import Net from './Net';
 import Ball from './Ball';
 import { Clock } from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { useEffect, useRef } from 'react';
 let vars = false;
 const Pong = ({ websocket, player, stats }) => {
 	const sm = useRef(null);
 	const loaderRef = useRef(null);
+	const loaderBRef = useRef(null);
 	if (stats && !vars)
 	{
 		const data = {
@@ -22,7 +24,8 @@ const Pong = ({ websocket, player, stats }) => {
 	vars = true;
 	const keyboard = useRef({});
 	useEffect(() => {
-		sm.current = new SceneManager(player == 2 ? -1 : 1);
+		loaderBRef.current = new RGBELoader();
+		sm.current = new SceneManager(player == 2 ? -1 : 1, loaderBRef.current);
 		const table = new Table(sm.current.scene);
 		loaderRef.current = new GLTFLoader();
 		const net = new Net(sm.current.scene, loaderRef.current);
@@ -91,7 +94,7 @@ const Pong = ({ websocket, player, stats }) => {
 				ball.boundingSphere.set(ball.model.position, 0.5);
 			}
 		}
-
+		sm.current.render();
 		table.render();
 		net.render();
 		ball.render();
