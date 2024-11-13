@@ -12,17 +12,17 @@ import uuid
 
 class Conversation(models.Model):
     ConversationId = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True)
-    users = models.ManyToManyField(Users) 
-
+    Sender = models.ForeignKey(Users, on_delete= models.CASCADE, related_name="Sender") 
+    Receiver = models.ForeignKey(Users, on_delete= models.CASCADE, related_name="Receiver") 
+    
 class Message(models.Model): 
     MessageId =   models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True)
-    ConversationName = models.ForeignKey(Conversation, on_delete = models.CASCADE)
+    ConversationName = models.ForeignKey(Conversation, on_delete = models.CASCADE, related_name="ConversationName")
     sender = models.ForeignKey(Users, on_delete = models.CASCADE, related_name= "sender_user")
     message = models.TextField(blank = True)
-    timestamp = models.DateTimeField(auto_now_add=True) 
-    class Meta:
-        ordering = ['-timestamp']
-
+    timestamp = models.DateTimeField(auto_now_add=True)
+    isRead = models.BooleanField(default = False)
+    
     def __str__(self):
         return self.sender.username
     

@@ -19,10 +19,11 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 # is populated before importing code that may import ORM models.
 django_asgi_app = get_asgi_application()
 from .routing import ws_urlpatterns
+from Auth.AuthMiddleware import JWTAuthMiddleWare
 
 application = ProtocolTypeRouter(
     {
         'http': django_asgi_app,
-        'websocket': AuthMiddlewareStack(URLRouter(ws_urlpatterns)),
+        'websocket': JWTAuthMiddleWare(URLRouter(ws_urlpatterns)),
     }
 )

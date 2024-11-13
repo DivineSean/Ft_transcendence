@@ -6,6 +6,8 @@ from Auth.models import Users
 from django.utils import timezone
 from asgiref.sync import async_to_sync
 
+
+
 class Chat(WebsocketConsumer):
     def connect(self):
         if self.scope["user"].is_anonymous:
@@ -28,7 +30,7 @@ class Chat(WebsocketConsumer):
 
          
             async_to_sync(self.channel_layer.group_add)(
-                self.room_group_name,
+                self.room_group_name,   
                 self.channel_name
             )
             self.accept()
