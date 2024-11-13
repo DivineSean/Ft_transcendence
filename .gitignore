@@ -8,7 +8,7 @@ env
 
 # Ignore static files
 static/
-
+bleach_42/
 # Ignore all .pyc files
 *.pyc
 

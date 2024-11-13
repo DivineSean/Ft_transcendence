@@ -1,7 +1,7 @@
 import json
 from channels.generic.websocket import WebsocketConsumer
 from django.shortcuts import get_object_or_404
-from .models import Room, Message
+from .models import Conversation, Message
 from Auth.models import Users
 from django.utils import timezone
 from asgiref.sync import async_to_sync
@@ -31,12 +31,11 @@ class Chat(WebsocketConsumer):
                 self.room_group_name,
                 self.channel_name
             )
-
             self.accept()
         else:
             self.close()
 
-    def disconnect(self, close_code):
+    def disconnect(self):
         async_to_sync(self.channel_layer.group_discard)(
             self.room_group_name,
             self.channel_name
@@ -73,10 +72,10 @@ class Chat(WebsocketConsumer):
 
     def get_room(self, target_user):
         user = self.scope['user']
-        return Room.objects.filter(users=target_user).first()
+        return Conversation.objects.filter(users=target_user).first()
 
     def create_room(self, users):
-        room = Room.objects.create()
+        room = Conversation.objects.create()
         room.users.set(users)
         return room
 
