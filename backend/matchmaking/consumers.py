@@ -48,8 +48,8 @@ class Matchmaker:
 
         game_room = {
             'id': str(game.game_id),
-            'player_one': game.player_one.id,
-            'player_two': game.player_two.id,
+            'player_one': str(game.player_one.id),
+            'player_two': str(game.player_two.id),
             'type': game.game_type,
         }
 

@@ -144,22 +144,20 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = 'backend.asgi.application'
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [(os.environ.get("REDIS_HOST"), os.environ.get("REDIS_PORT"))],
-            "password": os.environ.get("REDIS_PASSWORD"),
-            "db": 0
-        },
-    }
-}
-
 REDIS_CONNECTION = {
     'host': os.environ.get("REDIS_HOST"),
     'port': os.environ.get("REDIS_PORT"),
     'db': 1,
     'password': os.environ.get("REDIS_PASSWORD"),
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [f"redis://:{REDIS_CONNECTION['password']}@{REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/0"],
+        },
+    }
 }
 
 # Database
