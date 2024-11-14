@@ -142,11 +142,22 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = 'backend.asgi.application'
 
-# WARNING: This is temporary, redis should be used later on
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(os.environ.get("REDIS_HOST"), os.environ.get("REDIS_PORT"))],
+            "password": os.environ.get("REDIS_PASSWORD"),
+            "db": 0
+        },
     }
+}
+
+REDIS_CONNECTION = {
+    'host': os.environ.get("REDIS_HOST"),
+    'port': os.environ.get("REDIS_PORT"),
+    'db': 1,
+    'password': os.environ.get("REDIS_PASSWORD"),
 }
 
 # Database
