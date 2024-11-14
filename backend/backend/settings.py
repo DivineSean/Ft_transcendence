@@ -32,7 +32,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DJANGO_DEBUG", default=False))
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'e1r3p14']
 
 
 # Application definition
@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'channels',
     'Auth',
     'games',
+    'matchmaking',
 ]
 
 REST_FRAMEWORK = {
@@ -101,6 +102,7 @@ SIMPLE_JWT = {
 
 CSRF_TRUSTED_ORIGINS = [
 	'https://localhost:3000',
+    "https://e1r3p14:3000",
 ]
 
 CORS_ALLOWED_ORIGINS = [

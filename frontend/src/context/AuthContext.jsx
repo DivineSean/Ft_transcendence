@@ -9,7 +9,7 @@ const AuthContext = createContext();
 
 export default AuthContext;
 
-export const AuthProvider = ({children}) => {
+export const AuthProvider = ({ children }) => {
 
 	const FetchData = new FetchWrapper(URL);
 	const [displayMenuGl, setDisplayMenuGl] = useState(false);
@@ -39,7 +39,7 @@ export const AuthProvider = ({children}) => {
 	}, [location])
 
 	const handleBlur = (e) => {
-		const {name, value} = e.target;
+		const { name, value } = e.target;
 		if (!value.trim()) {
 			validationErrors[name] = `${name} is required!`;
 		}
@@ -47,7 +47,7 @@ export const AuthProvider = ({children}) => {
 	}
 
 	const handleChange = (e) => {
-		const {name, value} = e.target;
+		const { name, value } = e.target;
 		if (name === 'email') {
 			if (!emailRegex.test(formData.email)) {
 				validationErrors.email = 'email is not valid!';
@@ -68,7 +68,7 @@ export const AuthProvider = ({children}) => {
 	}
 
 	const handleChangePassLogin = (e) => {
-		const {name, value} = e.target;
+		const { name, value } = e.target;
 		setFormData({
 			...formData, [name]: value
 		})
