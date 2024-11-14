@@ -7,7 +7,7 @@ from django.utils import timezone
 from asgiref.sync import async_to_sync
 
 
-
+#Chat room name 
 class Chat(WebsocketConsumer):
     def connect(self):
         if self.scope["user"].is_anonymous:
