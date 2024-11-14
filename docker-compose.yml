@@ -25,6 +25,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     volumes:
       - ./backend/:/home/app
@@ -36,7 +38,7 @@ services:
     healthcheck:
       test: "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
       interval: 5s
-      retries: 100
+      retries: 5
       start_period: 30s
       timeout: 10s
     # ports:
@@ -47,6 +49,27 @@ services:
     restart: unless-stopped
     volumes:
       - data:/var/lib/postgresql/data
+
+  redis:
+    build:
+      context: ./
+      dockerfile: ./redis/Dockerfile
+    container_name: redis
+    env_file:
+        - .env
+    healthcheck:
+      test: "redis-cli -p ${REDIS_PORT} -a ${REDIS_PASSWORD} ping"
+      interval: 5s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 512m  # Set the max memory for this container
+        reservations:
+          memory: 256m  # Set the minimum guaranteed memory
+    restart: unless-stopped
 
   nginx:
     build: 

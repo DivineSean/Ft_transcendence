@@ -1,43 +1,50 @@
-import { Si42 } from "react-icons/si";
-import { FcGoogle } from "react-icons/fc";
-import { Link, useNavigate } from "react-router-dom";
+import InputFieled from "../../components/authentication/InputField"
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import AuthContext from "../context/AuthContext";
-import useAuth from "../customHooks/useAuth";
-import InputFieled from "../components/InputField";
-import LoadingPage from "./LoadingPage";
-
-
+import AuthContext from "../../context/AuthContext";
+import FetchWrapper from "../../utils/fetchWrapper";
+import useAuth from "../../customHooks/useAuth";
+import Toast from "../../components/Toast";
+import { FcGoogle } from "react-icons/fc";
+import LoadingPage from "../LoadingPage";
+import { Si42 } from "react-icons/si";
 
 const Login = () => {
 	
 	const {
 		login,
+		error,
+		handleBlur,
+		authProvider,
 		handleChange,
 		handleChangePassLogin,
-		handleBlur,
-		error,
-		loginError,
-		authProvider
+		globalMessage,
+		setGlobalMessage
 	} = useContext(AuthContext);
+	const location = useLocation();
+	const FetchData = new FetchWrapper('https://localhost:8000/');
 	const navigate = useNavigate();
 	const [load, setLoad] = useState(true);
 	
 	const sendCode = async (code, prompt) => {
-		const response = await fetch('https://localhost:8000/api/callback/', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			credentials: 'include',
-			body: JSON.stringify({
+		try {
+			const res = await FetchData.post('api/callback/', {
 				'code': code,
 				'prompt': prompt
-			})
-		});
-		const data = await response.json();
-		if (response.ok)
-			navigate('/home');
+			});
+			if (res.ok) {
+				const data = await res.json();
+				if (data.username === null)
+					navigate(`/setupusername/${data.uid}`);
+				else
+					navigate('/home');
+			} else {
+				setGlobalMessage({message: 'something went wrong', isError: true});
+				navigate('/login');
+			}
+		} catch (error) {
+			setGlobalMessage({message: `error: ${error}`, isError: true});
+		}
 	}
 	
 	useEffect(() => {
@@ -49,13 +56,10 @@ const Login = () => {
 		} else {
 			setLoad(false);
 		}
-
-		
-	}, []);
+	}, [location]);
 
 	const loading = useAuth();
 	
-
 	return (
 		<div className="grow">
 			{(loading || load) && 
@@ -63,6 +67,13 @@ const Login = () => {
 			}
 			{!loading && !load &&
 				<div className="max-w-[1440px] m-auto lg:px-32 md:px-16 md:py-32 flex flex-col lg:gap-32 gap-16 min-h-screen">
+					{globalMessage.message &&
+						<Toast
+							message={globalMessage.message}
+							error={globalMessage.isError}
+							onClose={setGlobalMessage}
+						/>
+					}
 					<div className="backdrop-blur-md w-full h-full absolute top-0 right-0"></div>
 					<div className="lg:grid lg:grid-cols-[1fr_1fr] login-glass overflow-hidden flex flex-col grow md:rounded-[8px] md:border-[0.5px] md:border-stroke-pr">
 						<div className="md:px-64 px-32 flex flex-col justify-center md:gap-32 gap-24 lg:py-64 py-32 grow">
@@ -70,8 +81,6 @@ const Login = () => {
 								<h1 className="md:text-h-lg-xl text-h-sm-xl font-bold">Welcome back, Player</h1>
 								<p className="md:text-txt-lg text-txt-sm">Welcome back! Please enter your details</p>
 							</div>
-
-							{loginError && <span className="text-red">{loginError}</span>}
 
 							<form onSubmit={login} className="md:py-32 py-16 flex flex-col md:gap-32 gap-16">
 
@@ -86,7 +95,7 @@ const Login = () => {
 								</div>
 
 								<div className="flex justify-end">
-									<Link to="/forgot_password" className="underline">forget password?</Link>
+									<Link to="/forgotpassword" className="underline">forget password?</Link>
 								</div>
 
 								<button type="submit" className="bg-green text-black text-h-sm-lg font-bold py-8 rounded">Log In</button>
@@ -104,14 +113,14 @@ const Login = () => {
 								<hr className="grow text-stroke-sc" />
 							</div>
 
-							<button onClick={() => authProvider('intra')} className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
+							<button onClick={() => authProvider('intra')} className="flex gap-16 py-8 justify-center items-center capitalize rounded border border-stroke-sc">
 								<Si42 className="text-txt-3xl"/>
 								<p className="">log in with intra</p>
 							</button>
 
-							<button onClick={() => authProvider('google')} className="flex gap-16 py-8 justify-center items-center rounded border border-stroke-sc">
+							<button onClick={() => authProvider('google')} className="flex gap-16 py-8 justify-center items-center capitalize rounded border border-stroke-sc">
 								<FcGoogle className="text-txt-3xl"/>
-								<p>log in with intra</p>
+								<p>log in with google</p>
 							</button>
 
 						</div>

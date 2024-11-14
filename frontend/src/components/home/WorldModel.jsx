@@ -5,7 +5,7 @@ const WorldModel = () => {
 	const canvasRef = useRef(null)
 	useEffect(() => {
 		if (canvasRef.current) {
-			create3DModel(canvasRef.current, 'planet/')
+			create3DModel(canvasRef.current, '/planet/')
 		}
 	}, [])
 
