@@ -14,6 +14,7 @@ from pathlib import Path
 from datetime import timedelta
 import os
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -49,10 +50,12 @@ INSTALLED_APPS = [
     'rest_framework',
 	  'rest_framework_simplejwt',
 		'rest_framework_simplejwt.token_blacklist',
+    'chat',
     'channels',
     'Auth',
     'games',
     'matchmaking',
+    'friendship',
 ]
 
 REST_FRAMEWORK = {
@@ -102,7 +105,7 @@ SIMPLE_JWT = {
 
 CSRF_TRUSTED_ORIGINS = [
 	'https://localhost:3000',
-    "https://e1r3p14:3000",
+	'https://localhost:8000',
 ]
 
 CORS_ALLOWED_ORIGINS = [
