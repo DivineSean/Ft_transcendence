@@ -1,9 +1,9 @@
-import Header from "../components/Header";
 import SideOnlineFriends from "../components/home/SideOnlineFriends";
-import Card from "../components/home/Card";
 import OnlineMatches from "../components/home/OnlineMatches";
-import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
+import Card from "../components/home/Card";
+import Header from "../components/Header";
+import { useContext } from "react";
 
 const Home = () => {
 	const { displayMenuGl } = useContext(AuthContext);
@@ -22,7 +22,7 @@ const Home = () => {
 			<Header link='home' />
 			{
 				!displayMenuGl &&
-				<div className="container">
+				<div className="container px-16">
 					<section className="flex lg:gap-32 gap-16 justify-end">
 						<div className="backdrop-blur-sm w-full h-full absolute top-0 right-0 z-[-1]"></div>
 						<article className="flex flex-col gap-32 grow">

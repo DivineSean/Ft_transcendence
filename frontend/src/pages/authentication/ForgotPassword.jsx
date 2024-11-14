@@ -1,16 +1,31 @@
+import InputFieled from "../../components/authentication/InputField";
 import AuthContext from "../../context/AuthContext";
-import InputFieled from "../../components/InputField";
-import { useContext, useState } from "react";
-import ResetPassword from "./ResetPassword";
 import { useParams } from "react-router-dom";
+import ResetPassword from "./ResetPassword";
+import Toast from "../../components/Toast";
 import { Link } from "react-router-dom";
+import { useContext } from "react";
 
 const ForgotPassword = () => {
 	const { uid } = useParams();
-	const { handleBlur, handleChange, error, requestResetPassword} = useContext(AuthContext);
+	const {
+		error,
+		handleBlur,
+		handleChange,
+		globalMessage,
+		setGlobalMessage,
+		requestResetPassword
+	} = useContext(AuthContext);
 
 	return (
 		<div className="grow">
+			{globalMessage.message &&
+				<Toast
+					message={globalMessage.message}
+					error={globalMessage.isError}
+					onClose={setGlobalMessage}
+				/>
+			}
 			<div className="absolute min-h-screen w-screen backdrop-blur-xl"></div>
 			<div className="max-w-[1440px] m-auto lg:px-32 md:px-16 md:py-32 flex flex-col lg:gap-32 gap-16 min-h-screen">
 				<div className="lg:grid lg:grid-cols-[1fr_1fr] login-glass overflow-hidden flex flex-col grow md:rounded-[8px] md:border-[0.5px] md:border-stroke-pr">

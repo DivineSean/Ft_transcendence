@@ -1,4 +1,4 @@
-import { IoSearchSharp, IoSearchOutline } from "react-icons/io5";
+import { IoSearchOutline } from "react-icons/io5";
 import { TiThMenu } from "react-icons/ti";
 
 const Friends = () => {

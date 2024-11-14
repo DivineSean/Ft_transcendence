@@ -12,6 +12,7 @@ import Menu from './components/Menu'
 import NotFound from './pages/NotFound'
 import TwoFA from './pages/authentication/TwoFA'
 import SetUpUsername from './pages/authentication/SetUpUsername'
+import Rankings from './pages/Rankings'
 
 function App() {
 	return (
@@ -22,7 +23,7 @@ function App() {
 						<Route path='forgotpassword/' element={<ForgotPassword />} />
 						<Route path='forgotpassword/:uid' element={<ForgotPassword />} />
 						<Route path='setupusername/:uid' element={<SetUpUsername />} />
-						<Route path='Twofa/:uid' element={<TwoFA />} />
+						<Route path='twofa/:uid' element={<TwoFA />} />
 						<Route path='login/' element={<Login />} />
 						<Route path='menu/' element={<Menu />} />
 						<Route path='profile/' element={<Profile />} />
@@ -30,6 +31,8 @@ function App() {
 						<Route path='register/' element={<SignUp />} />
 						<Route path='home/' element={<Home />} />
 						<Route path='chat/' element={<Chat />} />
+						<Route path='chat/:uid' element={<Chat />} />
+						<Route path='rankings' element={<Rankings />} />
 						<Route path='*' element={<NotFound />} />
 					</Routes>
 				</AuthProvider>

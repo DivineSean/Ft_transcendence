@@ -1,16 +1,18 @@
-import React, { useContext, useState } from 'react';
-import Header from '../components/Header';
-import ProfileOverview from '../components/profile/ProfileOverview';
-import ProfileStatistics from '../components/profile/ProfileStatistics';
+import { CircularProgressbarWithChildren, buildStyles } from 'react-circular-progressbar';
 import ProfileAchievements from '../components/profile/ProfileAchievements'
-import ProfileFriends from '../components/profile/ProfileFriends'
-import { GiCrossedSwords } from "react-icons/gi";
-import { FaClover } from "react-icons/fa6";
-import { GiFlamedLeaf } from "react-icons/gi";
-import { LiaMedalSolid } from "react-icons/lia";
+import ProfileStatistics from '../components/profile/ProfileStatistics';
+import ProfileOverview from '../components/profile/ProfileOverview';
+import ProfileFriends from '../components/profile/ProfileFriends';
+import React, { useContext, useState } from 'react';
 import { useParams, Link } from "react-router-dom";
-import NotFound from './NotFound';
+import { GiCrossedSwords } from "react-icons/gi";
 import AuthContext from '../context/AuthContext';
+import { LiaMedalSolid } from "react-icons/lia";
+import { GiFlamedLeaf } from "react-icons/gi";
+import { FaClover } from "react-icons/fa6";
+import Header from '../components/Header';
+import NotFound from './NotFound';
+import 'react-circular-progressbar/dist/styles.css';
 
 const profileMenu = ['overview', 'statistics', 'achievements', 'friends'];
 
@@ -28,7 +30,7 @@ const Profile = () => {
 			{ !displayMenuGl &&
 				<div className="container">
 					<div className="flex primary-glass p-16 lg:gap-32 gap-16 relative overflow-hidden get-height">
-						<div className='absolute top-0 left-0 w-full lg:h-[232px] h-[200px]'>
+						<div className='absolute top-0 left-0 w-full lg:h-[232px] h-[216px]'>
 							<div className="w-full h-full absolute cover-gradient"></div>
 							<img
 								className="object-cover w-full h-full object-center"
@@ -37,12 +39,23 @@ const Profile = () => {
 							/>
 						</div>
 						<div className="lg:flex hidden flex-col secondary-glass p-16 gap-16 min-w-[320px] max-w-[320px]">
-							<div className="flex flex-col gap-8 items-center">
-								<img
-									className="border-4 border-green w-[120px] h-[120px] rounded-full"
-									src="/images/profile.png"
-									alt="Profile image"
-								/>
+							<div className="flex flex-col gap-8 items-center justify-center">
+								<CircularProgressbarWithChildren 
+									value={50}
+									className="w-[120px] h-[120px] bg-black bg-opacity-40 rounded-full"
+									strokeWidth={6}
+									styles={buildStyles({
+										strokeLinecap: 'round',
+										pathColor: '#31E78B',
+										trailColor: 'rgba(80,80,80,0.2)',
+									})}
+								>
+									<img
+										className="w-[104px] h-[104px] rounded-full"
+										src="/images/profile.png"
+										alt="Profile image"
+									/>
+								</CircularProgressbarWithChildren>
 								<h1 className="text-h-lg-md font-bold">simhammed stoune</h1>
 								<h2 className="text-txt-md">@sistoune</h2>
 							</div>
@@ -89,11 +102,25 @@ const Profile = () => {
 						<div className="flex flex-col grow z-[1] gap-16">
 
 							<div className='flex flex-col gap-32 md:items-start items-center lg:min-h-[216px]'>
-
 								<div className="flex h-[184px] flex-col gap-8 py-16 items-center lg:hidden">
-									<img className="flex flex-col border-4 border-green rounded-full h-[96px] w-[96px]" src="/images/profile.png" alt="Profile image" />
+									<CircularProgressbarWithChildren 
+										value={75}
+										className="w-[112px] h-[112px] bg-black bg-opacity-40 rounded-full flex"
+										strokeWidth={6}
+										styles={buildStyles({
+											strokeLinecap: 'round',
+											pathColor: '#31E78B',
+											trailColor: 'rgba(80,80,80,0.2)',
+										})}
+									>
+										<img
+											className="flex flex-col rounded-full w-[98px] h-[98px]"
+											src="/images/profile.png" alt="Profile image"
+										/>
+									</CircularProgressbarWithChildren>
 									<h1 className="text-h-sm-sm font-bold">simhammed stoune</h1>
 									<h2 className="text-txt-xs">@sistoune</h2>
+
 								</div>
 								<div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">
 									<div className="flex w-[213px] items-center justify-center">

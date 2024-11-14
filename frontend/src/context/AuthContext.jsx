@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from 'react-router-dom'
-import Toast from "../components/Toast";
+import FetchWrapper from "../utils/fetchWrapper";
+
 
 const URL = 'https://localhost:8000/';
 
@@ -10,13 +11,14 @@ export default AuthContext;
 
 export const AuthProvider = ({children}) => {
 
+	const FetchData = new FetchWrapper(URL);
 	const [displayMenuGl, setDisplayMenuGl] = useState(false);
 
 	const navigate = useNavigate();
 	const validationErrors = {};
 	const emailRegex = /\S+@\S+\.\S+/;
 	const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+={}'";:,.<>])[A-Za-z\d!@#$%^&*()_+={}'";:,.<>]{6,}$/;
-	const usernameRegex = /^[a-zA-Z][a-zA-Z0-9!@#$%^&*()\-_=+{}\[\]|\\;:'",.<>?]*$/;
+	const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_-]{3,}$/;
 
 	const [formData, setFormData] = useState({
 		username: '',
@@ -29,7 +31,7 @@ export const AuthProvider = ({children}) => {
 	const [error, setError] = useState({});
 
 	const location = useLocation();
-	const [globalError, setGlobalError] = useState('');
+	const [globalMessage, setGlobalMessage] = useState({message: '', isError: false});
 
 
 	useEffect(() => {
@@ -52,7 +54,7 @@ export const AuthProvider = ({children}) => {
 			}
 		} else if (name === 'password') {
 			if (!passwordRegex.test(value)) {
-				validationErrors.password = 'password must contain at least 6 character, uppercase, lowercase, number and special character.';
+				validationErrors.password = 'password must contain at least 6 characters, uppercase, lowercase, number and special character.';
 			}
 		} else if (name === 'confirmPassword') {
 			if (value !== formData.password) {
@@ -75,35 +77,29 @@ export const AuthProvider = ({children}) => {
 	const authProvider = async (provider) => {
 		let url;
 		if (provider === 'intra')
-			url = `${URL}api/intra/`;
+			url = 'api/intra/';
 		else
-			url = `${URL}api/google/`;
+			url = 'api/google/';
 		try {
-
-			const response = await fetch(url, {
-				method: 'GET'
-			});
-
-			const data = await response.json();
-			if (response.ok) {
+			const res = await FetchData.get(url);
+			const data = await res.json();
+			if (res.ok) {
 				window.location.href = data.url;
-			}
-
+			} else
+				setGlobalMessage({message: data.error, isError: true});
 		} catch(error) {
-
-			console.log('error from intra auth:', error);
-
+			setGlobalMessage({message: 'something went wrong!', isError: true});
 		}
 	}
 
-	const register = async (e, setRegisterError) => {
+	const register = async (e) => {
 		e.preventDefault();
 
 		for (const data in formData) {
 			if (data === 'email' && !emailRegex.test(formData[data]))
 				validationErrors[data] = `${data} is not valid!`;
 			if (data === 'password' && !passwordRegex.test(formData[data]))
-				validationErrors[data] = `${data} must contain at least 6 character, uppercase, lowercase, number and special character.`;
+				validationErrors[data] = `${data} must contain at least 6 characters, uppercase, lowercase, number and special character.`;
 			if (data === 'confirmPassword' && formData.password != formData[data])
 				validationErrors[data] = 'password does not matched!';
 
@@ -115,27 +111,23 @@ export const AuthProvider = ({children}) => {
 
 		if (Object.keys(validationErrors).length === 0) {
 			try {
-				const response = await fetch(`${URL}api/register/`, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						'first_name': e.target.firstName.value,
-						'last_name': e.target.lastName.value,
-						'email': e.target.email.value,
-						'password': e.target.password.value
-					})
+				const res = await FetchData.post('api/register/', {
+					'first_name': e.target.firstName.value,
+					'last_name': e.target.lastName.value,
+					'email': e.target.email.value,
+					'password': e.target.password.value
 				});
-				if (response.ok) {
+				if (res.status === 200) {
 					navigate('/login');
 				} else {
-					if (response.status === 400)
-						setGlobalError('user with this email already exists.');
+					if (res.status === 404)
+						setGlobalMessage({message: 'the url you have reached is not found!', isError: true});
+					else
+						setGlobalMessage({message: 'email already exists or some cridentials not correct!', isError: true});
 				}
 			} catch (error) {
 
-				setGlobalError('something went wrong!');
+				setGlobalMessage({message: 'something went wrong!', isError: true});
 
 			}
 		}
@@ -155,33 +147,29 @@ export const AuthProvider = ({children}) => {
 
 
 		if (Object.keys(validationErrors).length === 0) {
-			
-			const postFormData = new FormData();
-			const email = e.target.email.value;
-			const password = e.target.password.value;
-			postFormData.append('email', email);
-			postFormData.append('password', password);
 
 			try {
-				const response = await fetch(`${URL}api/token/`, {
-					method: 'POST',
-					credentials: 'include',
-					body: postFormData
+				const res = await FetchData.post('api/token/', {
+					'email': e.target.email.value,
+					'password': e.target.password.value,
 				});
-				if (response.ok) {
-					const data = await response.json();
-					if (data.requires_2fa) {
-						navigate(`/twofa/${data.uid}`)
-					} else {
+				if (res.ok) {
+					const data = await res.json();
+					if (data.requires_2fa)
+						navigate(`/twofa/${data.uid}`);
+					else
 						navigate('/home');
-					}
 				} else {
-					if (response.status === 401) {
-						setGlobalError('invalid email or password! please try again.');
+					if (res.status === 404)
+						setGlobalMessage({message: 'the url you have reached is not found!', isError: true});
+					else {
+						const data = await res.json();
+						setGlobalMessage({message: `error: email or password are invalid please try again!`, isError: true});
 					}
 				}
+
 			} catch (error) {
-				setGlobalError('something went wrong!');
+				setGlobalMessage({message: `error: ${error}`, isError: true});
 			}
 
 		}
@@ -189,40 +177,32 @@ export const AuthProvider = ({children}) => {
 
 	const authorization2FA = async (e, userId, values2FA) => {
 		e.preventDefault();
-		const postFormData = new FormData();
-		postFormData.append('id', userId)
-		postFormData.append('2fa_code', values2FA.join(''));
 		try {
-			const response = await fetch(`${URL}api/token/`, {
-				method: 'POST',
-				credentials: 'include',
-				body: postFormData
+			const res = await FetchData.post('api/token/', {
+				'id': userId,
+				'2fa_code': values2FA.join(''),
 			});
 
-			console.log(response);
-			if (response.ok) {
+			const data = await res.json();
+			if (res.ok) {
 				if (data.username === null)
 					navigate(`setupusername/${data.uid}`);
 				else
 					navigate('/home');
-			}
+			} else
+				setGlobalMessage({message: data.error, isError: true});
 		} catch (error) {
-			console.log('error: ', error);
+			setGlobalMessage({message: `error: ${error}`, isError: true});
 		}
 	}
 
-	const resent2FACode = async (userId) => {
-		const postFormData = new FormData();
-		postFormData.append('id', userId);
+	const resent2FACode = async (userId, type) => {
 		try {
-			const response = await fetch(`${URL}api/resent2fa/`, {
-				method: 'POST',
-				credentials: 'include',
-				body: postFormData
-			});
-			const data = await response.json();
+			const res = await FetchData.post('api/resent2fa/', { 'id': userId, 'type': type });
+			if (!res.ok)
+				setGlobalMessage({message: 'something went wrong!', isError: true});
 		} catch (error) {
-			console.log('error: ', error);
+			setGlobalMessage({message: `error: ${error}`, isError: true});
 		}
 	}
 
@@ -237,23 +217,15 @@ export const AuthProvider = ({children}) => {
 		setError(validationErrors);
 		
 		if (Object.keys(validationErrors).length === 0) {
-			const email = e.target.email.value;
-			const postFormData = new FormData();
-			postFormData.append('email', email)
-			console.log(email);
 			try {
-				const response = await fetch(`${URL}api/requestreset/`, {
-					method: 'POST',
-					credentials: 'include',
-					body: postFormData
-				});
-				const data = await response.json();
-				console.log(response);
-				if (response.ok) {
+				const res = await FetchData.post('api/requestreset/', { 'email': e.target.email.value });
+				const data = await res.json();
+				if (res.ok)
 					navigate(`/forgotpassword/${data.uid}`)
-				}
+				else
+					setGlobalMessage({message: data.error, isError: true});
 			} catch (error) {
-				alert('error', error);
+				setGlobalMessage({message: `error: ${error}`, isError: true});
 			}
 		}
 	}
@@ -262,7 +234,7 @@ export const AuthProvider = ({children}) => {
 		e.preventDefault();
 		for (const data in formData) {
 			if (data === 'password' && !passwordRegex.test(formData[data]))
-				validationErrors[data] = `${data} must contain at least 6 character, uppercase, lowercase, number and special character.`;
+				validationErrors[data] = `${data} must contain at least 6 characters, uppercase, lowercase, number and special character.`;
 			if (data === 'confirmPassword' && formData.password != formData[data])
 				validationErrors[data] = 'password does not matched!';
 
@@ -273,40 +245,35 @@ export const AuthProvider = ({children}) => {
 		setError(validationErrors);
 
 		if (Object.keys(validationErrors).length === 0) {
-			const postFormData = new FormData();
-			const newPassword = e.target.password.value;
-			console.log(userId);
-			postFormData.append('id', userId);
-			postFormData.append('newPassword', newPassword);
-			postFormData.append('code', values2FA.join(''));
 			try {
-				const response = await fetch(`${URL}api/changepassword/`, {
-					method: 'POST',
-					credentials: 'include',
-					body: postFormData
+				const res = await FetchData.post('api/changepassword/', {
+					'id': userId,
+					'newPassword': e.target.password.value,
+					'code': values2FA.join(''),
 				});
-				if(response.ok)
+				if(res.ok)
 					navigate('/login');
+				else {
+					const data = await res.json();
+					setGlobalMessage({message: data.error, isError: true});
+				}
 			} catch (error) {
-				alert('error', error);
+				setGlobalMessage({message: `error: ${error}`, isError: true});
 			}
-		} else {
-			console.log('hello man');
 		}
 	}
 
 	const logout = async () => {
 		try {
-			const response = await fetch(`${URL}api/logout/`, {
-				method: 'POST',
-				credentials: 'include'
-			});
-			if (response.ok) {
+			const res = await FetchData.post('api/logout/');
+			if (res.ok) {
 				navigate('/login');
+				setGlobalMessage({message: 'you have successfully logged out!', isError: false});
 				setDisplayMenuGl(false);
-			}
+			} else 
+				setGlobalMessage({message: data.error, isError: true});
 		} catch (error) {
-			alert('error logout: ', error);
+			setGlobalMessage({message: `error: ${error}`, isError: true});
 		}
 	}
 
@@ -316,47 +283,49 @@ export const AuthProvider = ({children}) => {
 			if (data === 'username' && (!formData[data].trim() && !usernameRegex.test(formData[data])))
 				validationErrors[data] = `${data} is required!`;
 			if (data === 'username' && !usernameRegex.test(formData[data]))
-				validationErrors[data] = `invalid ${data}!`;
+				validationErrors[data] = `${data} must contain at least 4 characters! examples, user123, user_123, user-123`;
 		}
 		setError(validationErrors);
 
 
 		if (Object.keys(validationErrors).length === 0) {
-			const username = e.target.username.value;
-			const postFormData = new FormData();
-			postFormData.append('id', userId);
-			postFormData.append('username', username)
 			try {
-				const response = await fetch(`${URL}api/setupusername/`, {
-					method: 'POST',
-					credentials: 'include',
-					body: postFormData
+				const res = await FetchData.post('api/setupusername/', {
+					'id': userId,
+					'username': e.target.username.value,
 				});
-				if (response.ok) {
+				const data = await res.json();
+				if (res.ok)
 					navigate('/home');
-				}
+				else
+					setGlobalMessage({message: data.error, isError: true});
 			} catch (error) {
-				alert('error', error);
+				setGlobalMessage({message: `error: ${error}`, isError: true});
 			}
 		}
 	}
 
 	const contextData = {
 		error: error,
-		globalError: globalError,
+		globalMessage: globalMessage,
 		displayMenuGl: displayMenuGl,
+		displayMenuGl: displayMenuGl,
+	
 		register: register,
 		login: login,
-		handleBlur: handleBlur,
-		handleChange: handleChange,
-		handleChangePassLogin: handleChangePassLogin,
+		logout: logout,
+
 		authProvider: authProvider,
 		authorization2FA: authorization2FA,
 		resent2FACode: resent2FACode,
 		requestResetPassword: requestResetPassword,
 		changePassword: changePassword,
-		setGlobalError: setGlobalError,
-		logout: logout,
+
+		handleBlur: handleBlur,
+		handleChange: handleChange,
+		handleChangePassLogin: handleChangePassLogin,
+		
+		setGlobalMessage: setGlobalMessage,
 		setDisplayMenuGl: setDisplayMenuGl,
 		setUpUsername: setUpUsername
 	}

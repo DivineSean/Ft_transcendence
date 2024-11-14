@@ -1,12 +1,12 @@
-import { Si42 } from "react-icons/si";
-import { FcGoogle } from "react-icons/fc";
-import { Link } from "react-router-dom";
-import { useContext, useState } from "react";
+import InputFieled from "../../components/authentication/InputField";
 import AuthContext from "../../context/AuthContext";
 import useAuth from "../../customHooks/useAuth";
-import InputFieled from "../../components/InputField";
-import LoadingPage from "../LoadingPage";
 import Toast from "../../components/Toast";
+import { FcGoogle } from "react-icons/fc";
+import LoadingPage from "../LoadingPage";
+import { Link } from "react-router-dom";
+import { Si42 } from "react-icons/si";
+import { useContext } from "react";
 
 const SignUp = () => {
 	const {
@@ -15,20 +15,24 @@ const SignUp = () => {
 		handleChange,
 		error,
 		authProvider,
-		globalError,
-		setGlobalError
+		globalMessage,
+		setGlobalMessage
 	} = useContext(AuthContext);
 
 	const loading = useAuth();
-
-	const clearGlobalError = () => { setGlobalError(''); }
 	
 	return (
 		<div className="grow">
 			{loading && <LoadingPage />}
 			{!loading && 
 					<div className="max-w-[1440px] m-auto lg:px-32 md:px-16 md:py-32 flex flex-col lg:gap-32 gap-16 min-h-screen">
-						{globalError && <Toast message={globalError} onClose={clearGlobalError}/>}
+						{globalMessage.message && 
+							<Toast
+								message={globalMessage.message}
+								error={globalMessage.isError}
+								onClose={setGlobalMessage}
+							/>
+						}
 						<div className="backdrop-blur-md w-full h-full absolute top-0 right-0"></div>
 						<div className="lg:grid lg:grid-cols-[1fr_1fr] login-glass overflow-hidden flex flex-col grow md:rounded-[8px] md:border-[0.5px] md:border-stroke-pr">
 							

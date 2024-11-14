@@ -1,27 +1,31 @@
-import AuthContext from "../../context/AuthContext";
-import InputFieled from "../../components/InputField";
+import InputFieled from "../../components/authentication/InputField";
 import { useContext, useEffect, useState } from "react";
-import ResetPassword from "./ResetPassword";
+import AuthContext from "../../context/AuthContext";
+import FetchWrapper from "../../utils/fetchWrapper";
+import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import { Link, useNavigate } from "react-router-dom";
+import Toast from "../../components/Toast";
 
 const SetUpUsername = () => {
 	const { uid } = useParams();
 	const navigate = useNavigate();
-	const { handleBlur, handleChange, error, setUpUsername } = useContext(AuthContext);
+	const {
+		handleBlur,
+		handleChange,
+		error,
+		setUpUsername,
+		globalMessage,
+		setGlobalMessage
+	} = useContext(AuthContext);
 	let [userData, setUserData] = useState({});
+	const FetchData = new FetchWrapper('https://localhost:8000/');
 
 	const getFirstLastName = async () => {
-		const postFormData = new FormData();
-		postFormData.append('id', uid);
 		try {
-			const response = await fetch('https://localhost:8000/api/user/', {
-				method: 'POST',
-				body: postFormData,
-			});
-			const data = await response.json();
-			setUserData(data);
-			if (response.ok) {
+			const res = await FetchData.post('api/user/', { 'id': uid });
+			if (res.ok) {
+				const data = await res.json();
+				setUserData(data);
 				if (data.user.username != null) {
 					navigate('/home');
 				}
@@ -41,6 +45,13 @@ const SetUpUsername = () => {
 
 	return (
 		<div className="grow">
+			{globalMessage.message &&
+				<Toast
+					message={globalMessage.message}
+					error={globalMessage.isError}
+					onClose={setGlobalMessage}
+				/>
+			}
 			<div className="max-w-[1440px] m-auto lg:px-32 md:px-16 md:py-32 flex flex-col lg:gap-32 gap-16 min-h-screen">
 				<div className="backdrop-blur-md w-full h-full absolute top-0 right-0"></div>
 				<div className="login-glass overflow-hidden md:p-32 p-0 flex justify-center items-center grow md:rounded-[8px] md:border-[0.5px] md:border-stroke-pr">
@@ -70,7 +81,7 @@ const SetUpUsername = () => {
 											onBlur={handleBlur}
 											error={error.username} 
 										/>
-										{error.username && <span className="text-red text-txt-sm">{error.username}</span>}
+										{error.username && <span className="text-red text-txt-sm lowercase">{error.username}</span>}
 									</div>
 
 									<button type="submit" className="bg-green text-black text-h-sm-lg font-bold py-8 rounded">Set Up</button>

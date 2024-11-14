@@ -1,8 +1,10 @@
+import { GrStatusGood } from "react-icons/gr";
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
+import { VscError } from "react-icons/vsc";
 
 const Toast = ({
-	duration = 5000,
+	duration = 3000,
 	error = true,
 	message,
 	onClose
@@ -21,7 +23,7 @@ const Toast = ({
 
 	const removeToast = () => {
 		setIsVisible(false);
-		if (onClose) onClose();
+		if (onClose) onClose({message: '', isError: true});
 	}
 
 	useEffect(() => {
@@ -35,7 +37,7 @@ const Toast = ({
 
     const timeoutVisible = setTimeout(() => {
       setIsVisible(false);
-			if (onClose) onClose();
+			if (onClose) onClose({message: '', isError: true});
     }, duration + 1000);
 
     return () => {
@@ -49,18 +51,31 @@ const Toast = ({
 		isVisible && message &&
 		<div 
 			className={`
-				py-8 px-16 fixed z-[10000] overflow-hidden backdrop-blur-2xl
-				flex gap-8 items-center lg:right-32 right-16 top-32 rounded-lg 
-				border-[0.5px] border-stroke-sc max-w-[340px] transition-opacity
+				left-1/2 transform -translate-x-1/2 justify-between
+				py-8 px-16 fixed z-[10] overflow-hidden backdrop-blur-2xl
+				flex gap-8 items-center lg:right-32 top-32 rounded-lg 
+				border-[0.5px] border-stroke-sc max-w-[400px] min-w-[10px] transition-opacity
 				duration-800 ${opacity ? 'opacity-100' : 'opacity-0'}
 			`}
 		>
 			<div
-				className={`${error ? 'bg-red' : 'bg-green'} h-full w-[10%] absolute top-0 left-0 opacity-40 z-[-1]`}
+				className={`${error ? 'bg-red' : 'bg-green'} h-full absolute top-0 left-0 opacity-40 z-[-1]`}
 				style={{ width: `${progress}%` }}
 			></div>
-			<p className="font-light tracking-wide w-full text-txt-sm">{message}</p>
-			<IoMdClose onClick={removeToast} className="cursor-pointer text-txt-xl" />
+			<div className="flex gap-8 items-center">
+				{ error &&
+					<div className="min-w-16 max-w-16">
+						<VscError className="text-red text-txt-md" />
+					</div> 
+				}
+				{ !error && 
+						<div className="min-w-16 max-w-16">
+							<GrStatusGood className="text-green text-txt-md" />
+						</div> 
+				}
+				<p className="font-light tracking-wide text-txt-sm">{message}</p>
+			</div>
+			<IoMdClose onClick={removeToast} className="cursor-pointer text-txt-xl min-w-16" />
 		</div>
 	)
 }
