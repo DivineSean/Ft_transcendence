@@ -28,10 +28,6 @@ requests==2.32.3
 sqlparse==0.5.1
 typing-extensions==4.12.2
 urllib3==2.2.2
-werkzeug==3.0.5
-djangorestframework-simplejwt==5.3.1
-PyJWT==2.9.0
-channels==4.0.0
-click==8.1.7
 uvicorn==0.30.6
 websockets==13.0.1
+werkzeug==3.0.3
