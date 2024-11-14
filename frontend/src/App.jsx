@@ -8,6 +8,7 @@ import Chat from './pages/Chat'
 import Profile from './pages/Profile'
 import ForgotPassword from './pages/authentication/ForgotPassword'
 import ResetPassword from './pages/authentication/ResetPassword'
+import Games from './pages/Games'
 import Menu from './components/Menu'
 import NotFound from './pages/NotFound'
 import TwoFA from './pages/authentication/TwoFA'
@@ -28,6 +29,8 @@ function App() {
 						<Route path='menu/' element={<Menu />} />
 						<Route path='profile/' element={<Profile />} />
 						<Route path='profile/:section' element={<Profile />} />
+						<Route path='games/' element={<Games />} />
+						{/* <Route path='play/:game/:room_id' element={<Game />} /> */}
 						<Route path='register/' element={<SignUp />} />
 						<Route path='home/' element={<Home />} />
 						<Route path='chat/' element={<Chat />} />

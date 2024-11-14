@@ -33,7 +33,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DJANGO_DEBUG", default=False))
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'e1r3p14']
 
 
 # Application definition
@@ -54,8 +54,8 @@ INSTALLED_APPS = [
     'channels',
     'Auth',
     'games',
+    'matchmaking',
     'friendship',
-    
 ]
 
 REST_FRAMEWORK = {
@@ -147,10 +147,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = 'backend.asgi.application'
 
-# WARNING: This is temporary, redis should be used later on
+REDIS_CONNECTION = {
+    'host': os.environ.get("REDIS_HOST"),
+    'port': os.environ.get("REDIS_PORT"),
+    'db': 1,
+    'password': os.environ.get("REDIS_PASSWORD"),
+}
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [f"redis://:{REDIS_CONNECTION['password']}@{REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/0"],
+        },
     }
 }
 
