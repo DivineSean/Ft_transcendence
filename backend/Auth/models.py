@@ -28,7 +28,7 @@ class Users(AbstractUser):
 	first_name = models.CharField(max_length=255)
 	last_name = models.CharField(max_length=255)
 	username = models.CharField(max_length=255, null=True, blank=True)
-	
+	#Friends  = models.ManyToManyField("Users", blank = True)
 	objects = CustomUserManager()
 
 	USERNAME_FIELD = 'email'

@@ -20,3 +20,6 @@ class UserFriendSerializer(serializers.ModelSerializer):
         model = Users
         fields = ['id', 'username']
         
+
+
+
