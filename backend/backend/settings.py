@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     'Auth',
     'games',
     'friendship',
-    
+    'silk',
 ]
 
 REST_FRAMEWORK = {
@@ -123,6 +123,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+		'silk.middleware.SilkyMiddleware',
 ]
 
 

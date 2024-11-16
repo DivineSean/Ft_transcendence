@@ -9,7 +9,11 @@ const Chat = () => {
 	const { uid } = useParams();
 	const [profileSide, setProfileSide] = useState(window.innerWidth <= 768 ? false : true);
 	const [conversationSide, setConversationSide] = useState(true);
-	console.log('before', profileSide);
+
+	const [friendInfo, setFriendInfo] = useState(null);
+
+	// console.log('chat friend info: ', friendInfo);
+
 	window.addEventListener('resize', () => {
 		if (!conversationSide)
 			setConversationSide(true);
@@ -18,20 +22,20 @@ const Chat = () => {
 		if (window.innerWidth >= 768)
 			setProfileSide(true);
 	})
-	console.log('after', profileSide);
 	return (
 		<div className="flex flex-col grow">
 			<Header link='chat' />
 			<div className="container md:px-16 px-0">
 				<div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
 				<div className="primary-glass p-16 flex gap-16 grow">
-					<ChatFriends uid={uid} />
+					<ChatFriends uid={uid} getFriendInfo={setFriendInfo} />
 					<div className="w-[0.5px] bg-stroke-sc md:block hidden"></div>
-					{uid &&
+					{uid && friendInfo &&
 						<>
 							{conversationSide &&
 								<Conversation
 									uid={uid}
+									friendInfo={friendInfo}
 									displayProfile={setProfileSide}
 									hideSelf={setConversationSide}
 								/>
@@ -40,6 +44,7 @@ const Chat = () => {
 							{profileSide &&
 								<ProfileOptions
 									uid={uid}
+									friendInfo={friendInfo}
 									displayCoversation={setConversationSide}
 									hideSelf={setProfileSide}
 									isVisible={profileSide}

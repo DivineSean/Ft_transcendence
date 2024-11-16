@@ -140,6 +140,8 @@ def  callback(request):
 			http_response.content = dump
 			return http_response
 		else:
+			user.isOnline = True
+			user.save()
 			refresh_token = RefreshToken.for_user(user)
 			access = str(refresh_token.access_token)
 

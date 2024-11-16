@@ -4,12 +4,6 @@ import string
 from Auth.models import Users
 import uuid
 
-
-
-
-
-
-
 class Conversation(models.Model):
     ConversationId = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True)
     Sender = models.ForeignKey(Users, on_delete= models.CASCADE, related_name="Sender") 
@@ -22,7 +16,7 @@ class Message(models.Model):
     message = models.TextField(blank = True)
     timestamp = models.DateTimeField(auto_now_add=True)
     isRead = models.BooleanField(default = False)
-    
+		
     def __str__(self):
         return self.sender.username
     

@@ -3,6 +3,5 @@ from . import views
 
 urlpatterns = [
     path('SendMessage/', views.SendMessage.as_view(),),
-    path('<str:room_name>/', views.chat_room, name='chat_room'),
-    
+    path('chat/conversations/', views.GetConversationRooms.as_view(),),
 ]   

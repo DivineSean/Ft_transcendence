@@ -1,7 +1,7 @@
 import { IoShieldOutline, IoGameControllerOutline, IoArrowBackOutline } from "react-icons/io5";
 import { TbDiamond, TbPingPong } from "react-icons/tb";
 
-const ProfileOptions = ({uid, displayCoversation, hideSelf, isVisible}) => {
+const ProfileOptions = ({uid, displayCoversation, hideSelf, isVisible, friendInfo}) => {
 
 	const goToProfileSide = () => {
 		displayCoversation(true);
@@ -22,8 +22,8 @@ const ProfileOptions = ({uid, displayCoversation, hideSelf, isVisible}) => {
 				<div className="w-[104px] h-[104px] object-cover flex rounded-full overflow-hidden">
 					<img src="/images/profile.png" alt="p" />
 				</div>
-				<h2 className="text-h-lg-md font-bold">devon Lane</h2>
-				<p className="text-txt-md">@delane</p>
+				<h2 className="text-h-lg-md font-bold max-w-[200px] text-center">{friendInfo.firstName} {friendInfo.lastName}</h2>
+				<p className="text-txt-md text-gray">@{friendInfo.username}</p>
 				<button className="bg-green text-black rounded px-12 py-4">invite to play</button>
 			</div>
 			<div className="flex flex-col gap-16 items-center">
@@ -51,13 +51,7 @@ const ProfileOptions = ({uid, displayCoversation, hideSelf, isVisible}) => {
 			<div className="h-[0.5px] bg-stroke-sc w-full"></div>
 			<div className="flex flex-col gap-8">
 				<h2 className="text-h-lg-sm">about</h2>
-				<p className="text-txt-xs text-gray">
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-					labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-					laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-					voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat
-					non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-				</p>
+				<p className="text-txt-xs text-gray">{friendInfo.about}</p>
 			</div>
 		</div>
 	)

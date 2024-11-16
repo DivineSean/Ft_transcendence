@@ -28,6 +28,8 @@ class Users(AbstractUser):
 	first_name = models.CharField(max_length=255, blank=True, null=True)
 	last_name = models.CharField(max_length=255, blank=True, null=True)
 	username = models.CharField(max_length=255, null=True, blank=True)
+	isOnline = models.BooleanField(default = False)
+	about = models.TextField(default = 'hello i am no one so go hell and take care of yourself ')
 	#Friends  = models.ManyToManyField("Users", blank = True)
 	objects = CustomUserManager()
 
