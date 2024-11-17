@@ -5,12 +5,14 @@ import Net from './Net';
 import Ball from './Ball';
 import { Clock } from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { useEffect, useRef } from 'react';
+
+let aspect = 1920 / 1080;
 let vars = false;
 const Pong = ({ websocket, player, stats }) => {
 	const sm = useRef(null);
 	const loaderRef = useRef(null);
+	const loaderTRef = useRef(null);
 	const loaderBRef = useRef(null);
 	if (stats && !vars)
 	{
@@ -24,12 +26,14 @@ const Pong = ({ websocket, player, stats }) => {
 	vars = true;
 	const keyboard = useRef({});
 	useEffect(() => {
-		loaderBRef.current = new RGBELoader();
-		sm.current = new SceneManager(player == 2 ? -1 : 1, loaderBRef.current);
-		const table = new Table(sm.current.scene);
+		loaderTRef.current = new GLTFLoader();
 		loaderRef.current = new GLTFLoader();
+		loaderBRef.current = new GLTFLoader();
+		sm.current = new SceneManager(player == 2 ? -1 : 1);
+		let factor = sm.current.camera.aspect / aspect;
+		const table = new Table(sm.current.scene, loaderTRef.current);
 		const net = new Net(sm.current.scene, loaderRef.current);
-		const ball = new Ball(sm.current.scene);
+		const ball = new Ball(sm.current.scene, loaderBRef.current, player);
 		const controls = {
 			up: "ArrowUp",
 			down: "ArrowDown",
@@ -42,8 +46,8 @@ const Pong = ({ websocket, player, stats }) => {
 		
 		
 		const players = [
-			new Paddle(websocket, sm.current.scene, 1, { x: 37, y: 2.5, z: 12}, controls, loaderRef.current, ball),
-			new Paddle(websocket, sm.current.scene, -1, { x: -37 , y: 2.5, z: -12 }, controls, loaderRef.current, ball)
+			new Paddle(websocket, sm.current.scene, 1, { x: 43, y: -25.5, z: 12}, controls, loaderRef.current, ball),
+			new Paddle(websocket, sm.current.scene, -1, { x: -43 , y: -25.5 , z: -12 }, controls, loaderRef.current, ball)
 		]
 		// playersRef.current = players;
 		// ballRef.current = ball;
@@ -89,9 +93,7 @@ const Pong = ({ websocket, player, stats }) => {
 				ball.dx = msg.message.ball.dx;
 				ball.dy = msg.message.ball.dy;
 				ball.dz = msg.message.ball.dz;
-
-				ball.model.position.set(ball.x, ball.y, ball.z);
-				ball.boundingSphere.set(ball.model.position, 0.5);
+				ball.updatePos();
 			}
 		}
 		sm.current.render();
@@ -133,13 +135,25 @@ const Pong = ({ websocket, player, stats }) => {
 			keyboard.current[event.code] = false;
 		};
 
+		const onWindowResize = () => {
+
+			sm.current.camera.aspect = window.innerWidth / window.innerHeight;
+			sm.current.camera.updateProjectionMatrix();
+
+			sm.current.renderer.setSize( window.innerWidth, window.innerHeight );
+
+		}
+
 		window.addEventListener('keydown', handleKeyDown);
 		window.addEventListener('keyup', handleKeyUp);
+		window.addEventListener( 'resize', onWindowResize, false);
+
 
 		return () => {
 			sm.current.cleanUp();
 			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('keyup', handleKeyUp);
+			window.removeEventListener('resize', onWindowResize);
 		}
 	}, [])
 

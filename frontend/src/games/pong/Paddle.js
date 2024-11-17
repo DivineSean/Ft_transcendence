@@ -17,8 +17,6 @@ class Paddle {
 		this.model = undefined;
 		this.shadow = undefined;
 		this.boundingBox = undefined;
-		this.chargeBar = undefined;
-		this.outerBar = undefined;
 
 
 		this.x = position.x;
@@ -26,15 +24,25 @@ class Paddle {
 		this.z = position.z;
 
 		if (this.player === -1){
-			this.rotationX = Math.PI / 2;
+			//OLD
+			// this.rotationX = Math.PI / 2;
+			// this.rotationZ = Math.PI / 2;
+			//NEW
+			this.rotationX = -Math.PI;
 			this.rotationZ = Math.PI / 2;
 		}
 		else
 		{
-			this.rotationX = -Math.PI / 2;
+			//OLD
+			// this.rotationX = -Math.PI / 2;
+			// this.rotationZ = -Math.PI / 2;
+			//NEW
+			this.rotationX = 0;
 			this.rotationZ = -Math.PI / 2;
 		}
 		this.rotationY = 0;
+		// this.rotationX = Math.PI / 2;
+		// this.rotationZ = -Math.PI / 2;
 
 		this.dx = 0.0;
 		this.dy = 0.0;
@@ -65,7 +73,9 @@ class Paddle {
 			{
 				this.dz += 0.008 * this.player;
 				this.z = this.z + this.dz * dt;
-				this.rotationX = Math.PI / 2;
+				// this.rotationX = Math.PI / 2;
+				// this.rotationZ = Math.PI / 2;
+				this.rotationX = 0;
 				this.rotationZ = Math.PI / 2;
 				this.rotationY = 0;
 				this.left = false;
@@ -75,7 +85,9 @@ class Paddle {
 			{
 				this.dz -= 0.008 * this.player;
 				this.z = this.z + this.dz * dt;
-				this.rotationX = -Math.PI / 2;
+				// this.rotationX = -Math.PI / 2;
+				// this.rotationZ = Math.PI / 2;
+				this.rotationX = -Math.PI;
 				this.rotationZ = Math.PI / 2;
 				this.rotationY = 0;
 				this.left = true;
@@ -100,7 +112,9 @@ class Paddle {
 			{
 				this.dz -= 0.008 * this.player;
 				this.z = this.z + this.dz * dt;
-				this.rotationX = -Math.PI / 2;
+				// this.rotationX = -Math.PI / 2;
+				// this.rotationZ = -Math.PI / 2;
+				this.rotationX = 0;
 				this.rotationZ = -Math.PI / 2;
 				this.rotationY = 0;
 				this.left = false;
@@ -111,7 +125,9 @@ class Paddle {
 			{
 				this.dz += 0.008 * this.player;
 				this.z = this.z + this.dz * dt;
-				this.rotationX = Math.PI / 2;
+				// this.rotationX = Math.PI / 2;
+				// this.rotationZ = -Math.PI / 2;
+				this.rotationX = Math.PI;
 				this.rotationZ = -Math.PI / 2;
 				this.rotationY = 0;
 				this.left = true;
@@ -198,25 +214,40 @@ class Paddle {
 		let targetRotationX = undefined;
 
 		if (this.left){
-			targetRotationY = initialRotationY - Math.PI / 4; // Rotate 45 degrees to the left
+			if (this.player === -1)
+			{
+				targetRotationY = initialRotationY - Math.PI / 4; // Rotate 45 degrees to the left
+			}
+			else targetRotationY = initialRotationY + Math.PI / 4; // Rotate 45 degrees to the left
 			targetRotationZ = initialRotationZ + Math.PI / 8; // Rotate 22.5 degrees around X
 			if (this.ball.y > this.boundingBox.max.y)
 			{
-				this.rotationX = 0;
-				if (this.player === -1)
-				{
-					this.rotationX = -10;
-					targetRotationX = initialRotationX + Math.PI / 2;
-				}
+				this.rotationY = 0;
+				this.rotationX = Math.PI / 2;
+				this.rotationZ = -Math.PI / 2;
+
+				// this.rotationX = 0;
+				// if (this.player === -1)
+				// {
+				// 	this.rotationX = -10;
+				// 	targetRotationX = initialRotationX + Math.PI / 2;
+				// }
 			}
 		}
 		else if (this.right){
-			targetRotationY = initialRotationY + Math.PI / 4; // Rotate 45 degrees to the right
+			if (this.player === -1)
+			{
+				targetRotationY = initialRotationY - Math.PI / 4; // Rotate 45 degrees to the right
+			}
+			else targetRotationY = initialRotationY + Math.PI / 4; // Rotate 45 degrees to the right
 			targetRotationZ = initialRotationZ + Math.PI / 8; // Rotate 22.5 degrees around X
 			if (this.ball.y > this.boundingBox.max.y)
 			{
-				this.rotationX = -10;
-				targetRotationX = initialRotationX + Math.PI / 2;
+				this.rotationY = 0;
+				this.rotationX = Math.PI / 2;
+				this.rotationZ = -Math.PI / 2;
+				// this.rotationX = -10;
+				// targetRotationX = initialRotationX + Math.PI / 2;
 			}
 		}
 		const start = Date.now();
@@ -285,24 +316,29 @@ class Paddle {
 		animateReset();
 	}
 	
-
 	shoot(net, keyboard, ball, dt)
 	{
+		if (this.player === 1) {
+			ball.x = this.boundingBox.min.x - 1;
+		} else {
+			ball.x = this.boundingBox.max.x + 1;
+		}
+
+
 		let BallMaxSpeed = 0.05;
 		let power = 0.02;
 		ball.dx = Math.min(Math.abs(ball.dx) + 0.05, BallMaxSpeed);
 		ball.dx *= -this.player; // Reverse direction based on player
 	
 		ball.dy = power;
+		// if (this.player === -1)
+		// 	ball.y = net.boundingBox.max.y + 3;
+		// else
 		ball.y = net.boundingBox.max.y + 2;
 		//Player one can shot left properly
 
 		if (keyboard[this.controls.left] && this.rotating){
 			//Medium Range
-			if (this.player === -1)
-				console.log("right", this.z);
-			else
-				console.log("left", this.z);
 			if (this.z > 12)
 			{
 				ball.dz = 0.032 * this.player;
@@ -321,10 +357,6 @@ class Paddle {
 		}
 		if (keyboard[this.controls.right] && this.rotating){
 			 //medium range
-			 if (this.player === -1)
-				console.log("left", this.z);
-			else
-				console.log("right", this.z);
 			if (this.z > 12)
 			{
 				ball.dz = -0.004 * this.player;
@@ -358,8 +390,43 @@ class Paddle {
 		this.ws.send(JSON.stringify(data));
 	}
 
+	netshoot(ball, net, ws)
+	{
+		if (ball.x > 0 && this.player === -1 || ball.x < 0 && this.player === 1)
+			return;
+		ball.dx = Math.min(Math.abs(ball.dx) + 0.05, 0.01);
+		
+		if (this.player === -1) {
+			ball.x = net.boundingBox.min.x - 1;//-0.5
+			ball.dx *= -1;
+		} else {
+			ball.x = net.boundingBox.max.x + 1;//0.5
+		}
+
+		const data = {
+			'message': {
+				'content': 'ball',
+				'ball': {
+					x: ball.x,
+					y: ball.y,
+					z: ball.z,
+					dx: ball.dx,
+					dy: ball.dy,
+					dz: ball.dz,
+				}
+			}
+		}
+		ws.send(JSON.stringify(data));
+	}
+
 	hit(ball, ws)
 	{
+		if (this.player === 1) {
+			ball.x = this.boundingBox.min.x - 1;
+		} else {
+			ball.x = this.boundingBox.max.x + 1;
+		}
+
 		ball.dx = Math.min(Math.abs(ball.dx) + 0.05, 0.01);
 		ball.dx *= -this.player;
 
@@ -385,14 +452,14 @@ class Paddle {
 	}
 
 	async render() {
-		this.model = await this.loader.loadAsync(`https://${window.location.hostname}:3000/src/games/pong/Paddle_1.glb`)
+		this.model = await this.loader.loadAsync(`https://${window.location.hostname}:3000/src/games/pong/Paddle.glb`)
             .then(data => data.scene.children[0]);
         this.model.position.set(this.x, this.y, this.z);
 		this.model.rotation.set(this.rotationX, this.rotationY, this.rotationZ);
         this.model.traverse(child => {
             if (child.isMesh) {
-                child.castShadow = true; // Enable shadow casting
-                child.receiveShadow = false; // Typically, nets don’t receive shadows
+                child.castShadow = true;
+                child.receiveShadow = true;
             }
         });
         this.scene.add(this.model);
