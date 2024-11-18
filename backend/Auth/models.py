@@ -29,7 +29,7 @@ class Users(AbstractUser):
 	last_name = models.CharField(max_length=255, blank=True, null=True)
 	username = models.CharField(max_length=255, null=True, blank=True)
 	isOnline = models.BooleanField(default = False)
-	about = models.TextField(default = 'hello i am no one so go hell and take care of yourself ')
+	about = models.TextField(default = 'I m an award-winning content writer who has eight years of experience creating compelling articles and short stories. I m continuously searching for new topics and stories to capture the attention of new readers. With my knowledge and experience, I can help you fulfill your content creation goals.')
 	#Friends  = models.ManyToManyField("Users", blank = True)
 	objects = CustomUserManager()
 

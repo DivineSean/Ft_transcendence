@@ -73,7 +73,10 @@ const Toast = ({
 							<GrStatusGood className="text-green text-txt-md" />
 						</div> 
 				}
-				<p className="font-light tracking-wide text-txt-sm">{message}</p>
+				<p className="font-light tracking-wide text-txt-sm text-gray">
+					<span className="font-bold tracking-wide text-white">{error ? 'error: ' : 'success: '}</span>
+					{message}
+				</p>
 			</div>
 			<IoMdClose onClick={removeToast} className="cursor-pointer text-txt-xl min-w-16" />
 		</div>

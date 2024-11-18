@@ -15,7 +15,7 @@ class HttpJWTAuthMiddleWare(BaseMiddleware):
 		accessToken = request.COOKIES.get("accessToken")
 		refreshToken = request.COOKIES.get("refreshToken")
 		if not accessToken and not refreshToken: 
-				return status.HTTP_401_UNAUTHORIZED, None
+				return None, None
 		jwtObj = JWTAuthentication()
 
 		try:          
@@ -33,7 +33,7 @@ class HttpJWTAuthMiddleWare(BaseMiddleware):
 				# print(user, flush=True)
 				return user, newAccessToken
 			except:
-				return status.HTTP_400_BAD_REQUEST, None
+				return None, None
         
 
 class JWTAuthMiddleWare(BaseMiddleware):
