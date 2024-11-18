@@ -3,7 +3,7 @@ import { IoArrowBackOutline } from "react-icons/io5";
 import { BiSolidSend } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { getMessages, sendMessage } from "../../utils/chatFetchData";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 
 
@@ -45,16 +45,14 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo}) => {
 	const [sendMessageState, setSendMessageState] = useState(false);
 	const conversation = [];
 
-	// sendMessage
-
 	useEffect(() => {
 		getMessages(friendInfo.conversationId, setMessages);
 		if (sendMessageState)
 			setSendMessageState(false);
 	}, [friendInfo.conversationId, sendMessageState]);
+	
 
-	if (messages) {
-		// console.log(messages);
+	if (messages && messages.length) {
 		messages.map(message => {
 			conversation.push(
 				<Message
@@ -64,36 +62,16 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo}) => {
 				/>
 			)
 		})
+	} else {
+		conversation.push(<div className="text-stroke-sc font-light tracking-wider text-txt-xs text-center" >so messages yet! say hello!</div>)
 	}
 
 	const sendMessageHandler = (e) => {
 		e.preventDefault();
 		sendMessage(friendInfo.conversationId, e.target.message.value, setSendMessageState);
 		e.target.reset();
-		// console.log(e.target.message.value)
 	}
 
-	// console.log(friendInfo);
-
-	// for (let i = 0; i < 100; i++) {
-	// 	if (i % 2) {
-	// 		conversation.push(
-	// 			<Message
-	// 				key={i}
-	// 				side='left' 
-	// 				message={i}
-	// 			/>
-	// 		)
-	// 	}
-	// 	else 
-	// 		conversation.push(
-	// 			<Message
-	// 				key={i}
-	// 				side='right'
-	// 				message={i}
-	// 			/>
-	// 		)
-	// }
 	const goToProfileSide = () => {
 		displayProfile(true);
 		hideSelf(false);
