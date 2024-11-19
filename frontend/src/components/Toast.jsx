@@ -59,7 +59,7 @@ const Toast = ({
 			`}
 		>
 			<div
-				className={`${error ? 'bg-red' : 'bg-green'} h-full absolute top-0 left-0 opacity-40 z-[-1]`}
+				className={`${error ? 'bg-red' : 'bg-green'} h-full absolute top-0 left-0 opacity-20 z-[-1]`}
 				style={{ width: `${progress}%` }}
 			></div>
 			<div className="flex gap-8 items-center">

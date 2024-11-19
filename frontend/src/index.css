@@ -70,8 +70,6 @@ body {
   	}
 	.message-glass {
 		background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2));
-		border: .5px solid #5B5B5B;
-		backdrop-filter: blur(40px);
 	}
 	.search-glass {
 		background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2));
@@ -101,6 +99,28 @@ body {
 		.get-height {
 			height: 100%;
 		}	
+	}
+	.right-message::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		right: -12px;
+		width: 0;
+		height: 0;
+		border-left: 0 solid transparent; 
+		border-right: 12px solid transparent; 
+		border-top: 12px solid rgba(80,80,80,0.2);
+	}
+	.left-message::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: -12px;
+		width: 0;
+		height: 0;
+		border-left: 12px solid transparent; 
+		border-right: 0 solid transparent; 
+		border-top: 12px solid rgba(80,80,80,0.4);
 	}
 }
 

@@ -3,8 +3,8 @@ import { IoArrowBackOutline } from "react-icons/io5";
 import { BiSolidSend } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { getMessages, sendMessage } from "../../utils/chatFetchData";
+import { IoCheckmarkDone } from "react-icons/io5";
 import { useEffect, useRef, useState } from "react";
-
 
 
 const Message = ({...props}) => {
@@ -13,11 +13,12 @@ const Message = ({...props}) => {
 		return (
 			<div className="flex gap-8 items-end">
 				<div className="grow"></div>
-				<div className="message-glass p-8 rounded-[8px] rounded-br-[2px] max-w-[450px] text-gray text-sm tracking-wider">
+				<div className="right-message message-glass py-8 px-12 rounded-[8px] rounded-tr-[2px] max-w-[450px] text-gray text-sm tracking-wider flex flex-col gap-8 mr-12 relative">
 					{props.message}
-				</div>
-				<div className="min-w-16 min-h-16 max-w-16 object-cover max-h-16 overflow-hidden flex rounded-full">
-					<img src="/images/profile.png" alt="p" />
+					<div className="flex gap-4 items-center justify-end">
+						<p className="text-xs text-stroke-sc" >18:40</p>
+						<IoCheckmarkDone className="text-txt-sm text-green"/>
+					</div>
 				</div>
 			</div>
 		)
@@ -26,11 +27,11 @@ const Message = ({...props}) => {
 		
 		return (
 			<div className="flex gap-8 items-end">
-				<div className="min-w-16 min-h-16 max-w-16 object-cover max-h-16 overflow-hidden flex rounded-full">
-					<img src="/images/profile.png" alt="p" />
-				</div>
-				<div className="message-glass p-8 rounded-[8px] rounded-bl-[2px] max-w-[450px] text-gray text-sm tracking-wider">
+				<div className="left-message message-glass py-8 px-12 rounded-[8px] rounded-tl-[2px] max-w-[450px] text-gray text-sm tracking-wider flex flex-col gap-8 ml-12 relative">
 					{props.message}
+					<div className="flex gap-4 items-center justify-end">
+						<p className="text-xs text-stroke-sc" >18:40</p>
+					</div>
 				</div>
 			</div>
 		)
@@ -57,7 +58,7 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo}) => {
 			conversation.push(
 				<Message
 					key={message.messageId}
-					side={message.isSender ? 'left' : 'right'}
+					side={message.isSender ? 'right' : 'left'}
 					message={message.message}
 				/>
 			)
