@@ -45,6 +45,11 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo}) => {
 	const [messages, setMessages] = useState(null);
 	const [sendMessageState, setSendMessageState] = useState(false);
 	const conversation = [];
+	const downScrollRef = useRef(null);
+	const topScrollRef = useRef(null);
+
+	if (downScrollRef.current) // auto scroll down to the last message int he conversation
+		downScrollRef.current.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'end'});
 
 	useEffect(() => {
 		getMessages(friendInfo.conversationId, setMessages);
@@ -107,7 +112,9 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo}) => {
 				/>
 			</div>
 			<div className="h-14 flex grow flex-col gap-16 overflow-y-scroll no-scrollbar">
+				<div ref={topScrollRef}></div>
 				{conversation}
+				<div ref={downScrollRef}></div>
 			</div>
 			<form className="flex items-center relative" onSubmit={sendMessageHandler}>
 				<input type="text" placeholder='Aa...' name="message" className='send-glass text-txt-md px-16 pr-56 py-12 outline-none text-white w-full grow'/>
