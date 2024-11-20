@@ -94,7 +94,7 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws}) => {
 	const sendMessage = (e) => {
 		e.preventDefault();
 		
-		if (ws.current && e.target.message.value) {
+		if (ws.current && e.target.message.value.trim()) {
 			ws.current.send(JSON.stringify({'message': e.target.message.value}))
 			setAllMessages(false);
 		}

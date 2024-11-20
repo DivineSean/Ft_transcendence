@@ -75,7 +75,7 @@ export const getChunkedMessages = async (
 			}
 		} else {
 			console.log('internal server error 500');
-		}le.log(data);
+		}
 	} catch (error) {
 		console.log('error: ', error);
 	}
