@@ -47,8 +47,8 @@ INSTALLED_APPS = [
     'django_extensions',
     'corsheaders',
     'rest_framework',
-	  'rest_framework_simplejwt',
-		'rest_framework_simplejwt.token_blacklist',
+	'rest_framework_simplejwt',
+	'rest_framework_simplejwt.token_blacklist',
     'channels',
     'Auth',
     'games',
@@ -102,6 +102,7 @@ SIMPLE_JWT = {
 
 CSRF_TRUSTED_ORIGINS = [
 	'https://localhost:3000',
+	'https://localhost:8000',
     "https://e1r3p14:3000",
 ]
 

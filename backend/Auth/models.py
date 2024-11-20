@@ -28,6 +28,7 @@ class Users(AbstractUser):
 	first_name = models.CharField(max_length=255, blank=True, null=True)
 	last_name = models.CharField(max_length=255, blank=True, null=True)
 	username = models.CharField(max_length=255, null=True, blank=True)
+	rating = models.PositiveIntegerField(default=800)
 	
 	objects = CustomUserManager()
 
