@@ -2,7 +2,7 @@ import ProfileOptions from "../components/chat/ProfileOptions";
 import Conversation from "../components/chat/Conversation";
 import FriendsChat from "../components/chat/FriendsChat";
 import { useParams } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Header from "../components/Header";
 import { IoSearchOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +16,20 @@ const Chat = () => {
 	const [profileSide, setProfileSide] = useState(window.innerWidth <= 768 ? false : true);
 	const [conversationSide, setConversationSide] = useState(true);
 	const navigate = useNavigate();
+
+	const ws = useRef(null);
+	useEffect(() => {
+		ws.current = new WebSocket(`wss://${window.location.hostname}:8000/ws/chat/${uid}/`);
+		// console.log('ws: ', ws.current);
+
+		return () => {
+			if (ws.current) {
+				ws.current.close();
+				ws.current = null;
+			}
+		}
+		
+	}, [])
 
 
 	const [friendsData, setFriendsData] = useState(null);
@@ -78,6 +92,7 @@ const Chat = () => {
 							{conversationSide &&
 								<Conversation
 									uid={uid}
+									ws={ws}
 									friendInfo={friendInfo}
 									displayProfile={setProfileSide}
 									hideSelf={setConversationSide}

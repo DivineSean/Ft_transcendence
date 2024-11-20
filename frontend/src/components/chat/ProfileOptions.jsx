@@ -23,7 +23,7 @@ const ProfileOptions = ({uid, displayCoversation, hideSelf, isVisible, friendInf
 					<img src="/images/profile.png" alt="p" />
 				</div>
 				<h2 className="text-h-lg-md font-bold max-w-[200px] text-center">{friendInfo.firstName} {friendInfo.lastName}</h2>
-				<p className="text-txt-md text-gray">@{friendInfo.username}</p>
+				<p className="text-txt-md text-gray lowercase font-light tracking-wide">@{friendInfo.username}</p>
 				<button className="bg-green text-black rounded px-12 py-4">invite to play</button>
 			</div>
 			<div className="flex flex-col gap-16 items-center">

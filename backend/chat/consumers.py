@@ -9,88 +9,87 @@ from asgiref.sync import async_to_sync
 
 #Chat room name 
 class Chat(WebsocketConsumer):
-    def connect(self):
-        if self.scope["user"].is_anonymous:
-            self.close()
+		def connect(self):
+				#isRead = True
+				#CHeck if user in the conversation 
+				self.room_name = self.scope['url_route']['kwargs']['room_name']
+				
+				
 
-        self.room_name = self.scope['url_route']['kwargs']['room_name']
-        
-        target_user = self.get_user(self.room_name)
-
-        if target_user:
-            users = [target_user, self.scope["user"]]
-            room_qs = self.get_room(target_user)
-
-            if not room_qs:
-                self.room = self.create_room(users)
-            else:
-                self.room = room_qs
-
-            self.room_group_name = self.room.token
-
-         
-            async_to_sync(self.channel_layer.group_add)(
-                self.room_group_name,   
-                self.channel_name
-            )
-            self.accept()
-        else:
-            self.close()
-
-    def disconnect(self):
+				
+				self.room_name = self.get_room() #expects UID 
+				print(self.room_name, flush=True)
+				if self.room_name == None:
+						self.close()
+						return
+				
+				self.room_group_name =f'Conversation_' + str(self.room_name.ConversationId)
+				
+				async_to_sync(self.channel_layer.group_add)(
+						self.room_group_name,   
+						self.channel_name
+				)
+				self.accept()
 			
-        async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name,
-            self.channel_name
-        )
 
-    def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
+		def disconnect(self, code):
+			
+				async_to_sync(self.channel_layer.group_discard)(
+						self.room_group_name,
+						self.channel_name
+				)
 
-       
-        msg = self.create_message(message)
+		def receive(self, text_data):
 
-        
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name,
-            {
-                "type": "chat_message",
-                "message": msg.message,
-                "sender": msg.sender.username,
-                "timestamp": msg.timestamp.isoformat()
-            }
-        )
+				# once i get the message
+				# Store it in the Message Model
+				try:
+						text_data_json = json.loads(text_data)
+						message = text_data_json["message"] 
+				except Exception as e:
+						print(e, flush=True)
+						self.close()
+						return
+			
+				msg = self.create_message(message)
 
-    def chat_message(self, event):
-        self.send(text_data=json.dumps({
-            "type": "message",
-            "message": event['message'],
-            "sender": event["sender"],
-            "timestamp": event["timestamp"]
-        }))
+				
+				async_to_sync(self.channel_layer.group_send)(
+						self.room_group_name,
+						{
+								"type": "chat_message",    
+								"message": msg.message,
+								"messageId": str(msg.MessageId),
+								"sender": self.scope['user'].id, 
+								"timestamp": str(msg.timestamp.strftime('%b %d, %Y at %H:%M'))
+								# "timestamp": str(msg.timestamp.strftime('%H:%M'))
+						}
+				)
 
-    def get_user(self, username):
-        return get_object_or_404(Users, username=username)
+		def chat_message(self, event):
+				
+				self.send(text_data=json.dumps({
+						"type": "message",
+						"message": event['message'],
+						"messageId": event['messageId'],
+						"isSender": event["sender"] == self.scope['user'].id,
+						"timestamp": event["timestamp"]
+				}))
 
-    def get_room(self, target_user):
-        user = self.scope['user']
-        return Conversation.objects.filter(users=target_user).first()
+		def get_user(self):
+				return  Users.objects.get()  #should be modifed
 
-    def create_room(self, users):
-        room = Conversation.objects.create()
-        room.users.set(users)
-        return room
-
-    def create_message(self, message):
-        return Message.objects.create(
-            roomName=self.room,
-            sender=self.scope["user"],
-            message=message,
-            timestamp=timezone.now()
-        )
-    
+		def get_room(self):
+				return Conversation.objects.get(ConversationId = self.room_name)#Get object or 404
 
 
-#MiddleWare: 
-#Check Cookies (tokens isValid)
+		def create_message(self, message):
+				#Database 
+				return Message.objects.create(
+						ConversationName=self.room_name,
+						sender=Users.objects.get(email = self.scope["user"].email),
+						message=message,
+				)
+		
+
+#TO DO => restrictions in jwt (password)

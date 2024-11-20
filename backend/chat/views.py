@@ -114,7 +114,6 @@ class GetConversationRooms(APIView):
 				receiver_about=F('Receiver__about'),
 			)
 		)
-
 		users_data = []
 		for conv in conversations:
 			is_receiver = conv['Receiver_id'] == user.id
@@ -124,7 +123,10 @@ class GetConversationRooms(APIView):
 				"lastName": conv['receiver_last_name'] if not is_receiver else conv['sender_last_name'],
 				"username": conv['receiver_username'] if not is_receiver else conv['sender_username'],
 				"isOnline": conv['receiver_isonline'] if not is_receiver else conv['sender_isonline'],
-				"lastLogin": conv['receiver_last_login'].strftime('%b %d, %Y at %H:%M') if not is_receiver else conv['sender_last_login'].strftime('%b %d, %Y at %H:%M'),
+				"lastLogin": (
+					conv['receiver_last_login'].strftime('%b %d, %Y at %H:%M') if conv['receiver_last_login'] and not is_receiver
+					else conv['sender_last_login'].strftime('%b %d, %Y at %H:%M') if conv['sender_last_login'] else None
+				),
 				"about": conv['receiver_about'] if not is_receiver else conv['sender_about'],
 				"messageDate": conv['latest_message_timestamp'].strftime('%m/%d/%Y') if conv['latest_message_timestamp'] else None,
 				"lastMessage": conv['latest_message'],
@@ -137,7 +139,7 @@ class GetConversationRooms(APIView):
 		# 	message= "Hello man",
 		# )
 
-		print(users_data, flush=True)
+		# print(users_data, flush=True)
 		return Response({"users": users_data}, status=200)
 
 	# def get(self, request):
@@ -276,12 +278,12 @@ class getMessages(APIView):
 		chatMessages= []
 		messages = Message.objects.filter(
 			ConversationName = convID
-		)
+		).order_by('-timestamp')
 		
 		paginator = PageNumberPagination()
 		try:
 			offset = int(request.data.get("offset", 0))  
-			paginator.page_size = int(request.data.get("limit", 200000))  
+			paginator.page_size = int(request.data.get("limit", 20))  
 		except ValueError:
 			response.data = {"Error" : "Either Offeset or limit is not a Number"}
 			response.status_code = 400
@@ -289,16 +291,17 @@ class getMessages(APIView):
 		
 		paginated_messages = messages[offset:offset + paginator.page_size]
 
-		print(paginated_messages, flush=True)
+		# print(paginated_messages, flush=True)
 
-		for message in paginated_messages:
+		for message in reversed(paginated_messages):
+			print(f'---> {message.message}', flush=True)
 			if message.sender.email == senderMail: 
 				chatMessages.append({
 					"convID" : convID.ConversationId,
 					"messageId" : message.MessageId,
 					"message" : message.message,
 					"isRead" : message.isRead,
-					"timestamp": message.timestamp,
+					"timestamp": message.timestamp.strftime('%b %d, %H:%M'),
 					"isSender" : True
 					})#maybe other fields, not sure
 			else:
@@ -308,7 +311,7 @@ class getMessages(APIView):
 					"messageId" : message.MessageId,
 					"message" : message.message,
 					"isRead" : message.isRead,
-					"timestamp": message.timestamp,
+					"timestamp": message.timestamp.strftime('%b %d, %H:%M'),
 					"isSender" : False,
 					"ReceiverID" : receiverID
 					})

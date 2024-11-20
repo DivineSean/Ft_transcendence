@@ -2,62 +2,105 @@ import { IoIosInformationCircleOutline } from "react-icons/io";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { BiSolidSend } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
-import { getMessages, sendMessage } from "../../utils/chatFetchData";
+import { getChunkedMessages, getMessages } from "../../utils/chatFetchData";
 import { IoCheckmarkDone } from "react-icons/io5";
 import { useEffect, useRef, useState } from "react";
 
 
 const Message = ({...props}) => {
-
 	if (props.side === 'right') {
 		return (
 			<div className="flex gap-8 items-end">
 				<div className="grow"></div>
-				<div className="right-message message-glass py-8 px-12 rounded-[8px] rounded-tr-[2px] max-w-[450px] text-gray text-sm tracking-wider flex flex-col gap-8 mr-12 relative">
+				<div className="right-message message-glass py-8 px-12 rounded-[8px] rounded-tr-[2px] max-w-[450px] text-gray text-sm tracking-wider flex flex-col gap-4 mr-12 relative">
 					{props.message}
 					<div className="flex gap-4 items-center justify-end">
-						<p className="text-xs text-stroke-sc" >18:40</p>
-						<IoCheckmarkDone className="text-txt-sm text-green"/>
+						<p className="text-xs text-stroke-sc" >{props.timestamp}</p>
+						<IoCheckmarkDone className={`text-txt-sm ${props.isRead ? 'text-green' : 'text-stroke-sc'}`}/>
 					</div>
 				</div>
 			</div>
 		)
-
 	} else {
-		
 		return (
 			<div className="flex gap-8 items-end">
-				<div className="left-message message-glass py-8 px-12 rounded-[8px] rounded-tl-[2px] max-w-[450px] text-gray text-sm tracking-wider flex flex-col gap-8 ml-12 relative">
+				<div className="left-message message-glass py-8 px-12 rounded-[8px] rounded-tl-[2px] max-w-[450px] text-gray text-sm tracking-wider flex flex-col gap-4 ml-12 relative">
 					{props.message}
 					<div className="flex gap-4 items-center justify-end">
-						<p className="text-xs text-stroke-sc" >18:40</p>
+						<p className="text-xs text-stroke-sc" >{props.timestamp}</p>
 					</div>
 				</div>
 			</div>
 		)
-
 	}
 }
 
-const Conversation = ({uid, displayProfile, hideSelf, friendInfo}) => {
-
+const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws}) => {
+	
 	const navigate = useNavigate();
-	const [messages, setMessages] = useState(null);
-	const [sendMessageState, setSendMessageState] = useState(false);
+	const [messages, setMessages] = useState([]);
+	const [offsetMssg, setOffsetMssg] = useState(0);
+	const [isChunked, setIsChunked] = useState(false);
+	const [allMessages, setAllMessages] = useState(false);
 	const conversation = [];
 	const downScrollRef = useRef(null);
 	const topScrollRef = useRef(null);
-
-	if (downScrollRef.current) // auto scroll down to the last message int he conversation
-		downScrollRef.current.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'end'});
-
-	useEffect(() => {
-		getMessages(friendInfo.conversationId, setMessages);
-		if (sendMessageState)
-			setSendMessageState(false);
-	}, [friendInfo.conversationId, sendMessageState]);
 	
+	// fetch messages in the first time we enter to the conversation
+	useEffect(() => {
+		getMessages(friendInfo.conversationId, setMessages, setOffsetMssg);
+	}, [friendInfo.conversationId]);
 
+	// check if there is a new message and add it to the message array state
+	useEffect(() => {
+		if (ws.current) {
+			ws.current.onmessage = (e) => {
+				const messageData = JSON.parse(e.data);
+				// check the if the data commed is a message and add the message to the message state
+				if (messageData && messageData.type === 'message') {
+					setMessages((preveMessage) => [...preveMessage, messageData]);
+				}
+			}
+		}
+	}, [ws.current.onmessage]);
+
+	// check if a new message has been added and scroll down to the last message
+	useEffect(() => {
+		if (downScrollRef.current) {
+			if (isChunked)
+				setIsChunked(false);
+			else if (!allMessages)
+				downScrollRef.current.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'end'});
+		}
+	}, [messages.length]);
+
+	const handleConversationScroll = () => {
+		if (topScrollRef.current) {
+			if (topScrollRef.current.scrollTop === 0 && offsetMssg !== 0) {
+				topScrollRef.current.scrollBy({top: 15, behavior: 'smooth'});
+				getChunkedMessages(
+					friendInfo.conversationId,
+					setMessages,
+					offsetMssg,
+					setOffsetMssg,
+					setIsChunked,
+					setAllMessages
+				);
+			}
+		}
+	}
+
+	// send a message into a ws
+	const sendMessage = (e) => {
+		e.preventDefault();
+		
+		if (ws.current) {
+			ws.current.send(JSON.stringify({'message': e.target.message.value}))
+			setAllMessages(false);
+		}
+		e.target.reset();
+	}
+	
 	if (messages && messages.length) {
 		messages.map(message => {
 			conversation.push(
@@ -65,17 +108,13 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo}) => {
 					key={message.messageId}
 					side={message.isSender ? 'right' : 'left'}
 					message={message.message}
+					timestamp={message.timestamp}
+					isRead={message.isRead}
 				/>
 			)
 		})
 	} else {
 		conversation.push(<div className="text-stroke-sc font-light tracking-wider text-txt-xs text-center" >so messages yet! say hello!</div>)
-	}
-
-	const sendMessageHandler = (e) => {
-		e.preventDefault();
-		sendMessage(friendInfo.conversationId, e.target.message.value, setSendMessageState);
-		e.target.reset();
 	}
 
 	const goToProfileSide = () => {
@@ -84,15 +123,13 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo}) => {
 	}
 
 	return (
-		<div
-			className={`
-				grow md:flex flex-col gap-32
-				${uid ? 'flex' : 'hidden'}
-			`}
-		>
+		<div className={`grow md:flex flex-col gap-32 ${uid ? 'flex' : 'hidden'}`}>
 			<div className="border-b-[0.5px] border-stroke-sc pb-16 flex justify-between items-center">
 				<div className="flex gap-16 items-center">
-					<IoArrowBackOutline onClick={() => navigate('/chat/')} className="md:hidden block text-txt-xl cursor-pointer"/>
+					<IoArrowBackOutline
+						onClick={() => navigate('/chat/')}
+						className="md:hidden block text-txt-xl cursor-pointer"
+					/>
 					<div className={`md:w-56 md:h-56 h-48 w-48 rounded-full border overflow-hidden ${friendInfo.isOnline ? 'border-green' : 'border-stroke-sc'}`}>
 						<img src="/images/profile.png" alt="profile" />
 					</div>
@@ -111,14 +148,28 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo}) => {
 					onClick={goToProfileSide}
 				/>
 			</div>
-			<div className="h-14 flex grow flex-col gap-16 overflow-y-scroll no-scrollbar">
-				<div ref={topScrollRef}></div>
+			<div
+				ref={topScrollRef}
+				onScroll={handleConversationScroll}
+				className="h-4 flex grow flex-col gap-16 overflow-y-scroll no-scrollbar normal-case"
+			>
+				<div className={`text-center mb-[64] text-xs text-stroke-sc ${offsetMssg ? 'block' : 'hidden'}`}>loading...</div>
 				{conversation}
 				<div ref={downScrollRef}></div>
 			</div>
-			<form className="flex items-center relative" onSubmit={sendMessageHandler}>
-				<input type="text" placeholder='Aa...' name="message" className='send-glass text-txt-md px-16 pr-56 py-12 outline-none text-white w-full grow'/>
-				<button type="submit" className='text-gray absolute right-16 text-txt-3xl cursor-pointer hover:text-green'>
+			<form className="flex items-center relative" onSubmit={sendMessage}>
+				<input
+					autoFocus
+					type="text"
+					autocomplete="off"
+					placeholder='Aa...'
+					name="message"
+					className='send-glass text-txt-md px-16 pr-56 py-12 outline-none text-white w-full grow'
+				/>
+				<button
+					type="submit"
+					className='text-gray absolute right-16 text-txt-3xl cursor-pointer hover:text-green'
+				>
 					<BiSolidSend/>
 				</button>
 			</form>	
