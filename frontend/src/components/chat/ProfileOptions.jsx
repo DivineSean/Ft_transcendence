@@ -13,7 +13,7 @@ const ProfileOptions = ({uid, displayCoversation, hideSelf, isVisible, friendInf
 				w-[300px] flex-col gap-32
 				${isVisible ? 'flex md:max-w-[250px] lg:max-w-[300px] w-full' : 'md:flex hidden'}
 			`}
-		>
+		>j
 			<IoArrowBackOutline
 				className="md:hidden block text-txt-2xl cursor-pointer"
 				onClick={goToProfileSide}

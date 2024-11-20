@@ -41,21 +41,20 @@ const Chat = () => {
 	const chatFriends = [];
 	if (friendsData && friendsData.users && friendsData.users.length) {
 		friendInfo = friendsData.users.filter(u => u.conversationId === uid)[0];
-		friendsData.users.map(friend => (
-			chatFriends.push(
+		friendsData.users.map(friend => {
+			console.log(friend.conversationId);
+			return (chatFriends.push(
 				<FriendsChat
 					uid={uid}
 					friendInfo={friend}
-					// isSend
 					messages={3}
-					// key={friend.username}
-					// key={friend.conversationId}
-					// isTyping
+					key={friend.conversationId}
 				/>
-			)
-		))
+			))
+
+	})
 	} else {
-		chatFriends.push(<div className="text-stroke-sc text-center">no conversation friends</div>)
+		chatFriends.push(<div key={0} className="text-stroke-sc text-center">no conversation friends</div>)
 	}
 
 

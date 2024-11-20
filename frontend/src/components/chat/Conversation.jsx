@@ -114,7 +114,7 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws}) => {
 			)
 		})
 	} else {
-		conversation.push(<div className="text-stroke-sc font-light tracking-wider text-txt-xs text-center" >so messages yet! say hello!</div>)
+		conversation.push(<div key={0} className="text-stroke-sc font-light tracking-wider text-txt-xs text-center" >so messages yet! say hello!</div>)
 	}
 
 	const goToProfileSide = () => {
@@ -161,7 +161,7 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws}) => {
 				<input
 					autoFocus
 					type="text"
-					autocomplete="off"
+					autoComplete="off"
 					placeholder='Aa...'
 					name="message"
 					className='send-glass text-txt-md px-16 pr-56 py-12 outline-none text-white w-full grow'
