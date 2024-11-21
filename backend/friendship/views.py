@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from Auth.models import Users
 from django.db import IntegrityError
 from rest_framework import status
+
 class SendFriendRequest(APIView):
     def post(self, request):
         response = Response(status=200)

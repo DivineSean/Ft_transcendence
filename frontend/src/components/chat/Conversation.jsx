@@ -35,7 +35,7 @@ const Message = ({...props}) => {
 	}
 }
 
-const Conversation = ({uid, displayProfile, hideSelf, friendInfo}) => {
+const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws}) => {
 	
 	const navigate = useNavigate();
 	const [messages, setMessages] = useState([]);
@@ -45,21 +45,6 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo}) => {
 	const conversation = [];
 	const downScrollRef = useRef(null);
 	const topScrollRef = useRef(null);
-
-	const ws = useRef(null);
-	useEffect(() => {
-		ws.current = new WebSocket(`wss://${window.location.hostname}:8000/ws/chat/${uid}/`);
-		console.log('from chat ws');
-		// console.log('ws: ', ws.current);
-
-		return () => {
-			if (ws.current) {
-				ws.current.close();
-				ws.current = null;
-			}
-		}
-		
-	}, [uid])
 	
 	// fetch messages in the first time we enter to the conversation
 	useEffect(() => {
@@ -77,7 +62,7 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo}) => {
 				}
 			}
 		}
-	}, [ws.current && ws.current.onmessage]);
+	}, [ws.current]);
 
 	// check if a new message has been added and scroll down to the last message
 	useEffect(() => {
@@ -110,7 +95,7 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo}) => {
 		e.preventDefault();
 		
 		if (ws.current && e.target.message.value.trim()) {
-			ws.current.send(JSON.stringify({'message': e.target.message.value}))
+			ws.current.send(JSON.stringify({'message': e.target.message.value, 'convId': uid}))
 			setAllMessages(false);
 		}
 		e.target.reset();
