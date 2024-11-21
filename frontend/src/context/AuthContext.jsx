@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import FetchWrapper from "../utils/fetchWrapper";
 
 
-const URL = 'https://localhost:8000/';
+const URL = `https://${window.location.hostname}:8000/`;
 
 const AuthContext = createContext();
 
@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
 	const [error, setError] = useState({});
 
 	const location = useLocation();
-	const [globalMessage, setGlobalMessage] = useState({message: '', isError: false});
+	const [globalMessage, setGlobalMessage] = useState({ message: '', isError: false });
 
 
 	useEffect(() => {
@@ -86,9 +86,9 @@ export const AuthProvider = ({ children }) => {
 			if (res.ok) {
 				window.location.href = data.url;
 			} else
-				setGlobalMessage({message: data.error, isError: true});
-		} catch(error) {
-			setGlobalMessage({message: 'something went wrong!', isError: true});
+				setGlobalMessage({ message: data.error, isError: true });
+		} catch (error) {
+			setGlobalMessage({ message: 'something went wrong!', isError: true });
 		}
 	}
 
@@ -121,13 +121,13 @@ export const AuthProvider = ({ children }) => {
 					navigate('/login');
 				} else {
 					if (res.status === 404)
-						setGlobalMessage({message: 'the url you have reached is not found!', isError: true});
+						setGlobalMessage({ message: 'the url you have reached is not found!', isError: true });
 					else
-						setGlobalMessage({message: 'email already exists or some cridentials not correct!', isError: true});
+						setGlobalMessage({ message: 'email already exists or some cridentials not correct!', isError: true });
 				}
 			} catch (error) {
 
-				setGlobalMessage({message: 'something went wrong!', isError: true});
+				setGlobalMessage({ message: 'something went wrong!', isError: true });
 
 			}
 		}
@@ -161,15 +161,15 @@ export const AuthProvider = ({ children }) => {
 						navigate('/home');
 				} else {
 					if (res.status === 404)
-						setGlobalMessage({message: 'the url you have reached is not found!', isError: true});
+						setGlobalMessage({ message: 'the url you have reached is not found!', isError: true });
 					else {
 						const data = await res.json();
-						setGlobalMessage({message: `error: email or password are invalid please try again!`, isError: true});
+						setGlobalMessage({ message: `error: email or password are invalid please try again!`, isError: true });
 					}
 				}
 
 			} catch (error) {
-				setGlobalMessage({message: `error: ${error}`, isError: true});
+				setGlobalMessage({ message: `error: ${error}`, isError: true });
 			}
 
 		}
@@ -190,9 +190,9 @@ export const AuthProvider = ({ children }) => {
 				else
 					navigate('/home');
 			} else
-				setGlobalMessage({message: data.error, isError: true});
+				setGlobalMessage({ message: data.error, isError: true });
 		} catch (error) {
-			setGlobalMessage({message: `error: ${error}`, isError: true});
+			setGlobalMessage({ message: `error: ${error}`, isError: true });
 		}
 	}
 
@@ -200,9 +200,9 @@ export const AuthProvider = ({ children }) => {
 		try {
 			const res = await FetchData.post('api/resent2fa/', { 'id': userId, 'type': type });
 			if (!res.ok)
-				setGlobalMessage({message: 'something went wrong!', isError: true});
+				setGlobalMessage({ message: 'something went wrong!', isError: true });
 		} catch (error) {
-			setGlobalMessage({message: `error: ${error}`, isError: true});
+			setGlobalMessage({ message: `error: ${error}`, isError: true });
 		}
 	}
 
@@ -215,7 +215,7 @@ export const AuthProvider = ({ children }) => {
 				validationErrors[data] = `${data} is required!`;
 		}
 		setError(validationErrors);
-		
+
 		if (Object.keys(validationErrors).length === 0) {
 			try {
 				const res = await FetchData.post('api/requestreset/', { 'email': e.target.email.value });
@@ -223,9 +223,9 @@ export const AuthProvider = ({ children }) => {
 				if (res.ok)
 					navigate(`/forgotpassword/${data.uid}`)
 				else
-					setGlobalMessage({message: data.error, isError: true});
+					setGlobalMessage({ message: data.error, isError: true });
 			} catch (error) {
-				setGlobalMessage({message: `error: ${error}`, isError: true});
+				setGlobalMessage({ message: `error: ${error}`, isError: true });
 			}
 		}
 	}
@@ -251,14 +251,14 @@ export const AuthProvider = ({ children }) => {
 					'newPassword': e.target.password.value,
 					'code': values2FA.join(''),
 				});
-				if(res.ok)
+				if (res.ok)
 					navigate('/login');
 				else {
 					const data = await res.json();
-					setGlobalMessage({message: data.error, isError: true});
+					setGlobalMessage({ message: data.error, isError: true });
 				}
 			} catch (error) {
-				setGlobalMessage({message: `error: ${error}`, isError: true});
+				setGlobalMessage({ message: `error: ${error}`, isError: true });
 			}
 		}
 	}
@@ -268,12 +268,12 @@ export const AuthProvider = ({ children }) => {
 			const res = await FetchData.post('api/logout/');
 			if (res.ok) {
 				navigate('/login');
-				setGlobalMessage({message: 'you have successfully logged out!', isError: false});
+				setGlobalMessage({ message: 'you have successfully logged out!', isError: false });
 				setDisplayMenuGl(false);
-			} else 
-				setGlobalMessage({message: data.error, isError: true});
+			} else
+				setGlobalMessage({ message: data.error, isError: true });
 		} catch (error) {
-			setGlobalMessage({message: `error: ${error}`, isError: true});
+			setGlobalMessage({ message: `error: ${error}`, isError: true });
 		}
 	}
 
@@ -298,9 +298,9 @@ export const AuthProvider = ({ children }) => {
 				if (res.ok)
 					navigate('/home');
 				else
-					setGlobalMessage({message: data.error, isError: true});
+					setGlobalMessage({ message: data.error, isError: true });
 			} catch (error) {
-				setGlobalMessage({message: `error: ${error}`, isError: true});
+				setGlobalMessage({ message: `error: ${error}`, isError: true });
 			}
 		}
 	}
@@ -310,7 +310,7 @@ export const AuthProvider = ({ children }) => {
 		globalMessage: globalMessage,
 		displayMenuGl: displayMenuGl,
 		displayMenuGl: displayMenuGl,
-	
+
 		register: register,
 		login: login,
 		logout: logout,
@@ -324,7 +324,7 @@ export const AuthProvider = ({ children }) => {
 		handleBlur: handleBlur,
 		handleChange: handleChange,
 		handleChangePassLogin: handleChangePassLogin,
-		
+
 		setGlobalMessage: setGlobalMessage,
 		setDisplayMenuGl: setDisplayMenuGl,
 		setUpUsername: setUpUsername
