@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'games',
     'friendship',
     'silk',
+    "notification",
 ]
 
 REST_FRAMEWORK = {

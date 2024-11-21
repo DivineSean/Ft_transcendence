@@ -13,7 +13,7 @@ class Chat(WebsocketConsumer):
 		def connect(self):
 				#isRead = True
 				#CHeck if user in the conversation 
-				self.room_name = self.scope['url_route']['kwargs']['room_name']
+				# self.room_name = self.scope['url_route']['kwargs']['room_name']
 				
 				# self.room_name = self.get_room() #expects UID 
 				# print(f'------> rooom name: {self.room_name.ConversationId}', flush=True)
