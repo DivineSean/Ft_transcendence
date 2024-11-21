@@ -14,11 +14,8 @@ class Chat(WebsocketConsumer):
 				#CHeck if user in the conversation 
 				self.room_name = self.scope['url_route']['kwargs']['room_name']
 				
-				
-
-				
 				self.room_name = self.get_room() #expects UID 
-				print(self.room_name, flush=True)
+				print(f'------> rooom name: {self.room_name.ConversationId}', flush=True)
 				if self.room_name == None:
 						self.close()
 						return
@@ -61,7 +58,7 @@ class Chat(WebsocketConsumer):
 								"message": msg.message,
 								"messageId": str(msg.MessageId),
 								"sender": self.scope['user'].id, 
-								"timestamp": str(msg.timestamp.strftime('%b %d, %Y at %H:%M'))
+								"timestamp": str(msg.timestamp.strftime('%b %d, %H:%M'))
 								# "timestamp": str(msg.timestamp.strftime('%H:%M'))
 						}
 				)

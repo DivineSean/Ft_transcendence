@@ -17,20 +17,6 @@ const Chat = () => {
 	const [conversationSide, setConversationSide] = useState(true);
 	const navigate = useNavigate();
 
-	const ws = useRef(null);
-	useEffect(() => {
-		ws.current = new WebSocket(`wss://${window.location.hostname}:8000/ws/chat/${uid}/`);
-		// console.log('ws: ', ws.current);
-
-		return () => {
-			if (ws.current) {
-				ws.current.close();
-				ws.current = null;
-			}
-		}
-		
-	}, [])
-
 
 	const [friendsData, setFriendsData] = useState(null);
 	useEffect(() => {
@@ -42,7 +28,6 @@ const Chat = () => {
 	if (friendsData && friendsData.users && friendsData.users.length) {
 		friendInfo = friendsData.users.filter(u => u.conversationId === uid)[0];
 		friendsData.users.map(friend => {
-			console.log(friend.conversationId);
 			return (chatFriends.push(
 				<FriendsChat
 					uid={uid}
@@ -91,7 +76,7 @@ const Chat = () => {
 							{conversationSide &&
 								<Conversation
 									uid={uid}
-									ws={ws}
+									// ws={ws}
 									friendInfo={friendInfo}
 									displayProfile={setProfileSide}
 									hideSelf={setConversationSide}

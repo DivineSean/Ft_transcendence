@@ -294,7 +294,6 @@ class getMessages(APIView):
 		# print(paginated_messages, flush=True)
 
 		for message in reversed(paginated_messages):
-			print(f'---> {message.message}', flush=True)
 			if message.sender.email == senderMail: 
 				chatMessages.append({
 					"convID" : convID.ConversationId,
