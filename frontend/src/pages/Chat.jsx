@@ -1,6 +1,6 @@
 import ProfileOptions from "../components/chat/ProfileOptions";
 import Conversation from "../components/chat/Conversation";
-import FriendsChat from "../components/chat/FriendsChat";
+import FriendsChat from "../components/chat/ChatFriends";
 import { useParams } from "react-router-dom";
 import { useContext, useEffect, useRef, useState } from "react";
 import Header from "../components/Header";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 import { getConversations } from "../utils/chatFetchData";
 import AuthContext from "../context/AuthContext";
+import ChatFriends from "../components/chat/ChatFriends";
 
 const Chat = () => {
 	const { setGlobalMessage } = useContext(AuthContext);
@@ -20,9 +21,9 @@ const Chat = () => {
 	const ws = useRef(null);
 	useEffect(() => {
 		ws.current = new WebSocket(`wss://${window.location.hostname}:8000/ws/chat/${uid}/`);
-		console.log('from chat ws');
+		// console.log('from chat ws');
 		// console.log('ws: ', ws.current);
-
+		
 		return () => {
 			if (ws.current) {
 				ws.current.close();
@@ -31,31 +32,16 @@ const Chat = () => {
 		}
 		
 	}, [])
-
+	
 	const [friendsData, setFriendsData] = useState(null);
 	useEffect(() => {
 		getConversations(setFriendsData, setGlobalMessage, navigate);
-	}, [])
-	let friendInfo = null;
-
-	const chatFriends = [];
+	}, []);
+	
+	let friendInfo = [];
 	if (friendsData && friendsData.users && friendsData.users.length) {
 		friendInfo = friendsData.users.filter(u => u.conversationId === uid)[0];
-		friendsData.users.map(friend => {
-			return (chatFriends.push(
-				<FriendsChat
-					uid={uid}
-					friendInfo={friend}
-					messages={3}
-					key={friend.conversationId}
-				/>
-			))
-
-	})
-	} else {
-		chatFriends.push(<div key={0} className="text-stroke-sc text-center">no conversation friends</div>)
 	}
-
 
 	window.addEventListener('resize', () => {
 		if (!conversationSide)
@@ -78,9 +64,11 @@ const Chat = () => {
 							<input type="text" placeholder='find users' className='search-glass text-txt-xs px-32 py-8 outline-none text-white w-full'/>
 							<IoSearchOutline className='text-gray absolute left-8 text-txt-md' />
 						</div>
-						<div className="h-14 flex grow flex-col gap-8 overflow-y-scroll no-scrollbar">
-							{chatFriends}
-						</div>
+						<ChatFriends
+							friendsData={friendsData}
+							uid={uid}
+							ws={ws}
+						/>
 					</div>
 
 					<div className="w-[0.5px] bg-stroke-sc md:block hidden"></div>

@@ -27,25 +27,25 @@ class Chat(WebsocketConsumer):
 				self.room_group_name = []
 				for element in conversations:
 
-					self.room_group_name.append(f"CONV_{element.ConversationId}")
+					self.room_group_name.append(f"conv-{element.ConversationId}")
 					print(f"connected convID: ====> {element.ConversationId}", flush=True)
 					# print(f'connected to {self.room_group_name}', flush=True)
 					async_to_sync(self.channel_layer.group_add)(
-						f"CONV_{element.ConversationId}",   
+						f"conv-{element.ConversationId}",   
 						self.channel_name
 					)
 				#GEt query of user either receiver, sender, 
-				#loop on them => add new groups with name equals to "CONV_{conversationId}"
+				#loop on them => add new groups with name equals to "conv-{conversationId}"
 				
 				self.accept()
 			
 
 		def disconnect(self, code):
-			
-				async_to_sync(self.channel_layer.group_discard)(
-						self.room_group_name, #should be changes
-						self.channel_name
-				)
+				for element in self.room_group_name:
+					async_to_sync(self.channel_layer.group_discard)(
+							element,
+							self.channel_name
+					)
 
 		def receive(self, text_data):
 
@@ -54,7 +54,7 @@ class Chat(WebsocketConsumer):
 				try:
 					text_data_json = json.loads(text_data)
 					message = text_data_json["message"] 
-					self.convId = f"CONV_{text_data_json['convId']}"
+					self.convId = f"conv-{text_data_json['convId']}"
 					self.convName = text_data_json['convId']
 				except Exception as e:
 						print("------>", e, flush=True)
@@ -70,7 +70,8 @@ class Chat(WebsocketConsumer):
 						async_to_sync(self.channel_layer.group_send)(
 								element,
 								{
-										"type": "chat_message",    
+										"type": "chat_message", 
+										"convId": str(self.convName),
 										"message": msg.message,
 										"messageId": str(msg.MessageId),
 										"sender": self.scope['user'].id, 
@@ -84,6 +85,7 @@ class Chat(WebsocketConsumer):
 				self.send(text_data=json.dumps({
 						"type": "message",
 						"message": event['message'],
+						"convId": event['convId'],
 						"messageId": event['messageId'],
 						"isSender": event["sender"] == self.scope['user'].id,
 						"timestamp": event["timestamp"]

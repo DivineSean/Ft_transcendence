@@ -12,7 +12,7 @@ const Message = ({...props}) => {
 		return (
 			<div className="flex gap-8 items-end">
 				<div className="grow"></div>
-				<div className="right-message message-glass py-8 px-12 rounded-[8px] rounded-tr-[2px] max-w-[450px] text-gray text-sm tracking-wider flex flex-col gap-4 mr-12 relative">
+				<div className="right-message message-glass py-8 px-12 rounded-[8px] rounded-tr-[2px] max-w-[450px] text-gray text-sm tracking-wider flex flex-col gap-4 mr-12 relative break-all">
 					{props.message}
 					<div className="flex gap-4 items-center justify-end">
 						<p className="text-xs text-stroke-sc" >{props.timestamp}</p>
@@ -24,7 +24,7 @@ const Message = ({...props}) => {
 	} else {
 		return (
 			<div className="flex gap-8 items-end">
-				<div className="left-message message-glass py-8 px-12 rounded-[8px] rounded-tl-[2px] max-w-[450px] text-gray text-sm tracking-wider flex flex-col gap-4 ml-12 relative">
+				<div className="left-message message-glass py-8 px-12 rounded-[8px] rounded-tl-[2px] max-w-[450px] text-gray text-sm tracking-wider flex flex-col gap-4 ml-12 relative break-all">
 					{props.message}
 					<div className="flex gap-4 items-center justify-end">
 						<p className="text-xs text-stroke-sc" >{props.timestamp}</p>
@@ -48,8 +48,9 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws}) => {
 	
 	// fetch messages in the first time we enter to the conversation
 	useEffect(() => {
-		getMessages(friendInfo.conversationId, setMessages, setOffsetMssg);
-	}, [friendInfo.conversationId]);
+		if (uid)
+			getMessages(uid, setMessages, setOffsetMssg);
+	}, [uid]);
 
 	// check if there is a new message and add it to the message array state
 	useEffect(() => {
@@ -79,7 +80,7 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws}) => {
 			if (topScrollRef.current.scrollTop === 0 && offsetMssg !== 0) {
 				topScrollRef.current.scrollBy({top: 15, behavior: 'smooth'});
 				getChunkedMessages(
-					friendInfo.conversationId,
+					uid,
 					setMessages,
 					offsetMssg,
 					setOffsetMssg,

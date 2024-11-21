@@ -264,9 +264,10 @@ class getMessages(APIView):
 		except:     
 			return Response("Invalid tokens")
 		
+		print(f"request -----> {request.data}", flush=True)
 		try:
-			# print(request.data, flush=True)
 			convID = Conversation.objects.get(ConversationId= request.data.get("convID"))
+			
 		except:
 			return Response("convID not valid", status=status.HTTP_400_BAD_REQUEST)
 		
