@@ -195,24 +195,25 @@ class CustomTokenRefreshView(TokenRefreshView):
 
 @api_view(["POST"])
 def logout(request):
-
+	
 	refresh_token = request.COOKIES.get('refreshToken')
 
 	if refresh_token:
 		token = RefreshToken(refresh_token)
+		
+		response = HttpResponseRedirect(os.environ.get("REDIRECT_URL"))
+		response = Response({"message": "Logged Out"}, status=status.HTTP_200_OK)
+		response.delete_cookie("accessToken")
+		response.delete_cookie("refreshToken")
 		jwtObj = JWTAuthentication()
-		print(jwtObj, flush=True)
-		user = jwtObj.get_user(token)
-		user.isOnline = False
-		user.last_login = timezone.now()
-		user.save()
-		# print(user.first_name, flush=True)
-
-		token.blacklist()
-	response = HttpResponseRedirect(os.environ.get("REDIRECT_URL"))
-	response = Response({"message": "Logged Out"}, status=status.HTTP_200_OK)
-	response.delete_cookie("accessToken")
-	response.delete_cookie("refreshToken")
+		try:
+			user = jwtObj.get_user(token)
+			user.isOnline = False
+			user.last_login = timezone.now()
+			user.save()
+			token.blacklist()
+		except:
+			pass			
 	return response
 
 

@@ -17,6 +17,20 @@ const Chat = () => {
 	const [conversationSide, setConversationSide] = useState(true);
 	const navigate = useNavigate();
 
+	const ws = useRef(null);
+	useEffect(() => {
+		ws.current = new WebSocket(`wss://${window.location.hostname}:8000/ws/chat/${uid}/`);
+		console.log('from chat ws');
+		// console.log('ws: ', ws.current);
+
+		return () => {
+			if (ws.current) {
+				ws.current.close();
+				ws.current = null;
+			}
+		}
+		
+	}, [])
 
 	const [friendsData, setFriendsData] = useState(null);
 	useEffect(() => {
@@ -76,7 +90,7 @@ const Chat = () => {
 							{conversationSide &&
 								<Conversation
 									uid={uid}
-									// ws={ws}
+									ws={ws}
 									friendInfo={friendInfo}
 									displayProfile={setProfileSide}
 									hideSelf={setConversationSide}
