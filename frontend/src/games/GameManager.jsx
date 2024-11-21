@@ -17,8 +17,8 @@ const GameManager = ({ GameDetails }) => {
 
 		ws.current.onmessage = (event) => {
 			const data = JSON.parse(event.data);
-			if (data.type == 'role') {
-				if (data.message == "Player 1")
+			if (data.type === 'role') {
+				if (data.message === "Player 1") {
 					setPlayerNumber(1);
 				else if (data.message == "Player 2") {
 
@@ -45,13 +45,12 @@ const GameManager = ({ GameDetails }) => {
 		};
 	}, []);
 
-	const handleJoinGame = () => {
-		if (!ws.current) {
-			connectWebSocket();
-		}
+		const handleJoinGame = () => {
+			if (!ws.current) {
+				connectWebSocket();
+			}		
 	};
 
-	// Clean-up WebSocket connection on component unmount
 	useEffect(() => {
 		return () => {
 			if (ws.current) {
