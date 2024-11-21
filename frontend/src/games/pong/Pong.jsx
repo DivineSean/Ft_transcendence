@@ -5,7 +5,7 @@ import Net from './Net';
 import Ball from './Ball';
 import { Clock } from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 let dt = 1;    ////added for debugging purpose
 const Pong = ({ websocket, player, ready }) => {
@@ -13,17 +13,10 @@ const Pong = ({ websocket, player, ready }) => {
 	const loaderRef = useRef(null);
 	const loaderTRef = useRef(null);
 	const loaderBRef = useRef(null);
-	if (stats && !vars)
-	{
-		const data = {
-			'message': {
-				'content': 'Play',
-			}
-		}
-		websocket.send(JSON.stringify(data));
-	}
-	vars = true;
 	const keyboard = useRef({});
+	const [ready, setReady] = useState(false)
+
+	console.log('ready: ', ready);
 	useEffect(() => {
 		loaderTRef.current = new GLTFLoader();
 		loaderRef.current = new GLTFLoader();
@@ -38,12 +31,12 @@ const Pong = ({ websocket, player, ready }) => {
 			down: "ArrowDown",
 			left: "ArrowLeft",  // Move left
 			right: "ArrowRight", // Move right
-			space: "Space",      
+			space: "Space",
 			// Q: "KeyQ"            
 			// E: "KeyE",           
 		};
-		
-		
+
+
 		const players = [
 			new Paddle(websocket, sm.current.scene, 1, { x: 43, y: -25.5, z: 12}, controls, loaderRef.current, ball),
 			new Paddle(websocket, sm.current.scene, -1, { x: -43 , y: -25.5 , z: -12 }, controls, loaderRef.current, ball)
@@ -55,9 +48,10 @@ const Pong = ({ websocket, player, ready }) => {
 		websocket.onmessage = (event) => {
 			// console.log(event);
 			const msg = JSON.parse(event.data);
+			console.log(msg);
 			const opp = player == 1 ? 2 : 1;
-			if (msg.message.content === 'Play')
-				stats = true;
+			if (msg.type == 'play')
+				setReady(true);
 			else if (msg.message.content == 'paddle') {
 				players[opp - 1].rotating = false;
 				players[opp - 1].x = msg.message.paddle.x;
@@ -73,8 +67,7 @@ const Pong = ({ websocket, player, ready }) => {
 				players[opp - 1].rotationZ = msg.message.paddle.rotZ;
 				players[opp - 1].updatePos();
 			}
-			else if (msg.message.content == 'rotating')
-			{
+			else if (msg.message.content == 'rotating') {
 				players[opp - 1].rotating = true;
 				players[opp - 1].rotationX = msg.message.paddle.rotX;
 				players[opp - 1].rotationY = msg.message.paddle.rotY;
@@ -129,7 +122,6 @@ const Pong = ({ websocket, player, ready }) => {
 		const fixedStep = 0.015; // 15ms
 		const clock = new Clock();
 
-
 		function animate() {
 			if (!stats ) return;
 			const timeNow = performance.now() / 1000;
@@ -157,7 +149,7 @@ const Pong = ({ websocket, player, ready }) => {
 			if (players[player - 1].rotating) return;
 			keyboard.current[event.code] = true;
 		};
-		
+
 		const handleKeyUp = (event) => {
 			keyboard.current[event.code] = false;
 		};
@@ -182,7 +174,7 @@ const Pong = ({ websocket, player, ready }) => {
 			window.removeEventListener('keyup', handleKeyUp);
 			window.removeEventListener('resize', onWindowResize);
 		}
-	}, [])
+	}, [ready])
 
 	return (
 		<canvas id="pong"></canvas>

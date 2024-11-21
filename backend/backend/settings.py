@@ -107,7 +107,8 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-	"https://localhost:3000"
+	"https://localhost:3000",
+	"https://api.intra.42.fr",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
