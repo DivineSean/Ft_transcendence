@@ -6,7 +6,7 @@ const useAuth = () => {
 
 	const [loading, setLoading] = useState(true);
 	const navigate = useNavigate();
-	const FetchData = new FetchWrapper('https://localhost:8000/');
+	const FetchData = new FetchWrapper(`https://${window.location.hostname}:8000/`);
 
 	useEffect(() => {
 		const checkAuth = async () => {
@@ -19,7 +19,7 @@ const useAuth = () => {
 			} else {
 				const refRes = await FetchData.post('api/token/refresh/');
 				if (refRes.ok) {
-					navigate('/home', {replace: true});
+					navigate('/home', { replace: true });
 				}
 				else
 					setLoading(false);

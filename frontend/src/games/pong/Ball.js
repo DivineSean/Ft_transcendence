@@ -17,9 +17,9 @@ class Ball {
 		this.y = -23.5;
         this.z = -20;
 
-        this.dx = 0;
-        this.dy = 0;
-        this.dz = 0;
+		this.dx = 0;
+		this.dy = 0;
+		this.dz = 0;
 	}
 
 	serve(ws,net, sign)
@@ -35,6 +35,7 @@ class Ball {
 
 		this.isServed = false;
 		const data = {
+			'type': 'update',
 			'message': {
 				'content': 'ball',
 				'ball': {
@@ -84,6 +85,7 @@ class Ball {
 		if (flag)
 		{
 			const data = {
+				'type': 'update',
 				'message': {
 					'content': 'ball',
 					'ball': {
@@ -99,7 +101,6 @@ class Ball {
 			}
 			ws.send(JSON.stringify(data));
 		}
-		
 		this.x += this.dx * dt;
 		this.y += this.dy * dt;
 		this.z += this.dz * dt;

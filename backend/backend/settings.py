@@ -32,8 +32,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DJANGO_DEBUG", default=False))
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'e1r3p14']
-
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(' ')
 
 # Application definition
 
@@ -107,7 +106,8 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-	"https://localhost:3000"
+	"https://localhost:3000",
+	"https://api.intra.42.fr",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
