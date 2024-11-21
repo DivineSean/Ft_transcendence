@@ -4,6 +4,7 @@ certs
 env
 
 .DS_Store
+.bash_history
 
 # Ignore static files
 static/

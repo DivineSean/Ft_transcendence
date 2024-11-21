@@ -7,9 +7,8 @@ import { Clock } from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef } from 'react';
 
-let vars = false;
 let dt = 1;    ////added for debugging purpose
-const Pong = ({ websocket, player, stats }) => {
+const Pong = ({ websocket, player, ready }) => {
 	const sm = useRef(null);
 	const loaderRef = useRef(null);
 	const loaderTRef = useRef(null);
@@ -51,7 +50,6 @@ const Pong = ({ websocket, player, stats }) => {
 		]
 		// playersRef.current = players;
 		// ballRef.current = ball;
-		let ready = false;
 		let lastServerBallUpdate = Date.now();
 		// override ws onmessage
 		websocket.onmessage = (event) => {
