@@ -10,10 +10,11 @@ class Ball {
 		this.loader = loader;
         this.boundingSphere = undefined;
 		this.player = player;
+		this.radius = 0;
 
         this.x = 42;
         // this.y = 6;
-		this.y = 5;
+		this.y = -23.5;
         this.z = -20;
 
         this.dx = 0;
@@ -25,13 +26,14 @@ class Ball {
 	{
 		this.x = 42 * sign;
 		// this.y = 6;
-		this.y = 5;
+		this.y = net.boundingBox.max.y;
 		this.z = -20 * sign;
 		
 		this.dx = 0;
 		this.dy = 0;
 		this.dz = 0;
 
+		this.isServed = false;
 		const data = {
 			'message': {
 				'content': 'ball',
@@ -52,7 +54,7 @@ class Ball {
         if (!this.model || !net.boundingBox || !table.boundingBoxTable || !this.boundingSphere || !player1.boundingBox)
             return;
 		this.dy -= G;
-
+		let flag = false;
 		//serve 
 		if (this.y < -36 && this.x < 0 && player === 2) this.serve(ws, net, 1);
 		else if (this.y < -36 && this.x > 0 && player === 1) this.serve(ws, net, -1);
@@ -64,40 +66,66 @@ class Ball {
 			this.dy *= -0.6;
 		}
 		if (this.boundingSphere.intersectsBox(net.boundingBox)) {	
-			player1.netshoot(this, net, ws);
+			player1.netshoot(this, net, ws, player);
+			flag = true;
 		}
 		// Paddles
 		if (this.boundingSphere.intersectsBox(player1.boundingBox) && player1.rotating) {
 			player1.shoot(net, keyboard, this, dt);
+			flag = true;
 		}
 		else if (this.boundingSphere.intersectsBox(player1.boundingBox) && !player1.rotating)
 		{
 			player1.hit(this, ws);
+			flag = true;
 		}
 
-
 		// Movement
+		if (flag)
+		{
+			const data = {
+				'message': {
+					'content': 'ball',
+					'ball': {
+						x: this.x,
+						y: this.y,
+						z: this.z,
+						dx: this.dx,
+						dy: this.dy,
+						dz: this.dz,
+						dt: dt,
+					}
+				}
+			}
+			ws.send(JSON.stringify(data));
+		}
+		
 		this.x += this.dx * dt;
 		this.y += this.dy * dt;
 		this.z += this.dz * dt;
+		
 
 		this.model.position.set(this.x, this.y, this.z);
 		const box = new THREE.Box3().setFromObject(this.model);
 		const center = box.getCenter(new THREE.Vector3());
-		const radius = box.getSize(new THREE.Vector3()).length() / 2;
-		this.boundingSphere = new THREE.Sphere(center, radius - 0.5);
+		this.radius = box.getSize(new THREE.Vector3()).length() / 2;
+		this.boundingSphere = new THREE.Sphere(center, this.radius - 0.5);
 
+		// const help = new THREE.Box3Helper(box, 0x50C878);
+		// this.scene.add(help);
 		// this.boundingSphere.set(this.model.position.center, this.model.position.radius + 0.5);
 		
 	}
 
-	updatePos()
+	updatePos(dt)
 	{
-		this.model.position.set(this.x, this.y, this.z);
-		const box = new THREE.Box3().setFromObject(this.model);
-		const center = box.getCenter(new THREE.Vector3());
-		const radius = box.getSize(new THREE.Vector3()).length() / 2;
-		this.boundingSphere = new THREE.Sphere(center, radius - 0.5);
+		// const clock = performance.now() / 1000;
+		// const fixedStep = 0.015; // 15ms
+		// let dts = fixedStep * 1000;
+		// this.x += this.dx * dts;
+		// this.y += this.dy * dts;
+		// this.z += this.dz * dts;
+		this.model.position.set(this.x , this.y, this.z);
 	}
 
 	async render() {
@@ -118,8 +146,8 @@ class Ball {
 		// Optional: Dynamic bounding sphere calculation
 		const box = new THREE.Box3().setFromObject(this.model);
 		const center = box.getCenter(new THREE.Vector3());
-		const radius = box.getSize(new THREE.Vector3()).length() / 2;
-		this.boundingSphere = new THREE.Sphere(center, radius);
+		this.radius = box.getSize(new THREE.Vector3()).length() / 2;
+		this.boundingSphere = new THREE.Sphere(center, this.radius);
 		
 		// If you want to visualize the bounding box for debugging
 		// const help = new THREE.Box3Helper(box, 0x50C878);

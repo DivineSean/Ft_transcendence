@@ -318,6 +318,7 @@ class Paddle {
 	
 	shoot(net, keyboard, ball, dt)
 	{
+		ball.isServed = true;
 		if (this.player === 1) {
 			ball.x = this.boundingBox.min.x - 1;
 		} else {
@@ -326,124 +327,131 @@ class Paddle {
 
 
 		let BallMaxSpeed = 0.05;
-		let power = 0.02;
-		ball.dx = Math.min(Math.abs(ball.dx) + 0.05, BallMaxSpeed);
-		ball.dx *= -this.player; // Reverse direction based on player
-	
-		ball.dy = power;
-		// if (this.player === -1)
-		// 	ball.y = net.boundingBox.max.y + 3;
-		// else
+		let power = 0.025;
+
+		if (keyboard[this.controls.up] && this.rotating){
+			BallMaxSpeed = 0.06;
+			power = 0.03;
+		}
+		else if (keyboard[this.controls.down] && this.rotating){
+			BallMaxSpeed = 0.04;
+		}
+
+		ball.dx = (Math.min(Math.abs(ball.dx) + 0.05, BallMaxSpeed));
+		ball.dy = power; 
+		ball.dx *= -this.player; 
 		ball.y = net.boundingBox.max.y + 2;
-		//Player one can shot left properly
 
 		if (keyboard[this.controls.left] && this.rotating){
 			//Medium Range
-			if (this.z > 12)
+			if (this.player === 1)
 			{
-				ball.dz = 0.032 * this.player;
+				if (this.z < -12)
+				{
+					ball.dz = 0.032;
+					console.log(this.z);
+					console.log("1");
+				}
+				else if (this.z < 0)
+				{
+					ball.dz = 0.016;
+				}
+				else if (this.z >= 0)
+				{
+					ball.dz = 0.010;
+				}
+				else if (this.z > 12)
+				{
+					ball.dz = 0.006;
+				}
 			}
-			else if (this.z > 0)
+			else if (this.player === -1)
 			{
-				ball.dz = 0.016 * this.player;
-			}
-			else if (this.z < 0 && this.z > -12)
-			{
-				ball.dz = 0.008 * this.player;
-			}
-			else {
-				ball.dz = 0.004 * this.player;
-			}
-		}
-		if (keyboard[this.controls.right] && this.rotating){
-			 //medium range
-			if (this.z > 12)
-			{
-				ball.dz = -0.004 * this.player;
-			}
-			else if (this.z > 0)
-			{
-				ball.dz = -0.008 * this.player;
-			}
-			else if (this.z < 0 && this.z > -12)
-			{
-				ball.dz = -0.016 * this.player;
-			}
-			else {
-				ball.dz = -0.032 * this.player;
-			}
-		}
-
-		const data = {
-			'message': {
-				'content': 'ball',
-				'ball': {
-					x: ball.x,
-					y: ball.y,
-					z: ball.z,
-					dx: ball.dx,
-					dy: ball.dy,
-					dz: ball.dz,
+				if (this.z > 12)
+				{
+					ball.dz = -0.032;
+				}
+				else if (this.z >= 0)
+				{
+					ball.dz = -0.016;
+				}
+				else if (this.z < 0)
+				{
+					ball.dz = -0.010;
+				}
+				else if (this.z < -12)
+				{
+					ball.dz = -0.006;
 				}
 			}
 		}
-		this.ws.send(JSON.stringify(data));
+		else if (keyboard[this.controls.right] && this.rotating){
+			 //medium range
+			if (this.player === -1)
+				{
+					if (this.z < -12)
+					{
+						ball.dz = 0.032;
+					}
+					else if (this.z < 0)
+					{
+						ball.dz = 0.016;
+					}
+					else if (this.z >= 0)
+					{
+						ball.dz = 0.010;
+					}
+					else if (this.z > 12)
+					{
+						ball.dz = 0.006;
+					}
+			}
+			else if (this.player === 1)
+				{
+					if (this.z > 12)
+					{
+						ball.dz = -0.032;
+					}
+					else if (this.z >= 0)
+					{
+						ball.dz = -0.016;
+					}
+					else if (this.z < 0)
+					{
+						ball.dz = -0.010;
+					}
+					else if (this.z < -12)
+					{
+						ball.dz = -0.006;
+					}
+			}
+		}
+		else ball.dz = (Math.abs(this.z - 24) / 10000) * this.player;
 	}
 
-	netshoot(ball, net, ws)
+	netshoot(ball, net, ws, player)
 	{
-		if (ball.x > 0 && this.player === -1 || ball.x < 0 && this.player === 1)
-			return;
 		ball.dx = Math.min(Math.abs(ball.dx) + 0.05, 0.01);
-		
-		if (this.player === -1) {
-			ball.x = net.boundingBox.min.x - 1;//-0.5
+		if (ball.x < net.boundingBox.min.x + ball.radius) {
+			ball.x = net.boundingBox.min.x - ball.radius;
 			ball.dx *= -1;
-		} else {
-			ball.x = net.boundingBox.max.x + 1;//0.5
+		} 
+		else if (ball.x > net.boundingBox.max.x - ball.radius) {
+			ball.x = net.boundingBox.max.x + ball.radius;
+			ball.dx *= 1;
 		}
-
-		const data = {
-			'message': {
-				'content': 'ball',
-				'ball': {
-					x: ball.x,
-					y: ball.y,
-					z: ball.z,
-					dx: ball.dx,
-					dy: ball.dy,
-					dz: ball.dz,
-				}
-			}
-		}
-		ws.send(JSON.stringify(data));
 	}
 
 	hit(ball, ws)
 	{
 		if (this.player === 1) {
-			ball.x = this.boundingBox.min.x - 1;
+			ball.x = this.boundingBox.min.x - ball.radius;
 		} else {
-			ball.x = this.boundingBox.max.x + 1;
+			ball.x = this.boundingBox.max.x + ball.radius;
 		}
 
 		ball.dx = Math.min(Math.abs(ball.dx) + 0.05, 0.01);
 		ball.dx *= -this.player;
-
-		const data = {
-			'message': {
-				'content': 'ball',
-				'ball': {
-					x: ball.x,
-					y: ball.y,
-					z: ball.z,
-					dx: ball.dx,
-					dy: ball.dy,
-					dz: ball.dz,
-				}
-			}
-		}
-		ws.send(JSON.stringify(data));
 	}
 
 	updatePos() {
