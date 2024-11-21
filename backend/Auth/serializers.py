@@ -15,6 +15,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 		instance.save()
 		return instance
 
+class PasswordUpdateSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True, required=True)
+
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data['new_password'])
+        instance.save()
+        return instance
+
 class RegisterOAuthSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Users

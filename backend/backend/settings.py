@@ -16,7 +16,12 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'saadouledlafqui@gmail.com'
+EMAIL_HOST_PASSWORD = 'xjvs ffzm kpfi mzlq'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -43,6 +48,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
 	'rest_framework_simplejwt',
+	'rest_framework_simplejwt.token_blacklist',
     'channels',
     'Auth',
     'games',
@@ -96,12 +102,12 @@ SIMPLE_JWT = {
 
 CSRF_TRUSTED_ORIGINS = [
 	'https://localhost:3000',
+	'https://localhost:8000',
     "https://e1r3p14:3000",
 ]
 
 CORS_ALLOWED_ORIGINS = [
 	"https://localhost:3000",
-    "https://e1r3p14:3000",
 	"https://api.intra.42.fr",
 ]
 
@@ -140,10 +146,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = 'backend.asgi.application'
 
-# WARNING: This is temporary, redis should be used later on
+REDIS_CONNECTION = {
+    'host': os.environ.get("REDIS_HOST"),
+    'port': os.environ.get("REDIS_PORT"),
+    'db': 1,
+    'password': os.environ.get("REDIS_PASSWORD"),
+}
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [f"redis://:{REDIS_CONNECTION['password']}@{REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/0"],
+        },
     }
 }
 
@@ -215,9 +230,3 @@ AUTH_USER_MODEL = 'Auth.Users'
 
 # email configurations
 EMAIL_BACKEND =	'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = 'transcendence'
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")

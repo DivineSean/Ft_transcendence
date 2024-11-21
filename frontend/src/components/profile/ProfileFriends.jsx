@@ -1,4 +1,4 @@
-import { IoSearchSharp, IoSearchOutline } from "react-icons/io5";
+import { IoSearchOutline } from "react-icons/io5";
 import { TiThMenu } from "react-icons/ti";
 
 const Friends = () => {
@@ -6,7 +6,7 @@ const Friends = () => {
         <div className="flex h-[72px] w-full gap-16 p-8 items-center justify-between  secondary-glass-friends">
             <div className="flex gap-16">
                 <img 
-                    src="images/profile.png" 
+                    src="/images/profile.png" 
                     alt="Friend Personal image"
                     className="flex rounded-full w-[56px] h-[56px]"
                 />

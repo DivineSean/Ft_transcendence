@@ -17,23 +17,32 @@ class Paddle {
 		this.model = undefined;
 		this.shadow = undefined;
 		this.boundingBox = undefined;
-		this.chargeBar = undefined;
-		this.outerBar = undefined;
 
 
 		this.x = position.x;
 		this.y = position.y;
 		this.z = position.z;
 
-		if (this.player === -1) {
-			this.rotationX = Math.PI / 2;
+		if (this.player === -1){
+			//OLD
+			// this.rotationX = Math.PI / 2;
+			// this.rotationZ = Math.PI / 2;
+			//NEW
+			this.rotationX = -Math.PI;
 			this.rotationZ = Math.PI / 2;
 		}
-		else {
-			this.rotationX = -Math.PI / 2;
+		else
+		{
+			//OLD
+			// this.rotationX = -Math.PI / 2;
+			// this.rotationZ = -Math.PI / 2;
+			//NEW
+			this.rotationX = 0;
 			this.rotationZ = -Math.PI / 2;
 		}
 		this.rotationY = 0;
+		// this.rotationX = Math.PI / 2;
+		// this.rotationZ = -Math.PI / 2;
 
 		this.dx = 0.0;
 		this.dy = 0.0;
@@ -62,7 +71,9 @@ class Paddle {
 			if (keyboard[this.controls.left] && !this.rotating) {
 				this.dz += 0.008 * this.player;
 				this.z = this.z + this.dz * dt;
-				this.rotationX = Math.PI / 2;
+				// this.rotationX = Math.PI / 2;
+				// this.rotationZ = Math.PI / 2;
+				this.rotationX = 0;
 				this.rotationZ = Math.PI / 2;
 				this.rotationY = 0;
 				this.left = false;
@@ -71,7 +82,9 @@ class Paddle {
 			if (keyboard[this.controls.right] && !this.rotating) {
 				this.dz -= 0.008 * this.player;
 				this.z = this.z + this.dz * dt;
-				this.rotationX = -Math.PI / 2;
+				// this.rotationX = -Math.PI / 2;
+				// this.rotationZ = Math.PI / 2;
+				this.rotationX = -Math.PI;
 				this.rotationZ = Math.PI / 2;
 				this.rotationY = 0;
 				this.left = true;
@@ -94,7 +107,9 @@ class Paddle {
 			if (keyboard[this.controls.right] && !this.rotating) {
 				this.dz -= 0.008 * this.player;
 				this.z = this.z + this.dz * dt;
-				this.rotationX = -Math.PI / 2;
+				// this.rotationX = -Math.PI / 2;
+				// this.rotationZ = -Math.PI / 2;
+				this.rotationX = 0;
 				this.rotationZ = -Math.PI / 2;
 				this.rotationY = 0;
 				this.left = false;
@@ -104,7 +119,9 @@ class Paddle {
 			if (keyboard[this.controls.left] && !this.rotating) {
 				this.dz += 0.008 * this.player;
 				this.z = this.z + this.dz * dt;
-				this.rotationX = Math.PI / 2;
+				// this.rotationX = Math.PI / 2;
+				// this.rotationZ = -Math.PI / 2;
+				this.rotationX = Math.PI;
 				this.rotationZ = -Math.PI / 2;
 				this.rotationY = 0;
 				this.left = true;
@@ -182,7 +199,7 @@ class Paddle {
 		if (!this.left && !this.right)
 			return;
 		this.rotating = true;
-		const rotationDuration = 300;
+		const rotationDuration = 200;
 		const initialRotationY = this.rotationY; // Current rotation around Y axis
 		const initialRotationZ = this.rotationZ; // Current rotation around X axis
 		const initialRotationX = this.rotationX;
@@ -190,23 +207,41 @@ class Paddle {
 		let targetRotationY;
 		let targetRotationX = undefined;
 
-		if (this.left) {
-			targetRotationY = initialRotationY - Math.PI / 4; // Rotate 45 degrees to the left
+		if (this.left){
+			if (this.player === -1)
+			{
+				targetRotationY = initialRotationY - Math.PI / 4; // Rotate 45 degrees to the left
+			}
+			else targetRotationY = initialRotationY + Math.PI / 4; // Rotate 45 degrees to the left
 			targetRotationZ = initialRotationZ + Math.PI / 8; // Rotate 22.5 degrees around X
-			if (this.ball.y > this.boundingBox.max.y) {
-				this.rotationX = 0;
-				if (this.player === -1) {
-					this.rotationX = -10;
-					targetRotationX = initialRotationX + Math.PI / 2;
-				}
+			if (this.ball.y > this.boundingBox.max.y)
+			{
+				this.rotationY = 0;
+				this.rotationX = Math.PI / 2;
+				this.rotationZ = -Math.PI / 2;
+
+				// this.rotationX = 0;
+				// if (this.player === -1)
+				// {
+				// 	this.rotationX = -10;
+				// 	targetRotationX = initialRotationX + Math.PI / 2;
+				// }
 			}
 		}
-		else if (this.right) {
-			targetRotationY = initialRotationY + Math.PI / 4; // Rotate 45 degrees to the right
+		else if (this.right){
+			if (this.player === -1)
+			{
+				targetRotationY = initialRotationY - Math.PI / 4; // Rotate 45 degrees to the right
+			}
+			else targetRotationY = initialRotationY + Math.PI / 4; // Rotate 45 degrees to the right
 			targetRotationZ = initialRotationZ + Math.PI / 8; // Rotate 22.5 degrees around X
-			if (this.ball.y > this.boundingBox.max.y) {
-				this.rotationX = -10;
-				targetRotationX = initialRotationX + Math.PI / 2;
+			if (this.ball.y > this.boundingBox.max.y)
+			{
+				this.rotationY = 0;
+				this.rotationX = Math.PI / 2;
+				this.rotationZ = -Math.PI / 2;
+				// this.rotationX = -10;
+				// targetRotationX = initialRotationX + Math.PI / 2;
 			}
 		}
 		const start = Date.now();
@@ -234,7 +269,7 @@ class Paddle {
 
 
 	resetPaddleRotation(initialRotationY, initialRotationZ, initialRotationX) {
-		const resetDuration = 200;
+		const resetDuration = 100;
 		const start = Date.now();
 
 		const animateReset = () => {
@@ -274,92 +309,143 @@ class Paddle {
 		};
 		animateReset();
 	}
+	
+	shoot(net, keyboard, ball, dt)
+	{
+		ball.isServed = true;
+		if (this.player === 1) {
+			ball.x = this.boundingBox.min.x - 1;
+		} else {
+			ball.x = this.boundingBox.max.x + 1;
+		}
 
 
-	shoot(net, keyboard, ball, dt) {
 		let BallMaxSpeed = 0.05;
-		let power = 0.02;
-		ball.dx = Math.min(Math.abs(ball.dx) + 0.05, BallMaxSpeed);
-		ball.dx *= -this.player; // Reverse direction based on player
+		let power = 0.025;
 
-		ball.dy = power;
+		if (keyboard[this.controls.up] && this.rotating){
+			BallMaxSpeed = 0.06;
+			power = 0.03;
+		}
+		else if (keyboard[this.controls.down] && this.rotating){
+			BallMaxSpeed = 0.04;
+		}
+
+		ball.dx = (Math.min(Math.abs(ball.dx) + 0.05, BallMaxSpeed));
+		ball.dy = power; 
+		ball.dx *= -this.player; 
 		ball.y = net.boundingBox.max.y + 2;
 
 		if (keyboard[this.controls.left] && this.rotating) {
 			//Medium Range
-			if (this.player === -1)
-				console.log("right", this.z);
-			else
-				console.log("left", this.z);
-			if (this.z > 12) {
-				ball.dz = 0.032 * this.player;
+			if (this.player === 1)
+			{
+				if (this.z < -12)
+				{
+					ball.dz = 0.032;
+					console.log(this.z);
+					console.log("1");
+				}
+				else if (this.z < 0)
+				{
+					ball.dz = 0.016;
+				}
+				else if (this.z >= 0)
+				{
+					ball.dz = 0.010;
+				}
+				else if (this.z > 12)
+				{
+					ball.dz = 0.006;
+				}
 			}
-			else if (this.z > 0) {
-				ball.dz = 0.016 * this.player;
-			}
-			else if (this.z < 0 && this.z > -12) {
-				ball.dz = 0.008 * this.player;
-			}
-			else {
-				ball.dz = 0.004 * this.player;
-			}
-		}
-		if (keyboard[this.controls.right] && this.rotating) {
-			//medium range
-			if (this.player === -1)
-				console.log("left", this.z);
-			else
-				console.log("right", this.z);
-			if (this.z > 12) {
-				ball.dz = -0.004 * this.player;
-			}
-			else if (this.z > 0) {
-				ball.dz = -0.008 * this.player;
-			}
-			else if (this.z < 0 && this.z > -12) {
-				ball.dz = -0.016 * this.player;
-			}
-			else {
-				ball.dz = -0.032 * this.player;
-			}
-		}
-
-		const data = {
-			'type': 'update',
-			'message': {
-				'content': 'ball',
-				'ball': {
-					x: ball.x,
-					y: ball.y,
-					z: ball.z,
-					dx: ball.dx,
-					dy: ball.dy,
-					dz: ball.dz,
+			else if (this.player === -1)
+			{
+				if (this.z > 12)
+				{
+					ball.dz = -0.032;
+				}
+				else if (this.z >= 0)
+				{
+					ball.dz = -0.016;
+				}
+				else if (this.z < 0)
+				{
+					ball.dz = -0.010;
+				}
+				else if (this.z < -12)
+				{
+					ball.dz = -0.006;
 				}
 			}
 		}
-		this.ws.send(JSON.stringify(data));
+		else if (keyboard[this.controls.right] && this.rotating){
+			 //medium range
+			if (this.player === -1)
+				{
+					if (this.z < -12)
+					{
+						ball.dz = 0.032;
+					}
+					else if (this.z < 0)
+					{
+						ball.dz = 0.016;
+					}
+					else if (this.z >= 0)
+					{
+						ball.dz = 0.010;
+					}
+					else if (this.z > 12)
+					{
+						ball.dz = 0.006;
+					}
+			}
+			else if (this.player === 1)
+				{
+					if (this.z > 12)
+					{
+						ball.dz = -0.032;
+					}
+					else if (this.z >= 0)
+					{
+						ball.dz = -0.016;
+					}
+					else if (this.z < 0)
+					{
+						ball.dz = -0.010;
+					}
+					else if (this.z < -12)
+					{
+						ball.dz = -0.006;
+					}
+			}
+		}
+		else ball.dz = (Math.abs(this.z - 24) / 10000) * this.player;
 	}
 
-	hit(ball, ws) {
+	netshoot(ball, net, ws, player)
+	{
+		ball.dx = Math.min(Math.abs(ball.dx) + 0.05, 0.01);
+		if (ball.x < net.boundingBox.min.x + ball.radius) {
+			ball.x = net.boundingBox.min.x - ball.radius;
+			ball.dx *= -1;
+		} 
+		else if (ball.x > net.boundingBox.max.x - ball.radius) {
+			ball.x = net.boundingBox.max.x + ball.radius;
+			ball.dx *= 1;
+		}
+	}
+
+	hit(ball, ws)
+	{
+		if (this.player === 1) {
+			ball.x = this.boundingBox.min.x - ball.radius;
+		} else {
+			ball.x = this.boundingBox.max.x + ball.radius;
+		}
+
 		ball.dx = Math.min(Math.abs(ball.dx) + 0.05, 0.01);
 		ball.dx *= -this.player;
-
-		const data = {
-			'type': 'update',
-			'message': {
-				'content': 'ball',
-				'ball': {
-					x: ball.x,
-					y: ball.y,
-					z: ball.z,
-					dx: ball.dx,
-					dy: ball.dy,
-					dz: ball.dz,
-				}
-			}
-		}
-		ws.send(JSON.stringify(data));
 	}
 
 	updatePos() {
@@ -368,20 +454,20 @@ class Paddle {
 	}
 
 	async render() {
-		this.model = await this.loader.loadAsync(`https://${window.location.hostname}:3000/src/games/pong/Paddles2.glb`)
-			.then(data => data.scene.children[0]);
-		this.model.position.set(this.x, this.y, this.z);
+		this.model = await this.loader.loadAsync(`https://${window.location.hostname}:3000/src/games/pong/Paddle.glb`)
+            .then(data => data.scene.children[0]);
+        this.model.position.set(this.x, this.y, this.z);
 		this.model.rotation.set(this.rotationX, this.rotationY, this.rotationZ);
-		this.model.traverse(child => {
-			if (child.isMesh) {
-				child.castShadow = true; // Enable shadow casting
-				child.receiveShadow = false; // Typically, nets don’t receive shadows
-			}
-		});
-		this.scene.add(this.model);
+        this.model.traverse(child => {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+            }
+        });
+        this.scene.add(this.model);
 
-		// collision
-		this.boundingBox = new THREE.Box3().setFromObject(this.model);
+        // collision
+        this.boundingBox = new THREE.Box3().setFromObject(this.model);
 	}
 }
 

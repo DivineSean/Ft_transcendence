@@ -8,7 +8,7 @@ export class Net {
         this.model = undefined;
         this.boundingBox = undefined;
         this.x = 0;
-        this.y = 2.75;
+        this.y = -26;
         this.z = 0;
     }
 
@@ -24,9 +24,14 @@ export class Net {
             }
         });
         this.scene.add(this.model);
-        const min = new THREE.Vector3(-0.5, 0, -26);
-        const max = new THREE.Vector3(0.5, 4.75, 26);
+        const min = new THREE.Vector3(-0.5, -29, -27);
+        const max = new THREE.Vector3(0.5, -23.5, 27);
         this.boundingBox = new THREE.Box3(min, max);
+
+        // this.boundingBox = new THREE.Box3().setFromObject(this.model);
+        // this.boundingBox.y.max -= 0.2;
+        const help = new THREE.Box3Helper(this.boundingBox, 0x008039);
+        this.scene.add(help);
     }
 }
 export default Net;

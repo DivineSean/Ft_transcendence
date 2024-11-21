@@ -7,19 +7,25 @@ import { Clock } from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState } from 'react';
 
-const Pong = ({ websocket, player }) => {
+let dt = 1;    ////added for debugging purpose
+const Pong = ({ websocket, player, ready }) => {
 	const sm = useRef(null);
 	const loaderRef = useRef(null);
+	const loaderTRef = useRef(null);
+	const loaderBRef = useRef(null);
 	const keyboard = useRef({});
 	const [ready, setReady] = useState(false)
 
 	console.log('ready: ', ready);
 	useEffect(() => {
-		sm.current = new SceneManager(player == 2 ? -1 : 1);
-		const table = new Table(sm.current.scene);
+		loaderTRef.current = new GLTFLoader();
 		loaderRef.current = new GLTFLoader();
+		loaderBRef.current = new GLTFLoader();
+		sm.current = new SceneManager(player == 2 ? -1 : 1);
+		// let factor = sm.current.camera.aspect / aspect;
+		const table = new Table(sm.current.scene, loaderTRef.current);
 		const net = new Net(sm.current.scene, loaderRef.current);
-		const ball = new Ball(sm.current.scene);
+		const ball = new Ball(sm.current.scene, loaderBRef.current, player);
 		const controls = {
 			up: "ArrowUp",
 			down: "ArrowDown",
@@ -32,13 +38,12 @@ const Pong = ({ websocket, player }) => {
 
 
 		const players = [
-			new Paddle(websocket, sm.current.scene, 1, { x: 37, y: 2.5, z: 12 }, controls, loaderRef.current, ball),
-			new Paddle(websocket, sm.current.scene, -1, { x: -37, y: 2.5, z: -12 }, controls, loaderRef.current, ball)
+			new Paddle(websocket, sm.current.scene, 1, { x: 43, y: -25.5, z: 12}, controls, loaderRef.current, ball),
+			new Paddle(websocket, sm.current.scene, -1, { x: -43 , y: -25.5 , z: -12 }, controls, loaderRef.current, ball)
 		]
 		// playersRef.current = players;
 		// ballRef.current = ball;
 		let lastServerBallUpdate = Date.now();
-
 		// override ws onmessage
 		websocket.onmessage = (event) => {
 			// console.log(event);
@@ -78,40 +83,67 @@ const Pong = ({ websocket, player }) => {
 				ball.dx = msg.message.ball.dx;
 				ball.dy = msg.message.ball.dy;
 				ball.dz = msg.message.ball.dz;
-
-				ball.model.position.set(ball.x, ball.y, ball.z);
-				ball.boundingSphere.set(ball.model.position, 0.5);
+				ball.updatePos(dt);
 			}
 		}
-
+		sm.current.render();
 		table.render();
 		net.render();
 		ball.render();
 		players[0].render();
 		players[1].render();
 
-		const clock = new Clock();
-		const animate = () => {
-			if (!ready) return;
+		// const clock = new Clock();
+		// const animate = () => {
+		// 	if (!stats ) return;
 
+		// 	dt = clock.getDelta() * 1000;
+
+		// 	table.update();
+
+		// 	// Interpolation logic: Smooth out ball position between updates
+
+
+		// 	const now = Date.now();
+		// 	const timeSinceLastUpdate = now - lastServerBallUpdate;
+		// 	if (timeSinceLastUpdate < 100) {
+		// 		// Interpolate ball position based on last known velocity
+		// 		ball.x += ball.dx * (dt / 1000);
+		// 		ball.y += ball.dy * (dt / 1000);
+		// 		ball.z += ball.dz * (dt / 1000);
+		// 	}
+
+		// 	ball.update(net, table, players[player - 1], websocket, dt, player, keyboard.current);
+		// 	players[player - 1].update(keyboard.current, ball, websocket, dt);
+		// 	sm.current.renderer.render(sm.current.scene, sm.current.camera);
+		// }
+
+		let simulatedTime = performance.now() / 1000;
+		const fixedStep = 0.015; // 15ms
+		const clock = new Clock();
+
+		function animate() {
+			if (!stats ) return;
+			const timeNow = performance.now() / 1000;
 			let dt = clock.getDelta() * 1000;
 
 			table.update();
-
-			// Interpolation logic: Smooth out ball position between updates
-			const now = Date.now();
-			const timeSinceLastUpdate = now - lastServerBallUpdate;
-			if (timeSinceLastUpdate < 100) {
-				// Interpolate ball position based on last known velocity
-				ball.x += ball.dx * (dt / 1000);
-				ball.y += ball.dy * (dt / 1000);
-				ball.z += ball.dz * (dt / 1000);
+			while (timeNow > simulatedTime + fixedStep) {
+				ball.update(net, table, players[player - 1], websocket, fixedStep * 1000, player, keyboard.current);
+				simulatedTime += fixedStep;
 			}
-
-			ball.update(net, table, players[player - 1], websocket, dt, player, keyboard.current);
+			
+			const alpha = (timeNow - simulatedTime) / fixedStep;
+			ball.x += ball.dx * alpha * fixedStep;
+			ball.y += ball.dy * alpha * fixedStep;
+			ball.z += ball.dz * alpha * fixedStep;
+			
 			players[player - 1].update(keyboard.current, ball, websocket, dt);
 			sm.current.renderer.render(sm.current.scene, sm.current.camera);
+
 		}
+
+
 		sm.current.renderer.setAnimationLoop(animate);
 		const handleKeyDown = (event) => {
 			if (players[player - 1].rotating) return;
@@ -122,13 +154,25 @@ const Pong = ({ websocket, player }) => {
 			keyboard.current[event.code] = false;
 		};
 
+		const onWindowResize = () => {
+
+			sm.current.camera.aspect = window.innerWidth / window.innerHeight;
+			sm.current.camera.updateProjectionMatrix();
+
+			sm.current.renderer.setSize( window.innerWidth, window.innerHeight );
+
+		}
+
 		window.addEventListener('keydown', handleKeyDown);
 		window.addEventListener('keyup', handleKeyUp);
+		window.addEventListener( 'resize', onWindowResize, false);
+
 
 		return () => {
 			sm.current.cleanUp();
 			window.removeEventListener('keydown', handleKeyDown);
 			window.removeEventListener('keyup', handleKeyUp);
+			window.removeEventListener('resize', onWindowResize);
 		}
 	}, [ready])
 
