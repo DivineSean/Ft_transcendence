@@ -16,7 +16,7 @@ class   GameConsumer(WebsocketConsumer):
             game = Game.objects.get(pk=self.game_uuid)
             serializer = GameSerializer(game)
             self.game = serializer.data
-        except models.ObjectDoesNotExist or ValidationError:
+        except (models.ObjectDoesNotExist, ValidationError):
             return
 
         self.accept()
@@ -42,7 +42,7 @@ class   GameConsumer(WebsocketConsumer):
             data = json.loads(text_data)
             type = data['type']
             message = data['message']
-        except json.JSONDecodeError or KeyError:
+        except (json.JSONDecodeError, KeyError):
             return
 
         match type: 
