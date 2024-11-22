@@ -35,10 +35,9 @@ const Message = ({...props}) => {
 	}
 }
 
-const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws}) => {
+const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws, messages, setMessages}) => {
 	
 	const navigate = useNavigate();
-	const [messages, setMessages] = useState([]);
 	const [offsetMssg, setOffsetMssg] = useState(0);
 	const [isChunked, setIsChunked] = useState(false);
 	const [allMessages, setAllMessages] = useState(false);
@@ -52,18 +51,22 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws}) => {
 			getMessages(uid, setMessages, setOffsetMssg);
 	}, [uid]);
 
-	// check if there is a new message and add it to the message array state
-	useEffect(() => {
-		if (ws.current) {
-			ws.current.onmessage = (e) => {
-				const messageData = JSON.parse(e.data);
-				// check the if the data commed is a message and add the message to the message state
-				if (messageData && messageData.type === 'message') {
-					setMessages((preveMessage) => [...preveMessage, messageData]);
-				}
-			}
-		}
-	}, [ws.current]);
+
+	// // check if there is a new message and add it to the message array state
+	// useEffect(() => {
+	// 	if (ws.current) {
+	// 		ws.current.onmessage = (e) => {
+	// 			const messageData = JSON.parse(e.data);
+	// 			if (messageData && messageData.type === 'message') {
+	// 				setUpdate(messageData);
+	// 				console.log('hello man');
+	// 				if (messageData.convId === uid) {
+	// 					setMessages((preveMessage) => [...preveMessage, messageData]);
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }, [ws.current, uid]);
 
 	// check if a new message has been added and scroll down to the last message
 	useEffect(() => {
@@ -75,33 +78,31 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws}) => {
 		}
 	}, [messages.length]);
 
+
+
 	const handleConversationScroll = () => {
 		if (topScrollRef.current) {
 			if (topScrollRef.current.scrollTop === 0 && offsetMssg !== 0) {
 				topScrollRef.current.scrollBy({top: 15, behavior: 'smooth'});
-				getChunkedMessages(
-					uid,
-					setMessages,
-					offsetMssg,
-					setOffsetMssg,
-					setIsChunked,
-					setAllMessages
-				);
+				getChunkedMessages(uid, setMessages, offsetMssg, setOffsetMssg, setIsChunked, setAllMessages);
 			}
 		}
 	}
+
+
 
 	// send a message into a ws
 	const sendMessage = (e) => {
 		e.preventDefault();
 		
 		if (ws.current && e.target.message.value.trim()) {
+			// console.log('uid', uid);
 			ws.current.send(JSON.stringify({'message': e.target.message.value, 'convId': uid}))
 			setAllMessages(false);
 		}
 		e.target.reset();
 	}
-	
+
 	if (messages && messages.length) {
 		messages.map(message => {
 			conversation.push(

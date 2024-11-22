@@ -13,7 +13,7 @@ class Chat(WebsocketConsumer):
 		def connect(self):
 				#isRead = True
 				#CHeck if user in the conversation 
-				self.room_name = self.scope['url_route']['kwargs']['room_name']
+				self.room_name = self.scope['url_route']['kwargs']
 				
 				# self.room_name = self.get_room() #expects UID 
 				# print(f'------> rooom name: {self.room_name.ConversationId}', flush=True)
@@ -74,7 +74,7 @@ class Chat(WebsocketConsumer):
 										"convId": str(self.convName),
 										"message": msg.message,
 										"messageId": str(msg.MessageId),
-										"sender": self.scope['user'].id, 
+										"sender": self.scope['user'],
 										"timestamp": str(msg.timestamp.strftime('%b %d, %H:%M'))
 										# "timestamp": str(msg.timestamp.strftime('%H:%M'))
 								}
@@ -83,12 +83,14 @@ class Chat(WebsocketConsumer):
 		def chat_message(self, event):
 				
 				self.send(text_data=json.dumps({
-						"type": "message",
-						"message": event['message'],
-						"convId": event['convId'],
-						"messageId": event['messageId'],
-						"isSender": event["sender"] == self.scope['user'].id,
-						"timestamp": event["timestamp"]
+						"type"			: "message",
+						"message"		: event['message'],
+						"convId"		: event['convId'],
+						"messageId"	: event['messageId'],
+						"isSender"	: event['sender'].id == self.scope['user'].id,
+						"firstName"	: self.scope['user'].first_name if event["sender"].id != self.scope['user'].id else event['sender'].first_name,
+						"lastName"	: self.scope['user'].last_name if event["sender"].id != self.scope['user'].id else event['sender'].last_name,
+						"timestamp"	: event['timestamp']
 				}))
 
 		def get_user(self):

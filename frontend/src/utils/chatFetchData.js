@@ -8,7 +8,7 @@ export const getConversations = async (setData, setGlobalMessage, navigate) => {
 		if (res.ok) {
 			const data = await res.json();
 			setData(data);
-			console.log(data);
+			// console.log(data);
 		} else if (res.status) {
 			const data = await res.json();
 			if (res.status === 401) {

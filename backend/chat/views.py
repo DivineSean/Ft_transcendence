@@ -112,7 +112,7 @@ class GetConversationRooms(APIView):
 
 				sender_about=F('Sender__about'),
 				receiver_about=F('Receiver__about'),
-			)
+			).order_by('-latest_message_timestamp')
 		)
 		users_data = []
 		for conv in conversations:
@@ -128,7 +128,7 @@ class GetConversationRooms(APIView):
 					else conv['sender_last_login'].strftime('%b %d, %Y at %H:%M') if conv['sender_last_login'] else None
 				),
 				"about": conv['receiver_about'] if not is_receiver else conv['sender_about'],
-				"messageDate": conv['latest_message_timestamp'].strftime('%m/%d/%Y') if conv['latest_message_timestamp'] else None,
+				"messageDate": conv['latest_message_timestamp'].strftime('%b %d, %H:%M') if conv['latest_message_timestamp'] else None,
 				"lastMessage": conv['latest_message'],
 				"friendId" : conv['Sender_id'] if conv['Sender_id'] != user.id else conv['Receiver_id']
 			})
