@@ -79,7 +79,6 @@ def show_users(request):
 		
 @api_view(['POST'])
 def  callback(request):
-	print('men lwel asidi', flush=True)
 	reqBody = json.loads(request.body)
 	code = reqBody.get('code', None)
 	prompt = reqBody.get('prompt', None)
@@ -106,8 +105,6 @@ def  callback(request):
 				'redirect_uri': REDIRECT_URL,
 			}
 		)
-		
-	print('ewa 9rer asidi hal3ar', flush=True)
 
 	access_token = token_response.json().get('access_token')
 	if not access_token:
@@ -119,7 +116,6 @@ def  callback(request):
 		user_response = requests.get('https://www.googleapis.com/oauth2/v2/userinfo', headers={'Authorization': f'Bearer {access_token}'})
 		
 	response = HttpResponse(content_type='application/json')
-	print('hna kifach', flush=True)
 	if user_response.status_code == 200:
 
 		user_data = user_response.json()
@@ -133,7 +129,7 @@ def  callback(request):
 		user = Users.objects.get(email=user_data.get('email'))
 		username = user.username
 		if user.isTwoFa:
-			print('hello', flush=True)
+			print('is true am3alam', flush=True)
 			twofaOjt = CustomTokenObtainPairView()
 			two_factor_code = twofaOjt.generate_2fa_code(user, "twoFa")
 			twofaOjt.send_2fa_code(user.email, two_factor_code.code)
@@ -142,6 +138,7 @@ def  callback(request):
 			# return Response(, status=200)
 
 		else:
+			print('is false am3alam', flush=True)
 			if not username:
 				# response = HttpResponse(content_type='application/json')
 				data = {
