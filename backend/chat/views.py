@@ -17,48 +17,6 @@ from rest_framework.pagination import PageNumberPagination ,BasePagination
 
 class GetConversationRooms(APIView):
 
-
-	def getLastMsg(self, element):
-		lastMsg = None
-		try:
-			lastMsg = Message.objects.filter(ConversationName = element["ConversationID"]).order_by('-timestamp').first()
-		except:
-			return None
-		return lastMsg
-
-
-	def getFriendInfo(self):
-
-		
-		# Message.objects.create(
-
-		# 	ConversationName = Conversation.objects.get(ConversationId = '4717ee41-c2df-414f-a1d2-4fe5170718fb'),
-		# 	sender = Users.objects.get(id = '2ceb0861-ac05-49ec-996b-4990e1e9f4ca'),
-		# 	message= "Helllo",
-		# )
-		
-		
-		self.dataUser = {}
-		self.dataUser["users"] = []
-		for element in self.data["conversations"]:
-			
-			msg = self.getLastMsg(element)
-			user = Users.objects.get(id = element["friendID"])
-			
-			self.dataUser['users'].append({
-				"conversationId" : element["ConversationID"],
-				"firstName" : user.first_name,
-				"lastName" : user.last_name,
-				"lastMessage" : msg.message if msg  else None,
-				"isOnline" : user.isOnline,
-				"lastLogin" : user.last_login.strftime('%b %d, %Y at %H:%M'),
-				"username" : user.username,
-				"about" : user.about,
-				"messageDate" : msg.timestamp.strftime('%m/%d/%Y') if msg else None
-			})
-		
-				 
-
 	def get(self, request):
 		response = Response(status=200)
 		try:
@@ -114,6 +72,7 @@ class GetConversationRooms(APIView):
 				receiver_about=F('Receiver__about'),
 			).order_by('-latest_message_timestamp')
 		)
+
 		users_data = []
 		for conv in conversations:
 			is_receiver = conv['Receiver_id'] == user.id
@@ -133,90 +92,7 @@ class GetConversationRooms(APIView):
 				"friendId" : conv['Sender_id'] if conv['Sender_id'] != user.id else conv['Receiver_id']
 			})
 
-		# Message.objects.create(
-		# 	ConversationName = Conversation.objects.get(ConversationId = 'aa415cb3-78c8-4231-ac02-db9fb80df96f'),
-		# 	sender = Users.objects.get(id = 'dfcbbcfe-2cab-4d8c-9d96-88f609b0e8f9'),
-		# 	message= "Hello man",
-		# )
-
-		# print(users_data, flush=True)
 		return Response({"users": users_data}, status=200)
-
-	# def get(self, request):
-	# 	response = Response(status=200)
-	# 	try:
-	# 		user, accessToken = HttpJWTAuthMiddleWare().parseCookies(request)
-	# 		currentUserID = user.id
-	# 	except:
-	# 		return Response("Invalid Tokens", status = 400)
-
-	# 	if accessToken:     
-	# 		response.set_cookie("accessToken", accessToken, httponly=True, secure=True, samesite='Lax')
-
-	# 	self.data = {}
-	# 	self.data["users"] = []
-	# 	conversations = Conversation.objects.filter(
-	# 		Sender = user.id
-	# 	).select_related("Receiver").union(
-	# 		Conversation.objects.filter(
-	# 			Receiver = user.id
-	# 		).select_related("Sender")
-	# 	)
-	# 	latest_message_subquery = Message.objects.filter(
-	# 		ConversationName = OuterRef('ConversationId')
-	# 	).order_by('-timestamp')
-
-	# 	conversations = conversations.annotate(
-  #   	latest_message=Subquery(latest_message_subquery.values('message')[:1])
-	# 	)
-	# 	# print(lastmsg, flush =True)
-	# 	for conversation in conversations:
-	# 		friend = conversation.Sender if conversation.Receiver.id == user.id else conversation.Receiver
-			
-	# 		self.data["users"].append(
-	# 			{	
-	# 				"ConversationId" : conversation.ConversationId,
-	# 				"firstName" : friend.first_name,
-	# 				"lastName" : friend.last_name,
-	# 				"lastMessage" : conversation.latest_message if conversation.latest_message else None
-	# 			}
-	# 		)
-		
-			# print(self.data, flush=True)
-		# print(user, flush=True)
-		# try:
-		# 	print('conv1:', flush=True)
-		# 	conv1 = Conversation.objects.get(Sender = user.id)
-		# 	print(f'conv1: {conv1}', flush=True)
-		# 	self.data["conversations"].append(
-		# 		{
-		# 			"ConversationID" : conv1.ConversationId,
-		# 			"friendID" : conv1.Receiver.id,
-		# 		}
-		# 	) 
-		# except:	
-		# 	pass
-	
-		# try:
-		# 	print('conv2: ', flush=True)
-		# 	conv2 = Conversation.objects.get(Receiver = user.id)
-		# 	print(f'conv2: {conv2}', flush=True)
-		# 	self.data["conversations"].append(
-		# 		{
-		# 			"ConversationID" : conv2.ConversationId,
-		# 			"friendID" : conv2.Sender.id,
-		# 		}
-		# 	)
-		# except:
-		# 	pass
-
-		# print(f'data {self.data}', flush=True)
-		# self.getFriendInfo()
-		
-		# resData = self.dataUser
-		# response.data = {}
-		# return response
-			
 
 class SendMessage(APIView):
     def post(self,request, *args, **kwargs):
@@ -251,7 +127,7 @@ class SendMessage(APIView):
         response.data = resData
         
         return response
-    
+
 class getMessages(APIView):
 	
 	# Expecting convID, limit = how much data you want (optional => default 2,)
