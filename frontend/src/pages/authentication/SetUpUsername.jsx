@@ -30,6 +30,7 @@ const SetUpUsername = () => {
 					navigate('/home');
 				}
 			} else {
+				setGlobalMessage({message: 'invalid user', isError: true});
 				navigate('/login');
 			}
 		} catch (error) {
