@@ -6,16 +6,23 @@ from .models import Conversation, Message
 from Auth.models import Users
 from django.utils import timezone
 from asgiref.sync import async_to_sync
-
-
+from Auth.serializers import UserSerializer
+from rest_framework.serializers import ValidationError
 #Chat room name 
 class Chat(WebsocketConsumer):
 		def connect(self):
 				self.room_name = self.scope['url_route']['kwargs']
-				
+				try:
+					serializer = UserSerializer(self.scope['user'])
+					print(type(serializer), flush=True)
+					self.user = serializer.data
+				except ValidationError:
+					return 
+
+
 				# self.room_group_name =f'Conversation_' + str(self.room_name.ConversationId)
 				conversations = Conversation.objects.filter(
-					Q(Sender=self.scope["user"].id) | Q(Receiver=self.scope["user"].id))
+					Q(Sender=self.user["id"]) | Q(Receiver=self.user["id"]))
 				self.room_group_name = []
 				for element in conversations:
 
@@ -66,7 +73,7 @@ class Chat(WebsocketConsumer):
 										"convId": str(self.convName),
 										"message": msg.message,
 										"messageId": str(msg.MessageId),
-										"sender": self.scope['user'],
+										"sender": self.user,
 										"timestamp": str(msg.timestamp.strftime('%b %d, %H:%M'))
 										# "timestamp": str(msg.timestamp.strftime('%H:%M'))
 								}
@@ -79,9 +86,9 @@ class Chat(WebsocketConsumer):
 						"message"		: event['message'],
 						"convId"		: event['convId'],
 						"messageId"	: event['messageId'],
-						"isSender"	: event['sender'].id == self.scope['user'].id,
-						"firstName"	: self.scope['user'].first_name if event["sender"].id != self.scope['user'].id else event['sender'].first_name,
-						"lastName"	: self.scope['user'].last_name if event["sender"].id != self.scope['user'].id else event['sender'].last_name,
+						"isSender"	: event['sender']["id"] == self.user["id"],
+						"firstName"	: self.user["first_name"] if event["sender"]["id"] != self.user["id"] else event['sender']["first_name"],
+						"lastName"	: self.user["last_name"] if event["sender"]["id"] != self.user["id"] else event['sender']["last_name"],
 						"timestamp"	: event['timestamp']
 				}))
 
@@ -96,7 +103,7 @@ class Chat(WebsocketConsumer):
 				#Database 
 				return Message.objects.create(
 						ConversationName = self.get_room(self.convName),
-						sender=Users.objects.get(email = self.scope["user"].email),
+						sender=Users.objects.get(email = self.user["email"]),
 						message=message,
 				)
 		
