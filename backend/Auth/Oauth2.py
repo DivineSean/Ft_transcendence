@@ -53,8 +53,6 @@ def CreateUserIfNotExists(user_data):
 	else:
 		return False, data
 
-
-
 @api_view(['GET'])
 def login42(request):
 	response = HttpResponse(content_type='application/json')

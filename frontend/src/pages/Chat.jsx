@@ -47,7 +47,6 @@ const Chat = () => {
 				const messageData = JSON.parse(e.data);
 				if (messageData && messageData.type === 'message') {
 					setUpdatedConversation(messageData);
-					console.log('hello man');
 					if (uid && messageData.convId === uid) {
 						setMessages((preveMessage) => [...preveMessage, messageData]);
 					}

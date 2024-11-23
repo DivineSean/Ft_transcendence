@@ -6,7 +6,7 @@ const useAuth = () => {
 
 	const [loading, setLoading] = useState(true);
 	const navigate = useNavigate();
-	const FetchData = new FetchWrapper('https://localhost:8000/');
+	const FetchData = new FetchWrapper();
 
 	useEffect(() => {
 		const checkAuth = async () => {

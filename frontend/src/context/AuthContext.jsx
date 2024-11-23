@@ -2,16 +2,13 @@ import { createContext, useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from 'react-router-dom'
 import FetchWrapper from "../utils/fetchWrapper";
 
-
-const URL = 'https://localhost:8000/';
-
 const AuthContext = createContext();
 
 export default AuthContext;
 
 export const AuthProvider = ({children}) => {
 
-	const FetchData = new FetchWrapper(URL);
+	const FetchData = new FetchWrapper();
 	const [displayMenuGl, setDisplayMenuGl] = useState(false);
 
 	const navigate = useNavigate();

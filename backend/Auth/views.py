@@ -197,12 +197,12 @@ class CustomTokenRefreshView(TokenRefreshView):
 def logout(request):
 	
 	refresh_token = request.COOKIES.get('refreshToken')
+	# response = HttpResponseRedirect(os.environ.get("REDIRECT_URL"))
+	response = Response({"message": "Logged Out"}, status=status.HTTP_200_OK)
 
 	if refresh_token:
 		token = RefreshToken(refresh_token)
 		
-		response = HttpResponseRedirect(os.environ.get("REDIRECT_URL"))
-		response = Response({"message": "Logged Out"}, status=status.HTTP_200_OK)
 		response.delete_cookie("accessToken")
 		response.delete_cookie("refreshToken")
 		jwtObj = JWTAuthentication()
@@ -213,7 +213,10 @@ def logout(request):
 			user.save()
 			token.blacklist()
 		except:
-			pass			
+			pass
+	else:
+		response.delete_cookie("accessToken")
+		response.delete_cookie("refreshToken")
 	return response
 
 

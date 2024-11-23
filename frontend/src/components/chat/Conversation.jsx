@@ -3,37 +3,8 @@ import { IoArrowBackOutline } from "react-icons/io5";
 import { BiSolidSend } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { getChunkedMessages, getMessages } from "../../utils/chatFetchData";
-import { IoCheckmarkDone } from "react-icons/io5";
 import { useEffect, useRef, useState } from "react";
-
-
-const Message = ({...props}) => {
-	if (props.side === 'right') {
-		return (
-			<div className="flex gap-8 items-end">
-				<div className="grow"></div>
-				<div className="right-message message-glass py-8 px-12 rounded-[8px] rounded-tr-[2px] max-w-[450px] text-gray text-sm tracking-wider flex flex-col gap-4 mr-12 relative break-all">
-					{props.message}
-					<div className="flex gap-4 items-center justify-end">
-						<p className="text-xs text-stroke-sc" >{props.timestamp}</p>
-						<IoCheckmarkDone className={`text-txt-sm ${props.isRead ? 'text-green' : 'text-stroke-sc'}`}/>
-					</div>
-				</div>
-			</div>
-		)
-	} else {
-		return (
-			<div className="flex gap-8 items-end">
-				<div className="left-message message-glass py-8 px-12 rounded-[8px] rounded-tl-[2px] max-w-[450px] text-gray text-sm tracking-wider flex flex-col gap-4 ml-12 relative break-all">
-					{props.message}
-					<div className="flex gap-4 items-center justify-end">
-						<p className="text-xs text-stroke-sc" >{props.timestamp}</p>
-					</div>
-				</div>
-			</div>
-		)
-	}
-}
+import Message from "./Message";
 
 const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws, messages, setMessages}) => {
 	
@@ -51,57 +22,39 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws, messages, 
 			getMessages(uid, setMessages, setOffsetMssg);
 	}, [uid]);
 
-
-	// // check if there is a new message and add it to the message array state
-	// useEffect(() => {
-	// 	if (ws.current) {
-	// 		ws.current.onmessage = (e) => {
-	// 			const messageData = JSON.parse(e.data);
-	// 			if (messageData && messageData.type === 'message') {
-	// 				setUpdate(messageData);
-	// 				console.log('hello man');
-	// 				if (messageData.convId === uid) {
-	// 					setMessages((preveMessage) => [...preveMessage, messageData]);
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }, [ws.current, uid]);
-
 	// check if a new message has been added and scroll down to the last message
 	useEffect(() => {
+
 		if (downScrollRef.current) {
 			if (isChunked)
 				setIsChunked(false);
 			else if (!allMessages)
 				downScrollRef.current.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'end'});
 		}
+
 	}, [messages.length]);
 
-
-
 	const handleConversationScroll = () => {
+
 		if (topScrollRef.current) {
 			if (topScrollRef.current.scrollTop === 0 && offsetMssg !== 0) {
 				topScrollRef.current.scrollBy({top: 15, behavior: 'smooth'});
 				getChunkedMessages(uid, setMessages, offsetMssg, setOffsetMssg, setIsChunked, setAllMessages);
 			}
 		}
-	}
 
-
+	};
 
 	// send a message into a ws
 	const sendMessage = (e) => {
 		e.preventDefault();
 		
 		if (ws.current && e.target.message.value.trim()) {
-			// console.log('uid', uid);
 			ws.current.send(JSON.stringify({'message': e.target.message.value, 'convId': uid}))
 			setAllMessages(false);
 		}
 		e.target.reset();
-	}
+	};
 
 	if (messages && messages.length) {
 		messages.map(message => {
@@ -122,7 +75,7 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws, messages, 
 	const goToProfileSide = () => {
 		displayProfile(true);
 		hideSelf(false);
-	}
+	};
 
 	return (
 		<div className={`grow md:flex flex-col gap-32 ${uid ? 'flex' : 'hidden'}`}>

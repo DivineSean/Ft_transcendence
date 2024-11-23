@@ -11,15 +11,7 @@ from asgiref.sync import async_to_sync
 #Chat room name 
 class Chat(WebsocketConsumer):
 		def connect(self):
-				#isRead = True
-				#CHeck if user in the conversation 
 				self.room_name = self.scope['url_route']['kwargs']
-				
-				# self.room_name = self.get_room() #expects UID 
-				# print(f'------> rooom name: {self.room_name.ConversationId}', flush=True)
-				# if self.room_name == None:
-				# 		self.close()
-				# 		return
 				
 				# self.room_group_name =f'Conversation_' + str(self.room_name.ConversationId)
 				conversations = Conversation.objects.filter(

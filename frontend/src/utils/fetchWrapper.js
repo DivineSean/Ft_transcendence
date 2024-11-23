@@ -1,6 +1,6 @@
 class FetchWrapper {
-	constructor(baseUrl) {
-		this.baseUrl = baseUrl;
+	constructor() {
+		this.baseUrl = `https://${window.location.hostname}:8000/`;
 	}
 
 	async get(url) {

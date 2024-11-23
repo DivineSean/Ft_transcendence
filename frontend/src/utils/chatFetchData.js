@@ -1,6 +1,7 @@
 import FetchWrapper from "./fetchWrapper";
-const URL = 'https://localhost:8000/';
-const FetchData = new FetchWrapper(URL);
+
+
+const FetchData = new FetchWrapper();
 
 export const getConversations = async (setData, setGlobalMessage, navigate) => {
 	try {
