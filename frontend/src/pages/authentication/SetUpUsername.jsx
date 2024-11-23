@@ -18,7 +18,7 @@ const SetUpUsername = () => {
 		setGlobalMessage
 	} = useContext(AuthContext);
 	let [userData, setUserData] = useState({});
-	const FetchData = new FetchWrapper('https://localhost:8000/');
+	const FetchData = new FetchWrapper();
 
 	const getFirstLastName = async () => {
 		try {

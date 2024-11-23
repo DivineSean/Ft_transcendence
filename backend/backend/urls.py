@@ -22,4 +22,5 @@ urlpatterns = [
     path('', include("Auth.urls")),
     path('', include("chat.urls")),
     path('', include("friendship.urls")),
+		path('silk/', include('silk.urls', namespace='silk')),
 ]

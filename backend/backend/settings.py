@@ -33,7 +33,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DJANGO_DEBUG", default=False))
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'e1r3p14']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '*']
 
 
 # Application definition
@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'games',
     'matchmaking',
     'friendship',
+    'silk',
 ]
 
 REST_FRAMEWORK = {
@@ -109,7 +110,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-	"https://localhost:3000"
+	"https://localhost:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -123,6 +124,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+		'silk.middleware.SilkyMiddleware',
 ]
 
 

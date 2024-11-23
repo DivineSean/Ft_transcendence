@@ -2,95 +2,100 @@ import { IoIosInformationCircleOutline } from "react-icons/io";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { BiSolidSend } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
+import { getChunkedMessages, getMessages } from "../../utils/chatFetchData";
+import { useEffect, useRef, useState } from "react";
+import Message from "./Message";
 
-
-const Message = ({...props}) => {
-	if (props.side === 'right') {
-		return (
-			<div className="flex gap-8 items-end">
-				<div className="grow"></div>
-				<div className="message-glass p-8 rounded-[8px] rounded-br-[2px] max-w-[450px] text-gray text-sm tracking-wider">
-					{props.message}
-				</div>
-				<div className="min-w-16 min-h-16 max-w-16 object-cover max-h-16 overflow-hidden flex rounded-full">
-					<img src="/images/profile.png" alt="p" />
-				</div>
-			</div>
-		)
-
-	} else {
-		
-		return (
-			<div className="flex gap-8 items-end">
-				<div className="min-w-16 min-h-16 max-w-16 object-cover max-h-16 overflow-hidden flex rounded-full">
-					<img src="/images/profile.png" alt="p" />
-				</div>
-				<div className="message-glass p-8 rounded-[8px] rounded-bl-[2px] max-w-[450px] text-gray text-sm tracking-wider">
-					{props.message}
-				</div>
-			</div>
-		)
-
-	}
-}
-
-const Conversation = ({uid, displayProfile, hideSelf}) => {
-
+const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws, messages, setMessages}) => {
+	
 	const navigate = useNavigate();
+	const [offsetMssg, setOffsetMssg] = useState(0);
+	const [isChunked, setIsChunked] = useState(false);
+	const [allMessages, setAllMessages] = useState(false);
 	const conversation = [];
-	for (let i = 0; i < 40; i++) {
-		if (i % 2) {
-			conversation.push(
-				<Message
-					key={i}
-					side='left' 
-					message='
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor 
-						incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-						exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
-						dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-						Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-						mollit anim id est laborum.
-					'
-				/>
-			)
+	const downScrollRef = useRef(null);
+	const topScrollRef = useRef(null);
+	
+	// fetch messages in the first time we enter to the conversation
+	useEffect(() => {
+		if (uid)
+			getMessages(uid, setMessages, setOffsetMssg);
+	}, [uid]);
+
+	// check if a new message has been added and scroll down to the last message
+	useEffect(() => {
+
+		if (downScrollRef.current) {
+			if (isChunked)
+				setIsChunked(false);
+			else if (!allMessages)
+				downScrollRef.current.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'end'});
 		}
-		else 
+
+	}, [messages.length]);
+
+	const handleConversationScroll = () => {
+
+		if (topScrollRef.current) {
+			if (topScrollRef.current.scrollTop === 0 && offsetMssg !== 0) {
+				topScrollRef.current.scrollBy({top: 15, behavior: 'smooth'});
+				getChunkedMessages(uid, setMessages, offsetMssg, setOffsetMssg, setIsChunked, setAllMessages);
+			}
+		}
+
+	};
+
+	// send a message into a ws
+	const sendMessage = (e) => {
+		e.preventDefault();
+		
+		if (ws.current && e.target.message.value.trim()) {
+			ws.current.send(JSON.stringify({'message': e.target.message.value, 'convId': uid}))
+			setAllMessages(false);
+		}
+		e.target.reset();
+	};
+
+	if (messages && messages.length) {
+		messages.map(message => {
 			conversation.push(
 				<Message
-					key={i}
-					side='right'
-					message='
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor 
-						incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-						exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
-						dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-						Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-						mollit anim id est laborum.
-					'
+					key={message.messageId}
+					side={message.isSender ? 'right' : 'left'}
+					message={message.message}
+					timestamp={message.timestamp}
+					isRead={message.isRead}
 				/>
 			)
+		})
+	} else {
+		conversation.push(<div key={0} className="text-stroke-sc font-light tracking-wider text-txt-xs text-center" >so messages yet! say hello!</div>)
 	}
+
 	const goToProfileSide = () => {
 		displayProfile(true);
 		hideSelf(false);
-	}
+	};
+
 	return (
-		<div
-			className={`
-				grow md:flex flex-col gap-32
-				${uid ? 'flex' : 'hidden'}
-			`}
-		>
+		<div className={`grow md:flex flex-col gap-32 ${uid ? 'flex' : 'hidden'}`}>
 			<div className="border-b-[0.5px] border-stroke-sc pb-16 flex justify-between items-center">
 				<div className="flex gap-16 items-center">
-					<IoArrowBackOutline onClick={() => navigate(-1)} className="md:hidden block text-txt-xl cursor-pointer"/>
-					<div className={`md:w-56 md:h-56 h-48 w-48 rounded-full border overflow-hidden border-green`}>
+					<IoArrowBackOutline
+						onClick={() => navigate('/chat/')}
+						className="md:hidden block text-txt-xl cursor-pointer"
+					/>
+					<div className={`md:w-56 md:h-56 h-48 w-48 rounded-full border overflow-hidden ${friendInfo.isOnline ? 'border-green' : 'border-stroke-sc'}`}>
 						<img src="/images/profile.png" alt="profile" />
 					</div>
 					<div className="flex flex-col justify-between h-full">
-						<h2 className="md:text-h-sm-md text-h-sm-sm font-bold">devon lane</h2>
-						<p className="md:text-txt-md text-txt-xs text-green">online</p>
+						<h2 className="md:text-h-sm-md text-h-sm-sm font-bold">{`${friendInfo.firstName} ${friendInfo.lastName}`}</h2>
+						{friendInfo.isOnline &&
+							<p className="md:text-txt-md text-txt-xs text-green">online</p>
+						}
+						{!friendInfo.isOnline &&
+							<p className="text-txt-xs text-stroke-sc lowercase">last seen {friendInfo.lastLogin}</p>
+						}
 					</div>
 				</div>
 				<IoIosInformationCircleOutline
@@ -98,13 +103,31 @@ const Conversation = ({uid, displayProfile, hideSelf}) => {
 					onClick={goToProfileSide}
 				/>
 			</div>
-			<div className="h-14 flex grow flex-col-reverse gap-16 overflow-y-scroll no-scrollbar">
+			<div
+				ref={topScrollRef}
+				onScroll={handleConversationScroll}
+				className="h-4 flex grow flex-col gap-16 overflow-y-scroll no-scrollbar normal-case"
+			>
+				<div className={`text-center mb-[64] text-xs text-stroke-sc ${offsetMssg ? 'block' : 'hidden'}`}>loading...</div>
 				{conversation}
+				<div ref={downScrollRef}></div>
 			</div>
-			<div className="flex items-center relative">
-				<input type="text" placeholder='Aa...' className='send-glass text-txt-md px-16 pr-56 py-12 outline-none text-white w-full grow'/>
-				<BiSolidSend className='text-gray absolute right-16 text-txt-3xl cursor-pointer hover:text-green' />
-			</div>
+			<form className="flex items-center relative" onSubmit={sendMessage}>
+				<input
+					autoFocus
+					type="text"
+					autoComplete="off"
+					placeholder='Aa...'
+					name="message"
+					className='send-glass text-txt-md px-16 pr-56 py-12 outline-none text-white w-full grow'
+				/>
+				<button
+					type="submit"
+					className='text-gray absolute right-16 text-txt-3xl cursor-pointer hover:text-green'
+				>
+					<BiSolidSend/>
+				</button>
+			</form>	
 		</div>
 	)
 }

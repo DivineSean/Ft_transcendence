@@ -16,9 +16,12 @@ from django.shortcuts import render
 from django.core.cache import cache
 from django.conf import settings
 import json
+from django.utils import timezone
 import os
 import uuid
+import jwt
 
+from rest_framework_simplejwt.tokens import RefreshToken
 # this function used when we navigate to the login/register page in frontend
 # to check if the user is already loggedin and redirect it to the home page
 @api_view(['GET'])
@@ -82,6 +85,7 @@ def resend2FACode(request):
  # -> check the email for the user if user found then, verify the 2fa_code is valid if it's set the cookies
  #    and navigate to the home page.
 class CustomTokenObtainPairView(TokenObtainPairView):
+
 	def generate_2fa_code(self, user, codeType):
 		return TwoFactorCode.generate_code(user, codeType)
 
@@ -100,8 +104,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			EmailMessage(subject, message, email_from, recipient_list, connection=connection).send()
 		
 	def post(self, request, *args, **kwargs):
+
 		json_data = json.loads(request.body)
 		submitted_2fa_code = json_data.get('2fa_code')
+
+
 		if not submitted_2fa_code:
 			try:
 				email = json_data.get('email')
@@ -150,6 +157,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 				http_response.content = dump
 				return http_response
 			else:
+				user.isOnline = True
+				user.save()
 				refresh_token = RefreshToken.for_user(user)
 				access_token = str(refresh_token.access_token)
 
@@ -186,14 +195,28 @@ class CustomTokenRefreshView(TokenRefreshView):
 
 @api_view(["POST"])
 def logout(request):
+	
 	refresh_token = request.COOKIES.get('refreshToken')
+	# response = HttpResponseRedirect(os.environ.get("REDIRECT_URL"))
+	response = Response({"message": "Logged Out"}, status=status.HTTP_200_OK)
+
 	if refresh_token:
 		token = RefreshToken(refresh_token)
-		token.blacklist()
-	response = HttpResponseRedirect(os.environ.get("REDIRECT_URL"))
-	response = Response({"message": "Logged Out"}, status=status.HTTP_200_OK)
-	response.delete_cookie("accessToken")
-	response.delete_cookie("refreshToken")
+		
+		response.delete_cookie("accessToken")
+		response.delete_cookie("refreshToken")
+		jwtObj = JWTAuthentication()
+		try:
+			user = jwtObj.get_user(token)
+			user.isOnline = False
+			user.last_login = timezone.now()
+			user.save()
+			token.blacklist()
+		except:
+			pass
+	else:
+		response.delete_cookie("accessToken")
+		response.delete_cookie("refreshToken")
 	return response
 
 

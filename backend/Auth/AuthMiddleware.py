@@ -7,32 +7,33 @@ from rest_framework import status
 
 
 class HttpJWTAuthMiddleWare(BaseMiddleware):
-    def __init__(self):
-        pass
-    def parseCookies(self,request,  *args, **kwargs):
-       
-        accessToken = request.COOKIES.get("accessToken")
-        refreshToken = request.COOKIES.get("refreshToken")
-        if not accessToken and not refreshToken: 
-           return status.HTTP_401_UNAUTHORIZED, None
-        jwtObj = JWTAuthentication()
+	def __init__(self):
+		pass
 
-        try:          
-            validatedAccessToken = AccessToken(accessToken) 
-            # print(validatedAccessToken, flush=True)
-            user = jwtObj.get_user(validatedAccessToken)
-            return user, None
-        except:
-            try:
-                refresh = RefreshToken(refreshToken)
-                newAccessToken = str(refresh.access_token)
-                
-                user = jwtObj.get_user(refresh)
-                
-                # print(user, flush=True)
-                return user, newAccessToken
-            except:
-                    return status.HTTP_400_BAD_REQUEST, None
+	def parseCookies(self,request,  *args, **kwargs):
+			
+		accessToken = request.COOKIES.get("accessToken")
+		refreshToken = request.COOKIES.get("refreshToken")
+		if not accessToken and not refreshToken: 
+				return None, None
+		jwtObj = JWTAuthentication()
+
+		try:          
+			validatedAccessToken = AccessToken(accessToken) 
+			# print(validatedAccessToken, flush=True)
+			user = jwtObj.get_user(validatedAccessToken)
+			return user, None
+		except:
+			try:
+				refresh = RefreshToken(refreshToken)
+				newAccessToken = str(refresh.access_token)
+				
+				user = jwtObj.get_user(refresh)
+				
+				# print(user, flush=True)
+				return user, newAccessToken
+			except:
+				return None, None
         
 
 class JWTAuthMiddleWare(BaseMiddleware):

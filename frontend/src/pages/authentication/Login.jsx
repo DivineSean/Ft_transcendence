@@ -22,7 +22,7 @@ const Login = () => {
 		setGlobalMessage
 	} = useContext(AuthContext);
 	const location = useLocation();
-	const FetchData = new FetchWrapper('https://localhost:8000/');
+	const FetchData = new FetchWrapper();
 	const navigate = useNavigate();
 	const [load, setLoad] = useState(true);
 	

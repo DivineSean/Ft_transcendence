@@ -53,8 +53,6 @@ def CreateUserIfNotExists(user_data):
 	else:
 		return False, data
 
-
-
 @api_view(['GET'])
 def login42(request):
 	response = HttpResponse(content_type='application/json')
@@ -140,6 +138,8 @@ def  callback(request):
 			http_response.content = dump
 			return http_response
 		else:
+			user.isOnline = True
+			user.save()
 			refresh_token = RefreshToken.for_user(user)
 			access = str(refresh_token.access_token)
 

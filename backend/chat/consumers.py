@@ -1,6 +1,7 @@
 import json
 from channels.generic.websocket import WebsocketConsumer
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from .models import Conversation, Message
 from Auth.models import Users
 from django.utils import timezone
@@ -9,87 +10,95 @@ from asgiref.sync import async_to_sync
 
 #Chat room name 
 class Chat(WebsocketConsumer):
-    def connect(self):
-        if self.scope["user"].is_anonymous:
-            self.close()
+		def connect(self):
+				self.room_name = self.scope['url_route']['kwargs']
+				
+				# self.room_group_name =f'Conversation_' + str(self.room_name.ConversationId)
+				conversations = Conversation.objects.filter(
+					Q(Sender=self.scope["user"].id) | Q(Receiver=self.scope["user"].id))
+				self.room_group_name = []
+				for element in conversations:
 
-        self.room_name = self.scope['url_route']['kwargs']['room_name']
-        
-        target_user = self.get_user(self.room_name)
+					self.room_group_name.append(f"conv-{element.ConversationId}")
+					print(f"connected convID: ====> {element.ConversationId}", flush=True)
+					# print(f'connected to {self.room_group_name}', flush=True)
+					async_to_sync(self.channel_layer.group_add)(
+						f"conv-{element.ConversationId}",   
+						self.channel_name
+					)
+				#GEt query of user either receiver, sender, 
+				#loop on them => add new groups with name equals to "conv-{conversationId}"
+				
+				self.accept()
+			
 
-        if target_user:
-            users = [target_user, self.scope["user"]]
-            room_qs = self.get_room(target_user)
+		def disconnect(self, code):
+				for element in self.room_group_name:
+					async_to_sync(self.channel_layer.group_discard)(
+							element,
+							self.channel_name
+					)
 
-            if not room_qs:
-                self.room = self.create_room(users)
-            else:
-                self.room = room_qs
+		def receive(self, text_data):
 
-            self.room_group_name = self.room.token
+				# once i get the message
+				# Store it in the Message Model
+				try:
+					text_data_json = json.loads(text_data)
+					message = text_data_json["message"] 
+					self.convId = f"conv-{text_data_json['convId']}"
+					self.convName = text_data_json['convId']
+				except Exception as e:
+						print("------>", e, flush=True)
+						self.close()
+						return
+				
+				for element in self.room_group_name:
+					if element == self.convId:
 
-         
-            async_to_sync(self.channel_layer.group_add)(
-                self.room_group_name,   
-                self.channel_name
-            )
-            self.accept()
-        else:
-            self.close()
+						msg = self.create_message(message)
 
-    def disconnect(self):
-        async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name,
-            self.channel_name
-        )
+						print(f"receive convID: ====> {self.convId}", flush=True)
+						async_to_sync(self.channel_layer.group_send)(
+								element,
+								{
+										"type": "chat_message", 
+										"convId": str(self.convName),
+										"message": msg.message,
+										"messageId": str(msg.MessageId),
+										"sender": self.scope['user'],
+										"timestamp": str(msg.timestamp.strftime('%b %d, %H:%M'))
+										# "timestamp": str(msg.timestamp.strftime('%H:%M'))
+								}
+						)
 
-    def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
+		def chat_message(self, event):
+				
+				self.send(text_data=json.dumps({
+						"type"			: "message",
+						"message"		: event['message'],
+						"convId"		: event['convId'],
+						"messageId"	: event['messageId'],
+						"isSender"	: event['sender'].id == self.scope['user'].id,
+						"firstName"	: self.scope['user'].first_name if event["sender"].id != self.scope['user'].id else event['sender'].first_name,
+						"lastName"	: self.scope['user'].last_name if event["sender"].id != self.scope['user'].id else event['sender'].last_name,
+						"timestamp"	: event['timestamp']
+				}))
 
-       
-        msg = self.create_message(message)
+		def get_user(self):
+				return  Users.objects.get()  #should be modifed
 
-        
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name,
-            {
-                "type": "chat_message",
-                "message": msg.message,
-                "sender": msg.sender.username,
-                "timestamp": msg.timestamp.isoformat()
-            }
-        )
-
-    def chat_message(self, event):
-        self.send(text_data=json.dumps({
-            "type": "message",
-            "message": event['message'],
-            "sender": event["sender"],
-            "timestamp": event["timestamp"]
-        }))
-
-    def get_user(self, username):
-        return get_object_or_404(Users, username=username)
-
-    def get_room(self, target_user):
-        user = self.scope['user']
-        return Conversation.objects.filter(users=target_user).first()
-
-    def create_room(self, users):
-        room = Conversation.objects.create()
-        room.users.set(users)
-        return room
-
-    def create_message(self, message):
-        return Message.objects.create(
-            roomName=self.room,
-            sender=self.scope["user"],
-            message=message,
-            timestamp=timezone.now()
-        )
-    
+		def get_room(self, convID):
+				return Conversation.objects.get(ConversationId = convID)#Get object or 404
 
 
-#MiddleWare: 
-#Check Cookies (tokens isValid)
+		def create_message(self, message):
+				#Database 
+				return Message.objects.create(
+						ConversationName = self.get_room(self.convName),
+						sender=Users.objects.get(email = self.scope["user"].email),
+						message=message,
+				)
+		
+
+#TO DO => restrictions in jwt (password)
