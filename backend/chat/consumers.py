@@ -12,7 +12,7 @@ from asgiref.sync import async_to_sync
 class Chat(WebsocketConsumer):
 		def connect(self):
 				self.room_name = self.scope['url_route']['kwargs']
-				
+				# self.scope["user"] = 
 				# self.room_group_name =f'Conversation_' + str(self.room_name.ConversationId)
 				conversations = Conversation.objects.filter(
 					Q(Sender=self.scope["user"].id) | Q(Receiver=self.scope["user"].id))
@@ -57,8 +57,13 @@ class Chat(WebsocketConsumer):
 					if element == self.convId:
 
 						msg = self.create_message(message)
-
-						print(f"receive convID: ====> {self.convId}", flush=True)
+						user = { #should make a serializer
+							'id': str(self.scope['user'].id),
+							'first_name': self.scope['user'].first_name,
+							'last_name': self.scope['user'].last_name,
+							
+						}
+						print(f"receive userIDIDIDIDI: ====> {type(self.scope['user'])} ", flush=True)
 						async_to_sync(self.channel_layer.group_send)(
 								element,
 								{
@@ -66,12 +71,12 @@ class Chat(WebsocketConsumer):
 										"convId": str(self.convName),
 										"message": msg.message,
 										"messageId": str(msg.MessageId),
-										"sender": self.scope['user'],
+										"sender": user,
 										"timestamp": str(msg.timestamp.strftime('%b %d, %H:%M'))
 										# "timestamp": str(msg.timestamp.strftime('%H:%M'))
 								}
 						)
-
+		#MAKE A SERIALZER ASAAAP ! SAAD
 		def chat_message(self, event):
 				
 				self.send(text_data=json.dumps({
@@ -79,9 +84,9 @@ class Chat(WebsocketConsumer):
 						"message"		: event['message'],
 						"convId"		: event['convId'],
 						"messageId"	: event['messageId'],
-						"isSender"	: event['sender'].id == self.scope['user'].id,
-						"firstName"	: self.scope['user'].first_name if event["sender"].id != self.scope['user'].id else event['sender'].first_name,
-						"lastName"	: self.scope['user'].last_name if event["sender"].id != self.scope['user'].id else event['sender'].last_name,
+						"isSender"	: event['sender']["id"] == str(self.scope['user'].id),
+						"firstName"	: self.scope['user'].first_name if event["sender"]["id"] != str(self.scope['user'].id) else event['sender']["first_name"],
+						"lastName"	: self.scope['user'].last_name if event["sender"]["id"] != str(self.scope['user'].id) else event['sender']["last_name"],
 						"timestamp"	: event['timestamp']
 				}))
 
