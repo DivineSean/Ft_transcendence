@@ -16,7 +16,11 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		await self.channel_layer.group_add(self.group_name, self.channel_name)
 
 		# Add this nigga to the queue
-		await matchmaker.add_player(self.player, self.channel_name, self.game_name, self.rating)
+		try:
+			await matchmaker.add_player(self.player, self.channel_name, self.game_name, self.rating)
+		except Exception as e:
+			await self.close(reason=str(e))
+			return
 
 	async def disconnect(self, code):
 		# remove this nigga form the queue

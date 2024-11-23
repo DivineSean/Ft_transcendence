@@ -21,7 +21,7 @@ const Match = () => {
 	const handleStartQueue = () => {
 		setInQueue(true);
 
-		ws.current = new WebSocket(`wss://${window.location.hostname}:8000/ws/matchmaking/pong`);
+		ws.current = new WebSocket(`wss://${window.location.hostname}:8000/ws/matchmaking/Pong`);
 
 		ws.current.onopen = () => {
 			console.log("Matchmaking ws connected");
