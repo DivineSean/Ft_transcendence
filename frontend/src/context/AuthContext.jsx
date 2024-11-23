@@ -152,10 +152,15 @@ export const AuthProvider = ({ children }) => {
 				});
 				if (res.ok) {
 					const data = await res.json();
+					console.log(data);
 					if (data.requires_2fa)
 						navigate(`/twofa/${data.uid}`);
-					else
-						navigate('/home');
+					else {
+						if (data.username === null)
+							navigate(`setupusername/${data.uid}`);
+						else
+							navigate('/home');
+					}
 				} else {
 					if (res.status === 404)
 						setGlobalMessage({message: 'the url you have reached is not found!', isError: true});

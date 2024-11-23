@@ -102,6 +102,36 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			recipient_list = [user_email]  
 			message = f"Your 2FA CODE : {code}"  
 			EmailMessage(subject, message, email_from, recipient_list, connection=connection).send()
+	
+	def checkUsername(self, user, user_id):
+		user_username = user.username
+		if not user_username:
+
+			http_response = HttpResponse(content_type='application/json')
+			data = {
+				"message": "ok",
+				"username": user_username,
+				"uid": str(user_id)
+			}
+			dump = json.dumps(data)
+			http_response.content = dump
+			return http_response
+	
+		else:
+			user.isOnline = True
+			user.save()
+			refresh_token = RefreshToken.for_user(user)
+			access_token = str(refresh_token.access_token)
+
+			http_response = HttpResponse(content_type='application/json')
+			http_response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
+			http_response.set_cookie('accessToken', access_token, httponly=True, secure=True, samesite='Lax')
+			data = {
+				"message": "logged in successfully!",
+			}
+			dump = json.dumps(data)
+			http_response.content = dump
+			return http_response
 		
 	def post(self, request, *args, **kwargs):
 
@@ -109,7 +139,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 		submitted_2fa_code = json_data.get('2fa_code')
 
 
-		if not submitted_2fa_code:
+		if not submitted_2fa_code: # here is the login part  
+
 			try:
 				email = json_data.get('email')
 				user = Users.objects.get(email=email)
@@ -124,10 +155,19 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			user_id = user.id
 			userTokens = super().post(request, *args, **kwargs)
 			if userTokens.status_code == 200:
-				two_factor_code = self.generate_2fa_code(user, "twoFa")
-				self.send_2fa_code(user.email, two_factor_code.code)
-				return Response({'message': '2FA code sent', 'uid': user_id, 'requires_2fa': True}, status=200)	
-		else:
+				if user.isTwoFa:
+					print('is true am3alam', flush=True)
+					two_factor_code = self.generate_2fa_code(user, "twoFa")
+					self.send_2fa_code(user.email, two_factor_code.code)
+					return Response({'message': '2FA code sent', 'uid': user_id, 'requires_2fa': True}, status=200)
+				else:
+					print('is false am3alam', flush=True)
+					# return Response({'message': '2FA code sent', 'uid': user_id, 'requires_2fa': False}, status=200)
+					return self.checkUsername(user, user_id)
+				
+
+		else: # here endpoint for 2FA authorization
+
 			try:
 				user_id = json_data.get('id')
 				uuid.UUID(user_id, version=4)
@@ -145,32 +185,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 				print("here", flush = True)
 				return Response({'error': 'Invalid 2FA code'}, status=400)
 
-			user_username = user.username
-			if not user_username:
-				http_response = HttpResponse(content_type='application/json')
-				data = {
-					"message": "ok",
-					"username": user_username,
-					"uid": user_id
-				}
-				dump = json.dumps(data)
-				http_response.content = dump
-				return http_response
-			else:
-				user.isOnline = True
-				user.save()
-				refresh_token = RefreshToken.for_user(user)
-				access_token = str(refresh_token.access_token)
-
-				http_response = HttpResponse(content_type='application/json')
-				http_response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
-				http_response.set_cookie('accessToken', access_token, httponly=True, secure=True, samesite='Lax')
-				data = {
-					"message": "logged in successfully!",
-				}
-				dump = json.dumps(data)
-				http_response.content = dump
-				return http_response
+			return self.checkUsername(user, user_id)
 
 # this method to refresh tokens
 class CustomTokenRefreshView(TokenRefreshView):
