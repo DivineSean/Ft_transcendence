@@ -60,6 +60,7 @@ class GetConversationRooms(APIView):
 				 
 
 	def get(self, request):
+		# scope["user"] =>HTTP
 		response = Response(status=200)
 		try:
 			user, accessToken = HttpJWTAuthMiddleWare().parseCookies(request)

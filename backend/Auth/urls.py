@@ -17,7 +17,7 @@ urlpatterns = [
 	path('api/resent2fa/', views.resend2FACode, name='resend_2fa_code'),
 	path('api/register/', views.registerView, name='register'),
 	path('api/token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-  path('api/token/refresh/', views.CustomTokenRefreshView.as_view(), name='token_refresh'),
+  	path('api/token/refresh/', views.CustomTokenRefreshView.as_view(), name='token_refresh'),
 
 	
 	path('api/requestreset/', views.RequestPasswordChange.as_view(), name='send2FACode'),
