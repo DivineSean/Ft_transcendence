@@ -14,7 +14,7 @@ const useAuth = () => {
 			if (res.ok) {
 				const data = await res.json();
 				if (data.authenticated)
-					navigate('/home', {replace: true});
+					navigate('/home', { replace: true });
 
 			} else {
 				const refRes = await FetchData.post('api/token/refresh/');
