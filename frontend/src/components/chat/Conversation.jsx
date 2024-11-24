@@ -6,8 +6,7 @@ import { getChunkedMessages, getMessages } from "../../utils/chatFetchData";
 import { useEffect, useRef, useState } from "react";
 import Message from "./Message";
 
-const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws, messages, setMessages}) => {
-	
+const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws, messages, setMessages, readedMessages, setReadedMessages}) => {
 	const navigate = useNavigate();
 	const [offsetMssg, setOffsetMssg] = useState(0);
 	const [isChunked, setIsChunked] = useState(false);
@@ -21,6 +20,16 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws, messages, 
 		if (uid)
 			getMessages(uid, setMessages, setOffsetMssg);
 	}, [uid]);
+
+	useEffect(() => {
+		if (readedMessages) {
+			messages.forEach(message => {
+				if (!message.isRead)
+					message.isRead = true;
+			})
+			setReadedMessages(null);
+		}
+	}, [readedMessages && messages]);
 
 	// check if a new message has been added and scroll down to the last message
 	useEffect(() => {
@@ -50,7 +59,7 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws, messages, 
 		e.preventDefault();
 		
 		if (ws.current && e.target.message.value.trim()) {
-			ws.current.send(JSON.stringify({'message': e.target.message.value, 'convId': uid}))
+			ws.current.send(JSON.stringify({'message': e.target.message.value, 'type': 'message', 'convId': uid}))
 			setAllMessages(false);
 		}
 		e.target.reset();
@@ -59,13 +68,7 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws, messages, 
 	if (messages && messages.length) {
 		messages.map(message => {
 			conversation.push(
-				<Message
-					key={message.messageId}
-					side={message.isSender ? 'right' : 'left'}
-					message={message.message}
-					timestamp={message.timestamp}
-					isRead={message.isRead}
-				/>
+				<Message message={message} key={message.messageId} />
 			)
 		})
 	} else {

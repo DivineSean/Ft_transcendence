@@ -173,7 +173,7 @@ class getMessages(APIView):
 		for message in reversed(paginated_messages):
 			if message.sender.email == senderMail: 
 				chatMessages.append({
-					"convID" : convID.ConversationId,
+					"convId" : convID.ConversationId,
 					"messageId" : message.MessageId,
 					"message" : message.message,
 					"isRead" : message.isRead,
@@ -183,7 +183,7 @@ class getMessages(APIView):
 			else:
 				receiverID = convID.Receiver.id
 				chatMessages.append({
-					"convID" : convID.ConversationId,
+					"convId" : convID.ConversationId,
 					"messageId" : message.MessageId,
 					"message" : message.message,
 					"isRead" : message.isRead,

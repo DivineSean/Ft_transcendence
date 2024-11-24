@@ -1,10 +1,20 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const FriendsChat = ({uid, friendInfo, isTyping, isSend, messages}) => {
+
+const FriendsChat = ({uid, friendInfo, isTyping, isSend, messages, ws}) => {
+
+	const navigate = useNavigate();
+	const handleReadMessage = () => {
+		if (ws.current) {
+			ws.current.send(JSON.stringify({'message': 'message is readedf', 'type': 'read', 'convId': friendInfo.conversationId}));
+			console.log('ws is send to read the message');
+		}
+		navigate(`/chat/${friendInfo.conversationId}`);
+	};
 
 	return (
-		<Link
-			to={'/chat/' + friendInfo.conversationId}
+		<div
+			onClick={handleReadMessage}
 			className={
 				`text-white flex gap-16 p-8 rounded-[8px] hover:hover-secondary
 				cursor-pointer ${friendInfo.conversationId === uid && 'hover-secondary'}`
@@ -52,8 +62,8 @@ const FriendsChat = ({uid, friendInfo, isTyping, isSend, messages}) => {
 
 					{ !isTyping && !isSend &&
 						<div className={`text-txt-xs  ${!friendInfo.lastMessage ? 'text-stroke-sc' : 'text-white'}`}>
-							{	friendInfo.lastMessage && friendInfo.lastMessage.length > 20
-								? friendInfo.lastMessage.substring(0, 20) + "..."
+							{	friendInfo.lastMessage && friendInfo.lastMessage.length > 15
+								? friendInfo.lastMessage.substring(0, 15) + "..."
 								: !friendInfo.lastMessage
 								? 'Say Hello !'
 								: friendInfo.lastMessage
@@ -68,7 +78,7 @@ const FriendsChat = ({uid, friendInfo, isTyping, isSend, messages}) => {
 					</div> 
 				</div>
 			</div>
-		</Link>
+		</div>
 	)
 }
 
