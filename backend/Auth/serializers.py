@@ -36,3 +36,12 @@ class RegisterOAuthSerializer(serializers.ModelSerializer):
 		return instance
 	
 
+
+class UserSerializer(serializers.ModelSerializer):
+	id = serializers.UUIDField(format = "hex_verbose")
+	class Meta: 
+		model = Users
+		fields = "__all__"
+	
+	
+
