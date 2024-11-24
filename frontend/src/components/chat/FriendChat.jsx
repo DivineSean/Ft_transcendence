@@ -41,7 +41,7 @@ const FriendsChat = ({uid, friendInfo, isTyping, isSend, messages, ws}) => {
 			<div className="grow lg:flex flex justify-between gap-16 md:hidden">
 				<div className="flex flex-col justify-center gap-8">
 
-					<div className="text-h-sm-xs font-semibold">
+					<div className="text-h-sm-xs font-semibold normal-case">
 						{ !friendInfo.messageDate ? (`${friendInfo.firstName} ${friendInfo.lastName}`).length > 30
 							? (`${friendInfo.firstName} ${friendInfo.lastName}`).substring(0, 30) + '...'
 							: (`${friendInfo.firstName} ${friendInfo.lastName}`)
@@ -61,7 +61,7 @@ const FriendsChat = ({uid, friendInfo, isTyping, isSend, messages, ws}) => {
 					}
 
 					{ !isTyping && !isSend &&
-						<div className={`text-txt-xs  ${!friendInfo.lastMessage ? 'text-stroke-sc' : 'text-white'}`}>
+						<div className={`text-txt-xs normal-case ${!friendInfo.lastMessage ? 'text-stroke-sc' : 'text-white'}`}>
 							{	friendInfo.lastMessage && friendInfo.lastMessage.length > 15
 								? friendInfo.lastMessage.substring(0, 15) + "..."
 								: !friendInfo.lastMessage

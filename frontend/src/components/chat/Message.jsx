@@ -1,4 +1,6 @@
 import { IoCheckmarkDone } from "react-icons/io5";
+import { MdOutlineRunningWithErrors } from "react-icons/md";
+
 
 // side={message.isSender ? 'right' : 'left'}
 // message={message.message}
@@ -16,7 +18,8 @@ const Message = ({message}) => {
 					{message.message}
 					<div className="flex gap-4 items-center justify-end">
 						<p className="text-xs text-stroke-sc" >{message.timestamp}</p>
-						<IoCheckmarkDone className={`text-txt-sm ${message.isRead ? 'text-green' : 'text-stroke-sc'}`}/>
+						{message.isSent && <IoCheckmarkDone className={`text-txt-sm ${message.isRead ? 'text-green' : 'text-stroke-sc'}`}/>}
+						{!message.isSent && <MdOutlineRunningWithErrors className={`text-txt-sm text-red`}/>}
 					</div>
 				</div>
 			</div>

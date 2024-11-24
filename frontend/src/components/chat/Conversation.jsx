@@ -6,7 +6,31 @@ import { getChunkedMessages, getMessages } from "../../utils/chatFetchData";
 import { useEffect, useRef, useState } from "react";
 import Message from "./Message";
 
-const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws, messages, setMessages, readedMessages, setReadedMessages}) => {
+const formatedDate = () => {
+	const now = new Date();
+	const options = { month: 'short', day: 'numeric'};
+	const datePart = now.toLocaleDateString('en-US', options);
+	const timePart = now.toLocaleTimeString('en-Us', {
+		hour: '2-digit',
+		minute: '2-digit',
+		hour12: false,
+	});
+	return `${datePart}, ${timePart}`
+}
+
+const Conversation = ({
+	ws,
+	uid,
+	messages,
+	hideSelf,
+	friendInfo,
+	setMessages,
+	tempMessages,
+	readedMessages,
+	displayProfile,
+	setTempMessages,
+	setReadedMessages}) => {
+
 	const navigate = useNavigate();
 	const [offsetMssg, setOffsetMssg] = useState(0);
 	const [isChunked, setIsChunked] = useState(false);
@@ -41,7 +65,7 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws, messages, 
 				downScrollRef.current.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'end'});
 		}
 
-	}, [messages.length]);
+	}, [messages.length, tempMessages.length]);
 
 	const handleConversationScroll = () => {
 
@@ -59,7 +83,17 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws, messages, 
 		e.preventDefault();
 		
 		if (ws.current && e.target.message.value.trim()) {
-			ws.current.send(JSON.stringify({'message': e.target.message.value, 'type': 'message', 'convId': uid}))
+			ws.current.send(JSON.stringify({'message': e.target.message.value, 'type': 'message', 'convId': uid}));
+			const newMessage = {
+				'messageId': crypto.randomUUID(),
+				'isRead': false,
+				'isSent': false,
+				'convId': uid,
+				'isSender': true,
+				'message': e.target.message.value,
+				'timestamp': formatedDate(),
+			}
+			setTempMessages(prevtemp => [...prevtemp, newMessage]);
 			setAllMessages(false);
 		}
 		e.target.reset();
@@ -73,6 +107,14 @@ const Conversation = ({uid, displayProfile, hideSelf, friendInfo, ws, messages, 
 		})
 	} else {
 		conversation.push(<div key={0} className="text-stroke-sc font-light tracking-wider text-txt-xs text-center" >so messages yet! say hello!</div>)
+	}
+
+	if (tempMessages && tempMessages.length) {
+		tempMessages.map(message => {
+			conversation.push(
+				<Message message={message} key={message.messageId} />
+			)
+		});
 	}
 
 	const goToProfileSide = () => {

@@ -18,6 +18,7 @@ const Chat = () => {
 	const [updatedConversation, setUpdatedConversation] = useState(null);
 	const [readedMessages, setReadedMessages] = useState(null);
 	const [messages, setMessages] = useState([]);
+	const [tempMessages, setTempMessages] = useState([]);
 	const [friendsData, setFriendsData] = useState(null);
 	const [conversationSide, setConversationSide] = useState(true);
 	const navigate = useNavigate();
@@ -52,6 +53,7 @@ const Chat = () => {
 							if (!messageData.isSender)
 								ws.current.send(JSON.stringify({'message': 'message is readedf', 'type': 'read', 'convId': uid}));
 							setMessages((preveMessage) => [...preveMessage, messageData]);
+							setTempMessages([]);
 						}
 					} else if (messageData.type === 'read') {
 						setReadedMessages(messageData);
@@ -126,6 +128,8 @@ const Chat = () => {
 								<Conversation
 									uid={uid}
 									ws={ws}
+									setTempMessages={setTempMessages}
+									tempMessages={tempMessages}
 									setReadedMessages={setReadedMessages}
 									readedMessages={readedMessages}
 									setMessages={setMessages}
