@@ -13,7 +13,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Player
-		fields = ['id', 'user', 'role', 'score']
+		fields = ['id', 'user', 'role', 'rating_gain', 'rating_loss','score']
 
 class PlayerRatingSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -23,7 +23,7 @@ class PlayerRatingSerializer(serializers.ModelSerializer):
 class GameRoomSerializer(serializers.ModelSerializer):
 	game = serializers.PrimaryKeyRelatedField(queryset=Game.objects.all())
 	players = serializers.ListField(
-		child=serializers.UUIDField(),
+		child=serializers.DictField(),
 		write_only=True
 	)
 	players_details = PlayerSerializer(many=True, read_only=True, source='player_set')
@@ -33,14 +33,17 @@ class GameRoomSerializer(serializers.ModelSerializer):
 		fields = ['id', 'game', 'players', 'players_details']
 	
 	def create(self, validated_data):
-		user_ids = validated_data.pop('players')
+		users = validated_data.pop('players')
 
 		game_room = GameRoom.objects.create(**validated_data)
 
-		for user in user_ids:
+		for user in users:
 			Player.objects.create(
-				user_id=user,
+				user_id=user['id'],
 				game_room=game_room,
-				# role='0',
+				role=user['role'],
+				rating_gain=user['rating_gain'],
+				rating_loss=user['rating_loss'],
 			)
+
 		return game_room

@@ -1,13 +1,12 @@
-from asgiref.sync import async_to_sync
 from channels.consumer import database_sync_to_async
-from django.db.models.base import sync_to_async
-from games.models import Game
+from games.models import Game, PlayerRating
 from games.serializers import GameRoomSerializer, GameSerializer
 from channels.layers import get_channel_layer
 from django.conf import settings
 import redis
 import time
 import asyncio
+import itertools
 
 r = redis.StrictRedis(
 	host=settings.REDIS_CONNECTION['host'],
@@ -20,6 +19,7 @@ QUEUE_KEY = "matchmaking_queue"
 RATING_TOLERANCE_BASELINE = 0
 TOLERANCE_EXPANSION_RATE = 50
 TOLERANCE_EXPANSION_TIME = 20
+TOLERANCE_CAP = 1000
 
 class Matchmaker:
 	def __init__(self):
@@ -27,7 +27,7 @@ class Matchmaker:
 		self.loop_running = False
 		self.lock = asyncio.Lock()
 
-	async def add_player(self, player_id, channel_name, game_name, rating):
+	async def add_player(self, player_id, channel_name, game_name):
 
 		if game_name not in self.queues:
 			try:
@@ -37,10 +37,17 @@ class Matchmaker:
 				self.queues[game_name] = res
 				self.queues[game_name]['rating_tolerance'] = RATING_TOLERANCE_BASELINE
 				self.queues[game_name]['timer'] = time.time()
-				print(f"-------------> {self.queues[game_name]}", flush=True)
-			except Exception as e:
-				print(e, flush=True)
+			except:
 				raise
+
+		try:
+			game_rating = await database_sync_to_async(PlayerRating.objects.get)(
+				user_id=player_id,
+				game_id=self.queues[game_name]['id']
+			)
+			rating = game_rating.rating
+		except:
+			raise
 
 		r.zadd(f"{game_name}_{QUEUE_KEY}", {player_id: rating})
 		r.hset(f"{game_name}:players_channel_names", mapping={player_id: channel_name})
@@ -64,24 +71,18 @@ class Matchmaker:
 		}
 		serializer = GameRoomSerializer(data=game_data)
 		game_room = None
-		if serializer.is_valid():
+		if serializer.is_valid(raise_exception=True):
 			game = serializer.create(serializer.validated_data)
 			serialized = GameRoomSerializer(game)
 			game_room = serialized.data
-			print(game_room, flush=True)
 		return game_room
 
 	def create_batches(self, players, rating_tolerance):
-		print("----------------------------------------------------------------", flush=True)
-		print(players, flush=True)
 		batches = []
 		batch = []
 
 		current_rating = None
-		# BUG: Fix users getting matched regardless of the rating_tolerance
 		for player, rating in players:
-			print(f"------------> {player} [{rating}]", flush=True)
-			print(f"------------> {current_rating}", flush=True)
 			if not current_rating:
 				current_rating = rating
 
@@ -96,20 +97,20 @@ class Matchmaker:
 		if batch:
 			batches.append(batch)
 
-		print(batches, flush=True)
-		print("----------------------------------------------------------------", flush=True)
 		return batches
 
 	def find_matches(self, batches, game):
 		matches = []
-		match = []
 
 		for batch in batches:
-			print(batch, flush=True)
 
+			match = []
 			for player, rating in batch:
 				if len(match) < game['max_players']:
-					match.append(player.decode('utf-8'))
+					match.append({
+						'id': player.decode('utf-8'),
+						'rating': rating
+					})
 
 				if len(match) == game['max_players']:
 					matches.append(match)
@@ -117,28 +118,60 @@ class Matchmaker:
 
 			if len(match) >= game['min_players']:
 				matches.append(match)
-				match = []
 
-		# print(f"-------- matches --> {matches}", flush=True)
 		return matches
+
+	def calculate_rating_changes(self, players):
+		ratings = [player['rating'] for player in players]
+		n = len(ratings)
+		expected = [0.0] * n
+		k = [0.0] * n
+
+		for i, j in itertools.combinations(range(n), 2):
+			E_ij = 1 / (1 + 10**((ratings[j] - ratings[i])/1000))
+			expected[i] += E_ij
+			expected[j] += 1 - E_ij
+
+		scores = sum(expected)
+		for i in range(n):
+			expected[i] /= scores
+			k[i] = 50 + (28 * abs(0.5 - expected[i]))
+
+		changes = [{}] * n
+		for i in range(n):
+			j = 0.0
+			for x in range(n, 0, -1):
+				if j == 1 - (1 / n):
+					j = 1
+				c = k[i] * (j - expected[i])
+				if j == 1:
+					players[i]['rating_gain'] = c
+				elif j == 0:
+					players[i]['rating_loss'] = -c
+				changes[i][x] = c
+				j += 1 / n
+			r.hmset(f"{players[i]['id']}:players_rating_changes", changes[i])
 
 	async def create_matches(self, channel_layer, game, matches):
 		for match in matches:
 			channels = []
+			role = 0
+			self.calculate_rating_changes(match)
 			for player in match:
-				r.zrem(f"{game['name']}_{QUEUE_KEY}", player)
-				channel = r.hget(f"{game['name']}:players_channel_names", player)
+				player['role'] = role
+				r.zrem(f"{game['name']}_{QUEUE_KEY}", player['id'])
+				channel = r.hget(f"{game['name']}:players_channel_names", player['id'])
 				channels.append(channel.decode('utf-8'))
-
+				role += 1
+			
 			game_room = await self.create_game(game['id'], match)
 			if game_room:
 				# Notify all players
-				print("---------> Here", flush=True)
 				for i in range(0, len(channels)):
 					await channel_layer.send(channels[i], {
 						'type': 'match',
 						'message': {
-							'role': i,
+							'role': match[i]['role'],
 							'game': game_room
 						}
 					})
@@ -153,14 +186,11 @@ class Matchmaker:
 		channel_layer = get_channel_layer()
 
 		# TODO: Add per-player estimated time
-		# TODO: Calculate ELO gain/loss per-player
 		while len(self.queues):
-			print("waaaaaaaaaa l5edma hhhhh", flush=True)
 			for _, game in self.queues.items():
-				print(game, flush=True)
 				print(f"{game['name']} --> {game['rating_tolerance']}", flush=True)
 				players = r.zrange(f"{game['name']}_{QUEUE_KEY}", 0, -1, withscores=True)
-				# await self.send_updates(channel_layer, game_name, len(players))
+				await self.send_updates(channel_layer, game['name'], len(players))
 				if len(players) == 0:
 					del self.queues[game['name']]
 					break
@@ -170,7 +200,7 @@ class Matchmaker:
 
 				if matches:
 					game['timer'] = time.time()
-				elif time.time() - game['timer'] >= TOLERANCE_EXPANSION_TIME:
+				elif time.time() - game['timer'] >= TOLERANCE_EXPANSION_TIME and game['rating_tolerance'] < TOLERANCE_CAP:
 					game['timer'] = time.time()
 					game['rating_tolerance'] += TOLERANCE_EXPANSION_RATE
 				await asyncio.sleep(1)

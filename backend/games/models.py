@@ -1,5 +1,7 @@
 from django.db import models
 from django.db.models.base import ValidationError
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from Auth.models import Users as User
 import uuid
 
@@ -24,14 +26,21 @@ class	GameRoom(models.Model):
 class	Player(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	game_room = models.ForeignKey(GameRoom, on_delete=models.CASCADE)
-	role = models.CharField(max_length=20)
+	rating_gain = models.PositiveSmallIntegerField()
+	rating_loss = models.PositiveSmallIntegerField()
+	role = models.PositiveSmallIntegerField()
 	score = models.PositiveIntegerField(default=0)
 
 class	PlayerRating(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	game = models.ForeignKey(Game, on_delete=models.PROTECT)
-	rating = models.PositiveIntegerField(default=800)
+	rating = models.PositiveIntegerField(default=951)
 	updated_at = models.DateTimeField(auto_now=True)
 
-# TODO: Add games history
-# TODO: Add rating history
+@receiver(post_save, sender=Game)
+def create_player_ratings(sender, instance, created, **kwargs):
+    if created:
+        users = User.objects.all()
+        PlayerRating.objects.bulk_create(
+            [PlayerRating(user=user, game=instance) for user in users]
+        )

@@ -9,21 +9,18 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 		await self.accept()
 
 		self.player = str(self.scope['user'].id)
-		self.rating = self.scope['user'].rating
 		self.game_name = self.scope['url_route']['kwargs']['game_name']
-		print(f"--- game --> {self.game_name} --- {self.rating}", flush=True)
+		print(f"--- game --> {self.game_name} ---", flush=True)
 		self.group_name = f"{self.game_name}_matchmaking_group"
 		await self.channel_layer.group_add(self.group_name, self.channel_name)
 
-		# Add this nigga to the queue
 		try:
-			await matchmaker.add_player(self.player, self.channel_name, self.game_name, self.rating)
+			await matchmaker.add_player(self.player, self.channel_name, self.game_name)
 		except Exception as e:
 			await self.close(reason=str(e))
 			return
 
 	async def disconnect(self, code):
-		# remove this nigga form the queue
 		await matchmaker.remove_player(self.player, self.game_name)
 		await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
