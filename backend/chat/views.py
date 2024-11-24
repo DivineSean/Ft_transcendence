@@ -4,7 +4,6 @@ from Auth.AuthMiddleware import HttpJWTAuthMiddleWare
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import OuterRef, Subquery
-#from django.http import HttpResponse
 from chat.models import Conversation
 from Auth.models import Users
 from chat.models import Message
@@ -13,7 +12,6 @@ from django.db.models import Prefetch, OuterRef, Subquery, F, Q
 from django.db.models.functions import Coalesce
 from rest_framework.pagination import PageNumberPagination ,BasePagination
 
-# {"receiverID": "59533f62-e7ef-4469-aebf-3b19c8a3c653"}
 
 class GetConversationRooms(APIView):
 
@@ -140,7 +138,6 @@ class getMessages(APIView):
 		except:     
 			return Response("Invalid tokens")
 		
-		print(f"request -----> {request.data}", flush=True)
 		try:
 			convID = Conversation.objects.get(ConversationId= request.data.get("convID"))
 			
@@ -168,28 +165,28 @@ class getMessages(APIView):
 		
 		paginated_messages = messages[offset:offset + paginator.page_size]
 
-		# print(paginated_messages, flush=True)
-
 		for message in reversed(paginated_messages):
 			if message.sender.email == senderMail: 
 				chatMessages.append({
-					"convID" : convID.ConversationId,
-					"messageId" : message.MessageId,
-					"message" : message.message,
-					"isRead" : message.isRead,
-					"timestamp": message.timestamp.strftime('%b %d, %H:%M'),
-					"isSender" : True
+					"convId"		: convID.ConversationId,
+					"messageId"	: message.MessageId,
+					"message"		: message.message,
+					"isRead"		: message.isRead,
+					"isSent"		: message.isSent,
+					"timestamp"	: message.timestamp.strftime('%b %d, %H:%M'),
+					"isSender"	: True
 					})#maybe other fields, not sure
 			else:
 				receiverID = convID.Receiver.id
 				chatMessages.append({
-					"convID" : convID.ConversationId,
-					"messageId" : message.MessageId,
-					"message" : message.message,
-					"isRead" : message.isRead,
-					"timestamp": message.timestamp.strftime('%b %d, %H:%M'),
-					"isSender" : False,
-					"ReceiverID" : receiverID
+					"convId"			: convID.ConversationId,
+					"messageId"		: message.MessageId,
+					"message"			: message.message,
+					"isRead"			: message.isRead,
+					"isSent"			: message.isSent,
+					"timestamp"		: message.timestamp.strftime('%b %d, %H:%M'),
+					"isSender"		: False,
+					"ReceiverID"	: receiverID
 					})
 		response.data = {
 			"messages": chatMessages,
@@ -215,7 +212,6 @@ class SendMessageToFriend(APIView):
 			message= request.data.get("message"),
 		)
 
-		print(request.data, flush=True)
 		return Response({"convId": request.data.get("convID"), "userID": userId, "message": request.data.get("message")}, status = status.HTTP_200_OK)
 
 		

@@ -1,6 +1,5 @@
 import ProfileOptions from "../components/chat/ProfileOptions";
 import Conversation from "../components/chat/Conversation";
-import FriendsChat from "../components/chat/ChatFriends";
 import { useParams } from "react-router-dom";
 import { useContext, useEffect, useRef, useState } from "react";
 import Header from "../components/Header";
@@ -17,7 +16,9 @@ const Chat = () => {
 	const { uid } = useParams();
 	const [profileSide, setProfileSide] = useState(window.innerWidth <= 768 ? false : true);
 	const [updatedConversation, setUpdatedConversation] = useState(null);
+	const [readedMessages, setReadedMessages] = useState(null);
 	const [messages, setMessages] = useState([]);
+	const [tempMessages, setTempMessages] = useState([]);
 	const [friendsData, setFriendsData] = useState(null);
 	const [conversationSide, setConversationSide] = useState(true);
 	const navigate = useNavigate();
@@ -45,10 +46,17 @@ const Chat = () => {
 		if (ws.current) {
 			ws.current.onmessage = (e) => {
 				const messageData = JSON.parse(e.data);
-				if (messageData && messageData.type === 'message') {
-					setUpdatedConversation(messageData);
-					if (uid && messageData.convId === uid) {
-						setMessages((preveMessage) => [...preveMessage, messageData]);
+				if (messageData) {
+					if (messageData.type === 'message') {
+						setUpdatedConversation(messageData);
+						if (uid && messageData.convId === uid) {
+							if (!messageData.isSender)
+								ws.current.send(JSON.stringify({'message': 'message is readedf', 'type': 'read', 'convId': uid}));
+							setMessages((preveMessage) => [...preveMessage, messageData]);
+							setTempMessages([]);
+						}
+					} else if (messageData.type === 'read') {
+						setReadedMessages(messageData);
 					}
 				}
 			}
@@ -120,6 +128,10 @@ const Chat = () => {
 								<Conversation
 									uid={uid}
 									ws={ws}
+									setTempMessages={setTempMessages}
+									tempMessages={tempMessages}
+									setReadedMessages={setReadedMessages}
+									readedMessages={readedMessages}
 									setMessages={setMessages}
 									messages={messages}
 									friendInfo={friendInfo}
