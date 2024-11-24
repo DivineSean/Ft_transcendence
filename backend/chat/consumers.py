@@ -64,8 +64,13 @@ class Chat(WebsocketConsumer):
 					if element == self.convId:
 
 						msg = self.create_message(message)
-
-						print(f"receive convID: ====> {self.convId}", flush=True)
+# 						user = { #should make a serializer
+# 							'id': str(self.scope['user'].id),
+# 							'first_name': self.scope['user'].first_name,
+# 							'last_name': self.scope['user'].last_name,
+							
+# 						}
+# 						print(f"receive userIDIDIDIDI: ====> {type(self.scope['user'])} ", flush=True)
 						async_to_sync(self.channel_layer.group_send)(
 								element,
 								{
@@ -78,7 +83,7 @@ class Chat(WebsocketConsumer):
 										# "timestamp": str(msg.timestamp.strftime('%H:%M'))
 								}
 						)
-
+		#MAKE A SERIALZER ASAAAP ! SAAD
 		def chat_message(self, event):
 				
 				self.send(text_data=json.dumps({
