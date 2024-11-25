@@ -74,7 +74,7 @@ const Conversation = ({
 
 	useEffect(() => {
 		const getChunkedData = setTimeout(() => {
-			if (chunkedData !== 0) {
+			if (chunkedData !== 0 && offsetMssg !== 0) {
 				if (topScrollRef.current) {
 					if (topScrollRef.current.scrollTop === 0)
 						topScrollRef.current.scrollBy({top: 15, behavior: 'smooth'});
@@ -84,7 +84,7 @@ const Conversation = ({
 		}, 500);
 
 		return () => clearTimeout(getChunkedData);
-	}, [chunkedData]);
+	}, [chunkedData && offsetMssg]);
 
 	const handleConversationScroll = () => {
 
