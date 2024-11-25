@@ -39,6 +39,7 @@ const Conversation = ({
 	const [offsetMssg, setOffsetMssg] = useState(0);
 	const [isChunked, setIsChunked] = useState(false);
 	const [allMessages, setAllMessages] = useState(false);
+	const [chunkedData, setChunkedData] = useState(0);
 	const conversation = [];
 	const downScrollRef = useRef(null);
 	const topScrollRef = useRef(null);
@@ -71,12 +72,25 @@ const Conversation = ({
 
 	}, [messages.length, tempMessages.length, displayTyping]);
 
+	useEffect(() => {
+		const getChunkedData = setTimeout(() => {
+			if (chunkedData !== 0 && offsetMssg !== 0) {
+				if (topScrollRef.current) {
+					if (topScrollRef.current.scrollTop === 0)
+						topScrollRef.current.scrollBy({top: 15, behavior: 'smooth'});
+				}
+				getChunkedMessages(uid, setMessages, offsetMssg, setOffsetMssg, setIsChunked, setAllMessages);
+			}
+		}, 500);
+
+		return () => clearTimeout(getChunkedData);
+	}, [chunkedData && offsetMssg]);
+
 	const handleConversationScroll = () => {
 
 		if (topScrollRef.current) {
 			if (topScrollRef.current.scrollTop === 0 && offsetMssg !== 0) {
-				topScrollRef.current.scrollBy({top: 15, behavior: 'smooth'});
-				getChunkedMessages(uid, setMessages, offsetMssg, setOffsetMssg, setIsChunked, setAllMessages);
+				setChunkedData(prev => prev + 1);
 			}
 		}
 
@@ -123,7 +137,7 @@ const Conversation = ({
 		setTimeout(() => {
 			if (ws.current) // here when we blur the input will send stop typing
 				ws.current.send(JSON.stringify({'message': 'endTyping', 'type': 'stopTyping', 'convId': uid}));
-		}, 500);
+		}, 700);
 	}
 
 	if (messages && messages.length) {
@@ -148,6 +162,14 @@ const Conversation = ({
 		displayProfile(true);
 		hideSelf(false);
 	};
+
+	const heandleIsTyping = (e) => {
+		if (!typing) {
+			if (ws.current)
+				ws.current.send(JSON.stringify({'message': 'isTyping', 'type': 'typing', 'convId': uid}));
+		}
+		setTyping(e.target.value)
+	}
 
 	return (
 		<div className={`grow md:flex flex-col gap-32 ${uid ? 'flex' : 'hidden'}`}>
@@ -193,7 +215,7 @@ const Conversation = ({
 			</div>
 			<form className="flex items-center relative" onSubmit={sendMessage}>
 				<input
-					onChange={(e) => setTyping(e.target.value)}
+					onChange={heandleIsTyping}
 					onBlur={handleBlur}
 					autoFocus
 					type="text"
