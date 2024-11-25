@@ -77,12 +77,12 @@ const Chat = () => {
 						}
 					} else if (messageData.type === 'read') { // if we received the read event
 						setReadedMessages(messageData); // set readed message with the message we received from the socket to update all unreaded messages
-						console.log('is reaaad');
+						// console.log('is reaaad9999999999999999');
 					}
 
 					else if (messageData.type === 'typing') // if we received the typing event
 						setDisplayTyping(prev => prev + 1); // increment the display typing state to know that the uer is still typing
-
+					
 					else if (messageData.type === 'stopTyping') // if we received the stop typing event
 						setDisplayTyping(0); // reset display typing, to remove the typing message from the conversation
 				}
@@ -104,20 +104,26 @@ const Chat = () => {
 			if (findConv) {
 				findConv.lastMessage = updatedConversation.message;
 				findConv.messageDate = updatedConversation.timestamp;
+				findConv.isRead = updatedConversation.isRead;
+				findConv.sender = updatedConversation.isSender;
+				if (uid && findConv.conversationId === uid)
+					findConv.isRead = true;
 			}
 			
 			// get all other conversation 
 			const newFriendsData = friendsData.users.filter(user => user.conversationId !== updatedConversation.convId);
 
 			// then resort them to make the updated conversation the first one
+			// console.log(updatedConversation);
 			setFriendsData({
 				...friendsData,
 				users: [findConv, ...newFriendsData]
 			});
-			
 		}
 	}, [updatedConversation]);
-	
+
+	// console.log('friendsData++++++', friendsData);
+
 	let friendInfo = []; // get the conversation that have the same uid that we have in the url
 	if (friendsData && friendsData.users && friendsData.users.length) {
 		friendInfo = friendsData.users.filter(u => u.conversationId === uid)[0];

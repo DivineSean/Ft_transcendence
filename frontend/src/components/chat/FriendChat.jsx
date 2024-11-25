@@ -7,8 +7,9 @@ const FriendsChat = ({uid, friendInfo, displayTyping, isSend, messages, ws}) => 
 	const handleReadMessage = () => {
 		if (ws.current) {
 			ws.current.send(JSON.stringify({'message': 'message is readedf', 'type': 'read', 'convId': friendInfo.conversationId}));
-			console.log('ws is send to read the message');
+			// console.log('ws is send to read the message');
 		}
+		friendInfo.isRead = true;
 		navigate(`/chat/${friendInfo.conversationId}`);
 	};
 
@@ -51,7 +52,7 @@ const FriendsChat = ({uid, friendInfo, displayTyping, isSend, messages, ws}) => 
 						}
 					</div>
 
-					{ displayTyping === 0 && isSend &&
+					{ displayTyping === 0 && !friendInfo.isRead && !friendInfo.sender &&
 						<div className="text-txt-xs font-bold">
 							{	friendInfo.lastMessage && friendInfo.lastMessage.length > 15
 								? friendInfo.lastMessage.substring(0, 15) + "..."
@@ -60,7 +61,7 @@ const FriendsChat = ({uid, friendInfo, displayTyping, isSend, messages, ws}) => 
 						</div>
 					}
 
-					{ displayTyping === 0 && !isSend &&
+					{ displayTyping === 0 && friendInfo.isRead &&
 						<div className={`text-txt-xs normal-case ${!friendInfo.lastMessage ? 'text-stroke-sc' : 'text-white'}`}>
 							{	friendInfo.lastMessage && friendInfo.lastMessage.length > 15
 								? friendInfo.lastMessage.substring(0, 15) + "..."
@@ -74,8 +75,8 @@ const FriendsChat = ({uid, friendInfo, displayTyping, isSend, messages, ws}) => 
 				
 				<div className="flex flex-col justify-center items-end gap-8">
 					<p className="text-txt-xs font-lighter text-stroke-sc">{friendInfo.messageDate}</p>
-					<div className={`h-16 w-16 ${isSend ? 'bg-green' : 'bg-transparent'} flex justify-center items-center rounded-full`}>
-						{ isSend && <p className="text-txt-xs text-black font-semibold">{messages}</p>}
+					<div className={`h-16 w-16 bg-transparent flex justify-center items-center rounded-full`}>
+						{ displayTyping === 0 && !friendInfo.isRead && !friendInfo.sender && <p className="text-txt-xs text-green font-bold">new</p>}
 					</div> 
 				</div>
 			</div>

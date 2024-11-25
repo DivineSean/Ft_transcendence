@@ -135,7 +135,7 @@ class Chat(WebsocketConsumer):
 
 
 		def chat_message(self, event):
-				
+				print(event['isRead'], flush=True)
 				self.send(text_data=json.dumps({
 						"type"			: "message",
 						"message"		: event['message'],
