@@ -64,7 +64,29 @@ const FriendsChat = ({uid, friendInfo, displayTyping, ws}) => {
 						</div>
 					}
 
-					{ displayTyping === 0 && friendInfo.isRead && friendInfo.lastMessage &&
+					{ displayTyping === 0 && friendInfo.isRead && friendInfo.sender &&
+						<div className={`text-txt-xs normal-case ${!friendInfo.lastMessage ? 'text-stroke-sc' : 'text-white'}`}>
+							{	friendInfo.lastMessage && friendInfo.lastMessage.length > 15
+								? friendInfo.lastMessage.substring(0, 15) + "..."
+								: !friendInfo.lastMessage
+								? 'Say Hello !'
+								: friendInfo.lastMessage
+							}
+						</div>
+					}
+
+					{ displayTyping === 0 && !friendInfo.isRead && friendInfo.sender &&
+						<div className={`text-txt-xs normal-case ${!friendInfo.lastMessage ? 'text-stroke-sc' : 'text-white'}`}>
+							{	friendInfo.lastMessage && friendInfo.lastMessage.length > 15
+								? friendInfo.lastMessage.substring(0, 15) + "..."
+								: !friendInfo.lastMessage
+								? 'Say Hello !'
+								: friendInfo.lastMessage
+							}
+						</div>
+					}
+
+					{ displayTyping === 0 && friendInfo.isRead && !friendInfo.sender &&
 						<div className={`text-txt-xs normal-case ${!friendInfo.lastMessage ? 'text-stroke-sc' : 'text-white'}`}>
 							{	friendInfo.lastMessage && friendInfo.lastMessage.length > 15
 								? friendInfo.lastMessage.substring(0, 15) + "..."
