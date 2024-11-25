@@ -16,5 +16,7 @@ class CreateNotif(APIView):
             return Response({"Message" : "notifType Not found"}, status= status.HTTP_400_BAD_REQUEST)  
         obj = Notifications.objects.create(
             userId=  user.id,
-            notifType = 
+            notifType = "FR",
+            notifMessage = "notif1"
         )
+        return Response("working", status=201)
