@@ -21,11 +21,15 @@ const formatedDate = () => {
 const Conversation = ({
 	ws,
 	uid,
-	messages,
+	typing,
 	hideSelf,
+	messages,
+	setTyping,
 	friendInfo,
 	setMessages,
 	tempMessages,
+	displayTyping,
+	isWsConnected,
 	readedMessages,
 	displayProfile,
 	setTempMessages,
@@ -65,7 +69,7 @@ const Conversation = ({
 				downScrollRef.current.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'end'});
 		}
 
-	}, [messages.length, tempMessages.length]);
+	}, [messages.length, tempMessages.length, displayTyping]);
 
 	const handleConversationScroll = () => {
 
@@ -98,6 +102,29 @@ const Conversation = ({
 		}
 		e.target.reset();
 	};
+
+	// send typing into a ws
+	useEffect(() => {
+		if (!isWsConnected)
+			return;
+
+		const sendTyping = setTimeout(() => {
+			if (ws.current && typing.length) // send typing because the typing state is not empty
+				ws.current.send(JSON.stringify({'message': 'isTyping', 'type': 'typing', 'convId': uid}));
+
+			else if (ws.current && !typing.length) // send stop typing because the typing state is empty
+				ws.current.send(JSON.stringify({'message': 'endTyping', 'type': 'stopTyping', 'convId': uid}));
+		}, 500);
+
+		return () => clearTimeout(sendTyping);
+	}, [typing && typing.length]);
+
+	const handleBlur = () => {
+		setTimeout(() => {
+			if (ws.current) // here when we blur the input will send stop typing
+				ws.current.send(JSON.stringify({'message': 'endTyping', 'type': 'stopTyping', 'convId': uid}));
+		}, 500);
+	}
 
 	if (messages && messages.length) {
 		messages.map(message => {
@@ -155,10 +182,19 @@ const Conversation = ({
 			>
 				<div className={`text-center mb-[64] text-xs text-stroke-sc ${offsetMssg ? 'block' : 'hidden'}`}>loading...</div>
 				{conversation}
+				{displayTyping !== 0 &&
+					<div className="flex gap-8 items-end">
+						<div className="left-message message-glass py-8 px-12 rounded-[8px] rounded-tl-[2px] max-w-[450px] text-green text-sm tracking-wider flex flex-col gap-4 ml-12 relative break-all">
+							typing...
+						</div>
+					</div>
+				}
 				<div ref={downScrollRef}></div>
 			</div>
 			<form className="flex items-center relative" onSubmit={sendMessage}>
 				<input
+					onChange={(e) => setTyping(e.target.value)}
+					onBlur={handleBlur}
 					autoFocus
 					type="text"
 					autoComplete="off"
