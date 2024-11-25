@@ -42,7 +42,8 @@ class GetConversationRooms(APIView):
 			.select_related('Sender', 'Receiver')
 			.annotate(
 				latest_message = Subquery(latest_messages.values('message')),
-				latest_message_timestamp = Subquery(latest_messages.values('timestamp'))
+				latest_message_timestamp = Subquery(latest_messages.values('timestamp')),
+				is_read_messate = Subquery(latest_messages.values('isRead')),
 			)
 			.values(
 				'ConversationId',
@@ -50,6 +51,7 @@ class GetConversationRooms(APIView):
 				'Receiver_id',
 				'latest_message',
 				'latest_message_timestamp',
+				'is_read_messate',
 				sender_first_name=F('Sender__first_name'),
 				receiver_first_name=F('Receiver__first_name'),
 
@@ -87,9 +89,10 @@ class GetConversationRooms(APIView):
 				"about": conv['receiver_about'] if not is_receiver else conv['sender_about'],
 				"messageDate": conv['latest_message_timestamp'].strftime('%b %d, %H:%M') if conv['latest_message_timestamp'] else None,
 				"lastMessage": conv['latest_message'],
+				"isRead": conv['is_read_messate'],
+				"sender" : True if is_receiver else False,
 				"friendId" : conv['Sender_id'] if conv['Sender_id'] != user.id else conv['Receiver_id']
 			})
-
 		return Response({"users": users_data}, status=200)
 
 class SendMessage(APIView):

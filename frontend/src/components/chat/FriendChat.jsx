@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
 
-const FriendsChat = ({uid, friendInfo, isTyping, isSend, messages, ws}) => {
+const FriendsChat = ({uid, friendInfo, displayTyping, isSend, messages, ws}) => {
 
 	const navigate = useNavigate();
 	const handleReadMessage = () => {
@@ -51,7 +51,7 @@ const FriendsChat = ({uid, friendInfo, isTyping, isSend, messages, ws}) => {
 						}
 					</div>
 
-					{!isTyping && isSend &&
+					{ displayTyping === 0 && isSend &&
 						<div className="text-txt-xs font-bold">
 							{	friendInfo.lastMessage && friendInfo.lastMessage.length > 15
 								? friendInfo.lastMessage.substring(0, 15) + "..."
@@ -60,7 +60,7 @@ const FriendsChat = ({uid, friendInfo, isTyping, isSend, messages, ws}) => {
 						</div>
 					}
 
-					{ !isTyping && !isSend &&
+					{ displayTyping === 0 && !isSend &&
 						<div className={`text-txt-xs normal-case ${!friendInfo.lastMessage ? 'text-stroke-sc' : 'text-white'}`}>
 							{	friendInfo.lastMessage && friendInfo.lastMessage.length > 15
 								? friendInfo.lastMessage.substring(0, 15) + "..."
@@ -69,8 +69,9 @@ const FriendsChat = ({uid, friendInfo, isTyping, isSend, messages, ws}) => {
 								: friendInfo.lastMessage
 							}
 						</div> }
-					{ isTyping && <div className="text-txt-xs font-bold text-green">Typing...</div>}
+					{ displayTyping !== 0 && <div className="text-txt-xs font-bold text-green">Typing...</div>}
 				</div>
+				
 				<div className="flex flex-col justify-center items-end gap-8">
 					<p className="text-txt-xs font-lighter text-stroke-sc">{friendInfo.messageDate}</p>
 					<div className={`h-16 w-16 ${isSend ? 'bg-green' : 'bg-transparent'} flex justify-center items-center rounded-full`}>

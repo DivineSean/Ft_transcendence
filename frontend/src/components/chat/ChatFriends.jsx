@@ -1,6 +1,6 @@
 import FriendsChat from "./FriendChat";
 
-const ChatFriends = ({uid, friendsData, ws}) => {
+const ChatFriends = ({uid, friendsData, ws, displayTyping}) => {
 
 	const friends = [];
 	if (friendsData && friendsData.users && friendsData.users.length) {
@@ -9,6 +9,7 @@ const ChatFriends = ({uid, friendsData, ws}) => {
 				<FriendsChat
 					uid={uid}
 					ws={ws}
+					displayTyping={displayTyping}
 					friendInfo={friend}
 					messages={3}
 					key={friend.conversationId}

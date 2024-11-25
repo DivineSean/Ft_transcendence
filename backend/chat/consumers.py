@@ -86,7 +86,41 @@ class Chat(WebsocketConsumer):
 									'convId'	: str(self.convName)
 								}
 							)
+						elif text_data_json['type'] == 'typing':
+							print(f'++++++++++++++> typing <++++++++++++++', flush=True)
+							async_to_sync(self.channel_layer.group_send)(
+								element,
+								{
+									'type'		: 'chat_typing',
+									'sender'	: self.user,
+									'convId'	: str(self.convName),
+								}
+							)
+						elif text_data_json['type'] == 'stopTyping':
+							print(f'sf rah salat am3lam', flush=True)
+							async_to_sync(self.channel_layer.group_send)(
+								element,
+								{
+									'type'		: 'chat_stop_typing',
+									'sender'	: self.user,
+									'convId'	: str(self.convName),
+								}
+							)
+		
+		def chat_stop_typing(self, event):
+			if event['sender']['id'] != self.user['id']:
+				self.send(text_data=json.dumps({
+					'type'		: 'stopTyping',
+					'convId'	: event['convId'],
+				}))
+		
 
+		def chat_typing(self, event):
+			if event['sender']['id'] != self.user['id']:
+				self.send(text_data=json.dumps({
+					'type'		: 'typing',
+					'convId'	: event['convId']
+				}))
 
 		def chat_read_message(self, event):
 			if event['sender']['id'] != self.user['id']:
