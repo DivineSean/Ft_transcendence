@@ -87,7 +87,6 @@ class Chat(WebsocketConsumer):
 								}
 							)
 						elif text_data_json['type'] == 'typing':
-							print(f'++++++++++++++> typing <++++++++++++++', flush=True)
 							async_to_sync(self.channel_layer.group_send)(
 								element,
 								{
@@ -97,7 +96,6 @@ class Chat(WebsocketConsumer):
 								}
 							)
 						elif text_data_json['type'] == 'stopTyping':
-							print(f'sf rah salat am3lam', flush=True)
 							async_to_sync(self.channel_layer.group_send)(
 								element,
 								{
