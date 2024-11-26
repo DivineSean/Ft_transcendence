@@ -42,6 +42,7 @@ class sAuthMiddleWare(MiddlewareMixin):
 				validatedAccessToken = AccessToken(accessToken)
 				user = jwtObj.get_user(validatedAccessToken)
 				request._user = user 
+				print("------------------>",request._user, flush = True)
 				return None
 				
 			except :
@@ -52,7 +53,7 @@ class sAuthMiddleWare(MiddlewareMixin):
 					refresh = RefreshToken(refreshToken)
 					new_access_token = str(refresh.access_token)
 					user = jwtObj.get_user(refresh)
-					request.user = user  
+					request._user = user  
 			
 					request._new_access_token = new_access_token
 					return None # ched had l access token 3ndk f dak response a jawad

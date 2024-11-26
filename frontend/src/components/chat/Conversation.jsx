@@ -166,7 +166,7 @@ const Conversation = ({
 	const heandleIsTyping = (e) => {
 		if (!typing) {
 			if (ws.current)
-				ws.current.send(JSON.stringify({'message': 'isTyping', 'type': 'typing', 'convId': uid}));
+				ws.current.send(JSON.stringify({'message': e.target.value, 'type': 'typing', 'convId': uid}));
 		}
 		setTyping(e.target.value)
 	}
@@ -204,7 +204,7 @@ const Conversation = ({
 			>
 				<div className={`text-center mb-[64] text-xs text-stroke-sc ${offsetMssg ? 'block' : 'hidden'}`}>loading...</div>
 				{conversation}
-				{displayTyping !== 0 &&
+				{displayTyping &&
 					<div className="flex gap-8 items-end">
 						<div className="left-message message-glass py-8 px-12 rounded-[8px] rounded-tl-[2px] max-w-[450px] text-green text-sm tracking-wider flex flex-col gap-4 ml-12 relative break-all">
 							typing...

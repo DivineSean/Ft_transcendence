@@ -21,7 +21,7 @@ const Chat = () => {
 	const [messages, setMessages] = useState([]);
 	const [tempMessages, setTempMessages] = useState([]);
 	const [friendsData, setFriendsData] = useState(null);
-	const [displayTyping, setDisplayTyping] = useState(0);
+	const [displayTyping, setDisplayTyping] = useState(null);
 	const [isWsConnected, setIsWsConnected] = useState(false);
 	const [readedMessages, setReadedMessages] = useState(null);
 	const [conversationSide, setConversationSide] = useState(true);
@@ -73,7 +73,7 @@ const Chat = () => {
 							
 							setTyping(''); // reset is typing to notif the receiver that the user no longer is typing
 							
-							setDisplayTyping(0); // reset the display typing to make the front don't display is typing message to the user
+							setDisplayTyping(null); // reset the display typing to make the front don't display is typing message to the user
 						}
 					} else if (messageData.type === 'read') { // if we received the read event
 						setReadedMessages(messageData); // set readed message with the message we received from the socket to update all unreaded messages
@@ -81,10 +81,10 @@ const Chat = () => {
 					}
 
 					else if (messageData.type === 'typing') // if we received the typing event
-						setDisplayTyping(prev => prev + 1); // increment the display typing state to know that the uer is still typing
+						setDisplayTyping(messageData); // increment the display typing state to know that the uer is still typing
 					
 					else if (messageData.type === 'stopTyping') // if we received the stop typing event
-						setDisplayTyping(0); // reset display typing, to remove the typing message from the conversation
+						setDisplayTyping(null); // reset display typing, to remove the typing message from the conversation
 				}
 			}
 		}
@@ -139,6 +139,7 @@ const Chat = () => {
 			setProfileSide(true);
 	})
 
+	console.log(friendsData);
 	return (
 		<div className="flex flex-col grow">
 			<Header link='chat' />

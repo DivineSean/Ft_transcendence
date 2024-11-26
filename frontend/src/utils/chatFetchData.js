@@ -6,10 +6,12 @@ const FetchData = new FetchWrapper();
 export const getConversations = async (setData, setGlobalMessage, navigate) => {
 	try {
 		const res = await FetchData.get('chat/conversations/');
+		console.log(res);
 		if (res.ok) {
 			const data = await res.json();
+			console.log('data', data);
 			setData(data);
-			// console.log(data);
+
 		} else if (res.status) {
 			const data = await res.json();
 			if (res.status === 401) {
@@ -30,6 +32,7 @@ export const getMessages = async (convId, setData, setOffsetMssg) => {
 			'convID': convId,
 			'offset': 0,
 		});
+		
 		if (res.status !== 500) {
 			const data = await res.json();
 			if (res.status === 200) {
