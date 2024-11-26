@@ -16,6 +16,7 @@ class sAuthMiddleWare(MiddlewareMixin):
 		self.UnlockedPaths = [
 			"/api/google/",
 			"/api/token/refresh/",
+			"/api/token/",
 			"/api/callback/",
 			"/api/register/",
 			"/api/setupusername/",
