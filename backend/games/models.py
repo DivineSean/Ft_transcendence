@@ -44,3 +44,11 @@ def create_player_ratings(sender, instance, created, **kwargs):
         PlayerRating.objects.bulk_create(
             [PlayerRating(user=user, game=instance) for user in users]
         )
+
+@receiver(post_save, sender=User)
+def create_player_ratings_for_user(sender, instance, created, **kwargs):
+    if created:
+        games = Game.objects.all()
+        PlayerRating.objects.bulk_create(
+            [PlayerRating(user=instance, game=game) for game in games]
+        )
