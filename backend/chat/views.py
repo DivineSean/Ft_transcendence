@@ -4,7 +4,6 @@ from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import OuterRef, Subquery
-#from django.http import HttpResponse
 from chat.models import Conversation
 from Auth.models import Users
 from chat.models import Message
@@ -13,9 +12,8 @@ from django.db.models import Prefetch, OuterRef, Subquery, F, Q
 from django.db.models.functions import Coalesce
 from rest_framework.pagination import PageNumberPagination ,BasePagination
 
-# {"receiverID": "59533f62-e7ef-4469-aebf-3b19c8a3c653"}
 
-class GetConversationRooms(APIView): 
+class GetConversationRooms(APIView):
 
 	def get(self, request):
 		# scope["user"] =>HTTP
@@ -34,7 +32,8 @@ class GetConversationRooms(APIView):
 			.select_related('Sender', 'Receiver')
 			.annotate(
 				latest_message = Subquery(latest_messages.values('message')),
-				latest_message_timestamp = Subquery(latest_messages.values('timestamp'))
+				latest_message_timestamp = Subquery(latest_messages.values('timestamp')),
+				is_read_messate = Subquery(latest_messages.values('isRead')),
 			)
 			.values(
 				'ConversationId',
@@ -42,6 +41,7 @@ class GetConversationRooms(APIView):
 				'Receiver_id',
 				'latest_message',
 				'latest_message_timestamp',
+				'is_read_messate',
 				sender_first_name=F('Sender__first_name'),
 				receiver_first_name=F('Receiver__first_name'),
 
@@ -62,6 +62,7 @@ class GetConversationRooms(APIView):
 				receiver_about=F('Receiver__about'),
 			).order_by('-latest_message_timestamp')
 		)
+
 		users_data = []
 		for conv in conversations:
 			is_receiver = conv['Receiver_id'] == request_user.id
@@ -82,7 +83,6 @@ class GetConversationRooms(APIView):
 			})
 
 		return Response({"users": users_data}, status=200)
-
 
 
 class SendMessage(APIView):
@@ -138,28 +138,28 @@ class getMessages(APIView):
 		
 		paginated_messages = messages[offset:offset + paginator.page_size]
 
-		# print(paginated_messages, flush=True)
-
 		for message in reversed(paginated_messages):
 			if message.sender.email == request._user.email: 
 				chatMessages.append({
-					"convID" : convID.ConversationId,
-					"messageId" : message.MessageId,
-					"message" : message.message,
-					"isRead" : message.isRead,
-					"timestamp": message.timestamp.strftime('%b %d, %H:%M'),
-					"isSender" : True
+					"convId"		: convID.ConversationId,
+					"messageId"	: message.MessageId,
+					"message"		: message.message,
+					"isRead"		: message.isRead,
+					"isSent"		: message.isSent,
+					"timestamp"	: message.timestamp.strftime('%b %d, %H:%M'),
+					"isSender"	: True
 					})#maybe other fields, not sure
 			else:
 				receiverID = convID.Receiver.id
 				chatMessages.append({
-					"convID" : convID.ConversationId,
-					"messageId" : message.MessageId,
-					"message" : message.message,
-					"isRead" : message.isRead,
-					"timestamp": message.timestamp.strftime('%b %d, %H:%M'),
-					"isSender" : False,
-					"ReceiverID" : receiverID
+					"convId"			: convID.ConversationId,
+					"messageId"		: message.MessageId,
+					"message"			: message.message,
+					"isRead"			: message.isRead,
+					"isSent"			: message.isSent,
+					"timestamp"		: message.timestamp.strftime('%b %d, %H:%M'),
+					"isSender"		: False,
+					"ReceiverID"	: receiverID
 					})
 		response.data = {
 			"messages": chatMessages,
@@ -181,8 +181,7 @@ class SendMessageToFriend(APIView):
 			)
 		except:
 			return Response("error")
-
-	
+    
 		return Response({"convId": request.data.get("convID"), "userID": userId, "message": request.data.get("message")}, status = status.HTTP_200_OK)
 
 		

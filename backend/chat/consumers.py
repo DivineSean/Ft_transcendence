@@ -6,31 +6,31 @@ from .models import Conversation, Message
 from Auth.models import Users
 from django.utils import timezone
 from asgiref.sync import async_to_sync
+from Auth.serializers import UserSerializer
+from rest_framework.serializers import ValidationError
 
 
-#Chat room name 
 class Chat(WebsocketConsumer):
 		def connect(self):
 				self.room_name = self.scope['url_route']['kwargs']
-				
-				# self.room_group_name =f'Conversation_' + str(self.room_name.ConversationId)
+				try:
+					serializer = UserSerializer(self.scope['user'])
+					self.user = serializer.data
+				except ValidationError:
+					return 
+
 				conversations = Conversation.objects.filter(
-					Q(Sender=self.scope["user"].id) | Q(Receiver=self.scope["user"].id))
+					Q(Sender=self.user["id"]) | Q(Receiver=self.user["id"]))
 				self.room_group_name = []
 				for element in conversations:
 
 					self.room_group_name.append(f"conv-{element.ConversationId}")
-					print(f"connected convID: ====> {element.ConversationId}", flush=True)
-					# print(f'connected to {self.room_group_name}', flush=True)
 					async_to_sync(self.channel_layer.group_add)(
 						f"conv-{element.ConversationId}",   
 						self.channel_name
 					)
-				#GEt query of user either receiver, sender, 
-				#loop on them => add new groups with name equals to "conv-{conversationId}"
 				
 				self.accept()
-			
 
 		def disconnect(self, code):
 				for element in self.room_group_name:
@@ -43,45 +43,109 @@ class Chat(WebsocketConsumer):
 
 				# once i get the message
 				# Store it in the Message Model
+
 				try:
 					text_data_json = json.loads(text_data)
 					message = text_data_json["message"] 
 					self.convId = f"conv-{text_data_json['convId']}"
 					self.convName = text_data_json['convId']
 				except Exception as e:
-						print("------>", e, flush=True)
+						print("error ------>", e, flush=True)
 						self.close()
 						return
 				
 				for element in self.room_group_name:
 					if element == self.convId:
 
-						msg = self.create_message(message)
+						# here for the sended messaged create a new message in db
+						# with the content that we received from the sender
+						if text_data_json['type'] == 'message':
 
-						print(f"receive convID: ====> {self.convId}", flush=True)
-						async_to_sync(self.channel_layer.group_send)(
+							msg = self.create_message(message)
+							async_to_sync(self.channel_layer.group_send)(
+									element,
+									{
+											"type"			: "chat_message", 
+											"convId"		: str(self.convName),
+											"message"		: msg.message,
+											"isRead"		: msg.isRead,
+											"isSent"		: True,
+											"messageId"	: str(msg.MessageId),	
+											"sender"		: self.user,
+											"timestamp"	: str(msg.timestamp.strftime('%b %d, %H:%M'))
+									}
+							)
+						# here for the readed message event get all unread messages
+						# of the sender and make them as readed
+						elif text_data_json['type'] == 'read':
+							async_to_sync(self.channel_layer.group_send)(
 								element,
 								{
-										"type": "chat_message", 
-										"convId": str(self.convName),
-										"message": msg.message,
-										"messageId": str(msg.MessageId),
-										"sender": self.scope['user'],
-										"timestamp": str(msg.timestamp.strftime('%b %d, %H:%M'))
-										# "timestamp": str(msg.timestamp.strftime('%H:%M'))
+									'type'		: 'chat_read_message',
+									"sender"	: self.user,
+									'convId'	: str(self.convName)
 								}
-						)
+							)
+						elif text_data_json['type'] == 'typing':
+							async_to_sync(self.channel_layer.group_send)(
+								element,
+								{
+									'type'		: 'chat_typing',
+									'sender'	: self.user,
+									'convId'	: str(self.convName),
+								}
+							)
+						elif text_data_json['type'] == 'stopTyping':
+							async_to_sync(self.channel_layer.group_send)(
+								element,
+								{
+									'type'		: 'chat_stop_typing',
+									'sender'	: self.user,
+									'convId'	: str(self.convName),
+								}
+							)
+		
+		def chat_stop_typing(self, event):
+			if event['sender']['id'] != self.user['id']:
+				self.send(text_data=json.dumps({
+					'type'		: 'stopTyping',
+					'convId'	: event['convId'],
+				}))
+		
+
+		def chat_typing(self, event):
+			if event['sender']['id'] != self.user['id']:
+				self.send(text_data=json.dumps({
+					'type'		: 'typing',
+					'convId'	: event['convId']
+				}))
+
+		def chat_read_message(self, event):
+			if event['sender']['id'] != self.user['id']:
+				Message.objects.filter(
+					isRead = False,
+					ConversationName = event['convId'],
+					sender = self.user['id']
+				).update(isRead = True)
+				
+				self.send(text_data=json.dumps({
+					'type'		: 'read',
+					'convId'	: event['convId']
+				}))
+
 
 		def chat_message(self, event):
-				
+				print(event['isRead'], flush=True)
 				self.send(text_data=json.dumps({
 						"type"			: "message",
 						"message"		: event['message'],
 						"convId"		: event['convId'],
+						"isRead"		: event['isRead'],
+						"isSent"		: event['isSent'],
 						"messageId"	: event['messageId'],
-						"isSender"	: event['sender'].id == self.scope['user'].id,
-						"firstName"	: self.scope['user'].first_name if event["sender"].id != self.scope['user'].id else event['sender'].first_name,
-						"lastName"	: self.scope['user'].last_name if event["sender"].id != self.scope['user'].id else event['sender'].last_name,
+						"isSender"	: event['sender']["id"] == self.user["id"],
+						"firstName"	: self.user["first_name"] if event["sender"]["id"] != self.user["id"] else event['sender']["first_name"],
+						"lastName"	: self.user["last_name"] if event["sender"]["id"] != self.user["id"] else event['sender']["last_name"],
 						"timestamp"	: event['timestamp']
 				}))
 
@@ -89,16 +153,14 @@ class Chat(WebsocketConsumer):
 				return  Users.objects.get()  #should be modifed
 
 		def get_room(self, convID):
-				return Conversation.objects.get(ConversationId = convID)#Get object or 404
+				return Conversation.objects.get(ConversationId = convID) #Get object or 404
 
 
 		def create_message(self, message):
-				#Database 
 				return Message.objects.create(
 						ConversationName = self.get_room(self.convName),
-						sender=Users.objects.get(email = self.scope["user"].email),
+						sender=Users.objects.get(email = self.user["email"]),
 						message=message,
 				)
 		
-
 #TO DO => restrictions in jwt (password)
