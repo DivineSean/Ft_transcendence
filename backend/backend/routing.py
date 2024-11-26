@@ -6,5 +6,6 @@ from notification.routing import notification_urlpatterns
 ws_urlpatterns = [
     *game_urlpatterns,
     *matchmaking_urlpatterns,
-    *chat_urlpatterns
+    *chat_urlpatterns,
+   *notification_urlpatterns
 ]
