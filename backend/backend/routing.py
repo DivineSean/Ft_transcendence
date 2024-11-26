@@ -1,12 +1,10 @@
-from django.urls import path,include
-# from games.routing import ws_urlpatterns as game_urlpatterns
+from games.routing import ws_urlpatterns as game_urlpatterns
+from matchmaking.routing import ws_urlpatterns as matchmaking_urlpatterns
 from chat.routing import chat_urlpatterns
 from notification.routing import notification_urlpatterns
-# from chat.routing import *
-# print(chat_urlpatterns, flush=True)
-ws_urlpatterns = [
-    # *game_urlpatterns,
-    *chat_urlpatterns,
-    *notification_urlpatterns,
 
+ws_urlpatterns = [
+    *game_urlpatterns,
+    *matchmaking_urlpatterns,
+    *chat_urlpatterns
 ]

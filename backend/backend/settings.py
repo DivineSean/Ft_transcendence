@@ -33,7 +33,8 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DJANGO_DEBUG", default=False))
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(' ')
 
 
 # Application definition
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'channels',
     'Auth',
     'games',
+    'matchmaking',
     'friendship',
     'silk',
     "notification",
@@ -107,10 +109,9 @@ SIMPLE_JWT = {
 CSRF_TRUSTED_ORIGINS = [
 	'https://localhost:3000',
 	'https://localhost:8000',
-]
 
 CORS_ALLOWED_ORIGINS = [
-	"https://localhost:3000"
+	"https://localhost:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -124,6 +125,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'backend.AuthMiddleware.sAuthMiddleWare',
     'silk.middleware.SilkyMiddleware',
 ]
 
@@ -149,10 +151,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = 'backend.asgi.application'
 
-# WARNING: This is temporary, redis should be used later on
+REDIS_CONNECTION = {
+    'host': os.environ.get("REDIS_HOST"),
+    'port': os.environ.get("REDIS_PORT"),
+    'db': 1,
+    'password': os.environ.get("REDIS_PASSWORD"),
+}
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [f"redis://:{REDIS_CONNECTION['password']}@{REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/0"],
+        },
     }
 }
 

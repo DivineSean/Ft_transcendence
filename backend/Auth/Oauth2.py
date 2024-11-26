@@ -53,8 +53,6 @@ def CreateUserIfNotExists(user_data):
 	else:
 		return False, data
 
-
-
 @api_view(['GET'])
 def login42(request):
 	response = HttpResponse(content_type='application/json')
@@ -107,7 +105,7 @@ def  callback(request):
 				'redirect_uri': REDIRECT_URL,
 			}
 		)
-	
+
 	access_token = token_response.json().get('access_token')
 	if not access_token:
 		return Response({'error': 'Failed to obtain access token'}, status=400)
@@ -117,6 +115,7 @@ def  callback(request):
 	else:
 		user_response = requests.get('https://www.googleapis.com/oauth2/v2/userinfo', headers={'Authorization': f'Bearer {access_token}'})
 		
+	response = HttpResponse(content_type='application/json')
 	if user_response.status_code == 200:
 
 		user_data = user_response.json()
@@ -129,29 +128,41 @@ def  callback(request):
 		
 		user = Users.objects.get(email=user_data.get('email'))
 		username = user.username
-		if not username:
-			http_response = HttpResponse(content_type='application/json')
-			data = {
-				"message": "logged in successfully!",
-				"username": username,
-				"uid": str(user.id)
-			}
-			dump = json.dumps(data)
-			http_response.content = dump
-			return http_response
-		else:
-			user.isOnline = True
-			user.save()
-			refresh_token = RefreshToken.for_user(user)
-			access = str(refresh_token.access_token)
+		if user.isTwoFa:
+			print('is true am3alam', flush=True)
+			twofaOjt = CustomTokenObtainPairView()
+			two_factor_code = twofaOjt.generate_2fa_code(user, "twoFa")
+			twofaOjt.send_2fa_code(user.email, two_factor_code.code)
+			data = {'message': '2FA code sent', 'uid': str(user.id), 'requires_2fa': True}
+			response.content = json.dumps(data)
+			# return Response(, status=200)
 
-			response = HttpResponse(content_type='application/json')
-			response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
-			response.set_cookie('accessToken', access, httponly=True, secure=True, samesite='Lax')
-			resData = {'message': 'logged in successfully!'}
-			dump = json.dumps(resData)
-			response.content = dump
-			
-			return response
+		else:
+			print('is false am3alam', flush=True)
+			if not username:
+				# response = HttpResponse(content_type='application/json')
+				data = {
+					"message": "logged in successfully!",
+					"username": username,
+					"uid": str(user.id)
+				}
+				dump = json.dumps(data)
+				response.content = dump
+				# return response
+
+			else:
+				user.isOnline = True
+				user.save()
+				refresh_token = RefreshToken.for_user(user)
+				access = str(refresh_token.access_token)
+
+				# response = HttpResponse(content_type='application/json')
+				response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
+				response.set_cookie('accessToken', access, httponly=True, secure=True, samesite='Lax')
+				resData = {'message': 'logged in successfully!'}
+				dump = json.dumps(resData)
+				response.content = dump
+				
+		return response
 	else:
 		return Response({'error': 'error cannot login!'}, status=400)

@@ -1,16 +1,15 @@
 import FetchWrapper from "./fetchWrapper";
-const URL = 'https://localhost:8000/';
-const FetchData = new FetchWrapper(URL);
 
+
+const FetchData = new FetchWrapper();
 
 export const getConversations = async (setData, setGlobalMessage, navigate) => {
-
 	try {
 		const res = await FetchData.get('chat/conversations/');
 		if (res.ok) {
 			const data = await res.json();
 			setData(data);
-			console.log(data);
+			// console.log(data);
 		} else if (res.status) {
 			const data = await res.json();
 			if (res.status === 401) {
@@ -38,6 +37,9 @@ export const getMessages = async (convId, setData, setOffsetMssg) => {
 					setOffsetMssg(20);
 				setData(data.messages);
 			}
+			else {
+				console.log(data);
+			}
 		} else {
 			console.log('internal server error 500');
 		}
@@ -46,14 +48,7 @@ export const getMessages = async (convId, setData, setOffsetMssg) => {
 	}
 }
 
-export const getChunkedMessages = async (
-	convId,
-	setData,
-	offsetMssg,
-	setOfssetMssg,
-	setIsChunked,
-	setAllMessages ) => {
-
+export const getChunkedMessages = async (convId, setData, offsetMssg, setOfssetMssg, setIsChunked, setAllMessages) => {
 	try {
 		const res = await FetchData.post('chat/getMessages/', {
 			'convID': convId,
