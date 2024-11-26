@@ -92,6 +92,7 @@ const Pong = ({ websocket, player }) => {
 		players[0].render();
 		players[1].render();
 
+
 		let simulatedTime = performance.now() / 1000;
 		const fixedStep = 0.015; // 15ms
 		const clock = new Clock();

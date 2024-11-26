@@ -4,7 +4,11 @@
 python manage.py collectstatic --noinput
 
 # Run migrations
+python manage.py makemigrations
 python manage.py migrate
 
+# Populate the Database with available Games
+python manage.py add_games
+
 # Run the uvicorn server
-exec uvicorn backend.asgi:application --host 0.0.0.0 --port 8000 --reload --log-level debug
+exec $@
