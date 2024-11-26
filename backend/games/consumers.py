@@ -16,7 +16,7 @@ class   GameConsumer(WebsocketConsumer):
             game = Game.objects.get(pk=self.game_uuid)
             serializer = GameSerializer(game)
             self.game = serializer.data
-        except models.ObjectDoesNotExist or ValidationError:
+        except (models.ObjectDoesNotExist, ValidationError):
             return
 
         self.accept()
@@ -42,34 +42,27 @@ class   GameConsumer(WebsocketConsumer):
             data = json.loads(text_data)
             type = data['type']
             message = data['message']
-        except json.JSONDecodeError or KeyError:
+        except (json.JSONDecodeError, KeyError):
+            print("------------------> nn hh", flush=True)
             return
 
-        match type: 
+        match type:
             case 'score':
-                async_to_sync(self.channel_layer.group_send)(
-                    self.game_uuid,
-                    {
-                        'type': 'score',
-                        'sender': self.channel_name,
-                        'message': message,
-                    }
-                )
+                self.update_score()
             case 'update':
                 async_to_sync(self.channel_layer.group_send)(
                     self.game_uuid,
                     {
-                        'type': 'update',
+                        'type': 'whisper',
+                        'info': 'update',
                         'sender': self.channel_name,
                         'message': message,
                     }
                 )
+            case 'ready':
+                self.update_readiness()
 
-    def update(self, event):
-        if (event['sender'] != self.channel_name):
-            self.send(text_data=json.dumps({"type": "update", "message": event['message']}))
-
-    def score(self, event):
+    def update_score(self):
 
         # TODO: Update scores on the database
         if self.user_id == self.game['player_one']:
@@ -77,10 +70,38 @@ class   GameConsumer(WebsocketConsumer):
         elif self.user_id == self.game['player_two']:
             self.game['player_two_score'] += 1
 
-        self.send(text_data=json.dumps({
-            'type': 'score',
-            'message': {
-                'player1': self.game['player_one_score'],
-                'player2': self.game['player_two_score'],
+        async_to_sync(self.channel_layer.group_send)(
+            self.game_uuid,
+            {
+                'type': 'broadcast',
+                'info': 'score',
+                'message': {
+                    'player1': self.game['player_one_score'],
+                    'player2': self.game['player_two_score'],
+                }
             }
+        )
+
+    def update_readiness(self):
+        players_ready = cache.get(self.game_uuid, {})
+        players_ready[self.user_id] = True
+        if len(players_ready) == 2:
+            async_to_sync(self.channel_layer.group_send)(
+                self.game_uuid,
+                {
+                    'type': 'broadcast',
+                    'info': 'play',
+                    'message': {},
+                }
+            )
+        cache.set(self.game_uuid, players_ready)
+
+    def whisper(self, event):
+        if (event['sender'] != self.channel_name):
+            self.send(text_data=json.dumps({"type": event['info'], "message": event['message']}))
+
+    def broadcast(self, event):
+        self.send(text_data=json.dumps({
+            'type': event['info'],
+            'message': event['message']
         }))

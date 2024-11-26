@@ -5,7 +5,7 @@ import GameManager from './GameManager';
 const Match = () => {
 	const [playerCount, setPlayerCount] = useState(0);
 	const [inQueue, setInQueue] = useState(false);
-	const [match, setMatch] = useState(false);
+	// const [match, setMatch] = useState(false);
 	const [game, setGame] = useState(null);
 	const navigate = useNavigate();
 	const ws = useRef(null);
@@ -33,10 +33,10 @@ const Match = () => {
 			if (data.type == 'update')
 				setPlayerCount(data.message);
 			else if (data.type == 'match_found') {
-				setGame(data.message.game);
+				setGame(data.message);
 				// const { type, id } = data.message.game;
 				// navigate(`/play/${type}/${id}`);
-				setMatch(true);
+				// setMatch(true);
 			}
 		};
 
@@ -55,7 +55,7 @@ const Match = () => {
 		}
 	};
 
-	return match ? (<GameManager GameDetails={game} />) : (
+	return game ? (<GameManager GameDetails={game} />) : (
 		<div className="w-full h-screen flex flex-col justify-center items-center ">
 			<div className="flex flex-col gap-y-3.5  backdrop-blur-sm justify-center items-center bg-gray-800 text-white rounded-lg shadow-md p-6 w-full max-w-md mx-auto border border-gray-700 h-1/4">
 				<h2 className="text-2xl font-bold mb-3 text-orange-500">Matchmaking Queue</h2>

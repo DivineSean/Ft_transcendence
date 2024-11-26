@@ -33,7 +33,8 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DJANGO_DEBUG", default=False))
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '*']
+
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(' ')
 
 
 # Application definition
@@ -107,7 +108,6 @@ SIMPLE_JWT = {
 CSRF_TRUSTED_ORIGINS = [
 	'https://localhost:3000',
 	'https://localhost:8000',
-]
 
 CORS_ALLOWED_ORIGINS = [
 	"https://localhost:3000",

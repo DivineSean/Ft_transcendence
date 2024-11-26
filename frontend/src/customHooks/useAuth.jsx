@@ -19,7 +19,7 @@ const useAuth = () => {
 			} else {
 				const refRes = await FetchData.post('api/token/refresh/');
 				if (refRes.ok) {
-					navigate('/home', {replace: true});
+					navigate('/home', { replace: true });
 				}
 				else
 					setLoading(false);
