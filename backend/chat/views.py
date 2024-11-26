@@ -24,7 +24,8 @@ class GetConversationRooms(APIView):
 			ConversationName=OuterRef('ConversationId')
 		).order_by('-timestamp').values('message', 'timestamp')[:1]
 		
-
+		print(f'user.id {request._user.id}', flush=True)
+		print(f'user {request._user}', flush=True)
 		conversations = ( # get all conversations with user infos and the latest messages, using sigle query
 			Conversation.objects.filter(
 				Q(Sender=request._user.id) | Q(Receiver=request._user.id)
@@ -33,7 +34,7 @@ class GetConversationRooms(APIView):
 			.annotate(
 				latest_message = Subquery(latest_messages.values('message')),
 				latest_message_timestamp = Subquery(latest_messages.values('timestamp')),
-				is_read_messate = Subquery(latest_messages.values('isRead')),
+				is_read_message = Subquery(latest_messages.values('isRead')),
 			)
 			.values(
 				'ConversationId',
@@ -41,7 +42,7 @@ class GetConversationRooms(APIView):
 				'Receiver_id',
 				'latest_message',
 				'latest_message_timestamp',
-				'is_read_messate',
+				'is_read_message',
 				sender_first_name=F('Sender__first_name'),
 				receiver_first_name=F('Receiver__first_name'),
 
@@ -65,7 +66,7 @@ class GetConversationRooms(APIView):
 
 		users_data = []
 		for conv in conversations:
-			is_receiver = conv['Receiver_id'] == request_user.id
+			is_receiver = conv['Receiver_id'] == request._user.id
 			users_data.append({
 				"conversationId": conv['ConversationId'],
 				"firstName": conv['receiver_first_name'] if not is_receiver else conv['sender_first_name'],
@@ -79,9 +80,12 @@ class GetConversationRooms(APIView):
 				"about": conv['receiver_about'] if not is_receiver else conv['sender_about'],
 				"messageDate": conv['latest_message_timestamp'].strftime('%b %d, %H:%M') if conv['latest_message_timestamp'] else None,
 				"lastMessage": conv['latest_message'],
-				"friendId" : conv['Sender_id'] if conv['Sender_id'] != request_user.id else conv['Receiver_id']
+				"isRead": conv['is_read_message'],
+				"sender": True if not is_receiver else False,
+				"friendId" : conv['Sender_id'] if conv['Sender_id'] != request._user.id else conv['Receiver_id']
 			})
 
+		print(f'conversations ++++++++ {conversations}', flush=True)
 		return Response({"users": users_data}, status=200)
 
 

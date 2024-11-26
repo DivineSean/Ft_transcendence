@@ -126,7 +126,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'backend.AuthMiddleware.sAuthMiddleWare',
+    'Auth.AuthMiddleware.sAuthMiddleWare',
     'silk.middleware.SilkyMiddleware',
 ]
 
