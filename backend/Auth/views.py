@@ -22,21 +22,19 @@ import uuid
 import jwt
 
 from rest_framework_simplejwt.tokens import RefreshToken
-# this function used when we navigate to the login/register page in frontend
-# to check if the user is already loggedin and redirect it to the home page
-@api_view(['GET'])
-def checkAuth(request):
-	token = request.COOKIES.get('accessToken')
-	if not token:
-		return Response({'authenticated': False}, status=401)
-	try:
-		JWTAuthentication().get_validated_token(token)
-		# we should check if 2FA is enabled (I m assuming that 2FA is enabled by default)
-		# I should do a 2FA sending mail here 
 
-		return Response({'authenticated': True})
-	except Exception as e:
-		return Response({'authenticated': False, 'error': str(e)}, status=401)
+# @api_view(['GET'])
+
+# def checkAuth(request): #Should be removed 
+# 	token = request.COOKIES.get('accessToken')
+# 	if not token:
+# 		return Response({'authenticated': False}, status=401)
+# 	try:
+# 		JWTAuthentication().get_validated_token(token)
+		
+# 		return Response({'authenticated': True})
+# 	except Exception as e:
+# 		return Response({'authenticated': False, 'error': str(e)}, status=401)
 
 
 @api_view(['POST'])

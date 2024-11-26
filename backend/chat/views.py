@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.decorators import APIView
-from Auth.AuthMiddleware import HttpJWTAuthMiddleWare
+
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import OuterRef, Subquery
@@ -16,19 +16,9 @@ from rest_framework.pagination import PageNumberPagination ,BasePagination
 class GetConversationRooms(APIView):
 
 	def get(self, request):
+		# scope["user"] =>HTTP
 		response = Response(status=200)
-		try:
-			user, accessToken = HttpJWTAuthMiddleWare().parseCookies(request)
-			# currentUserID = user.id
-		except:
-			return Response("Invalid Tokens", status = 400)
-
-		if not user:
-			return Response("unauthorized user", status = status.HTTP_401_UNAUTHORIZED)
-
-		if accessToken:     
-			response.set_cookie("accessToken", accessToken, httponly=True, secure=True, samesite='Lax')
-
+	
 		# Get latest messages in a single query
 		latest_messages = Message.objects.filter(
 			ConversationName=OuterRef('ConversationId')
@@ -37,7 +27,7 @@ class GetConversationRooms(APIView):
 
 		conversations = ( # get all conversations with user infos and the latest messages, using sigle query
 			Conversation.objects.filter(
-				Q(Sender=user.id) | Q(Receiver=user.id)
+				Q(Sender=request._user.id) | Q(Receiver=request._user.id)
 			)
 			.select_related('Sender', 'Receiver')
 			.annotate(
@@ -75,7 +65,7 @@ class GetConversationRooms(APIView):
 
 		users_data = []
 		for conv in conversations:
-			is_receiver = conv['Receiver_id'] == user.id
+			is_receiver = conv['Receiver_id'] == request_user.id
 			users_data.append({
 				"conversationId": conv['ConversationId'],
 				"firstName": conv['receiver_first_name'] if not is_receiver else conv['sender_first_name'],
@@ -89,69 +79,49 @@ class GetConversationRooms(APIView):
 				"about": conv['receiver_about'] if not is_receiver else conv['sender_about'],
 				"messageDate": conv['latest_message_timestamp'].strftime('%b %d, %H:%M') if conv['latest_message_timestamp'] else None,
 				"lastMessage": conv['latest_message'],
-				"isRead": conv['is_read_messate'],
-				"sender" : True if is_receiver else False,
-				"friendId" : conv['Sender_id'] if conv['Sender_id'] != user.id else conv['Receiver_id']
+				"friendId" : conv['Sender_id'] if conv['Sender_id'] != request_user.id else conv['Receiver_id']
 			})
+
 		return Response({"users": users_data}, status=200)
 
-class SendMessage(APIView):
-    def post(self,request, *args, **kwargs):
-        #Protect id of same client
-        try:
-            user, accessToken = HttpJWTAuthMiddleWare().parseCookies(request)
-            senderMail = user.email
-        except:     
-            return Response("Invalid tokens")
-        
-        try:
-            ReceiverData = Users.objects.get(id = request.data.get("receiverID"))
-            if ReceiverData.email == senderMail: 
-                return Response("Same clients", status= status.HTTP_400_BAD_REQUEST)
-        except:
-            return Response("ID of receiver not valid", status=status.HTTP_400_BAD_REQUEST)
-        newConversation,isNew = Conversation.objects.get_or_create(
-            Sender = Users.objects.get(email = senderMail),
-            Receiver = ReceiverData 
-        )   
-        response = Response(status=status.HTTP_200_OK)
-            
-        if accessToken:
-            response.set_cookie("accessToken", accessToken,httponly=True, secure=True, samesite='Lax')
-        
-        if not isNew:
-            resData = {"message": "Conversation already created",'ConversationID': str(newConversation.ConversationId), "sender" : str(user.email)}
-            response.status_code = status.HTTP_400_BAD_REQUEST
-        else:
-            resData = {"message": "Conversation  created",'ConversationID': str(newConversation.ConversationId), "sender" : str(user.email)}
-            response.status_code = status.HTTP_201_CREATED
-        response.data = resData
-        
-        return response
 
-class getMessages(APIView):
+class SendMessage(APIView):
+		
+	def post(self,request, *args, **kwargs):
+		try:
+			ReceiverData = Users.objects.get(id = request.data.get("receiverID"))
+			if ReceiverData.email == request._user.email: 
+				return Response("Same clients", status= status.HTTP_400_BAD_REQUEST)
+		except:
+			return Response("ID of receiver not valid", status=status.HTTP_400_BAD_REQUEST)
+		newConversation,isNew = Conversation.objects.get_or_create(
+			Sender = request._user,
+			Receiver = ReceiverData 
+		)   
+		response = Response(status=status.HTTP_200_OK)
+
+		if not isNew:
+			resData = {"message": "Conversation already created",'ConversationID': str(newConversation.ConversationId), "sender" : str(user.email)}
+			response.status_code = status.HTTP_400_BAD_REQUEST
+		else:
+			resData = {"message": "Conversation  created",'ConversationID': str(newConversation.ConversationId), "sender" : str(user.email)}
+			response.status_code = status.HTTP_201_CREATED
+		response.data = resData
+		
+		return response
 	
+class getMessages(APIView):
 	# Expecting convID, limit = how much data you want (optional => default 2,)
 	# offset(from where you want data to be fetched from (default = 0))
 	def post(self,request, *args, **kwargs):
 			
 		try:
-			user, accessToken = HttpJWTAuthMiddleWare().parseCookies(request)
-			senderMail = user.email
-		except:     
-			return Response("Invalid tokens")
-		
-		try:
 			convID = Conversation.objects.get(ConversationId= request.data.get("convID"))
-			
 		except:
 			return Response("convID not valid", status=status.HTTP_400_BAD_REQUEST)
 		
 		response = Response(status=status.HTTP_200_OK)
 				
-		if accessToken:
-			response.set_cookie("accessToken", accessToken,httponly=True, secure=True, samesite='Lax')
-		
 		chatMessages= []
 		messages = Message.objects.filter(
 			ConversationName = convID
@@ -169,7 +139,7 @@ class getMessages(APIView):
 		paginated_messages = messages[offset:offset + paginator.page_size]
 
 		for message in reversed(paginated_messages):
-			if message.sender.email == senderMail: 
+			if message.sender.email == request._user.email: 
 				chatMessages.append({
 					"convId"		: convID.ConversationId,
 					"messageId"	: message.MessageId,
@@ -202,19 +172,16 @@ class SendMessageToFriend(APIView):
 
 	def post(self, request):
 
+	
 		try:
-			user, accessToken = HttpJWTAuthMiddleWare().parseCookies(request)
-			userId = user.id
-		except:     
-			return Response("Invalid tokens")
-		
-		Message.objects.create(
-
-			ConversationName = Conversation.objects.get(ConversationId = request.data.get("convID")),
-			sender = Users.objects.get(id = userId),
-			message= request.data.get("message"),
-		)
-
+			Message.objects.create(
+				ConversationName = Conversation.objects.get(ConversationId = request.data.get("convID")),
+				sender = Users.objects.get(id = userId),
+				message= request.data.get("message"),
+			)
+		except:
+			return Response("error")
+    
 		return Response({"convId": request.data.get("convID"), "userID": userId, "message": request.data.get("message")}, status = status.HTTP_200_OK)
 
 		
