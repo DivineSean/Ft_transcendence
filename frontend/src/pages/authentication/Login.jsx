@@ -9,6 +9,35 @@ import { FcGoogle } from "react-icons/fc";
 import LoadingPage from "../LoadingPage";
 import { Si42 } from "react-icons/si";
 
+const FetchData = new FetchWrapper();
+
+const sendCode = async (code, prompt, navigate) => {
+	try {
+		const res = await FetchData.post('api/callback/', {
+			'code': code,
+			'prompt': prompt
+		});
+		if (res.ok) {
+			const data = await res.json();
+			console.log(data);
+
+			if (data.requires_2fa)
+				navigate(`/twofa/${data.uid}`);
+			else {
+				if (data.username === null)
+					navigate(`/setupusername/${data.uid}`);
+				else
+					navigate('/home');
+			}
+		} else {
+			setGlobalMessage({message: 'something went wrong', isError: true});
+			navigate('/login');
+		}
+	} catch (error) {
+		setGlobalMessage({message: `error: ${error}`, isError: true});
+	}
+}
+
 const Login = () => {
 	
 	const {
@@ -21,51 +50,30 @@ const Login = () => {
 		globalMessage,
 		setGlobalMessage
 	} = useContext(AuthContext);
-	const location = useLocation();
-	const FetchData = new FetchWrapper('https://localhost:8000/');
+
 	const navigate = useNavigate();
 	const [load, setLoad] = useState(true);
 	
-	const sendCode = async (code, prompt) => {
-		try {
-			const res = await FetchData.post('api/callback/', {
-				'code': code,
-				'prompt': prompt
-			});
-			if (res.ok) {
-				const data = await res.json();
-				if (data.username === null)
-					navigate(`/setupusername/${data.uid}`);
-				else
-					navigate('/home');
-			} else {
-				setGlobalMessage({message: 'something went wrong', isError: true});
-				navigate('/login');
-			}
-		} catch (error) {
-			setGlobalMessage({message: `error: ${error}`, isError: true});
-		}
-	}
 	
 	useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const code = urlParams.get('code');
 		const prompt = urlParams.get('prompt');
 		if (code) {
-			sendCode(code, prompt);
+			sendCode(code, prompt, navigate);
 		} else {
 			setLoad(false);
 		}
-	}, [location]);
+	}, []);
 
-	const loading = useAuth();
+	// const loading = useAuth();
 	
 	return (
 		<div className="grow">
-			{(loading || load) && 
+			{load && 
 				<LoadingPage />
 			}
-			{!loading && !load &&
+			{!load &&
 				<div className="max-w-[1440px] m-auto lg:px-32 md:px-16 md:py-32 flex flex-col lg:gap-32 gap-16 min-h-screen">
 					{globalMessage.message &&
 						<Toast

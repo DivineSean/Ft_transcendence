@@ -93,7 +93,8 @@ const TwoFaInput = ({type, saveValues}) => {
 					<form onSubmit={(e) => authorization2FA(e, uid, values2FA)} className="md:py-32 py-16 flex flex-col gap-48">
 						<div className="flex justify-between">
 							{values2FA.map((value, index) => (
-								<input 
+								<input
+									autoFocus={!index ? true : false}
 									key={index}
 									type="text"
 									maxLength={1}

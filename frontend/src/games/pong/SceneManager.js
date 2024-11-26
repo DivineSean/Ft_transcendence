@@ -110,6 +110,32 @@ export class SceneManager {
         this.scene.add(wall);
     }
 
+
+    scoreRender() {
+        const ScoreGeometry = new THREE.PlaneGeometry(5, 2.5);
+        const ScoreMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x000039, 
+            side: THREE.DoubleSide 
+        });
+        const Score = new THREE.Mesh(ScoreGeometry, ScoreMaterial);
+    
+        const cameraDirection = new THREE.Vector3();
+        this.camera.getWorldDirection(cameraDirection);
+        Score.position.copy(this.camera.position).add(cameraDirection.multiplyScalar(5));
+    
+        Score.lookAt(this.camera.position);
+
+        const offset = new THREE.Vector3(-1, -1, -0.5);
+        offset.unproject(this.camera); 
+    
+
+        this.camera.getWorldDirection(cameraDirection);
+        Score.position.copy(offset);
+        
+        this.scene.add(Score);
+    }
+    
+
     render() {
         // Optional: Adding a point light for more localized highlights or for lighting specific areas (like the center of the room)
         const pointLight = new THREE.PointLight(0xffffff, 100000, 500); // Low intensity, limited range
@@ -121,6 +147,9 @@ export class SceneManager {
         this.createWall_(0, 55, 0, 200, 200, pointLight);
         this.createWall_(0, -55, 0, 200, 200, pointLight);
         this.scene.add(pointLight);
+
+        //score
+        this.scoreRender();
     }
 
 

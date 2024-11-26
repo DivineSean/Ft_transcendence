@@ -16,24 +16,25 @@ from django.shortcuts import render
 from django.core.cache import cache
 from django.conf import settings
 import json
+from django.utils import timezone
 import os
 import uuid
+import jwt
 
-# this function used when we navigate to the login/register page in frontend
-# to check if the user is already loggedin and redirect it to the home page
-@api_view(['GET'])
-def checkAuth(request):
-	token = request.COOKIES.get('accessToken')
-	if not token:
-		return Response({'authenticated': False}, status=401)
-	try:
-		JWTAuthentication().get_validated_token(token)
-		# we should check if 2FA is enabled (I m assuming that 2FA is enabled by default)
-		# I should do a 2FA sending mail here 
+from rest_framework_simplejwt.tokens import RefreshToken
 
-		return Response({'authenticated': True})
-	except Exception as e:
-		return Response({'authenticated': False, 'error': str(e)}, status=401)
+# @api_view(['GET'])
+
+# def checkAuth(request): #Should be removed 
+# 	token = request.COOKIES.get('accessToken')
+# 	if not token:
+# 		return Response({'authenticated': False}, status=401)
+# 	try:
+# 		JWTAuthentication().get_validated_token(token)
+		
+# 		return Response({'authenticated': True})
+# 	except Exception as e:
+# 		return Response({'authenticated': False, 'error': str(e)}, status=401)
 
 
 @api_view(['POST'])
@@ -82,6 +83,7 @@ def resend2FACode(request):
  # -> check the email for the user if user found then, verify the 2fa_code is valid if it's set the cookies
  #    and navigate to the home page.
 class CustomTokenObtainPairView(TokenObtainPairView):
+
 	def generate_2fa_code(self, user, codeType):
 		return TwoFactorCode.generate_code(user, codeType)
 
@@ -98,11 +100,45 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			recipient_list = [user_email]  
 			message = f"Your 2FA CODE : {code}"  
 			EmailMessage(subject, message, email_from, recipient_list, connection=connection).send()
+	
+	def checkUsername(self, user, user_id):
+		user_username = user.username
+		if not user_username:
+
+			http_response = HttpResponse(content_type='application/json')
+			data = {
+				"message": "ok",
+				"username": user_username,
+				"uid": str(user_id)
+			}
+			dump = json.dumps(data)
+			http_response.content = dump
+			return http_response
+	
+		else:
+			user.isOnline = True
+			user.save()
+			refresh_token = RefreshToken.for_user(user)
+			access_token = str(refresh_token.access_token)
+
+			http_response = HttpResponse(content_type='application/json')
+			http_response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
+			http_response.set_cookie('accessToken', access_token, httponly=True, secure=True, samesite='Lax')
+			data = {
+				"message": "logged in successfully!",
+			}
+			dump = json.dumps(data)
+			http_response.content = dump
+			return http_response
 		
 	def post(self, request, *args, **kwargs):
+
 		json_data = json.loads(request.body)
 		submitted_2fa_code = json_data.get('2fa_code')
-		if not submitted_2fa_code:
+
+
+		if not submitted_2fa_code: # here is the login part  
+
 			try:
 				email = json_data.get('email')
 				user = Users.objects.get(email=email)
@@ -117,10 +153,19 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			user_id = user.id
 			userTokens = super().post(request, *args, **kwargs)
 			if userTokens.status_code == 200:
-				two_factor_code = self.generate_2fa_code(user, "twoFa")
-				self.send_2fa_code(user.email, two_factor_code.code)
-				return Response({'message': '2FA code sent', 'uid': user_id, 'requires_2fa': True}, status=200)	
-		else:
+				if user.isTwoFa:
+					print('is true am3alam', flush=True)
+					two_factor_code = self.generate_2fa_code(user, "twoFa")
+					self.send_2fa_code(user.email, two_factor_code.code)
+					return Response({'message': '2FA code sent', 'uid': user_id, 'requires_2fa': True}, status=200)
+				else:
+					print('is false am3alam', flush=True)
+					# return Response({'message': '2FA code sent', 'uid': user_id, 'requires_2fa': False}, status=200)
+					return self.checkUsername(user, user_id)
+				
+
+		else: # here endpoint for 2FA authorization
+
 			try:
 				user_id = json_data.get('id')
 				uuid.UUID(user_id, version=4)
@@ -138,30 +183,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 				print("here", flush = True)
 				return Response({'error': 'Invalid 2FA code'}, status=400)
 
-			user_username = user.username
-			if not user_username:
-				http_response = HttpResponse(content_type='application/json')
-				data = {
-					"message": "ok",
-					"username": user_username,
-					"uid": user_id
-				}
-				dump = json.dumps(data)
-				http_response.content = dump
-				return http_response
-			else:
-				refresh_token = RefreshToken.for_user(user)
-				access_token = str(refresh_token.access_token)
-
-				http_response = HttpResponse(content_type='application/json')
-				http_response.set_cookie('refreshToken', refresh_token, httponly=True, secure=True, samesite='Lax')
-				http_response.set_cookie('accessToken', access_token, httponly=True, secure=True, samesite='Lax')
-				data = {
-					"message": "logged in successfully!",
-				}
-				dump = json.dumps(data)
-				http_response.content = dump
-				return http_response
+			return self.checkUsername(user, user_id)
 
 # this method to refresh tokens
 class CustomTokenRefreshView(TokenRefreshView):
@@ -186,14 +208,28 @@ class CustomTokenRefreshView(TokenRefreshView):
 
 @api_view(["POST"])
 def logout(request):
+	
 	refresh_token = request.COOKIES.get('refreshToken')
+	# response = HttpResponseRedirect(os.environ.get("REDIRECT_URL"))
+	response = Response({"message": "Logged Out"}, status=status.HTTP_200_OK)
+
 	if refresh_token:
 		token = RefreshToken(refresh_token)
-		token.blacklist()
-	response = HttpResponseRedirect(os.environ.get("REDIRECT_URL"))
-	response = Response({"message": "Logged Out"}, status=status.HTTP_200_OK)
-	response.delete_cookie("accessToken")
-	response.delete_cookie("refreshToken")
+		
+		response.delete_cookie("accessToken")
+		response.delete_cookie("refreshToken")
+		jwtObj = JWTAuthentication()
+		try:
+			user = jwtObj.get_user(token)
+			user.isOnline = False
+			user.last_login = timezone.now()
+			user.save()
+			token.blacklist()
+		except:
+			pass
+	else:
+		response.delete_cookie("accessToken")
+		response.delete_cookie("refreshToken")
 	return response
 
 

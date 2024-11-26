@@ -30,14 +30,14 @@ const Rankings = () => {
 				<div className="primary-glass grow flex flex-col md:p-32 p-16 gap-32 get-height">
 					{/* <div className="flex justify-center">
 						<div className="secondary-glass flex gap-16 px-16 py-4 items-center md:w-[368px] w-full">
-							<IoSearchOutline className='text-gray text-txt-md' />
-							<input
-								type="text"
-								placeholder="find ranked user"
-								className="outline-none bg-transparent text-txt-md grow"
-							/>
+						<IoSearchOutline className='text-gray text-txt-md' />
+						<input
+						type="text"
+						placeholder="find ranked user"
+						className="outline-none bg-transparent text-txt-md grow"
+						/>
 						</div>
-					</div> */}
+						</div> */}
 					<div className="flex flex-col overflow-hidden">
 						<div className="grid grid-cols-3 md:gap-32 gap-16 items-end justify-center lg:px-64 md:px-16 px-8">
 							<div className="flex flex-col gap-16">

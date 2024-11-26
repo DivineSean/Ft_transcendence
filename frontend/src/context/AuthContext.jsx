@@ -2,16 +2,13 @@ import { createContext, useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from 'react-router-dom'
 import FetchWrapper from "../utils/fetchWrapper";
 
-
-const URL = `https://${window.location.hostname}:8000/`;
-
 const AuthContext = createContext();
 
 export default AuthContext;
 
 export const AuthProvider = ({ children }) => {
 
-	const FetchData = new FetchWrapper(URL);
+	const FetchData = new FetchWrapper();
 	const [displayMenuGl, setDisplayMenuGl] = useState(false);
 
 	const navigate = useNavigate();
@@ -155,10 +152,15 @@ export const AuthProvider = ({ children }) => {
 				});
 				if (res.ok) {
 					const data = await res.json();
+					console.log(data);
 					if (data.requires_2fa)
 						navigate(`/twofa/${data.uid}`);
-					else
-						navigate('/home');
+					else {
+						if (data.username === null)
+							navigate(`setupusername/${data.uid}`);
+						else
+							navigate('/home');
+					}
 				} else {
 					if (res.status === 404)
 						setGlobalMessage({ message: 'the url you have reached is not found!', isError: true });

@@ -59,7 +59,7 @@ const Toast = ({
 			`}
 		>
 			<div
-				className={`${error ? 'bg-red' : 'bg-green'} h-full absolute top-0 left-0 opacity-40 z-[-1]`}
+				className={`${error ? 'bg-red' : 'bg-green'} h-full absolute top-0 left-0 opacity-20 z-[-1]`}
 				style={{ width: `${progress}%` }}
 			></div>
 			<div className="flex gap-8 items-center">
@@ -73,7 +73,10 @@ const Toast = ({
 							<GrStatusGood className="text-green text-txt-md" />
 						</div> 
 				}
-				<p className="font-light tracking-wide text-txt-sm">{message}</p>
+				<p className="font-light tracking-wide text-txt-sm text-gray">
+					<span className="font-bold tracking-wide text-white">{error ? 'error: ' : 'success: '}</span>
+					{message}
+				</p>
 			</div>
 			<IoMdClose onClick={removeToast} className="cursor-pointer text-txt-xl min-w-16" />
 		</div>
