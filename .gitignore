@@ -2,6 +2,7 @@ data
 certs
 .env
 env
+.cache/
 
 .DS_Store
 .bash_history

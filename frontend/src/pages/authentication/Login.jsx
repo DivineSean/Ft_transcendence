@@ -11,33 +11,6 @@ import { Si42 } from "react-icons/si";
 
 const FetchData = new FetchWrapper();
 
-const sendCode = async (code, prompt, navigate) => {
-	try {
-		const res = await FetchData.post('api/callback/', {
-			'code': code,
-			'prompt': prompt
-		});
-		if (res.ok) {
-			const data = await res.json();
-			console.log(data);
-
-			if (data.requires_2fa)
-				navigate(`/twofa/${data.uid}`);
-			else {
-				if (data.username === null)
-					navigate(`/setupusername/${data.uid}`);
-				else
-					navigate('/home');
-			}
-		} else {
-			setGlobalMessage({message: 'something went wrong', isError: true});
-			navigate('/login');
-		}
-	} catch (error) {
-		setGlobalMessage({message: `error: ${error}`, isError: true});
-	}
-}
-
 const Login = () => {
 	
 	const {
@@ -50,6 +23,33 @@ const Login = () => {
 		globalMessage,
 		setGlobalMessage
 	} = useContext(AuthContext);
+
+	const sendCode = async (code, prompt, navigate) => {
+		try {
+			const res = await FetchData.post('api/callback/', {
+				'code': code,
+				'prompt': prompt
+			});
+			if (res.ok) {
+				const data = await res.json();
+				console.log(data);
+	
+				if (data.requires_2fa)
+					navigate(`/twofa/${data.uid}`);
+				else {
+					if (data.username === null)
+						navigate(`/setupusername/${data.uid}`);
+					else
+						navigate('/home');
+				}
+			} else {
+				setGlobalMessage({message: 'something went wrong', isError: true});
+				navigate('/login');
+			}
+		} catch (error) {
+			setGlobalMessage({message: `error: ${error}`, isError: true});
+		}
+	}
 
 	const navigate = useNavigate();
 	const [load, setLoad] = useState(true);
