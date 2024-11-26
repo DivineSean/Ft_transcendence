@@ -1,5 +1,5 @@
-from uuid import UUID
 from rest_framework import serializers
+from Auth.serializers import UserSerializer
 from .models import Game, GameRoom, Player, PlayerRating
 from Auth.models import Users as User
 
@@ -9,7 +9,7 @@ class GameSerializer(serializers.ModelSerializer):
 		fields = ['id', 'name', 'min_players', 'max_players', 'description']
 
 class PlayerSerializer(serializers.ModelSerializer):
-	user = serializers.UUIDField(format='hex_verbose')
+	user = UserSerializer()
 
 	class Meta:
 		model = Player

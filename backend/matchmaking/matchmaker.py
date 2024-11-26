@@ -155,7 +155,7 @@ class Matchmaker:
 	async def create_matches(self, channel_layer, game, matches):
 		for match in matches:
 			channels = []
-			role = 0
+			role = 1
 			self.calculate_rating_changes(match)
 			for player in match:
 				player['role'] = role

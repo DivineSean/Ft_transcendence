@@ -1,6 +1,6 @@
 from channels.generic.websocket import WebsocketConsumer
 from rest_framework.serializers import ValidationError
-from games.serializers import GameSerializer
+from games.serializers import GameRoomSerializer
 from asgiref.sync import async_to_sync
 from django.core.cache import cache
 from django.db import models
@@ -14,7 +14,7 @@ class	GameConsumer(WebsocketConsumer):
 
 		try:
 			game = GameRoom.objects.get(pk=self.game_uuid)
-			serializer = GameSerializer(game)
+			serializer = GameRoomSerializer(game)
 			self.game = serializer.data
 		except (models.ObjectDoesNotExist, ValidationError):
 			return
@@ -35,8 +35,9 @@ class	GameConsumer(WebsocketConsumer):
 
 	def receive(self, text_data):
 		# ignore messages coming from users not part of the game
-		if self.user_id not in (self.game['player_one'], self.game['player_two']):
-			return
+		# isPlayer = any(player["user"]["id"] == self.user_id for player in self.game["players_details"])
+		# if not isPlayer:
+		# 	return
 
 		try:
 			data = json.loads(text_data)
@@ -65,10 +66,13 @@ class	GameConsumer(WebsocketConsumer):
 	def update_score(self):
 
 		# TODO: Update scores on the database
-		if self.user_id == self.game['player_one']:
-			self.game['player_one_score'] += 1
-		elif self.user_id == self.game['player_two']:
-			self.game['player_two_score'] += 1
+		role = None
+		for player in self.game['players_details']:
+			if player['user']['id'] == self.user_id:
+				player['score'] += 1
+				role = player['role']
+				break
+		scores = { player['role'] : player['score'] for player in self.game['players_details']}
 
 		async_to_sync(self.channel_layer.group_send)(
 			  self.game_uuid,
@@ -76,8 +80,8 @@ class	GameConsumer(WebsocketConsumer):
 				  'type': 'broadcast',
 				  'info': 'score',
 				  'message': {
-					  'player1': self.game['player_one_score'],
-					  'player2': self.game['player_two_score'],
+					'role': role,
+					'scores': scores
 				  }
 			  }
 		)
