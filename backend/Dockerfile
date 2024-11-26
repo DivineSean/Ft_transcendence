@@ -38,3 +38,4 @@ RUN		chown -R app:app /home/app/
 
 USER	app
 ENTRYPOINT ["bash", "./entrypoint.sh"]
+CMD ["uvicorn", "backend.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
