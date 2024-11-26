@@ -19,7 +19,8 @@ class sAuthMiddleWare(MiddlewareMixin):
 			"/api/callback/",
 			"/api/register/",
 			"/api/setupusername/",
-		
+			"/api/intra/",
+			"/api/user/"
 		]
 
 	def process_request(self, request):
