@@ -68,22 +68,22 @@ class	GameConsumer(WebsocketConsumer):
 		# TODO: Update scores on the database
 		role = None
 		for player in self.game['players_details']:
-			if player['user']['id'] == self.user_id:
+			if str(player['user']['id']) == str(self.user_id):
 				player['score'] += 1
 				role = player['role']
 				break
-		scores = { player['role'] : player['score'] for player in self.game['players_details']}
+		scores = { player['role'] : str(player['score']) for player in self.game['players_details'] }
 
 		async_to_sync(self.channel_layer.group_send)(
-			  self.game_uuid,
-			  {
-				  'type': 'broadcast',
-				  'info': 'score',
-				  'message': {
+			self.game_uuid,
+			{
+				'type': 'broadcast',
+				'info': 'score',
+				'message': {
 					'role': role,
-					'scores': scores
-				  }
-			  }
+					'scores': json.dumps(scores),
+				},
+			}
 		)
 
 	def update_readiness(self):

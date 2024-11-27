@@ -20,6 +20,9 @@ class Ball {
 		this.dx = 0;
 		this.dy = 0;
 		this.dz = 0;
+
+		this.count = 0;
+		this.serving = true;
 	}
 
 	serve(ws,net, sign)
@@ -32,8 +35,9 @@ class Ball {
 		this.dx = 0;
 		this.dy = 0;
 		this.dz = 0;
+		this.count = 0;
+		this.serving = true;
 
-		this.isServed = false;
 		const data = {
 			'type': 'update',
 			'message': {
@@ -51,20 +55,36 @@ class Ball {
 		ws.send(JSON.stringify(data));
 	}
 
+
+	sendScore(ws)
+	{
+		const data = { 'type': 'score', 'message':{} }
+		ws.send(JSON.stringify(data));
+	}
+
 	update(net, table, player1, ws, dt, player, keyboard) {
         if (!this.model || !net.boundingBox || !table.boundingBoxTable || !this.boundingSphere || !player1.boundingBox)
             return;
 		this.dy -= G;
 		let flag = false;
 		//serve 
-		if (this.y < -36 && this.x < 0 && player === 2) this.serve(ws, net, 1);
-		else if (this.y < -36 && this.x > 0 && player === 1) this.serve(ws, net, -1);
+		if (this.y < -36 && this.x < 0 && player === 1) this.sendScore(ws);
+		else if (this.y < -36 && this.x > 0 && player === 2) this.sendScore(ws);
 
 		// Gravity
 		if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
 			this.y = table.boundingBoxTable.max.y + 1;
 			// console.log(this.dy);
 			this.dy *= -0.6;
+			if (this.serving === false)
+				this.count += 1;
+			if (this.count === 2)
+			{
+				this.serving = true;
+				this.count = 0;
+				if (this.x < 0 && player === 1) this.sendScore(ws);
+				else if (this.x > 0 && player === 2) this.sendScore(ws);
+			}
 		}
 		if (this.boundingSphere.intersectsBox(net.boundingBox)) {	
 			player1.netshoot(this, net, ws, player);
@@ -72,16 +92,17 @@ class Ball {
 		}
 		// Paddles
 		if (this.boundingSphere.intersectsBox(player1.boundingBox) && player1.rotating) {
+			this.serving = false;
 			player1.shoot(net, keyboard, this, dt);
 			flag = true;
 		}
 		else if (this.boundingSphere.intersectsBox(player1.boundingBox) && !player1.rotating)
 		{
+			this.serving = false;
 			player1.hit(this, ws);
 			flag = true;
 		}
 
-		// Movement
 		if (flag)
 		{
 			const data = {
@@ -101,6 +122,7 @@ class Ball {
 			}
 			ws.send(JSON.stringify(data));
 		}
+		// Movement
 		this.x += this.dx * dt;
 		this.y += this.dy * dt;
 		this.z += this.dz * dt;
@@ -110,22 +132,11 @@ class Ball {
 		const box = new THREE.Box3().setFromObject(this.model);
 		const center = box.getCenter(new THREE.Vector3());
 		this.radius = box.getSize(new THREE.Vector3()).length() / 2;
-		this.boundingSphere = new THREE.Sphere(center, this.radius - 0.5);
-
-		// const help = new THREE.Box3Helper(box, 0x50C878);
-		// this.scene.add(help);
-		// this.boundingSphere.set(this.model.position.center, this.model.position.radius + 0.5);
-		
+		this.boundingSphere = new THREE.Sphere(center, this.radius - 0.5);	
 	}
 
-	updatePos(dt)
+	updatePos()
 	{
-		// const clock = performance.now() / 1000;
-		// const fixedStep = 0.015; // 15ms
-		// let dts = fixedStep * 1000;
-		// this.x += this.dx * dts;
-		// this.y += this.dy * dts;
-		// this.z += this.dz * dts;
 		this.model.position.set(this.x , this.y, this.z);
 	}
 
@@ -149,24 +160,7 @@ class Ball {
 		const center = box.getCenter(new THREE.Vector3());
 		this.radius = box.getSize(new THREE.Vector3()).length() / 2;
 		this.boundingSphere = new THREE.Sphere(center, this.radius);
-		
-		// If you want to visualize the bounding box for debugging
-		// const help = new THREE.Box3Helper(box, 0x50C878);
-		// this.scene.add(help);
 	}
-	
-
-		// render() {
-		// 	// ball
-		// 	const ballGeometry = new THREE.SphereGeometry(0.5, 32, 16);
-		// 	const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xfcb404 });
-		// 	this.model = new THREE.Mesh(ballGeometry, ballMaterial);
-		// 	this.model.castShadow = true;
-		// 	this.model.position.set(this.x, this.y, this.z);
-		// 	// collision 
-		// 	this.boundingSphere = new THREE.Sphere(this.model.position, 0.5);
-		// 	this.scene.add(this.model);
-		// }
 }
 
 export default Ball;

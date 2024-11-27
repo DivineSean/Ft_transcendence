@@ -8,7 +8,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState } from 'react';
 
 let dt = 1;    ////added for debugging purpose
-const Pong = ({ websocket, player }) => {
+const Pong = ({ websocket, player, names }) => {
 	const sm = useRef(null);
 	const loaderRef = useRef(null);
 	const loaderTRef = useRef(null);
@@ -20,7 +20,7 @@ const Pong = ({ websocket, player }) => {
 		loaderTRef.current = new GLTFLoader();
 		loaderRef.current = new GLTFLoader();
 		loaderBRef.current = new GLTFLoader();
-		sm.current = new SceneManager(player == 2 ? -1 : 1);
+		sm.current = new SceneManager(player == 2 ? -1 : 1, names);
 		// let factor = sm.current.camera.aspect / aspect;
 		const table = new Table(sm.current.scene, loaderTRef.current);
 		const net = new Net(sm.current.scene, loaderRef.current);
@@ -47,9 +47,18 @@ const Pong = ({ websocket, player }) => {
 		websocket.onmessage = (event) => {
 			// console.log(event);
 			const msg = JSON.parse(event.data);
-			console.log(msg);
 			const opp = player == 1 ? 2 : 1;
-			if (msg.type == 'play')
+			console.log(msg);
+			if (msg.type === 'score')
+			{
+				const scores = JSON.parse(msg.message.scores);
+				sm.current.scoreUpdate(scores);
+				// if (msg.message.role === 1)
+				// 	ball.serve(websocket, net, 1);
+				// else
+				// 	ball.serve(websocket, net, -1);
+			}
+			else if (msg.type == 'play')
 				setReady(true);
 			else if (msg.message.content == 'paddle') {
 				players[opp - 1].rotating = false;
@@ -82,7 +91,8 @@ const Pong = ({ websocket, player }) => {
 				ball.dx = msg.message.ball.dx;
 				ball.dy = msg.message.ball.dy;
 				ball.dz = msg.message.ball.dz;
-				ball.updatePos(dt);
+				ball.serving = false;
+				ball.updatePos();
 			}
 		}
 		sm.current.render();
@@ -114,8 +124,10 @@ const Pong = ({ websocket, player }) => {
 			ball.z += ball.dz * alpha * fixedStep;
 
 			players[player - 1].update(keyboard.current, ball, websocket, dt);
+			const cameraDirection = sm.current.camera.position;
 			sm.current.renderer.render(sm.current.scene, sm.current.camera);
-
+			if (cameraDirection != sm.current.camera.position)
+				sm.current.scoreUpdate();
 		}
 
 
