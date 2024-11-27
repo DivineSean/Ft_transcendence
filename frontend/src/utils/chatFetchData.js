@@ -15,14 +15,14 @@ export const getConversations = async (setData, setGlobalMessage, navigate) => {
 		} else if (res.status) {
 			const data = await res.json();
 			if (res.status === 401) {
-				setGlobalMessage({message: data, isError: true});
+				setGlobalMessage({message: 'unauthorized user', isError: true});
 				navigate('/login');
 			}
 			console.log(data);
 		}
 	} catch (error) {
 		console.error(error);
-		setGlobalMessage({message: error, isError: true});
+		// setGlobalMessage({message: error, isError: true});
 	}
 }
 

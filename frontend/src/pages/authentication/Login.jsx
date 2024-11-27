@@ -65,8 +65,6 @@ const Login = () => {
 			setLoad(false);
 		}
 	}, []);
-
-	// const loading = useAuth();
 	
 	return (
 		<div className="grow">
