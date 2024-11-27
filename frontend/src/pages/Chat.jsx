@@ -12,6 +12,7 @@ import ChatFriends from "../components/chat/ChatFriends";
 
 
 const Chat = () => {
+	const ws = useRef(null);
 	const { uid } = useParams();
 	const navigate = useNavigate();
 	const { setGlobalMessage } = useContext(AuthContext);
@@ -28,7 +29,10 @@ const Chat = () => {
 	const [updatedConversation, setUpdatedConversation] = useState(null);
 	const [profileSide, setProfileSide] = useState(window.innerWidth <= 768 ? false : true);
 
-	const ws = useRef(null);
+	useEffect(() => { // first time fetch conversation message from the database to render them to the user
+		getConversations(setFriendsData, setGlobalMessage, navigate);
+	}, []);
+
 	useEffect(() => {
 		ws.current = new WebSocket(`wss://${window.location.hostname}:8000/ws/chat/`);
 		// console.log('from chat ws');
@@ -89,10 +93,6 @@ const Chat = () => {
 			}
 		}
 	}, [ws.current, uid]);
-	
-	useEffect(() => { // first time fetch conversation message from the database to render them to the user
-		getConversations(setFriendsData, setGlobalMessage, navigate);
-	}, []);
 
 	useEffect(() => { // if the updatedConversation is updated thats mean we need to update chat friend component
 		if (updatedConversation) {
