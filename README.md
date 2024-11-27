@@ -7,6 +7,7 @@ In the spirit of exploration, we embrace the mantra: “**The fun will never end
 Join us on this journey, where each match is a chance to forge connections, share stories, and revel in the unpredictability of gaming. Let’s make some memories—because in this realm, every game is an adventure waiting to unfold!
 
 ## Table of Contents
+
 - [Features](#features)
 - [Configuration](#configuration)
 - [Installation](#installation)
@@ -18,27 +19,35 @@ Join us on this journey, where each match is a chance to forge connections, shar
 ## Features:
 
 #### [Authentication](docs/authentication.md)
+
 - Secure user registration and login processes
 - Two-factor authentication (2FA) for enhanced account security
 
 #### [Game](docs/game.md)
+
 - Real-time multiplayer matches
 - AI opponent for solo play
 - Game customization options
 
 #### [Chat](docs/chat.md)
+
 - Live chat for direct messaging between users
 - Ability to block users and manage chat interactions
 - Inviting friends to play games through the chat interface
 
 #### [Infrastructure](docs/infrastructure.md)
+
 - Containerized setup using Docker and Docker compose for consistent environment
 - Nginx as a reverse proxy for handling requests
+
 #### [Log Management](docs/log-management.md)
+
 - Logstash for collecting and processing logs
 - Elasticsearch for storing and querying logs
 - Kibana for visualizing logs and building dashboards
+
 #### [Monitoring](docs/monitoring.md)
+
 - Prometheus for metrics collection from all services
 - Grafana for visualizing real-time metrics and setting alerts
 
@@ -74,23 +83,32 @@ To run this project, ensure you have **[Docker](https://www.docker.com/get-start
 Ensure these environment variables are set before running the application.
 
 ## Installation:
+
 1. Clone the repository:
+
 ```
 git clone https://github.com/medDestiny/ft_transcendence.git
 ```
+
 3. Navigate to the project directory:
+
 ```
 cd ft_transcendence
 ```
-4. Run the app: 
+
+4. Run the app:
+
 ```
 make
 ```
+
 ## Usage:
+
 - Visit [`https://localhost:3000`](https://localhost:3000) to view the site locally.
 - Sign up or log in to start playing or chat with friends.
 
 ## API Documentation:
+
 - `POST /auth/login`: Log in to the system.
 - `GET /user/profile`: Retrieve user profile data.
 

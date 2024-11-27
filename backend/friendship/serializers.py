@@ -6,20 +6,22 @@ from Auth.models import Users
 class UserData(serializers.Serializer):
     class Meta:
         model = Users
-        fields = ['id', 'username',]
+        fields = [
+            "id",
+            "username",
+        ]
+
 
 class FriendshipRequestSerializer(serializers.Serializer):
     fromUser = UserData(read_only=True)
     toUser = UserData(read_only=True)
+
     class Meta:
         model = FriendshipRequest
-        fields = ['id', 'fromUser', 'toUser', 'created_at']
+        fields = ["id", "fromUser", "toUser", "created_at"]
+
 
 class UserFriendSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
-        fields = ['id', 'username']
-        
-
-
-
+        fields = ["id", "username"]

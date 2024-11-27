@@ -1,0 +1,75 @@
+on:
+  pull_request:
+    branches:
+      - testing
+      - main
+  workflow_dispatch:
+
+jobs:
+  reformat:
+    name: Reformat Code
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+        repository: ${{ github.event.pull_request.head.repo.full_name }}
+        persist-credentials: false
+        fetch-depth: 0
+
+    # Python Formatting and Linting
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Install Python dependencies
+      run: pip install black flake8
+    - name: Format Python files
+      run: black backend/
+
+    # JavaScript/JSX Formatting and Linting
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '22'
+    - name: Install Node.js dependencies
+      run: |
+        cd frontend/
+        npm install
+    - name: Format JS and JSX files
+      run: npx prettier --write "**/*.{js,jsx,html,css,md}" "!backend/**/*"
+
+    - name: Commit and push changes to PR branch
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
+      uses: actions-js/push@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.event.pull_request.head.ref }}
+        message: 'Auto-format'
+
+  test-infrastructure:
+    name: Test infrastructure
+    needs: reformat
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Add SSL certificates
+        run: |
+          mkdir certs
+          echo "${{ secrets.SSL_PUBLIC }}" > certs/server.pem
+          echo "${{ secrets.SSL_PRIVATE }}" > certs/server-key.pem
+      - name: Create .env file
+        run: echo "${{ secrets.ENV }}" > .env
+      - name: Docker Compose with Tests Action
+        uses: adambirds/docker-compose-action@v1.4.0
+        with:
+          up-flags: "--build"
+          down-flags: "--volumes"

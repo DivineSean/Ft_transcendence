@@ -5,37 +5,52 @@ from django.dispatch import receiver
 from Auth.models import Users as User
 import uuid
 
-class	Game(models.Model):
-	name = models.CharField(max_length=20, unique=True)
-	min_players = models.PositiveSmallIntegerField(default=2, blank=False, null=False, help_text="Minimum number of players required to start the game")
-	max_players = models.PositiveSmallIntegerField(default=2, blank=False, null=False, help_text="Maximum players allowed in the game")
-	description = models.TextField(null=True, blank=True)
 
-	def clean(self):
-		if self.min_players > self.max_players:
-			return ValidationError("Max players cannot be less than min players.")
+class Game(models.Model):
+    name = models.CharField(max_length=20, unique=True)
+    min_players = models.PositiveSmallIntegerField(
+        default=2,
+        blank=False,
+        null=False,
+        help_text="Minimum number of players required to start the game",
+    )
+    max_players = models.PositiveSmallIntegerField(
+        default=2,
+        blank=False,
+        null=False,
+        help_text="Maximum players allowed in the game",
+    )
+    description = models.TextField(null=True, blank=True)
 
-	def __str__(self):
-	    return self.name
+    def clean(self):
+        if self.min_players > self.max_players:
+            return ValidationError("Max players cannot be less than min players.")
 
-class	GameRoom(models.Model):
-	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-	game = models.ForeignKey(Game, on_delete=models.PROTECT)
-	created_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.name
 
-class	Player(models.Model):
-	user = models.ForeignKey(User, on_delete=models.CASCADE)
-	game_room = models.ForeignKey(GameRoom, on_delete=models.CASCADE)
-	rating_gain = models.PositiveSmallIntegerField()
-	rating_loss = models.PositiveSmallIntegerField()
-	role = models.PositiveSmallIntegerField()
-	score = models.PositiveIntegerField(default=0)
 
-class	PlayerRating(models.Model):
-	user = models.ForeignKey(User, on_delete=models.CASCADE)
-	game = models.ForeignKey(Game, on_delete=models.PROTECT)
-	rating = models.PositiveIntegerField(default=951)
-	updated_at = models.DateTimeField(auto_now=True)
+class GameRoom(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    game = models.ForeignKey(Game, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Player(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    game_room = models.ForeignKey(GameRoom, on_delete=models.CASCADE)
+    rating_gain = models.PositiveSmallIntegerField()
+    rating_loss = models.PositiveSmallIntegerField()
+    role = models.PositiveSmallIntegerField()
+    score = models.PositiveIntegerField(default=0)
+
+
+class PlayerRating(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.PROTECT)
+    rating = models.PositiveIntegerField(default=951)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
 @receiver(post_save, sender=Game)
 def create_player_ratings(sender, instance, created, **kwargs):
@@ -44,6 +59,7 @@ def create_player_ratings(sender, instance, created, **kwargs):
         PlayerRating.objects.bulk_create(
             [PlayerRating(user=user, game=instance) for user in users]
         )
+
 
 @receiver(post_save, sender=User)
 def create_player_ratings_for_user(sender, instance, created, **kwargs):
