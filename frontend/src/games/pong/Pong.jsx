@@ -53,10 +53,10 @@ const Pong = ({ websocket, player, names }) => {
 			{
 				const scores = JSON.parse(msg.message.scores);
 				sm.current.scoreUpdate(scores);
-				// if (msg.message.role === 1)
-				// 	ball.serve(websocket, net, 1);
-				// else
-				// 	ball.serve(websocket, net, -1);
+				if (msg.message.role === 1)
+					ball.serve(websocket, net, 1);
+				else
+					ball.serve(websocket, net, -1);
 			}
 			else if (msg.type == 'play')
 				setReady(true);

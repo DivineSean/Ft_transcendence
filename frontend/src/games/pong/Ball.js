@@ -37,22 +37,6 @@ class Ball {
 		this.dz = 0;
 		this.count = 0;
 		this.serving = true;
-
-		const data = {
-			'type': 'update',
-			'message': {
-				'content': 'ball',
-				'ball': {
-					x: this.x,
-					y: this.y,
-					z: this.z,
-					dx: this.dx,
-					dy: this.dy,
-					dz: this.dz,
-				}
-			}
-		}
-		ws.send(JSON.stringify(data));
 	}
 
 
