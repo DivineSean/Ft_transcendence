@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { getChunkedMessages, getMessages } from "../../utils/chatFetchData";
 import { useEffect, useRef, useState } from "react";
 import Message from "./Message";
+import { BACKENDURL } from "../../utils/fetchWrapper";
 
 const formatedDate = () => {
   const now = new Date();
@@ -46,7 +47,11 @@ const Conversation = ({
 
   // fetch messages in the first time we enter to the conversation
   useEffect(() => {
-    if (uid) getMessages(uid, setMessages, setOffsetMssg);
+    if (uid) {
+			setAllMessages(false);
+			setChunkedData(0);
+			getMessages(uid, setMessages, setOffsetMssg);
+		}
   }, [uid]);
 
   useEffect(() => {
@@ -86,6 +91,7 @@ const Conversation = ({
           setIsChunked,
           setAllMessages,
         );
+				setChunkedData(0);
       }
     }, 500);
 
@@ -156,11 +162,7 @@ const Conversation = ({
       if (ws.current)
         // here when we blur the input will send stop typing
         ws.current.send(
-          JSON.stringify({
-            message: "endTyping",
-            type: "stopTyping",
-            convId: uid,
-          }),
+          JSON.stringify({message: "endTyping", type: "stopTyping", convId: uid})
         );
     }, 700);
   };
@@ -195,12 +197,8 @@ const Conversation = ({
     if (!typing) {
       if (ws.current)
         ws.current.send(
-          JSON.stringify({
-            message: e.target.value,
-            type: "typing",
-            convId: uid,
-          }),
-        );
+					JSON.stringify({message: e.target.value, type: "typing", convId: uid,})
+				);
     }
     setTyping(e.target.value);
   };
@@ -216,16 +214,16 @@ const Conversation = ({
           <div
             className={`md:w-56 md:h-56 h-48 w-48 rounded-full border overflow-hidden ${friendInfo.isOnline ? "border-green" : "border-stroke-sc"}`}
           >
-            <img src="/images/profile.png" alt="profile" />
+            <img src={friendInfo.profile_image ? BACKENDURL + friendInfo.profile_image : '/images/default.jpeg'} alt="profile" />
           </div>
           <div className="flex flex-col justify-between h-full">
-            <h2 className="md:text-h-sm-md text-h-sm-sm font-bold">{`${friendInfo.firstName} ${friendInfo.lastName}`}</h2>
+            <h2 className="md:text-h-sm-md text-h-sm-sm font-bold">{`${friendInfo.first_name} ${friendInfo.last_name}`}</h2>
             {friendInfo.isOnline && (
               <p className="md:text-txt-md text-txt-xs text-green">online</p>
             )}
             {!friendInfo.isOnline && (
               <p className="text-txt-xs text-stroke-sc lowercase">
-                last seen {friendInfo.lastLogin}
+                last seen {friendInfo.last_login}
               </p>
             )}
           </div>
@@ -241,18 +239,18 @@ const Conversation = ({
         className="h-4 flex grow flex-col gap-16 overflow-y-scroll no-scrollbar normal-case"
       >
         <div
-          className={`text-center mb-[64] text-xs text-stroke-sc ${offsetMssg ? "block" : "hidden"}`}
+          className={`text-center mb-[64] text-xs text-green font-light ${offsetMssg ? "block" : "hidden"}`}
         >
           loading...
         </div>
         {conversation}
-        {displayTyping && (
+        {displayTyping && displayTyping.convId === friendInfo.conversationId &&
           <div className="flex gap-8 items-end">
             <div className="left-message message-glass py-8 px-12 rounded-[8px] rounded-tl-[2px] max-w-[450px] text-green text-sm tracking-wider flex flex-col gap-4 ml-12 relative break-all">
               typing...
             </div>
           </div>
-        )}
+        }
         <div ref={downScrollRef}></div>
       </div>
       <form className="flex items-center relative" onSubmit={sendMessage}>

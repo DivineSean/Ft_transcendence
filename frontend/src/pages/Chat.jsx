@@ -153,7 +153,6 @@ const Chat = () => {
     if (window.innerWidth >= 768) setProfileSide(true);
   });
 
-  console.log(friendsData);
   return (
     <div className="flex flex-col grow">
       <Header link="chat" />

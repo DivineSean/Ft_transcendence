@@ -5,10 +5,8 @@ const FetchData = new FetchWrapper();
 export const getConversations = async (setData, setGlobalMessage, navigate) => {
   try {
     const res = await FetchData.get("chat/conversations/");
-    console.log(res);
     if (res.ok) {
       const data = await res.json();
-      console.log("data", data);
       setData(data);
     } else if (res.status) {
       const data = await res.json();
@@ -16,7 +14,6 @@ export const getConversations = async (setData, setGlobalMessage, navigate) => {
         setGlobalMessage({ message: "unauthorized user", isError: true });
         navigate("/login");
       }
-      console.log(data);
     }
   } catch (error) {
     console.error(error);

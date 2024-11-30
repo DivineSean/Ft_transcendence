@@ -25,6 +25,7 @@ const SetUpUsername = () => {
       const res = await FetchData.post("api/user/", { id: uid });
       if (res.ok) {
         const data = await res.json();
+				console.log(data);
         setUserData(data);
         if (data.user.username != null) {
           navigate("/home");
