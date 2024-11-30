@@ -37,6 +37,10 @@ class Users(AbstractUser):
     about = models.TextField(
         default="I m an award-winning content writer who has eight years of experience creating compelling articles and short stories. I m continuously searching for new topics and stories to capture the attention of new readers. With my knowledge and experience, I can help you fulfill your content creation goals."
     )
+    profile_image = models.ImageField(
+        upload_to="profile_images/", blank=True, null=True
+    )
+
     # Friends  = models.ManyToManyField("Users", blank = True)
 
     objects = CustomUserManager()

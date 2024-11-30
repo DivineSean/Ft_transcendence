@@ -1,3 +1,5 @@
+export const BACKENDURL = `https://${window.location.hostname}:8000`;
+
 class FetchWrapper {
   constructor() {
     this.baseUrl = `https://${window.location.hostname}:8000/`;

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { BACKENDURL } from "../../utils/fetchWrapper";
 
 const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
   const navigate = useNavigate();
@@ -33,7 +34,15 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
               </div>
             )}
           <div className="w-56 h-56 rounded-full border-2 border-green overflow-hidden">
-            <img src="/images/profile.png" alt="img" className="w-full" />
+            <img
+              src={
+                friendInfo.profile_image
+                  ? BACKENDURL + friendInfo.profile_image
+                  : "/images/default.jpeg"
+              }
+              alt="img"
+              className="w-full"
+            />
           </div>
           <div className="absolute w-16 h-16 bg-green rounded-full right-0 bottom-0"></div>
         </div>
@@ -49,7 +58,15 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
               </div>
             )}
           <div className="w-56 h-56 rounded-full border-2 border-stroke-sc overflow-hidden">
-            <img src="/images/profile.png" alt="img" className="w-full" />
+            <img
+              src={
+                friendInfo.profile_image
+                  ? BACKENDURL + friendInfo.profile_image
+                  : "/images/default.jpeg"
+              }
+              alt="img"
+              className="w-full"
+            />
           </div>
           <div className="absolute w-16 h-16 bg-black border-[3px] border-stroke-sc rounded-full right-0 bottom-0"></div>
         </div>
@@ -59,18 +76,18 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
         <div className="flex flex-col justify-center gap-8">
           <div className="text-h-sm-xs font-semibold normal-case">
             {!friendInfo.messageDate
-              ? `${friendInfo.firstName} ${friendInfo.lastName}`.length > 30
-                ? `${friendInfo.firstName} ${friendInfo.lastName}`.substring(
+              ? `${friendInfo.first_name} ${friendInfo.last_name}`.length > 30
+                ? `${friendInfo.first_name} ${friendInfo.last_name}`.substring(
                     0,
                     30,
                   ) + "..."
-                : `${friendInfo.firstName} ${friendInfo.lastName}`
-              : `${friendInfo.firstName} ${friendInfo.lastName}`.length > 15
-                ? `${friendInfo.firstName} ${friendInfo.lastName}`.substring(
+                : `${friendInfo.first_name} ${friendInfo.last_name}`
+              : `${friendInfo.first_name} ${friendInfo.last_name}`.length > 15
+                ? `${friendInfo.first_name} ${friendInfo.last_name}`.substring(
                     0,
                     15,
                   ) + "..."
-                : `${friendInfo.firstName} ${friendInfo.lastName}`}
+                : `${friendInfo.first_name} ${friendInfo.last_name}`}
           </div>
 
           {(!displayTyping ||

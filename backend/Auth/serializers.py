@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Users
+from django.conf import settings
+from chat.models import Conversation
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -41,7 +43,14 @@ class RegisterOAuthSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(format="hex_verbose")
+    profile_image = serializers.SerializerMethodField()
+
+    def get_profile_image(self, obj):
+        if obj.profile_image:
+            return f"{settings.MEDIA_URL}{obj.profile_image}"
+        return None
 
     class Meta:
         model = Users
         fields = "__all__"
+        extra_kwargs = {"profile_image": {"required": False}}

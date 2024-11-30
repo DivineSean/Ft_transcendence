@@ -12,6 +12,7 @@ from django.contrib.auth.hashers import make_password
 from .views import CustomTokenObtainPairView, registerView
 from .serializers import RegisterOAuthSerializer
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+from django.core.files.base import ContentFile
 import requests
 import os, json
 import uuid
@@ -24,12 +25,30 @@ G_CLIENT_ID = os.environ.get("G_CLIENT_ID")
 G_CLIENT_SECRET = os.environ.get("G_CLIENT_SECRET")
 
 
-def CreateUserIfNotExists(user_data):
+def download_providers_images(url, userId, isIntra):
+    response = requests.get(url)
+    if response.status_code == 200:
+        if isIntra:
+            file_name = f"{userId}_profile.jpg"
+        else:
+            file_name = f"{userId}_profile.png"
+        return ContentFile(response.content, file_name)
+    return None
 
+
+def CreateUserIfNotExists(user_data, isIntra):
     userID = user_data.get("id")
     login = user_data.get("login")
     email = user_data.get("email")
-    first_name = user_data.get("first_name")
+    if isIntra:
+        image_url = user_data.get("image")["versions"]["large"]
+        first_name = user_data.get("first_name")
+    else:
+        image_url = user_data.get("picture")
+        first_name = user_data.get("given_name")
+
+    # print(user_data, flush=True)
+    print(f"image_url: {image_url}\nfirst_name: {first_name}", flush=True)
 
     if first_name == None:
         first_name = user_data.get("name")
@@ -45,6 +64,7 @@ def CreateUserIfNotExists(user_data):
         "last_name": last_name,
         "email": email,
         "password": password,
+        "image_url": image_url,
     }
 
     user = Users.objects.filter(email=email).first()
@@ -119,11 +139,13 @@ def callback(request):
     if not access_token:
         return Response({"error": "Failed to obtain access token"}, status=400)
 
+    isIntra = False
     if not prompt:
         user_response = requests.get(
             "https://api.intra.42.fr/v2/me",
             headers={"Authorization": f"Bearer {access_token}"},
         )
+        isIntra = True
     else:
         user_response = requests.get(
             "https://www.googleapis.com/oauth2/v2/userinfo",
@@ -134,7 +156,7 @@ def callback(request):
     if user_response.status_code == 200:
 
         user_data = user_response.json()
-        is_new_user, data = CreateUserIfNotExists(user_data)
+        is_new_user, data = CreateUserIfNotExists(user_data, isIntra)
 
         if not is_new_user:
             serializer = RegisterOAuthSerializer(data=data)
@@ -142,6 +164,17 @@ def callback(request):
             serializer.save()
 
         user = Users.objects.get(email=user_data.get("email"))
+
+        # print(f'image_url: {data["image_url"]}', flush=True)
+        # print(f'image file: {image_file.name}', flush=True)
+        if not user.profile_image:
+            image_file = download_providers_images(data["image_url"], user.id, isIntra)
+
+            if image_file:
+                print("+-=+_+_____--=-=-=-= dkhelna hna", flush=True)
+                print(image_file.name)
+                user.profile_image.save(image_file.name, image_file, save=True)
+
         username = user.username
         if user.isTwoFa:
             print("is true am3alam", flush=True)

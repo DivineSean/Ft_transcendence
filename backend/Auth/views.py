@@ -1,7 +1,7 @@
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .serializers import RegisterSerializer, PasswordUpdateSerializer
+from .serializers import RegisterSerializer, PasswordUpdateSerializer, UserSerializer
 from django.core.mail import get_connection, EmailMessage
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.views import PasswordResetView
@@ -346,8 +346,12 @@ def getUser(request):
     except Users.MultipleObjectsReturned:
         return Response({"error": "Multiple users found with the same id"}, status=401)
 
-    user_data = model_to_dict(user, exclude=["password"])
-    return Response({"user": user_data}, status=200)
+    # user_data = model_to_dict(user, exclude=["password"])
+    try:
+        serializer = UserSerializer(user)
+    except:
+        print("yaaarebi salama", flush=True)
+    return Response({"user": serializer.data}, status=200)
 
 
 @api_view(["POST"])
