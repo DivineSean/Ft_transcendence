@@ -22,8 +22,8 @@ class sAuthMiddleWare(MiddlewareMixin):
             "/api/setupusername/",
             "/api/intra/",
             "/api/user/",
-						"/api/requestreset/",
-						"/api/changepassword/",
+            "/api/requestreset/",
+            "/api/changepassword/",
         ]
 
     def process_request(self, request):

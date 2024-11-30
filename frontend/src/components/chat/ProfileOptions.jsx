@@ -30,7 +30,14 @@ const ProfileOptions = ({
       />
       <div className="flex flex-col gap-8 items-center">
         <div className="w-[104px] h-[104px] object-cover flex rounded-full overflow-hidden border-[0.5px] border-stroke-sc">
-          <img src={friendInfo.profile_image ? BACKENDURL + friendInfo.profile_image : '/images/default.jpeg'} alt="p" />
+          <img
+            src={
+              friendInfo.profile_image
+                ? BACKENDURL + friendInfo.profile_image
+                : "/images/default.jpeg"
+            }
+            alt="p"
+          />
         </div>
         <h2 className="text-h-lg-md font-bold max-w-[200px] text-center">
           {friendInfo.first_name} {friendInfo.last_name}

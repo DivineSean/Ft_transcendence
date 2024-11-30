@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { BACKENDURL } from "../../utils/fetchWrapper"
+import { BACKENDURL } from "../../utils/fetchWrapper";
 
 const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
   const navigate = useNavigate();
@@ -34,7 +34,15 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
               </div>
             )}
           <div className="w-56 h-56 rounded-full border-2 border-green overflow-hidden">
-            <img src={friendInfo.profile_image ? BACKENDURL + friendInfo.profile_image : '/images/default.jpeg'} alt="img" className="w-full" />
+            <img
+              src={
+                friendInfo.profile_image
+                  ? BACKENDURL + friendInfo.profile_image
+                  : "/images/default.jpeg"
+              }
+              alt="img"
+              className="w-full"
+            />
           </div>
           <div className="absolute w-16 h-16 bg-green rounded-full right-0 bottom-0"></div>
         </div>
@@ -50,7 +58,15 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
               </div>
             )}
           <div className="w-56 h-56 rounded-full border-2 border-stroke-sc overflow-hidden">
-            <img src={friendInfo.profile_image ? BACKENDURL + friendInfo.profile_image : '/images/default.jpeg'} alt="img" className="w-full" />
+            <img
+              src={
+                friendInfo.profile_image
+                  ? BACKENDURL + friendInfo.profile_image
+                  : "/images/default.jpeg"
+              }
+              alt="img"
+              className="w-full"
+            />
           </div>
           <div className="absolute w-16 h-16 bg-black border-[3px] border-stroke-sc rounded-full right-0 bottom-0"></div>
         </div>

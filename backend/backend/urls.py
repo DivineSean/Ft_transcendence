@@ -28,4 +28,3 @@ urlpatterns = [
     path("silk/", include("silk.urls", namespace="silk")),
     path("", include("notification.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-

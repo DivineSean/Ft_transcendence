@@ -48,10 +48,10 @@ const Conversation = ({
   // fetch messages in the first time we enter to the conversation
   useEffect(() => {
     if (uid) {
-			setAllMessages(false);
-			setChunkedData(0);
-			getMessages(uid, setMessages, setOffsetMssg);
-		}
+      setAllMessages(false);
+      setChunkedData(0);
+      getMessages(uid, setMessages, setOffsetMssg);
+    }
   }, [uid]);
 
   useEffect(() => {
@@ -91,7 +91,7 @@ const Conversation = ({
           setIsChunked,
           setAllMessages,
         );
-				setChunkedData(0);
+        setChunkedData(0);
       }
     }, 500);
 
@@ -162,7 +162,11 @@ const Conversation = ({
       if (ws.current)
         // here when we blur the input will send stop typing
         ws.current.send(
-          JSON.stringify({message: "endTyping", type: "stopTyping", convId: uid})
+          JSON.stringify({
+            message: "endTyping",
+            type: "stopTyping",
+            convId: uid,
+          }),
         );
     }, 700);
   };
@@ -197,8 +201,12 @@ const Conversation = ({
     if (!typing) {
       if (ws.current)
         ws.current.send(
-					JSON.stringify({message: e.target.value, type: "typing", convId: uid,})
-				);
+          JSON.stringify({
+            message: e.target.value,
+            type: "typing",
+            convId: uid,
+          }),
+        );
     }
     setTyping(e.target.value);
   };
@@ -214,7 +222,14 @@ const Conversation = ({
           <div
             className={`md:w-56 md:h-56 h-48 w-48 rounded-full border overflow-hidden ${friendInfo.isOnline ? "border-green" : "border-stroke-sc"}`}
           >
-            <img src={friendInfo.profile_image ? BACKENDURL + friendInfo.profile_image : '/images/default.jpeg'} alt="profile" />
+            <img
+              src={
+                friendInfo.profile_image
+                  ? BACKENDURL + friendInfo.profile_image
+                  : "/images/default.jpeg"
+              }
+              alt="profile"
+            />
           </div>
           <div className="flex flex-col justify-between h-full">
             <h2 className="md:text-h-sm-md text-h-sm-sm font-bold">{`${friendInfo.first_name} ${friendInfo.last_name}`}</h2>
@@ -244,13 +259,14 @@ const Conversation = ({
           loading...
         </div>
         {conversation}
-        {displayTyping && displayTyping.convId === friendInfo.conversationId &&
-          <div className="flex gap-8 items-end">
-            <div className="left-message message-glass py-8 px-12 rounded-[8px] rounded-tl-[2px] max-w-[450px] text-green text-sm tracking-wider flex flex-col gap-4 ml-12 relative break-all">
-              typing...
+        {displayTyping &&
+          displayTyping.convId === friendInfo.conversationId && (
+            <div className="flex gap-8 items-end">
+              <div className="left-message message-glass py-8 px-12 rounded-[8px] rounded-tl-[2px] max-w-[450px] text-green text-sm tracking-wider flex flex-col gap-4 ml-12 relative break-all">
+                typing...
+              </div>
             </div>
-          </div>
-        }
+          )}
         <div ref={downScrollRef}></div>
       </div>
       <form className="flex items-center relative" onSubmit={sendMessage}>
