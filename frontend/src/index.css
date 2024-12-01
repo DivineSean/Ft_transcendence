@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
 body {
   @apply min-h-screen capitalize bg-[url('/images/background.png')] bg-cover bg-fixed text-white flex flex-col relative;
 }
