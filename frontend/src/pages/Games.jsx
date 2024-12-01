@@ -2,28 +2,41 @@ import GameManager from "../games/GameManager";
 import Match from "../games/Matchmaking";
 import Header from "../components/Header"
 import { useState, useRef, useEffect } from "react"
+import { FaLongArrowAltRight } from "react-icons/fa";
 
 const GameCard = ({ image, name, description }) => {
 
     useEffect(() => console.log(name, description), [])
     return (
         <div
-            className="flex-shrink-0 p-32 w-full h-full rounded-lg bg-green flex gap-32 flex-col justify-end bg-gradient-to-t from-black/[0.8] to-transparent"
+            className="flex-shrink-0 p-32 w-full h-full rounded-lg bg-green flex flex-col md:flex-row gap-32
+            justify-between basis-auto bg-gradient-to-t from-black/[0.8]"
             style={{
-                backgroundImage: "linear-gradient(to top, black, transparent), url('https://mir-s3-cdn-cf.behance.net/project_modules/fs/05daa256209423.59a540cb340e6.jpg')",
+                backgroundImage: `linear-gradient(to top, black, transparent), ${image}`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
             }}
         >
-            <span className="text-h-lg-3xl font-bold">{name}</span>
-            <div className="flex justify-between items-end min-h-[6rem]">
-                <span className="h-full text-txt-2xl">{description}</span>
-                <span className="flex gap-8">
-                    <button>Play Now</button>
-                    <span>---</span>
-                </span>
+            <div className="flex flex-col bg-red ">
+                <span className="text-h-lg-3xl font-bold normal-case">{name}</span>
+                {/* <p className="min-w-0">{description}</p> */}
+                {/* <span className="text-txt-2xl normal-case text-gray line-clamp-2 hover:line-clamp-none overflow-hidden">{description}</span> */}
             </div>
-        </div>
+            <div className="bg-red">
+                <button className="whitespace-nowrap gap-8 bg-green rounded-md">
+                    <span className="text-black">Play Now</span>
+                    {/* <FaLongArrowAltRight className="text-black text-h-lg-lg" /> */}
+                    {/* <svg className="size-32 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"> */}
+                    {/*     <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" /> */}
+                    {/* </svg> */}
+                </button>
+                {/* <button className="whitespace-nowrap gap-8 bg-green rounded-md"> */}
+                {/*     <h4>Play Now</h4> */}
+                {/*     <FaLongArrowAltRight className="text-black text-h-lg-lg" /> */}
+                {/* </button> */}
+            </div>
+
+        </div >
     )
 }
 
@@ -34,11 +47,13 @@ const Games = () => {
     const games = [
         {
             name: "Pong",
-            description: "wa7d l game nadia bjehd"
+            description: "Description dyal had l game l wa3ra bzf, hh hh hh hh hhhhhh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh hh.",
+            image: "url('https://mir-s3-cdn-cf.behance.net/project_modules/fs/05daa256209423.59a540cb340e6.jpg')",
         },
         {
-            name: "Pong",
-            description: "wa7d l game nadia bjehd"
+            name: "Fleabag vs Mutt",
+            description: "Game dyal lklab hhhhh",
+            image: "url('https://www.gimori.com/images/cat-vs-dog.jpg')",
         }
 
     ]
