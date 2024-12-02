@@ -11,6 +11,8 @@ import { TbLogout2 } from "react-icons/tb";
 import { SlMenu } from "react-icons/sl";
 import { Link } from "react-router-dom";
 import Menu from "./Menu";
+import FetchWrapper from "../utils/fetchWrapper";
+import { BACKENDURL } from "../utils/fetchWrapper";
 
 const navLinks = ["home", "profile", "chat", "rankings", "games", "explore"];
 
@@ -19,6 +21,21 @@ const Header = ({ ...props }) => {
   const [displayOptions, setDisplayOptions] = useState(false);
   const [displayNotification, setDisplayNotification] = useState(false);
   const [readNotif, setReadNotif] = useState(false);
+	const [userInfo, setUserInfo] = useState(null);
+	const FetchData = new FetchWrapper();
+	const getUserInfo = async () => {
+		try {
+			const res = await FetchData.get(`api/profile/0`);
+			console.log(res);
+			if (res.ok) {
+				const data = await res.json();
+				setUserInfo(data);
+				console.log(data);
+			}
+		} catch (error) {
+			console.log('waa3la 9waadaaa!!!', error);
+		}
+	}
   const optionsData = [
     {
       name: "settings",
@@ -88,7 +105,7 @@ const Header = ({ ...props }) => {
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
-
+		getUserInfo();
     return () => {
       document.addEventListener("mousedown", handleClickOutside);
     };
@@ -192,10 +209,14 @@ const Header = ({ ...props }) => {
           <div
             ref={(el) => (toggleOptionsRef.current[1] = el)}
             onClick={toggleOptions}
-            className="bg-gray w-32 h-32 rounded-full lg:block hidden overflow-hidden cursor-pointer"
+            className="bg-gray w-32 h-32 rounded-full lg:block hidden overflow-hidden cursor-pointer border-[0.5px] border-stroke-sc"
           >
             <img
-              src="/images/profile.png"
+              src={
+								userInfo && userInfo.profile_image
+								? BACKENDURL + userInfo.profile_image
+								: "/images/default.jpeg"
+							}
               alt="profile pic"
               className="w-full"
             />

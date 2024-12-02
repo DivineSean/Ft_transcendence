@@ -330,6 +330,27 @@ class CheckPasswordChange(APIView):
             return Response(serializer.errors, status=400)
 
 
+class Profile(APIView):
+	
+	def get(self, request, username=None):
+		if username == '0':
+			user = request.user
+		else:
+			try:
+				user = Users.objects.filter(username=username).first()
+				if not user:
+					return Response({'error', "user not found"}, status=404)
+			except:
+				print('warah dakchi mahowach', flush=True)
+				return Response({'error', "user not found"}, status=404)
+			# if not user:
+		
+		print(f'user {user}', flush=True)
+		serializer = UserSerializer(user)
+		print(serializer.data)
+		return Response(serializer.data)
+
+
 @api_view(["POST"])
 def getUser(request):
     json_data = json.loads(request.body)

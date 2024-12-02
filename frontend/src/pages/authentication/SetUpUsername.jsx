@@ -8,7 +8,6 @@ import Toast from "../../components/Toast";
 
 const SetUpUsername = () => {
   const { uid } = useParams();
-  const navigate = useNavigate();
   const {
     handleBlur,
     handleChange,
@@ -17,33 +16,6 @@ const SetUpUsername = () => {
     globalMessage,
     setGlobalMessage,
   } = useContext(AuthContext);
-  let [userData, setUserData] = useState({});
-  const FetchData = new FetchWrapper();
-
-  const getFirstLastName = async () => {
-    try {
-      const res = await FetchData.post("api/user/", { id: uid });
-      if (res.ok) {
-        const data = await res.json();
-        console.log(data);
-        setUserData(data);
-        if (data.user.username != null) {
-          navigate("/home");
-        }
-      } else {
-        setGlobalMessage({ message: "invalid user", isError: true });
-        navigate("/login");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    if (uid) {
-      getFirstLastName();
-    }
-  }, []);
 
   return (
     <div className="grow">
@@ -57,18 +29,18 @@ const SetUpUsername = () => {
       <div className="max-w-[1440px] m-auto lg:px-32 md:px-16 md:py-32 flex flex-col lg:gap-32 gap-16 min-h-screen">
         <div className="backdrop-blur-md w-full h-full absolute top-0 right-0"></div>
         <div className="login-glass overflow-hidden md:p-32 p-0 flex justify-center items-center grow md:rounded-[8px] md:border-[0.5px] md:border-stroke-pr">
-          {userData && userData.user && (
             <>
               <div className="md:px-64 px-32 flex flex-col justify-center items-center md:gap-32 gap-24 lg:py-64 py-32 grow">
                 <div className="flex flex-col gap-8 items-center">
                   <h1 className="md:text-h-lg-xl text-h-sm-lg font-bold">
-                    Hello
+                    Hello again
                     <span className="text-green lowercase">
                       {" "}
-                      {userData.user.first_name}
+											player
+                      {/* {userData.user.first_name} */}
                     </span>
                     <span className="lowercase">
-                      , {userData.user.last_name}!
+                      {/* , {userData.user.last_name}! */}
                     </span>
                   </h1>
                   <p className="md:text-txt-sm text-txt-xs text-center text-gray">
@@ -109,7 +81,6 @@ const SetUpUsername = () => {
                 </form>
               </div>
             </>
-          )}
         </div>
       </div>
     </div>
