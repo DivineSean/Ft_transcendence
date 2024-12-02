@@ -2,8 +2,9 @@ import AuthContext from "../context/AuthContext";
 import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { useRef } from "react";
+import { BACKENDURL } from "../utils/fetchWrapper";
 
-const OptionsSection = ({ data, type, reference }) => {
+const OptionsSection = ({ data, type, reference, userInfo}) => {
   const sectionRef = useRef([]);
   const { logout } = useContext(AuthContext);
 
@@ -44,12 +45,16 @@ const OptionsSection = ({ data, type, reference }) => {
           >
             <div className="bg-gray w-32 h-32 rounded-full lg:block hidden overflow-hidden cursor-pointer">
               <img
-                src="/images/profile.png"
+                src={
+									userInfo && userInfo.profile_image
+									? BACKENDURL + userInfo.profile_image
+									: "/images/default.jpeg"
+								}
                 alt="profile pic"
                 className="w-full"
               />
             </div>
-            <h2 className="text-h-sm-md tracking-wide">si mohammed</h2>
+            <h2 className="text-h-sm-sm tracking-wide lowercase">{userInfo.username}</h2>
           </Link>
         )}
         <ul className="w-full flex flex-col gap-8">

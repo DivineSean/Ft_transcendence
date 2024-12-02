@@ -50,7 +50,7 @@ const Profile = () => {
 				const data = await res.json();
 				setUserInfo(data);
 			} else if (res.status === 404) {
-				console.log('hello man');
+				// console.log('hello man');
 				navigate('/profile/overview');
 			}
 		} catch (error) {

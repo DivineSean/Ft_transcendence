@@ -26,11 +26,11 @@ const Header = ({ ...props }) => {
 	const getUserInfo = async () => {
 		try {
 			const res = await FetchData.get(`api/profile/0`);
-			console.log(res);
+			// console.log(res);
 			if (res.ok) {
 				const data = await res.json();
 				setUserInfo(data);
-				console.log(data);
+				// console.log(data);
 			}
 		} catch (error) {
 			console.log('waa3la 9waadaaa!!!', error);
@@ -151,6 +151,7 @@ const Header = ({ ...props }) => {
         <div className="relative w-full">
           {displayOptions && (
             <OptionsSection
+							userInfo={userInfo}
               data={optionsData}
               reference={optionSectionRef}
               type="options"
