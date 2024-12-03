@@ -312,7 +312,8 @@ class Paddle {
 	
 	shoot(net, keyboard, ball, dt)
 	{
-		ball.isServed = true;
+		// ball.isServed = true;
+		// ball.lastshooter = this.player;
 		if (this.player === 1) {
 			ball.x = this.boundingBox.min.x - 1;
 		} else {
@@ -438,6 +439,7 @@ class Paddle {
 
 	hit(ball, ws)
 	{
+		// ball.lastshooter = this.player;
 		if (this.player === 1) {
 			ball.x = this.boundingBox.min.x - ball.radius;
 		} else {

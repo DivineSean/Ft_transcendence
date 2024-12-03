@@ -52,7 +52,7 @@ const Pong = ({ websocket, player, names }) => {
 			if (msg.type === 'score')
 			{
 				const scores = JSON.parse(msg.message.scores);
-				sm.current.scoreUpdate(scores);
+				sm.current.scoreUpdate(scores, msg.message.role);
 				if (msg.message.role === 1)
 					ball.serve(websocket, net, 1);
 				else
@@ -83,15 +83,14 @@ const Pong = ({ websocket, player, names }) => {
 				players[opp - 1].updatePos();
 			}
 			else if (msg.message.content == 'ball') {
-
-				lastServerBallUpdate = Date.now();
 				ball.x = msg.message.ball.x;
 				ball.y = msg.message.ball.y;
 				ball.z = msg.message.ball.z;
 				ball.dx = msg.message.ball.dx;
 				ball.dy = msg.message.ball.dy;
 				ball.dz = msg.message.ball.dz;
-				ball.serving = false;
+				ball.serving = msg.message.ball.serving;
+				ball.lastshooter = msg.message.ball.lstshoot;
 				ball.updatePos();
 			}
 		}

@@ -144,7 +144,13 @@ export class SceneManager {
         });
     }
 
-    scoreUpdate(P) {
+    scoreUpdate(P, whoScore) {
+        this.scene.remove(this.P1red);
+        this.scene.remove(this.P2red);
+        if (whoScore === 1)
+            this.scene.add(this.P1red);
+        else if (whoScore === 2)
+            this.scene.add(this.P2red);
         this.updateTextOnPlane(this.P1ScoreBarre, P["1"], 0, 0, 0xffffff);
         this.updateTextOnPlane(this.P2ScoreBarre, P["2"], 0, 0, 0xffffff);
     }

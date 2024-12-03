@@ -23,6 +23,8 @@ class Ball {
 
 		this.count = 0;
 		this.serving = true;
+		this.lastshooter = 1;
+		this.sendLock = false;
 	}
 
 	serve(ws,net, sign)
@@ -37,6 +39,8 @@ class Ball {
 		this.dz = 0;
 		this.count = 0;
 		this.serving = true;
+		this.lastshooter = sign;
+		this.sendLock = false;
 	}
 
 
@@ -52,22 +56,40 @@ class Ball {
 		this.dy -= G;
 		let flag = false;
 		//serve 
-		if (this.y < -36 && this.x < 0 && player === 1) this.sendScore(ws);
-		else if (this.y < -36 && this.x > 0 && player === 2) this.sendScore(ws);
-
-		// Gravity
-		if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
+		if (this.y < -50) {
+			if (this.lastshooter === 1 && player === 2 && this.sendLock === false)
+			{
+				this.sendScore(ws);
+				this.sendLock = true;
+			}
+			else if (this.lastshooter === -1 && player === 1 && this.sendLock === false)
+			{
+				this.sendScore(ws);
+				this.sendLock = true;
+			}
+			else
+			{
+				console.log(`lastshooter ${this.lastshooter}`);
+				console.log(`im player ${player} waiting for the player ${player} to score`);
+			}
+		}
+		else if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
 			this.y = table.boundingBoxTable.max.y + 1;
 			// console.log(this.dy);
 			this.dy *= -0.6;
-			if (this.serving === false)
-				this.count += 1;
-			if (this.count === 2)
+			if (this.sendLock === false)
 			{
-				this.serving = true;
-				this.count = 0;
-				if (this.x < 0 && player === 1) this.sendScore(ws);
-				else if (this.x > 0 && player === 2) this.sendScore(ws);
+				if (this.x < 0)
+					this.lastshooter = -1;
+				else
+					this.lastshooter = 1;
+				if (this.serving === false)
+					this.count += 1;
+				if (this.count === 2)
+				{
+					if (this.x < 0 && player === 1) {this.sendScore(ws); this.sendLock = true; this.serving = true;}
+					else if (this.x > 0 && player === 2) {this.sendScore(ws); this.sendLock = true; this.serving = true;}
+				}
 			}
 		}
 		if (this.boundingSphere.intersectsBox(net.boundingBox)) {	
@@ -77,14 +99,20 @@ class Ball {
 		// Paddles
 		if (this.boundingSphere.intersectsBox(player1.boundingBox) && player1.rotating) {
 			this.serving = false;
+			this.lastshooter = player1.player;
 			player1.shoot(net, keyboard, this, dt);
+			this.count = 0;
 			flag = true;
 		}
 		else if (this.boundingSphere.intersectsBox(player1.boundingBox) && !player1.rotating)
 		{
-			this.serving = false;
-			player1.hit(this, ws);
-			flag = true;
+			if (!this.serving)
+			{
+				this.count = 0;
+				this.lastshooter = player1.player;
+				player1.hit(this, ws);
+				flag = true;
+			}
 		}
 
 		if (flag)
@@ -101,6 +129,8 @@ class Ball {
 						dy: this.dy,
 						dz: this.dz,
 						dt: dt,
+						serving: this.serving,
+						lstshoot: this.lastshooter,
 					}
 				}
 			}
