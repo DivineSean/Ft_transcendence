@@ -4,9 +4,11 @@ import AuthContext from "../context/AuthContext";
 import Card from "../components/home/Card";
 import Header from "../components/Header";
 import { useContext } from "react";
+import UserContext from "../context/UserContext";
 
 const Home = () => {
   const { displayMenuGl } = useContext(AuthContext);
+	const userContextData = useContext(UserContext);
   const friends = [];
   for (let i = 0; i < 105; i++) {
     if (i === 0)
@@ -44,7 +46,7 @@ const Home = () => {
               <div className="grid lg:grid-cols-[1.1fr_1fr] lg:gap-32 gap-16">
                 <Card
                   title="welcome back,"
-                  name="simhammed"
+                  name={userContextData.userInfo && userContextData.userInfo.first_name}
                   description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                   isModel={false}
                   isMainButton={true}

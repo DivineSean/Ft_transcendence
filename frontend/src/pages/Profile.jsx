@@ -17,9 +17,9 @@ import Header from "../components/Header";
 import NotFound from "./NotFound";
 import { useNavigate } from 'react-router-dom';
 import "react-circular-progressbar/dist/styles.css";
-import FetchWrapper from "../utils/fetchWrapper";
 import { BACKENDURL } from "../utils/fetchWrapper";
 import LoadingPage from "./LoadingPage";
+import UserContext from "../context/UserContext";
 
 const profileMenu = ["overview", "statistics", "achievements", "friends"];
 
@@ -27,12 +27,11 @@ const Profile = () => {
   const { displayMenuGl } = useContext(AuthContext);
   const { section, username } = useParams();
 	const navigate = useNavigate();
-	const FetchData = new FetchWrapper();
-	let userId = username ? username : 0;
-	const [userInfo, setUserInfo] = useState(null);
+	const userUsername = username ? username : 0;
 	const [selectedMenu, setSelectedMenu] = useState(section ? section : 'overview');
+	const contextData = useContext(UserContext);
 	
-	
+
 	if (!section)
 		navigate('/profile/overview');
 	useEffect(() => {
@@ -42,30 +41,17 @@ const Profile = () => {
 		}
 	}, []);
 
+	useEffect(() => {
+		if (userUsername)
+			contextData.getProfile(userUsername);
+	}, [username]);
 
-	const getProfile = async () => {
-		try {
-			const res = await FetchData.get(`api/profile/${userId}/`);
-			if (res.ok) {
-				const data = await res.json();
-				setUserInfo(data);
-			} else if (res.status === 404) {
-				// console.log('hello man');
-				navigate('/profile/overview');
-			}
-		} catch (error) {
-			console.log('Error:', error);
-		}
-	}
-
-	useEffect(() => { getProfile(); }, [username]);
-
-  return (
+	return (
     <div className="flex flex-col grow">
       <div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
       <Header link="profile" />
-			{!userInfo && <LoadingPage />}
-      {!displayMenuGl && userInfo && (
+			{!contextData.profileInfo && <LoadingPage />}
+      {!displayMenuGl && contextData.profileInfo && (
         <div className="container">
           <div className="flex primary-glass p-16 lg:gap-32 gap-16 relative overflow-hidden get-height">
             <div className="absolute top-0 left-0 w-full lg:h-[232px] h-[216px]">
@@ -91,15 +77,15 @@ const Profile = () => {
                   <img
                     className="w-[104px] h-[104px] rounded-full"
                     src={
-											userInfo.profile_image
-											? BACKENDURL + userInfo.profile_image
+											contextData.profileInfo.profile_image
+											? BACKENDURL + contextData.profileInfo.profile_image
 											: "/images/default.jpeg"
 										}
                     alt="Profile image"
                   />
                 </CircularProgressbarWithChildren>
-                <h1 className="text-h-lg-md font-bold">{`${userInfo.first_name} ${userInfo.last_name}`}</h1>
-                <h2 className="text-txt-md lowercase">@{userInfo.username}</h2>
+                <h1 className="text-h-lg-md font-bold">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
+                <h2 className="text-txt-md lowercase">@{contextData.profileInfo.username}</h2>
               </div>
               <div className="flex flex-col gap-16 overflow-y-scroll no-scrollbar">
                 <div className="flex flex-col gap-16 text-gray mt-8">
@@ -128,7 +114,7 @@ const Profile = () => {
                 <div className="flex flex-col gap-8">
                   <h1 className="text-h-lg-md font-bold">about</h1>
                   <p className="text-txt-xs leading-16 text-gray">
-                    {userInfo.about}
+                    {contextData.profileInfo.about}
                   </p>
                 </div>
                 <div className="bg-stroke-sc min-h-[1px] w-full"></div>
@@ -157,15 +143,15 @@ const Profile = () => {
                     <img
                       className="flex flex-col rounded-full w-[98px] h-[98px]"
                       src={
-												userInfo.profile_image
-												? BACKENDURL + userInfo.profile_image
+												contextData.profileInfo.profile_image
+												? BACKENDURL + contextData.profileInfo.profile_image
 												: "/images/default.jpeg"
 											}
                       alt="Profile image"
                     />
                   </CircularProgressbarWithChildren>
-                  <h1 className="text-h-sm-sm font-bold">{`${userInfo.first_name} ${userInfo.last_name}`}</h1>
-                  <h2 className="text-txt-xs">@{userInfo.username}</h2>
+                  <h1 className="text-h-sm-sm font-bold">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
+                  <h2 className="text-txt-xs">@{contextData.profileInfo.username}</h2>
                 </div>
                 <div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">
                   <div className="flex w-[213px] items-center justify-center">
@@ -178,7 +164,7 @@ const Profile = () => {
                   <div className="flex flex-col gap-16 max-w-[432px] md:items-start items-center md:text-left text-center">
                     <h1 className="text-h-sm-sm font-bold">about</h1>
                     <p className="text-txt-xs leading-16 text-gray">
-											{userInfo.about}
+											{contextData.profileInfo.about}
                     </p>
                   </div>
                 </div>

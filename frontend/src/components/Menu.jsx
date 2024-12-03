@@ -12,6 +12,8 @@ import { PiRanking } from "react-icons/pi";
 import { Link } from "react-router-dom";
 import { GoHome } from "react-icons/go";
 import { useContext } from "react";
+import UserContext from "../context/UserContext";
+import { BACKENDURL } from "../utils/fetchWrapper";
 
 const navLinks = [
   {
@@ -46,6 +48,7 @@ const navLinks = [
 
 const Menu = ({ ...props }) => {
   const { displayMenuGl, setDisplayMenuGl, logout } = useContext(AuthContext);
+	const userContextData = useContext(UserContext);
 
   const links = [];
   navLinks.forEach((link) => {
@@ -95,11 +98,19 @@ const Menu = ({ ...props }) => {
       <div className="flex px-16 py-8 justify-between secondary-glass items-center ">
         <div className="flex gap-16 overflow-hidden">
           <div className="w-64 h-64 bg-gray rounded-full overflow-hidden">
-            <img src="/images/profile.png" alt="profile" className="w-full" />
+            <img
+							src={
+								userContextData.userInfo.profile_image
+								? BACKENDURL + userContextData.userInfo.profile_image
+								: "/images/default.jpeg"
+							}
+							alt="profile"
+							className="w-full border-[0.5px] border-stroke-sc"
+						/>
           </div>
           <div className="flex flex-col justify-center">
-            <h2 className="text-h-sm-sm font-semibold">Simhammed stoune</h2>
-            <p className="text-txt-xs">@sistoune</p>
+            <h2 className="text-h-sm-sm font-semibold">{userContextData.userInfo.first_name} {userContextData.userInfo.last_name}</h2>
+            <p className="text-txt-xs lowercase">@{userContextData.userInfo.username}</p>
           </div>
         </div>
         <IoChevronBack
@@ -111,7 +122,7 @@ const Menu = ({ ...props }) => {
       <div className="grow md:block hidden"></div>
       <div
         onClick={logout}
-        className="menu-linkes flex p-16 gap-16 text-h-sm-sm rounded-md items-center hover:bg-logout-bg"
+        className="menu-linkes flex p-16 gap-16 text-h-sm-sm rounded-md items-center hover:bg-logout-bg cursor-pointer"
       >
         <TbLogout2 />
         logout

@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import Menu from "./Menu";
 import FetchWrapper from "../utils/fetchWrapper";
 import { BACKENDURL } from "../utils/fetchWrapper";
+import UserContext from "../context/UserContext";
 
 const navLinks = ["home", "profile", "chat", "rankings", "games", "explore"];
 
@@ -21,21 +22,8 @@ const Header = ({ ...props }) => {
   const [displayOptions, setDisplayOptions] = useState(false);
   const [displayNotification, setDisplayNotification] = useState(false);
   const [readNotif, setReadNotif] = useState(false);
-	const [userInfo, setUserInfo] = useState(null);
-	const FetchData = new FetchWrapper();
-	const getUserInfo = async () => {
-		try {
-			const res = await FetchData.get(`api/profile/0`);
-			// console.log(res);
-			if (res.ok) {
-				const data = await res.json();
-				setUserInfo(data);
-				// console.log(data);
-			}
-		} catch (error) {
-			console.log('waa3la 9waadaaa!!!', error);
-		}
-	}
+	const contextData = useContext(UserContext);
+
   const optionsData = [
     {
       name: "settings",
@@ -105,7 +93,7 @@ const Header = ({ ...props }) => {
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
-		getUserInfo();
+		contextData.getUserInfo();
     return () => {
       document.addEventListener("mousedown", handleClickOutside);
     };
@@ -151,7 +139,7 @@ const Header = ({ ...props }) => {
         <div className="relative w-full">
           {displayOptions && (
             <OptionsSection
-							userInfo={userInfo}
+							contextData={contextData}
               data={optionsData}
               reference={optionSectionRef}
               type="options"
@@ -214,8 +202,8 @@ const Header = ({ ...props }) => {
           >
             <img
               src={
-								userInfo && userInfo.profile_image
-								? BACKENDURL + userInfo.profile_image
+								contextData.userInfo && contextData.userInfo.profile_image
+								? BACKENDURL + contextData.userInfo.profile_image
 								: "/images/default.jpeg"
 							}
               alt="profile pic"
