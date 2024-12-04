@@ -341,13 +341,13 @@ class Profile(APIView):
 				if not user:
 					return Response({'error', "user not found"}, status=404)
 			except:
-				print('warah dakchi mahowach', flush=True)
+				# print('warah dakchi mahowach', flush=True)
 				return Response({'error', "user not found"}, status=404)
 			# if not user:
 		
-		print(f'user {user}', flush=True)
+		# print(f'user {user}', flush=True)
 		serializer = UserSerializer(user)
-		print(serializer.data)
+		# print(serializer.data)
 		return Response(serializer.data)
 
 

@@ -12,7 +12,6 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
           convId: friendInfo.conversationId,
         }),
       );
-      // console.log('ws is send to read the message');
     }
     friendInfo.isRead = true;
     navigate(`/chat/${friendInfo.conversationId}`);
