@@ -1,11 +1,15 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
+import { FontLoader } from "three/addons/loaders/FontLoader.js";
 
 export class SceneManager {
-  constructor(player) {
+  constructor(player, names) {
+    this.player = player;
+    this.names = names;
     // Camera
     this.camera = new THREE.PerspectiveCamera(
-      90,
+      80,
       window.innerWidth / window.innerHeight,
       1,
       1000,
@@ -77,16 +81,12 @@ export class SceneManager {
     const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     this.scene.add(ambientLight);
 
-    const lightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
-    const lightHelper1 = new THREE.DirectionalLightHelper(directionalLight1, 5);
-
-    this.scene.add(lightHelper);
-    this.scene.add(lightHelper1);
-
-    // const gridHelper = new THREE.GridHelper(200, 50);
-    const axesHelper = new THREE.AxesHelper(1500);
-    // this.scene.add(gridHelper);
-    this.scene.add(axesHelper);
+    this.P1Score = undefined;
+    this.P2Score = undefined;
+    this.P1ScoreBarre = undefined;
+    this.P2ScoreBarre = undefined;
+    this.P1red = undefined;
+    this.P2red = undefined;
   }
 
   createWall(x, y, z, width, height, rotate, pointLight) {
@@ -117,29 +117,241 @@ export class SceneManager {
     this.scene.add(wall);
   }
 
-  scoreRender() {
-    const ScoreGeometry = new THREE.PlaneGeometry(5, 2.5);
+  updateTextOnPlane(plane, text, x, y, color) {
+    const loader = new FontLoader();
+
+    loader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Font.json`,
+      (font) => {
+        // Remove the old text mesh (if any)
+        plane.children.forEach((child) => {
+          if (child.isMesh && child.geometry instanceof TextGeometry) {
+            plane.remove(child);
+            child.geometry.dispose(); // Clean up geometry
+            child.material.dispose(); // Clean up material
+          }
+        });
+
+        // Create new text geometry
+        console.log(text);
+        const textGeometry = new TextGeometry(text, {
+          font: font,
+          size: 0.07,
+          depth: 0.01,
+        });
+
+        // Create new material
+        const textMaterial = new THREE.MeshBasicMaterial({ color: color });
+
+        // Create new text mesh
+        const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+        // Set position of the new text
+        textMesh.position.set(x, y, 0.03);
+
+        // Add the new text mesh to the plane
+        plane.add(textMesh);
+      },
+    );
+  }
+
+  scoreUpdate(P, whoScore) {
+    this.scene.remove(this.P1red);
+    this.scene.remove(this.P2red);
+    if (whoScore === 1) this.scene.add(this.P1red);
+    else if (whoScore === 2) this.scene.add(this.P2red);
+    this.updateTextOnPlane(this.P1ScoreBarre, P["1"], 0, 0, 0xffffff);
+    this.updateTextOnPlane(this.P2ScoreBarre, P["2"], 0, 0, 0xffffff);
+  }
+
+  createRoundedPlane(width, height, radius, clor, y, z, flag, PlayerScore) {
+    const shape = new THREE.Shape();
+    let c;
+    const cameraDirection = new THREE.Vector3();
+    let ScoreGeometry;
+    // Top-left corner
+    if (PlayerScore === undefined) {
+      shape.moveTo(-width / 2 + radius, height / 2);
+      shape.lineTo(width / 2 - radius, height / 2); // Top edge
+      shape.quadraticCurveTo(
+        width / 2,
+        height / 2,
+        width / 2,
+        height / 2 - radius,
+      ); // Top-right corner
+      shape.lineTo(width / 2, -height / 2 + radius); // Right edge
+      shape.quadraticCurveTo(
+        width / 2,
+        -height / 2,
+        width / 2 - radius,
+        -height / 2,
+      ); // Bottom-right corner
+      shape.lineTo(-width / 2 + radius, -height / 2); // Bottom edge
+      if (!flag) {
+        shape.quadraticCurveTo(
+          -width / 2,
+          -height / 2,
+          -width / 2,
+          -height / 2 + radius,
+        ); // Bottom-left corner
+        shape.lineTo(-width / 2, height / 2 - radius); // Left edge
+        shape.quadraticCurveTo(
+          -width / 2,
+          height / 2,
+          -width / 2 + radius,
+          height / 2,
+        ); // Top-left corner
+      }
+      this.camera.getWorldDirection(cameraDirection);
+      const distance = 1; // Distance from the camera to the target plane
+      const vFOV = THREE.MathUtils.degToRad(this.camera.fov); // Convert vertical FOV to radians
+      const cameraHeight = 2 * Math.tan(vFOV / 2) * distance;
+      const cameraWidth = cameraHeight * this.camera.aspect;
+      c = new THREE.Vector3(
+        this.camera.position.x + cameraHeight * this.player + 0.5 * this.player,
+        this.camera.position.y - cameraHeight + y,
+        this.camera.position.z + cameraWidth * this.player + z,
+      ); //bot-left
+      ScoreGeometry = new THREE.ShapeGeometry(shape);
+    } else {
+      c = new THREE.Vector3(
+        PlayerScore.position.x,
+        PlayerScore.position.y + y,
+        PlayerScore.position.z + z,
+      ); //bot-left
+      ScoreGeometry = new THREE.PlaneGeometry(width, height);
+    }
+
+    // Create geometry from shape
     const ScoreMaterial = new THREE.MeshStandardMaterial({
-      color: 0x000039,
-      side: THREE.DoubleSide,
+      color: clor,
     });
     const Score = new THREE.Mesh(ScoreGeometry, ScoreMaterial);
 
-    const cameraDirection = new THREE.Vector3();
-    this.camera.getWorldDirection(cameraDirection);
-    Score.position
-      .copy(this.camera.position)
-      .add(cameraDirection.multiplyScalar(5));
-
-    Score.lookAt(this.camera.position);
-
-    const offset = new THREE.Vector3(-1, -1, -0.5);
-    offset.unproject(this.camera);
-
-    this.camera.getWorldDirection(cameraDirection);
-    Score.position.copy(offset);
-
+    Score.position.copy(c).add(cameraDirection.multiplyScalar(5));
+    Score.quaternion.copy(this.camera.quaternion); //front of the camera directions
+    if (PlayerScore && !flag) return Score;
     this.scene.add(Score);
+    return Score;
+  }
+
+  scoreRender() {
+    // NameBar
+    this.P1Score = this.createRoundedPlane(
+      1,
+      0.19,
+      0.025,
+      0xa9eafe,
+      0.13,
+      0,
+      false,
+      undefined,
+    );
+    this.addTextToPlane(this.P1Score, this.names[0], -0.4, 0, 0x000000);
+
+    if (this.player === -1) {
+      this.P2Score = this.createRoundedPlane(
+        1,
+        0.19,
+        0.025,
+        0xa9eafe,
+        -0.13,
+        -0.035,
+        false,
+        undefined,
+      );
+    } else {
+      this.P2Score = this.createRoundedPlane(
+        1,
+        0.19,
+        0.025,
+        0xa9eafe,
+        -0.13,
+        0.045,
+        false,
+        undefined,
+      );
+    }
+    this.addTextToPlane(this.P2Score, this.names[1], -0.4, 0, 0x000000);
+
+    // ScoreBarre
+    this.P1ScoreBarre = this.createRoundedPlane(
+      0.2,
+      0.19,
+      0.025,
+      0x212d45,
+      0.13,
+      -(0.4 * this.player),
+      true,
+      undefined,
+    );
+    this.addTextToPlane(this.P1ScoreBarre, "0", 0, 0, 0xffffff);
+
+    if (this.player === -1) {
+      this.P2ScoreBarre = this.createRoundedPlane(
+        0.2,
+        0.19,
+        0.025,
+        0x212d45,
+        -0.13,
+        -0.013 - 0.4 * this.player,
+        true,
+        undefined,
+      );
+    } else {
+      this.P2ScoreBarre = this.createRoundedPlane(
+        0.2,
+        0.19,
+        0.025,
+        0x212d45,
+        -0.13,
+        0.03 - 0.4 * this.player,
+        true,
+        undefined,
+      );
+    }
+    this.addTextToPlane(this.P2ScoreBarre, "0", 0, 0, 0xffffff);
+
+    // ServeBarre
+    this.P1red = this.createRoundedPlane(
+      0.04,
+      0.19,
+      0.025,
+      0xb30000,
+      0,
+      -(0.306 * this.player),
+      true,
+      this.P1Score,
+    );
+    this.P2red = this.createRoundedPlane(
+      0.04,
+      0.19,
+      0.025,
+      0xb30000,
+      0,
+      -(0.326 * this.player),
+      false,
+      this.P2Score,
+    );
+  }
+
+  addTextToPlane(plane, text, x, y, color) {
+    const loader = new FontLoader();
+    loader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Font.json`,
+      (font) => {
+        const textGeometry = new TextGeometry(text, {
+          font: font,
+          size: 0.07,
+          depth: 0.01,
+        });
+        const textMaterial = new THREE.MeshBasicMaterial({ color: color });
+        const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+        textMesh.position.set(x, y, 0.03); // Adjust position as needed
+        plane.add(textMesh); // Add text to the plane as a child
+      },
+    );
   }
 
   render() {

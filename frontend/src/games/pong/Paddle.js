@@ -303,7 +303,8 @@ class Paddle {
   }
 
   shoot(net, keyboard, ball, dt) {
-    ball.isServed = true;
+    // ball.isServed = true;
+    // ball.lastshooter = this.player;
     if (this.player === 1) {
       ball.x = this.boundingBox.min.x - 1;
     } else {
@@ -378,16 +379,23 @@ class Paddle {
 
   netshoot(ball, net, ws, player) {
     ball.dx = Math.min(Math.abs(ball.dx) + 0.05, 0.01);
-    if (ball.x < net.boundingBox.min.x + ball.radius) {
+    if (
+      ball.x < net.boundingBox.min.x + ball.radius &&
+      ball.lastshooter === -1
+    ) {
       ball.x = net.boundingBox.min.x - ball.radius;
       ball.dx *= -1;
-    } else if (ball.x > net.boundingBox.max.x - ball.radius) {
+    } else if (
+      ball.x > net.boundingBox.max.x - ball.radius &&
+      ball.lastshooter === 1
+    ) {
       ball.x = net.boundingBox.max.x + ball.radius;
       ball.dx *= 1;
     }
   }
 
   hit(ball, ws) {
+    // ball.lastshooter = this.player;
     if (this.player === 1) {
       ball.x = this.boundingBox.min.x - ball.radius;
     } else {
