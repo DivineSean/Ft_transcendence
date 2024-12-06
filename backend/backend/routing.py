@@ -7,5 +7,5 @@ ws_urlpatterns = [
     *game_urlpatterns,
     *matchmaking_urlpatterns,
     *chat_urlpatterns,
-   *notification_urlpatterns
+    *notification_urlpatterns,
 ]

@@ -1,7 +1,7 @@
-import * as THREE from 'three';
-import { vec3 } from 'three/webgpu';
-import { rotate } from 'three/webgpu';
-import { distance } from 'three/webgpu';
+import * as THREE from "three";
+import { vec3 } from "three/webgpu";
+import { rotate } from "three/webgpu";
+import { distance } from "three/webgpu";
 
 const BALL_MAX_SPEED = 0.05;
 

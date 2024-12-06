@@ -1,11 +1,11 @@
-import SceneManager from './SceneManager';
-import Table from './Table';
-import Paddle from './Paddle';
-import Net from './Net';
-import Ball from './Ball';
-import { Clock } from 'three';
+import SceneManager from "./SceneManager";
+import Table from "./Table";
+import Paddle from "./Paddle";
+import Net from "./Net";
+import Ball from "./Ball";
+import { Clock } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 let dt = 1;    ////added for debugging purpose
 const Pong = ({ websocket, player, names }) => {

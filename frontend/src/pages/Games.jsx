@@ -1,11 +1,11 @@
-import GameManager from '../games/GameManager';
-import Match from '../games/Matchmaking'
+import GameManager from "../games/GameManager";
+import Match from "../games/Matchmaking";
 
 const Games = () => {
-	return (
-		// <GameManager />
-		<Match />
-	);
-}
+  return (
+    // <GameManager />
+    <Match />
+  );
+};
 
 export default Games;

@@ -3,157 +3,231 @@
 @tailwind utilities;
 
 body {
-	@apply  min-h-screen capitalize bg-[url('/images/background.png')] bg-cover bg-fixed text-white flex flex-col relative;
+  @apply min-h-screen capitalize bg-[url('/images/background.png')] bg-cover bg-fixed text-white flex flex-col relative;
 }
 #root {
-	display: flex;
-	flex-grow: 1;
+  display: flex;
+  flex-grow: 1;
 }
 @layer utilities {
-	.custom-shadow { box-shadow: inset 0px 20px 35px 0px rgba(0,0,0,0.75); }
-	.no-scrollbar::-webkit-scrollbar { display: none; }
-	.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-	.custom-scrollbar::-webkit-scrollbar { width: 3px; }
-	.custom-scrollbar::-webkit-scrollbar-track { @apply primary-glass; }
-	.custom-scrollbar::-webkit-scrollbar-thumb { @apply rounded-full bg-stroke-sc; }
-	.custom-scrollbar::-webkit-scrollbar-thumb:hover { @apply bg-stroke-sc cursor-all-scroll; }
-	.primary-gradient { background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2)); }
-	.secondary-gradient { background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2)); }
-	.cover-gradient {  background: linear-gradient(0deg, rgba(0,0,0,0.8), rgba(0,0,0,0)); }
-	.transition-items:hover {
-		/* background-color: black; */
-		@apply bg-black;
-		transition: 1s ease-in-out;
-	}
-	.primary-glass-no-rounded {
-		background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2));
-		backdrop-filter: blur(80px);
-	}
-	.primary-glass {
-		background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2));
-		border-radius: 8px;
-		border: .5px solid #313131;
-		backdrop-filter: blur(80px);
-	}
-	.options-glass {
-		background: linear-gradient(90deg, rgba(22, 22, 22, 0.6), rgba(13, 3, 33, 0.4));
-		border-radius: 8px;
-		border: .5px solid #313131;
-		backdrop-filter: blur(80px);
-	}
-	.send-glass {
-		background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2));
-		border-radius: 8px;
-		border: .5px solid #5B5B5B;
-		backdrop-filter: blur(-10px);
-	}
-	.login-glass {
-		background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2));
-		backdrop-filter: blur(80px);
-	}
-	.secondary-glass {
-		background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2));
-		border-radius: 8px;
-		border: .5px solid #5B5B5B;
-		backdrop-filter: blur(40px);
-	}
-	.hover-secondary {
-		background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2));
-	}
-	.secondary-glass-friends {
-		background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2));
-		border-radius: 8px;
-		border: .5px solid #5B5B5B;
-	}
-	.sc-overview-glass {
-		background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2));
-  	}
-	.message-glass {
-		background: linear-gradient(90deg, rgba(80,80,80,0.4), rgba(80,80,80,0.2));
-	}
-	.search-glass {
-		background: linear-gradient(90deg, rgba(36,36,36,0.4), rgba(36,36,36,0.2));
-		border: .5px solid #5B5B5B;
-		border-radius: 8px;
-		backdrop-filter: blur(40px);
-	}
-	.container {
-		@apply max-w-[1440px] m-auto lg:px-32 flex flex-col lg:gap-32 gap-16 grow;
-	}
-	.custom-container {
-		@apply md:hidden;
-	}
-	.glass-component {
-		@apply primary-glass flex lg:p-16 md:px-32 p-16 text-white;
-	}
-	/* -------- start login -------- */
-	.login-input {
-		background: none;
-		outline: none;
-	}
-	/* -------- end login -------- */
-	.get-height {
-		height: calc(100vh - 116px);
-	}
-	@media (max-width: 1099px) {
-		.get-height {
-			height: 100%;
-		}	
-	}
-	.right-message::before {
-		content: "";
-		position: absolute;
-		top: 0;
-		right: -12px;
-		width: 0;
-		height: 0;
-		border-left: 0 solid transparent; 
-		border-right: 12px solid transparent; 
-		border-top: 12px solid rgba(80,80,80,0.2);
-	}
-	.left-message::before {
-		content: "";
-		position: absolute;
-		top: 0;
-		left: -12px;
-		width: 0;
-		height: 0;
-		border-left: 12px solid transparent; 
-		border-right: 0 solid transparent; 
-		border-top: 12px solid rgba(80,80,80,0.4);
-	}
+  .custom-shadow {
+    box-shadow: inset 0px 20px 35px 0px rgba(0, 0, 0, 0.75);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 3px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply primary-glass;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-stroke-sc;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-stroke-sc cursor-all-scroll;
+  }
+  .primary-gradient {
+    background: linear-gradient(
+      90deg,
+      rgba(36, 36, 36, 0.4),
+      rgba(36, 36, 36, 0.2)
+    );
+  }
+  .secondary-gradient {
+    background: linear-gradient(
+      90deg,
+      rgba(80, 80, 80, 0.4),
+      rgba(80, 80, 80, 0.2)
+    );
+  }
+  .cover-gradient {
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+  }
+  .transition-items:hover {
+    /* background-color: black; */
+    @apply bg-black;
+    transition: 1s ease-in-out;
+  }
+  .primary-glass-no-rounded {
+    background: linear-gradient(
+      90deg,
+      rgba(36, 36, 36, 0.4),
+      rgba(36, 36, 36, 0.2)
+    );
+    backdrop-filter: blur(80px);
+  }
+  .primary-glass {
+    background: linear-gradient(
+      90deg,
+      rgba(36, 36, 36, 0.4),
+      rgba(36, 36, 36, 0.2)
+    );
+    border-radius: 8px;
+    border: 0.5px solid #313131;
+    backdrop-filter: blur(80px);
+  }
+  .options-glass {
+    background: linear-gradient(
+      90deg,
+      rgba(22, 22, 22, 0.6),
+      rgba(13, 3, 33, 0.4)
+    );
+    border-radius: 8px;
+    border: 0.5px solid #313131;
+    backdrop-filter: blur(80px);
+  }
+  .send-glass {
+    background: linear-gradient(
+      90deg,
+      rgba(36, 36, 36, 0.4),
+      rgba(36, 36, 36, 0.2)
+    );
+    border-radius: 8px;
+    border: 0.5px solid #5b5b5b;
+    backdrop-filter: blur(-10px);
+  }
+  .login-glass {
+    background: linear-gradient(
+      90deg,
+      rgba(36, 36, 36, 0.4),
+      rgba(36, 36, 36, 0.2)
+    );
+    backdrop-filter: blur(80px);
+  }
+  .secondary-glass {
+    background: linear-gradient(
+      90deg,
+      rgba(80, 80, 80, 0.4),
+      rgba(80, 80, 80, 0.2)
+    );
+    border-radius: 8px;
+    border: 0.5px solid #5b5b5b;
+    backdrop-filter: blur(40px);
+  }
+  .hover-secondary {
+    background: linear-gradient(
+      90deg,
+      rgba(80, 80, 80, 0.4),
+      rgba(80, 80, 80, 0.2)
+    );
+  }
+  .secondary-glass-friends {
+    background: linear-gradient(
+      90deg,
+      rgba(80, 80, 80, 0.4),
+      rgba(80, 80, 80, 0.2)
+    );
+    border-radius: 8px;
+    border: 0.5px solid #5b5b5b;
+  }
+  .sc-overview-glass {
+    background: linear-gradient(
+      90deg,
+      rgba(80, 80, 80, 0.4),
+      rgba(80, 80, 80, 0.2)
+    );
+  }
+  .message-glass {
+    background: linear-gradient(
+      90deg,
+      rgba(80, 80, 80, 0.4),
+      rgba(80, 80, 80, 0.2)
+    );
+  }
+  .search-glass {
+    background: linear-gradient(
+      90deg,
+      rgba(36, 36, 36, 0.4),
+      rgba(36, 36, 36, 0.2)
+    );
+    border: 0.5px solid #5b5b5b;
+    border-radius: 8px;
+    backdrop-filter: blur(40px);
+  }
+  .container {
+    @apply max-w-[1440px] m-auto lg:px-32 flex flex-col lg:gap-32 gap-16 grow;
+  }
+  .custom-container {
+    @apply md:hidden;
+  }
+  .glass-component {
+    @apply primary-glass flex lg:p-16 md:px-32 p-16 text-white;
+  }
+  /* -------- start login -------- */
+  .login-input {
+    background: none;
+    outline: none;
+  }
+  /* -------- end login -------- */
+  .get-height {
+    height: calc(100vh - 116px);
+  }
+  @media (max-width: 1099px) {
+    .get-height {
+      height: 100%;
+    }
+  }
+  .right-message::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -12px;
+    width: 0;
+    height: 0;
+    border-left: 0 solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 12px solid rgba(80, 80, 80, 0.2);
+  }
+  .left-message::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -12px;
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 0 solid transparent;
+    border-top: 12px solid rgba(80, 80, 80, 0.4);
+  }
 }
 
 /* -------- start home -------- */
 .side-online-friends-container {
-	height: calc(100vh - 109px);
+  height: calc(100vh - 109px);
 }
 /* -------- end home -------- */
 
 /* -------- start loading animation -------- */
 
 .rl-loading {
-	box-shadow: 0 0 12px 3px #31E78B;
-	animation: rl-loading-animation 1.5s ease-in-out infinite;
+  box-shadow: 0 0 12px 3px #31e78b;
+  animation: rl-loading-animation 1.5s ease-in-out infinite;
 }
 .loading-1 {
-	animation-delay: 0s;
+  animation-delay: 0s;
 }
 .loading-2 {
-	animation-delay: 0.5s;
+  animation-delay: 0.5s;
 }
 .loading-3 {
-	animation-delay: 1s;
+  animation-delay: 1s;
 }
 @keyframes rl-loading-animation {
-	0% {}
-	20% {
-			background: white;
-			transform: scale(1.5);
-	}
-	40% {
-			background: #41f3fd;
-			transform: scale(1);
-	}
+  0% {
+  }
+  20% {
+    background: white;
+    transform: scale(1.5);
+  }
+  40% {
+    background: #41f3fd;
+    transform: scale(1);
+  }
 }
 /* -------- end loading animation -------- */

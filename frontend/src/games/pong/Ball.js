@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
 const G = 0.0009;
 const MAX_POINTS = 180;

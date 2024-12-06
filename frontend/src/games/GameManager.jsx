@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import Pong from './pong/Pong';
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import Pong from "./pong/Pong";
 
 const GameManager = ({ GameDetails }) => {
 	const [playerNumber, setPlayerNumber] = useState(-1);
@@ -13,46 +13,50 @@ const GameManager = ({ GameDetails }) => {
 		setPlayers(GameDetails.game.players_details.map(player => player.user.username));
 		ws.current = new WebSocket(`wss://${window.location.hostname}:8000/ws/games/${id}`);
 
-		ws.current.onopen = () => {
-			console.log('WebSocket connected');
-			ws.current.send(JSON.stringify({
-				'type': 'ready',
-				'message': {}
-			}))
-			setPlayerNumber(role)
-		};
 
-		ws.current.onmessage = (e) => console.log('message tzeft: ', JSON.parse(e.data))
-		// ws.current.onmessage = (event) => {
-		// 	const data = JSON.parse(event.data);
-		// 	if (data.type === 'play') {
-		// 		setReady(true);
-		// 	}
-		// 	console.log('Message from server:', data);
-		// };
+    ws.current.onopen = () => {
+      console.log("WebSocket connected");
+      ws.current.send(
+        JSON.stringify({
+          type: "ready",
+          message: {},
+        }),
+      );
+      setPlayerNumber(role);
+    };
 
-		ws.current.onclose = () => {
-			console.log('WebSocket closed');
-		};
+    ws.current.onmessage = (e) =>
+      console.log("message tzeft: ", JSON.parse(e.data));
+    // ws.current.onmessage = (event) => {
+    // 	const data = JSON.parse(event.data);
+    // 	if (data.type === 'play') {
+    // 		setReady(true);
+    // 	}
+    // 	console.log('Message from server:', data);
+    // };
 
-		ws.current.onerror = (error) => {
-			console.error('WebSocket error:', error);
-		};
-	}, []);
+    ws.current.onclose = () => {
+      console.log("WebSocket closed");
+    };
 
-	const handleJoinGame = () => {
-		if (!ws.current) {
-			connectWebSocket();
-		}
-	};
+    ws.current.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+  }, []);
 
-	useEffect(() => {
-		return () => {
-			if (ws.current) {
-				ws.current.close();
-			}
-		};
-	}, []);
+  const handleJoinGame = () => {
+    if (!ws.current) {
+      connectWebSocket();
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, []);
 
 	return (
 		<div>
@@ -64,5 +68,4 @@ const GameManager = ({ GameDetails }) => {
 		</div>
 	);
 }
-
 export default GameManager;

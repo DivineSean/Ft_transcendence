@@ -11,78 +11,90 @@ from channels.db import database_sync_to_async
 
 
 class sAuthMiddleWare(MiddlewareMixin):
-	def __init__(self, get_response):
-		self.get_response = get_response
-		self.UnlockedPaths = [
-			"/api/google/",
-			"/api/token/refresh/",
-			"/api/token/",
-			"/api/callback/",
-			"/api/register/",
-			"/api/setupusername/",
-			"/api/intra/",
-			"/api/user/"
-		]
+    def __init__(self, get_response):
+        self.get_response = get_response
+        self.UnlockedPaths = [
+            "/api/google/",
+            "/api/token/refresh/",
+            "/api/token/",
+            "/api/callback/",
+            "/api/register/",
+            "/api/setupusername/",
+            "/api/intra/",
+            "/api/user/",
+            "/api/requestreset/",
+            "/api/changepassword/",
+        ]
 
-	def process_request(self, request):
-		if hasattr(request, 'path'):  #HTTP
-			if request.path in self.UnlockedPaths: #hadok no need nchecki 3lihom
-				return None
+    def process_request(self, request):
+        if hasattr(request, "path"):  # HTTP
+            if request.path in self.UnlockedPaths:  # hadok no need nchecki 3lihom
+                return None
 
-			accessToken = request.COOKIES.get("accessToken")
-			refreshToken = request.COOKIES.get("refreshToken")  
+            accessToken = request.COOKIES.get("accessToken")
+            refreshToken = request.COOKIES.get("refreshToken")
 
-			if not accessToken and not refreshToken:
-				return JsonResponse({'error': f'Invalid Tokens{request.path}',}, status=401) 
-			
-			
-			jwtObj = JWTAuthentication()
+            if not accessToken and not refreshToken:
+                return JsonResponse(
+                    {
+                        "error": f"Invalid Tokens{request.path}",
+                    },
+                    status=401,
+                )
 
-			try:
-				validatedAccessToken = AccessToken(accessToken)
-				user = jwtObj.get_user(validatedAccessToken)
-				request._user = user 
-				print("------------------>",request._user, flush = True)
-				return None
-				
-			except :
-				if not refreshToken:
-					return JsonResponse({'error': 'No Access No Refresh',}, status=401)
-				
-				try:
-					refresh = RefreshToken(refreshToken)
-					new_access_token = str(refresh.access_token)
-					user = jwtObj.get_user(refresh)
-					request._user = user  
-			
-					request._new_access_token = new_access_token
-					return None # ched had l access token 3ndk f dak response a jawad
-				except:
-					return JsonResponse({
-						'error': 'ta wahed ma khdam',
-					}, status=401)
+            jwtObj = JWTAuthentication()
 
-		
-		elif hasattr(request, 'scope'): #ASGI           
-			return None
-		return None
+            try:
+                validatedAccessToken = AccessToken(accessToken)
+                user = jwtObj.get_user(validatedAccessToken)
+                request._user = user
+                print("------------------>", request._user, flush=True)
+                return None
 
-	def process_response(self, request, response):
-		if hasattr(request, "_new_access_token"):
-			response.set_cookie(
-				'accessToken',
-				request._new_access_token,
-				httponly = True,
-				samesite = "Strict"
-			)
-		return response  # Dima rj3 l9lawi
+            except:
+                if not refreshToken:
+                    return JsonResponse(
+                        {
+                            "error": "No Access No Refresh",
+                        },
+                        status=401,
+                    )
 
+                try:
+                    refresh = RefreshToken(refreshToken)
+                    new_access_token = str(refresh.access_token)
+                    user = jwtObj.get_user(refresh)
+                    request._user = user
+
+                    request._new_access_token = new_access_token
+                    return None  # ched had l access token 3ndk f dak response a jawad
+                except:
+                    return JsonResponse(
+                        {
+                            "error": "ta wahed ma khdam",
+                        },
+                        status=401,
+                    )
+
+        elif hasattr(request, "scope"):  # ASGI
+            return None
+        return None
+
+    def process_response(self, request, response):
+        if hasattr(request, "_new_access_token"):
+            response.set_cookie(
+                "accessToken",
+                request._new_access_token,
+                httponly=True,
+                samesite="Strict",
+            )
+        return response  # Dima rj3 l9lawi
 
 
 class JWTAuthMiddleWare(BaseMiddleware):
     async def __call__(self, scope, receive, send):
         try:
-            if not scope.get('headers'):
+            if not scope.get("headers"):
                 await send({"type": "websocket.close"})
                 return
 
@@ -99,12 +111,13 @@ class JWTAuthMiddleWare(BaseMiddleware):
                 return
 
             try:
-                user, new_access_token = await self.authenticate(accessToken, refreshToken)
+                user, new_access_token = await self.authenticate(
+                    accessToken, refreshToken
+                )
                 if not user:
                     await send({"type": "websocket.close"})
                     return
 
-                
                 scope["user"] = user
                 if new_access_token:
                     scope["new_access_token"] = new_access_token
@@ -112,7 +125,7 @@ class JWTAuthMiddleWare(BaseMiddleware):
                 return await super().__call__(scope, receive, send)
 
             except:
-      
+
                 await send({"type": "websocket.close"})
                 return
 
@@ -122,17 +135,17 @@ class JWTAuthMiddleWare(BaseMiddleware):
 
     async def get_cookies(self, scope):
         try:
-            headers = dict(scope['headers'])
-            if b'cookie' in headers:
-                cookie_header = headers[b'cookie'].decode('utf-8')
+            headers = dict(scope["headers"])
+            if b"cookie" in headers:
+                cookie_header = headers[b"cookie"].decode("utf-8")
                 return self.parse_cookies(cookie_header)
         except Exception as e:
-            print("dfsfdsfdsfdfdsfds ",str(e), flush=True)
+            print("dfsfdsfdsfdfdsfds ", str(e), flush=True)
         return {}
 
     @sync_to_async
     def authenticate(self, access_token, refresh_token):
-        
+
         jwt_auth = JWTAuthentication()
         try:
             validated_token = AccessToken(access_token)
@@ -149,7 +162,7 @@ class JWTAuthMiddleWare(BaseMiddleware):
                     print(f"fdsfdsfdsffdsfdsfdsfsfsd {str(e)}", flush=True)
                     return None, None
             return None, None
-      
+
         return None, None
 
     @staticmethod
@@ -158,11 +171,11 @@ class JWTAuthMiddleWare(BaseMiddleware):
         try:
             if not cookie_header:
                 return cookies
-                
+
             for cookie in cookie_header.split("; "):
                 if "=" in cookie:
                     name, value = cookie.split("=", 1)
                     cookies[name.strip()] = value.strip()
         except Exception as e:
-            print("dslfdskfldskfdlkdflkdsldfks ",str(e), flush=True)
+            print("dslfdskfldskfdlkdflkdsldfks ", str(e), flush=True)
         return cookies
