@@ -8,11 +8,12 @@ from django.db import models
 from .models import GameRoom
 import json
 
-class   GameConsumer(WebsocketConsumer):
+
+class GameConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()
-        self.game_uuid = self.scope['url_route']['kwargs']['room_uuid']
-        self.user_id = self.scope['user'].id
+        self.game_uuid = self.scope["url_route"]["kwargs"]["room_uuid"]
+        self.user_id = self.scope["user"].id
 
         try:
             game = GameRoom.objects.get(pk=self.game_uuid)
@@ -24,15 +25,11 @@ class   GameConsumer(WebsocketConsumer):
             return
 
         print(f"-------> {self.game_uuid}", flush=True)
-        async_to_sync(self.channel_layer.group_add)(
-            self.game_uuid,
-            self.channel_name
-        )
+        async_to_sync(self.channel_layer.group_add)(self.game_uuid, self.channel_name)
 
     def disconnect(self, code):
         async_to_sync(self.channel_layer.group_discard)(
-            self.game_uuid,
-            self.channel_name
+            self.game_uuid, self.channel_name
         )
 
     def receive(self, text_data):
@@ -43,26 +40,26 @@ class   GameConsumer(WebsocketConsumer):
 
         try:
             data = json.loads(text_data)
-            type = data['type']
-            message = data['message']
+            type = data["type"]
+            message = data["message"]
         except (json.JSONDecodeError, KeyError):
             print("------------------> nn hh", flush=True)
             return
 
         match type:
-            case 'score':
+            case "score":
                 self.update_score()
-            case 'update':
+            case "update":
                 async_to_sync(self.channel_layer.group_send)(
                     self.game_uuid,
                     {
-                        'type': 'whisper',
-                        'info': 'update',
-                        'sender': self.channel_name,
-                        'message': message,
-                    }
+                        "type": "whisper",
+                        "info": "update",
+                        "sender": self.channel_name,
+                        "message": message,
+                    },
                 )
-            case 'ready':
+            case "ready":
                 self.update_readiness()
 
     def update_score(self):
@@ -70,24 +67,26 @@ class   GameConsumer(WebsocketConsumer):
         # TODO: Update scores on the database
         role = None
         game = json.loads(r.get(f"{self.game_uuid}:game_room_state"))
-        for player in game['players_details']:
-            if str(player['user']['id']) == str(self.user_id):
-                player['score'] += 1
-                role = player['role']
+        for player in game["players_details"]:
+            if str(player["user"]["id"]) == str(self.user_id):
+                player["score"] += 1
+                role = player["role"]
                 break
-        scores = { player['role'] : str(player['score']) for player in game['players_details'] }
+        scores = {
+            player["role"]: str(player["score"]) for player in game["players_details"]
+        }
 
         r.set(f"{self.game_uuid}:game_room_state", json.dumps(game))
         async_to_sync(self.channel_layer.group_send)(
             self.game_uuid,
             {
-                'type': 'broadcast',
-                'info': 'score',
-                'message': {
-                    'role': role,
-                    'scores': json.dumps(scores),
+                "type": "broadcast",
+                "info": "score",
+                "message": {
+                    "role": role,
+                    "scores": json.dumps(scores),
                 },
-            }
+            },
         )
 
     def update_readiness(self):
@@ -97,19 +96,22 @@ class   GameConsumer(WebsocketConsumer):
             async_to_sync(self.channel_layer.group_send)(
                 self.game_uuid,
                 {
-                    'type': 'broadcast',
-                    'info': 'play',
-                    'message': {},
-                }
+                    "type": "broadcast",
+                    "info": "play",
+                    "message": {},
+                },
             )
         cache.set(self.game_uuid, players_ready)
 
     def whisper(self, event):
-        if (event['sender'] != self.channel_name):
-            self.send(text_data=json.dumps({"type": event['info'], "message": event['message']}))
+        if event["sender"] != self.channel_name:
+            self.send(
+                text_data=json.dumps(
+                    {"type": event["info"], "message": event["message"]}
+                )
+            )
 
     def broadcast(self, event):
-        self.send(text_data=json.dumps({
-            'type': event['info'],
-            'message': event['message']
-        }))
+        self.send(
+            text_data=json.dumps({"type": event["info"], "message": event["message"]})
+        )
