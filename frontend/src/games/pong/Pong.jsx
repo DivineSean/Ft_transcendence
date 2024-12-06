@@ -48,15 +48,18 @@ const Pong = ({ websocket, player, names }) => {
 			// console.log(event);
 			const msg = JSON.parse(event.data);
 			const opp = player == 1 ? 2 : 1;
-			console.log(msg);
 			if (msg.type === 'score')
 			{
+				console.log(msg);
 				const scores = JSON.parse(msg.message.scores);
 				sm.current.scoreUpdate(scores, msg.message.role);
+				console.log(`ball serving ${ball.serving}`);
 				if (msg.message.role === 1)
 					ball.serve(websocket, net, 1);
-				else
+				else if (msg.message.role === 2)
 					ball.serve(websocket, net, -1);
+				else
+					console.log("Im the problem");
 			}
 			else if (msg.type == 'play')
 				setReady(true);
@@ -83,15 +86,25 @@ const Pong = ({ websocket, player, names }) => {
 				players[opp - 1].updatePos();
 			}
 			else if (msg.message.content == 'ball') {
+				
 				ball.x = msg.message.ball.x;
 				ball.y = msg.message.ball.y;
 				ball.z = msg.message.ball.z;
 				ball.dx = msg.message.ball.dx;
 				ball.dy = msg.message.ball.dy;
 				ball.dz = msg.message.ball.dz;
+				ball.count = 0;
 				ball.serving = msg.message.ball.serving;
 				ball.lastshooter = msg.message.ball.lstshoot;
 				ball.updatePos();
+			}
+			else if (msg.message.content == 'lost')
+			{
+				// ball.count = 0;
+				ball.serving = msg.message.ball.serving;
+				ball.lastshooter = msg.message.ball.lstshoot;
+				ball.sendLock = true;
+				ball.sendScore(websocket);
 			}
 		}
 		sm.current.render();

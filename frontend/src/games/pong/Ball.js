@@ -50,70 +50,102 @@ class Ball {
 		ws.send(JSON.stringify(data));
 	}
 
+	sendLost(ws)
+	{
+		// this.count = 0;
+		this.sendLock = true;
+		this.serving = true;
+		const data = {
+			'type': 'update',
+			'message': {
+				'content': 'lost',
+				'ball': {
+					serving: this.serving,
+					lstshoot: this.lastshooter,	
+				}
+			}
+		}
+		ws.send(JSON.stringify(data));
+	}
+
 	update(net, table, player1, ws, dt, player, keyboard) {
         if (!this.model || !net.boundingBox || !table.boundingBoxTable || !this.boundingSphere || !player1.boundingBox)
             return;
+		console.log(`count ${this.count}`);
+		if (this.sendLock && this.serving && this.count >= 2)
+			return;
 		this.dy -= G;
 		let flag = false;
-		//serve 
-		if (this.y < -50) {
-			if (this.lastshooter === 1 && player === 2 && this.sendLock === false)
+		//serve
+		if (this.serving)
+			this.count = 0;
+		if (this.y < -50 && this.sendLock === false && this.serving === false) {
+			if (this.lastshooter === 1 && player === 1)
 			{
-				this.sendScore(ws);
-				this.sendLock = true;
+				console.log("me 1");
+				this.sendLost(ws);
 			}
-			else if (this.lastshooter === -1 && player === 1 && this.sendLock === false)
+			else if (this.lastshooter === -1 && player === 2)
 			{
-				this.sendScore(ws);
-				this.sendLock = true;
+				console.log("me 2");
+				this.sendLost(ws);
 			}
-			else
-			{
-				console.log(`lastshooter ${this.lastshooter}`);
-				console.log(`im player ${player} waiting for the player ${player} to score`);
-			}
+			this.sendLock = true;
+			this.serving = true;
+			// this.count = 0;
+			return;
 		}
-		else if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
+		else if (this.boundingSphere.intersectsBox(table.boundingBoxTable))
+		{
 			this.y = table.boundingBoxTable.max.y + 1;
-			// console.log(this.dy);
 			this.dy *= -0.6;
-			if (this.sendLock === false)
+			if (this.sendLock === false && this.serving === false && this.count < 2)
 			{
+				this.count++;
 				if (this.x < 0)
 					this.lastshooter = -1;
 				else
 					this.lastshooter = 1;
-				if (this.serving === false)
-					this.count += 1;
 				if (this.count === 2)
 				{
-					if (this.x < 0 && player === 1) {this.sendScore(ws); this.sendLock = true; this.serving = true;}
-					else if (this.x > 0 && player === 2) {this.sendScore(ws); this.sendLock = true; this.serving = true;}
+					if (this.lastshooter === -1 && player === 2) {
+						this.sendLost(ws);
+						console.log(`me 3`);
+					}
+					else if (this.lastshooter === 1 && player === 1) {
+						this.sendLost(ws);
+						console.log("me 4");
+					}
+					return;
 				}
 			}
 		}
-		if (this.boundingSphere.intersectsBox(net.boundingBox)) {	
+		if (this.boundingSphere.intersectsBox(net.boundingBox)) {
 			player1.netshoot(this, net, ws, player);
-			flag = true;
-		}
-		// Paddles
-		if (this.boundingSphere.intersectsBox(player1.boundingBox) && player1.rotating) {
-			this.serving = false;
-			this.lastshooter = player1.player;
-			player1.shoot(net, keyboard, this, dt);
 			this.count = 0;
 			flag = true;
 		}
-		else if (this.boundingSphere.intersectsBox(player1.boundingBox) && !player1.rotating)
-		{
-			if (!this.serving)
-			{
-				this.count = 0;
-				this.lastshooter = player1.player;
-				player1.hit(this, ws);
-				flag = true;
-			}
+		// Paddles
+		if (this.boundingSphere.intersectsBox(player1.boundingBox) && player1.rotating && this.sendLock === false) {
+			player1.shoot(net, keyboard, this, dt);
+			this.serving = false;
+			this.lastshooter = player1.player;
+			this.count = 0;
+			flag = true;
 		}
+		else if (this.boundingSphere.intersectsBox(player1.boundingBox) && !player1.rotating && !this.serving)
+		{
+			player1.hit(this, ws);
+			this.serving = false;
+			this.count = 0;
+			this.lastshooter = player1.player;
+			flag = true;
+		}
+
+		// Movement
+		this.x += this.dx * dt;
+		this.y += this.dy * dt;
+		this.z += this.dz * dt;
 
 		if (flag)
 		{
@@ -131,22 +163,18 @@ class Ball {
 						dt: dt,
 						serving: this.serving,
 						lstshoot: this.lastshooter,
+
 					}
 				}
 			}
 			ws.send(JSON.stringify(data));
 		}
-		// Movement
-		this.x += this.dx * dt;
-		this.y += this.dy * dt;
-		this.z += this.dz * dt;
-		
 
 		this.model.position.set(this.x, this.y, this.z);
 		const box = new THREE.Box3().setFromObject(this.model);
 		const center = box.getCenter(new THREE.Vector3());
 		this.radius = box.getSize(new THREE.Vector3()).length() / 2;
-		this.boundingSphere = new THREE.Sphere(center, this.radius - 0.5);	
+		this.boundingSphere = new THREE.Sphere(center, this.radius - 0.5);
 	}
 
 	updatePos()

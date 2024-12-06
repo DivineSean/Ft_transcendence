@@ -8,7 +8,7 @@ export class SceneManager {
         this.player = player;
         this.names = names;
         // Camera
-        this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
+        this.camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 1, 1000);
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.position.set(90 * player, 20, 0);
         // this.camera.position.set(90 * player, -24, 0);//9dam
