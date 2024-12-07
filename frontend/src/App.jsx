@@ -20,6 +20,7 @@ import { UserProvider } from "./context/UserContext";
 function App() {
   return (
     <>
+			<div className="backdrop-blur-sm w-full h-full absolute top-0 right-0 z-[-1]"></div>
       <Router>
         <AuthProvider>
 					<UserProvider>

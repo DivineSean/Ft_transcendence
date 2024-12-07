@@ -1,14 +1,17 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import FetchWrapper from "../utils/fetchWrapper";
+import AuthContext from "./AuthContext";
 
 const UserContext = createContext();
 
 export default UserContext;
 
 export const UserProvider = ({ children }) => {
+	const authContextData = useContext(AuthContext);
 	const FetchData = new FetchWrapper();
 	const navigate = useNavigate();
+	const [generalLoading, setGeneralLoading] = useState(true);
 	const [userInfo, setUserInfo] = useState(null);
 	const [profileInfo, setProfileInfo] = useState(null);
 
@@ -20,9 +23,12 @@ export const UserProvider = ({ children }) => {
 				const data = await res.json();
 				setUserInfo(data);
 				setProfileInfo(data);
+				setGeneralLoading(false);
 			} else {
-				if (res.status === 401)
+				if (res.status === 401) {
+					authContextData.setGlobalMessage({message: 'unauthorized user', isError: true});
 					navigate('/login');
+				}
 			}
 		} catch (error) {
 			console.log('error:', error);
@@ -51,6 +57,7 @@ export const UserProvider = ({ children }) => {
 	const contextData = {
 		userInfo,
 		profileInfo,
+		generalLoading,
 		getUserInfo,
 		getProfile,
 		setProfileInfo,

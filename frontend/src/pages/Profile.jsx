@@ -20,12 +20,15 @@ import "react-circular-progressbar/dist/styles.css";
 import { BACKENDURL } from "../utils/fetchWrapper";
 import LoadingPage from "./LoadingPage";
 import UserContext from "../context/UserContext";
+import { FiEdit3 } from "react-icons/fi";
+import UpdateProfile from "../components/profile/UpdateProfile";
 
 const profileMenu = ["overview", "statistics", "achievements", "friends"];
 
 const Profile = () => {
   const { displayMenuGl } = useContext(AuthContext);
   const { section, username } = useParams();
+	const [udpateProfile, setUpdateProfile] = useState(false);
 	const navigate = useNavigate();
 	const userUsername = username ? username : 0;
 	const [selectedMenu, setSelectedMenu] = useState(section ? section : 'overview');
@@ -47,12 +50,12 @@ const Profile = () => {
 	}, [username]);
 
 	return (
-    <div className="flex flex-col grow">
-      <div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
+    <div className="flex flex-col grow lg:gap-32 gap-16 relative">
       <Header link="profile" />
 			{!contextData.profileInfo && <LoadingPage />}
       {!displayMenuGl && contextData.profileInfo && (
         <div className="container">
+					{udpateProfile && <UpdateProfile setUpdateProfile={setUpdateProfile}/>}
           <div className="flex primary-glass p-16 lg:gap-32 gap-16 relative overflow-hidden get-height">
             <div className="absolute top-0 left-0 w-full lg:h-[232px] h-[216px]">
               <div className="w-full h-full absolute cover-gradient"></div>
@@ -128,8 +131,15 @@ const Profile = () => {
               </div>
             </div>
             <div className="flex flex-col grow z-[1] gap-16">
-              <div className="flex flex-col gap-32 md:items-start items-center lg:min-h-[216px]">
-                <div className="flex h-[184px] flex-col gap-8 py-16 items-center lg:hidden">
+              <div className="flex flex-col gap-32 md:items-start items-center lg:min-h-[216px] relative">
+							<div
+								onClick={() => setUpdateProfile(true)}
+								className="absolute flex gap-8 items-center font-light text-gray top-0 right-0 text-md secondary-glass p-8 cursor-pointer"
+							>
+								<FiEdit3 className="text-green"/>
+								<p className="md:block hidden">edit profile</p>
+							</div>
+							<div className="flex h-[184px] flex-col gap-8 py-16 items-center lg:hidden">
                   <CircularProgressbarWithChildren
                     value={75}
                     className="w-[112px] h-[112px] bg-black bg-opacity-40 rounded-full flex"

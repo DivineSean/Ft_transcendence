@@ -154,7 +154,7 @@ const Header = ({ ...props }) => {
           )}
         </div>
       </div>
-      <header className="backdrop-blur-3xl sticky top-0 z-[2] lg:mb-32 mb-16 lg:px-0 px-16">
+      <header className="backdrop-blur-3xl sticky top-0 z-[2] lg:px-0 px-16">
         <div className="flex items-center lg:gap-32 gap-16 py-16 max-w-[1440px] m-auto lg:px-32 relative">
           <Link
             to="/home"
