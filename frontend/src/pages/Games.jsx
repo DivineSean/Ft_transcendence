@@ -26,12 +26,43 @@ const Buttons = () => {
 
 const Select = () => {
     return (
-        <button id="select" className="container-3d is3d">
-            Select
+        <button id="select" className="container-3d w-full h-full bg-black is3d">
             <div style={{ "--z": 1 }}></div>
             <div style={{ "--z": 2 }}></div>
             <div style={{ "--z": 3 }}></div>
             <div style={{ "--z": 4 }}></div>
+        </button>
+    )
+}
+
+const CircularButton = ({ color = "red", radius = 6 }) => {
+    return (
+        <button className="container-3d circle is3d"
+            style={{
+                "--color": color,
+                "width": `${radius}vmin`
+            }}
+        >
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </button>
+    )
+}
+
+const TriangleButton = ({ color = "red", radius = 6 }) => {
+    return (
+        <button className="container-3d triangle is3d"
+            style={{
+                "--color": color,
+                "width": `${radius}vmin`,
+            }}
+        >
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
         </button>
     )
 }
@@ -60,6 +91,8 @@ const Games = () => {
                     <div className="bg-[#2CA086] rounded-lg w-full h-full flex gap-16 p-16">
                         <div className="grow max-w-[20%] flex flex-col justify-between items-center">
                             <Select />
+                            <CircularButton color="red" />
+                            <TriangleButton color="#5FBCD3" radius={3} />
                             <Buttons />
                         </div>
                         <div className="grow flex flex-col gap-16">

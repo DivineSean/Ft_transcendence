@@ -1,26 +1,21 @@
 
-*:focus {
-  outline: 0.25vmin dashed red;
-  outline-offset: 0.5vmin;
-}
+/* *:focus { */
+/*   outline: 0.25vmin dashed red; */
+/*   outline-offset: 0.5vmin; */
+/* } */
 
+/* *:focus { */
+/*   outline: 0.25vmin dashed red; */
+/*   outline-offset: 0.5vmin; */
+/* } */
+
+/* Gamepad code */
 .container-3d {
+  perspective: 1500px;
   --x: 0;
   --y: 0;
-  --pos: 0.2vmin;
-  --rotate: rotate3d(var(--x), var(--y), 0, var(--angle));
-  --gray-light: #ccc;
-  --gray: #b5b5bb;
-  --gray-dark: #585a58;
-  --purple-light: #bbe;
-  --purple-dark: #64b;
-  /* --button-x: #3c62f8; var(--purple-light); */
-  /* --button-y: #14b161; var(--purple-light); */
-  /* --button-a: #f03025; var(--purple-dark); */
-  /* --button-b: #e9dd34; var(--purple-dark); */
+  --pos: 0.5vmin;
   position: relative;
-  /* height: 13.5vmin; */
-  /* width: 100%; */
   /* width: 80vmin; */
   /* height: 34vmin; */
   /* top: 50%; */
@@ -49,9 +44,6 @@
 .is3d > div:nth-child(4) { transform: translateZ(calc(var(--pos) * 4)); }
 .is3d > div:nth-child(5) { transform: translateZ(calc(var(--pos) * 5)); }
 .is3d > div:nth-child(6) { transform: translateZ(calc(var(--pos) * 6)); }
-/* .is3d > div:nth-child(7) { transform: translateZ(calc(var(--pos) * 7)); } */
-/* .is3d > div:nth-child(8) { transform: translateZ(calc(var(--pos) * 8)); } */
-/* .is3d > div:nth-child(9) { transform: translateZ(calc(var(--pos) * 9)); } */
 
 button {
   border: 0;
@@ -63,7 +55,75 @@ button {
 
 button.active, /* gamepad controlled */
 button:active {
-  --pos: 0.05;
+  --pos: 0.00;
+}
+
+/* Action buttons */
+button.circle,
+button.circle div {
+  --shadow:
+    inset 0 0 0 0.25vmin var(--color),
+    inset 2.25vmin 2.25vmin 0.5vmin -2.25vmin #fff8,
+    inset -2.25vmin -0.5vmin 1vmin -2.25vmin #fff8,
+    inset -2.25vmin -0.5vmin 1.5vmin #fff2,
+    inset 0.5vmin 1vmin 0.5vmin #0001,
+    inset 1vmin 0vmin 0.5vmin #0001,
+    inset -1.5vmin -1vmin 2vmin -0.5vmin #2583,
+    inset -1vmin -0.5vmin 0.5vmin #fff3
+    ;
+  /* width: 6vmin; */
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--color);
+  z-index: 2;
+  box-shadow: 
+    0 0 0 0.25vmin #0002, 
+    0 0 0.3vmin 0.1vmin #0008,
+    0 0 0.3vmin 0.1vmin #fff4,
+    0 0 0 0.2vmin #0002,
+    var(--shadow);
+}
+
+button.circle div {
+  box-shadow: 
+    0 0 0 0.25vmin #0002, 
+    0 0 0.3vmin 0.1vmin #fff4,
+    0 0 0 0.2vmin #0001,
+    var(--shadow);
+}
+
+button.triangle,
+button.triangle div {
+  --shadow:
+    inset 0 0 0 0.25vmin var(--color),
+    inset 2.25vmin 2.25vmin 0.5vmin -2.25vmin #fff8,
+    inset -2.25vmin -0.5vmin 1vmin -2.25vmin #fff8,
+    inset -2.25vmin -0.5vmin 1.5vmin #fff2,
+    inset 0.5vmin 1vmin 0.5vmin #0001,
+    inset 1vmin 0vmin 0.5vmin #0001,
+    inset -1.5vmin -1vmin 2vmin -0.5vmin #2583,
+    inset -1vmin -0.5vmin 0.5vmin #fff3;
+
+  /* width: 6vmin; */
+  aspect-ratio: 1;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  background: var(--color);
+  z-index: 2;
+  box-shadow: 
+    0 0 0 0.25vmin #0002, 
+    0 0 0.3vmin 0.1vmin #0008,
+    0 0 0.3vmin 0.1vmin #fff4,
+    0 0 0 0.2vmin #0002,
+    var(--shadow);
+}
+
+button.triangle div {
+  box-shadow: 
+    0 0 0 0.25vmin #0002, 
+    0 0 0.3vmin 0.1vmin #fff4,
+    0 0 0 0.2vmin #0001,
+    var(--shadow);
+    ;
 }
 
 /* axis */
@@ -74,7 +134,8 @@ button:active {
 
 .axis, .axis div {
   --color: #111;
-  background: 
+  --color: #FFD42A;
+  background:
     linear-gradient(#0000 31%, #000c 33.33% 66.66%, #0000 70%),
     linear-gradient(90deg, #0000 31%, #000c 33.33% 66.66%, #0000 70%)
     ;
@@ -92,6 +153,7 @@ button:active {
 
 .axis div {
   --color: #34393a;
+  /* --color: #FFD42A; */
   /* #333; */
   --shadows: 
     radial-gradient(closest-side, var(--color) 93%, #0000 99.9%) 36.66% 0% / 10% 10% no-repeat,
@@ -116,6 +178,7 @@ button:active {
 
 .axis div:last-of-type {
   --color: #3a4448;
+  /* --color: #FFD42A; */
   /* #3a3a3a; */
   background:
     linear-gradient(#fff1, #fff0 20% 80%, #fff1),
@@ -151,30 +214,6 @@ button:active {
     ;
   border-radius: 50%;
   opacity: 0.9;
-}
-
-#up.active ~ .axis div, /* gamepad js */
-#up:active ~ .axis div { 
-  transform-origin: 50% 100%;
-  transform: translateZ(calc(var(--pos) * var(--z))) rotateX(5deg); 
-}
-
-#down.active ~ .axis div, /* gamepad js */
-#down:active ~ .axis div{ 
-  transform-origin: 50% 0%;
-  transform:  translateZ(calc(var(--pos) * var(--z))) rotateX(-5deg); 
-}
-
-#left.active ~ .axis div, /* gamepad js */
-#left:active ~ .axis div{ 
-  transform-origin: 100% 50%;
-  transform:  translateZ(calc(var(--pos) * var(--z))) rotateY(-5deg); 
-}
-
-#right.active ~ .axis div, /* gamepad js */
-#right:active ~ .axis div{ 
-  transform-origin: 0% 50%;
-  transform:  translateZ(calc(var(--pos) * var(--z))) rotateY(5deg); 
 }
 
 #up, #right, #left, #down {
@@ -227,11 +266,9 @@ button:active {
   transform:  translateZ(calc(var(--pos) * var(--z))) rotateY(5deg); 
 }
 
-
 /* Menu buttons */
 #select,
 #start {
-  --pos: 0.2vmin;
   width: 6vmin;
   height: 2vmin;
   border-radius: 2.5vmin;
@@ -241,7 +278,7 @@ button:active {
   /* left: 32.5vmin; */
   box-shadow: 
     0 0 0 0.2vmin #0007, 
-/*     0 0 0.3vmin 0.1vmin #0008, */
+    0 0 0.3vmin 0.1vmin #0008,
     0 0 0.3vmin 0.1vmin #fff4,
     0 0 0 0.2vmin #0002,
     0 0.5vmin 0.5vmin #0004;
@@ -266,10 +303,4 @@ button#select.is3d div {
     inset 1vmin 0vmin 0.5vmin #0002,
     inset -1.5vmin -1vmin 2vmin -0.5vmin #2583,
     inset -1vmin -0.5vmin 0.5vmin #fff3
-}
-
-#start:active div,
-#select:active div {
-  --pos: 0.05;
-  transform: translateZ(calc(var(--pos) * var(--z))) scale(calc(1 - var(--z) * 0.03));
 }
