@@ -22,7 +22,12 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
+def callableDict(): 
+    listofblockedUsers = {}
+    listofblockedUsers["blockedUsers"] = []    
+    return listofblockedUsers
 class Users(AbstractUser):
+    
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
@@ -40,6 +45,9 @@ class Users(AbstractUser):
     profile_image = models.ImageField(
         upload_to="profile_images/", blank=True, null=True
     )
+    _2fa = models.BooleanField(default=True, null= False)
+    
+    blockedUsers = models.JSONField(default = callableDict, null= True)
 
     # Friends  = models.ManyToManyField("Users", blank = True)
 

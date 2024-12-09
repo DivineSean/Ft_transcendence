@@ -17,4 +17,20 @@ urlpatterns = [
         views.DeclineFriendRequest.as_view(),
         name="Decline_friend_request",
     ),
+    path(
+        "friends/getFriends/",
+        views.getFriendsView,
+        name="getFriends",
+    ),
+    path(
+        "friends/areFriends/",
+        views.areFriends,
+        name="areFriends",
+    ),
+    path(
+        "friends/blockUser/",
+        views.blockUser,
+        name="blockUser",
+    ),
+
 ]
