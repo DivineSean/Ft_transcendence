@@ -179,6 +179,9 @@ body {
       height: 100%;
     }
   }
+  .bmo-height {
+    height: calc(100vh - 116px);
+  }
   .right-message::before {
     content: "";
     position: absolute;
