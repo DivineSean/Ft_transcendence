@@ -1,10 +1,10 @@
 import GameManager from "../games/GameManager";
-import Match from "../games/Matchmaking";
+import OnlineGame from "../games/OnlineGame";
 import Header from "../components/Header"
-import { useState, useEffect } from "react"
-import "../styles/nes-prefixed.css"
+import React, { useState, useEffect } from "react"
+// import "../styles/nes-prefixed.css"
 import { ImArrowUp } from "react-icons/im";
-import { Routes, Route, useParams, useNavigate } from "react-router-dom";
+import { Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
 
 const CrossButtons = () => {
     return (
@@ -48,7 +48,7 @@ const GameCard = ({ onClick, color = "#C83737", name = "Coming soon", image = ""
                 className="grow bg-blue-600 nes-container with-title is-centered is-rounded bg-cover bg-center"
                 style={{ backgroundImage: image, backgroundSize: 'cover' }}
             >
-                <h1 className="title text-xl text-center rounded-sm">{name}</h1>
+                <h1 className="title text-xl text-center">{name}</h1>
             </span>
             <span className="w-full h-[15px] flex justify-between">
                 <span className="bg-gray w-[15px]"></span>
@@ -58,18 +58,14 @@ const GameCard = ({ onClick, color = "#C83737", name = "Coming soon", image = ""
     )
 }
 
-const GamesLibrary = ({ games, setRoutes }) => {
+const GamesLibrary = ({ games }) => {
     const navigate = useNavigate();
 
-    const handleClick = (gameName) => {
-        setRoutes((prevRoutes) => [...prevRoutes, gameName]);
-        navigate(gameName);
-    }
     return (
         <div className="h-full flex flex-wrap items-center justify-center gap-16 md:gap-32 p-16 md:p-32 overflow-y-auto custom-scrollbar">
             {
                 games.map(game => <GameCard {...game}
-                    onClick={() => handleClick(game.name)}
+                    onClick={() => navigate(game.name)}
                     key={game.id} />
                 )
             }
@@ -79,35 +75,20 @@ const GamesLibrary = ({ games, setRoutes }) => {
     )
 }
 
-const GameModes = ({ games, setRoutes }) => {
+const GameModes = ({ games }) => {
     const navigate = useNavigate();
     const { game } = useParams();
 
-    useEffect(() => {
-        setRoutes((prevRoutes) => {
-            if (!prevRoutes.includes(game)) {
-                return [...prevRoutes, game];
-            }
-            return prevRoutes;
-        })
-    }, [])
-
-    const handleClick = (gameMode) => {
-        setRoutes((prevRoutes) => [...prevRoutes, gameMode]);
-        navigate(gameMode);
-    }
-
     const gameObject = games.find(Game => Game.name === game)
-    console.log(game, gameObject);
     return (
         <>
             {
                 gameObject ? (
                     <div className="flex flex-col md:flex-row h-full gap-16 p-16">
-                        {Object.entries(gameObject.modes).map(([mode, enabled]) => (
+                        {gameObject.modes && Object.entries(gameObject.modes).map(([mode, enabled]) => (
                             <button
                                 key={mode}
-                                onClick={() => enabled && handleClick(mode)}
+                                onClick={() => enabled && navigate(mode)}
                                 className={`nes-btn grow ${enabled ? '' : 'is-disabled'}`}
                                 disabled={!enabled}
                             >
@@ -116,33 +97,54 @@ const GameModes = ({ games, setRoutes }) => {
                         ))}
                     </div>
                 ) : (
-                    <div>no game for you!</div>
+                    <div className="flex justify-center items-center h-full p-8 md:p-64">
+                        <span className="nes-container is-rounded !m-0 !p-4 md:!p-16">
+                            <p className="text-xs md:text-lg">Oh no, adventurer! This game is not available. Please go back to the game library and choose another fun adventure!</p>
+                            <button
+                                className="nes-btn !text-xs md:!text-lg"
+                                onClick={() => navigate('/games')}
+                            >{'<'} Go Back</button>
+                        </span>
+                    </div>
                 )
             }
         </>)
 }
 
-const ModeDetails = ({ games, setRoutes }) => {
+const ModeDetails = ({ games }) => {
+    const navigate = useNavigate();
     const { game, mode } = useParams();
 
-    useEffect(() => {
-        setRoutes((prevRoutes) => {
-            return [
-                ...prevRoutes,
-                ...(prevRoutes.includes(game) ? [] : [game]),
-                ...(prevRoutes.includes(mode) ? [] : [mode]),
-            ];
-        })
-    }, [])
-    const gameObject = games.find(Game => Game.name === game)
-    console.log(game, gameObject);
+    const gameObject = games.find(Game => Game.name === game);
+    if (!gameObject) navigate('/games');
+    else {
+        const modeObject = gameObject.modes && mode in gameObject.modes ? gameObject.modes[mode] : undefined;
+        if (!modeObject)
+            navigate(`/games/${game}`);
+    }
+
+    const Modes = () => {
+        switch (mode) {
+            case 'ai':
+                return <div>ai</div>
+            case 'online':
+                return <OnlineGame game={game} />
+            case 'local':
+                return <div>local</div>
+            default:
+                return <div>no such mode</div>
+        }
+    }
 
     return (
-        <div>blan</div>
+        <>
+            {Modes()}
+        </>
     )
 }
 
 const BmoScreen = ({ games }) => {
+    const location = useLocation();
     const navigate = useNavigate();
     const [routes, setRoutes] = useState([])
 
@@ -152,27 +154,37 @@ const BmoScreen = ({ games }) => {
         navigate(`${newRoutes[index] ?? ''}`);
     }
 
+    useEffect(() => {
+
+        const path = location.pathname;
+        let routes = path.split('/')
+            .filter((element, _) => element !== '')
+            .filter((element, index) => !(index === 0 && element === 'games'))
+            .map(decodeURIComponent);
+        setRoutes(routes);
+    }, [location])
+
     return (
         <>
             <div className="bg-[#165044] w-full items-center flex gap-16">
                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 48 48" className="max-w-[50px] max-h-[30px] md:max-h-[40px]">
-                    <path fill="none" stroke="#00796b" stroke-linecap="round" stroke-miterlimit="10" stroke-width="3" d="M3.5 34.5C3.5 29.253 7.753 24 13 24M44.5 14.5c0 5.247-4.253 9.5-9.5 9.5M19.5 36.5L19.5 44.5M28.5 36.5L28.5 44.5"></path><path fill="#00bfa5" d="M34,37H14c-1.105,0-2-0.895-2-2V5c0-1.105,0.895-2,2-2h20c1.105,0,2,0.895,2,2v30 C36,36.105,35.105,37,34,37z"></path><path fill="#e0f2f1" d="M32,19H16c-0.552,0-1-0.448-1-1V7c0-0.552,0.448-1,1-1h16c0.552,0,1,0.448,1,1v11 C33,18.552,32.552,19,32,19z"></path><path fill="#212121" d="M18.5 9A1.5 1.5 0 1 0 18.5 12 1.5 1.5 0 1 0 18.5 9zM29.5 9A1.5 1.5 0 1 0 29.5 12 1.5 1.5 0 1 0 29.5 9z"></path><path fill="none" stroke="#212121" stroke-miterlimit="10" d="M26.5,13c0,1.381-1.119,2.5-2.5,2.5s-2.5-1.119-2.5-2.5"></path><path fill="#212121" d="M15 21H27V23H15zM32 21A1 1 0 1 0 32 23 1 1 0 1 0 32 21z"></path><path fill="#76ff03" d="M33 26A1 1 0 1 0 33 28A1 1 0 1 0 33 26Z"></path><path fill="#ffea00" d="M17 25H19V31H17z"></path><path fill="#ffea00" d="M17 25H19V31H17z" transform="rotate(-90 18 28)"></path><path fill="#212121" d="M18 35h-2c-.552 0-1-.448-1-1l0 0c0-.552.448-1 1-1h2c.552 0 1 .448 1 1l0 0C19 34.552 18.552 35 18 35zM24 35h-2c-.552 0-1-.448-1-1l0 0c0-.552.448-1 1-1h2c.552 0 1 .448 1 1l0 0C25 34.552 24.552 35 24 35z"></path><path fill="#ff3d00" d="M30.5 30A2.5 2.5 0 1 0 30.5 35A2.5 2.5 0 1 0 30.5 30Z"></path><path fill="#84ffff" d="M28 25L26 28 30 28z"></path>
+                    <path fill="none" stroke="#00796b" strokeLinecap="round" strokeMiterlimit="10" strokeWidth="3" d="M3.5 34.5C3.5 29.253 7.753 24 13 24M44.5 14.5c0 5.247-4.253 9.5-9.5 9.5M19.5 36.5L19.5 44.5M28.5 36.5L28.5 44.5"></path><path fill="#00bfa5" d="M34,37H14c-1.105,0-2-0.895-2-2V5c0-1.105,0.895-2,2-2h20c1.105,0,2,0.895,2,2v30 C36,36.105,35.105,37,34,37z"></path><path fill="#e0f2f1" d="M32,19H16c-0.552,0-1-0.448-1-1V7c0-0.552,0.448-1,1-1h16c0.552,0,1,0.448,1,1v11 C33,18.552,32.552,19,32,19z"></path><path fill="#212121" d="M18.5 9A1.5 1.5 0 1 0 18.5 12 1.5 1.5 0 1 0 18.5 9zM29.5 9A1.5 1.5 0 1 0 29.5 12 1.5 1.5 0 1 0 29.5 9z"></path><path fill="none" stroke="#212121" strokeMiterlimit="10" d="M26.5,13c0,1.381-1.119,2.5-2.5,2.5s-2.5-1.119-2.5-2.5"></path><path fill="#212121" d="M15 21H27V23H15zM32 21A1 1 0 1 0 32 23 1 1 0 1 0 32 21z"></path><path fill="#76ff03" d="M33 26A1 1 0 1 0 33 28A1 1 0 1 0 33 26Z"></path><path fill="#ffea00" d="M17 25H19V31H17z"></path><path fill="#ffea00" d="M17 25H19V31H17z" transform="rotate(-90 18 28)"></path><path fill="#212121" d="M18 35h-2c-.552 0-1-.448-1-1l0 0c0-.552.448-1 1-1h2c.552 0 1 .448 1 1l0 0C19 34.552 18.552 35 18 35zM24 35h-2c-.552 0-1-.448-1-1l0 0c0-.552.448-1 1-1h2c.552 0 1 .448 1 1l0 0C25 34.552 24.552 35 24 35z"></path><path fill="#ff3d00" d="M30.5 30A2.5 2.5 0 1 0 30.5 35A2.5 2.5 0 1 0 30.5 30Z"></path><path fill="#84ffff" d="M28 25L26 28 30 28z"></path>
                 </svg>
                 <button onClick={() => resetRoute('Games')} className="font-press-start">Games</button>
                 {
                     routes.map((route, index) => (
-                        <>
+                        <React.Fragment key={index}>
                             {index < routes.length && <h2 className="font-press-start"> {'>'} </h2>}
                             <button onClick={() => resetRoute(index)} className="font-press-start">{route}</button>
-                        </>
+                        </React.Fragment>
                     ))
                 }
             </div>
             <div className="bg-[#B2F5CE] min-h-[200px] grow nes-wrapper">
                 <Routes>
-                    <Route path="/" element={<GamesLibrary games={games} setRoutes={setRoutes} />} />
-                    <Route path="/:game" element={<GameModes games={games} setRoutes={setRoutes} />} />
-                    <Route path="/:game/:mode" element={<ModeDetails games={games} setRoutes={setRoutes} />} />
+                    <Route path="/" element={<GamesLibrary games={games} />} />
+                    <Route path="/:game" element={<GameModes games={games} />} />
+                    <Route path="/:game/:mode" element={<ModeDetails games={games} />} />
                 </Routes>
             </div>
         </>

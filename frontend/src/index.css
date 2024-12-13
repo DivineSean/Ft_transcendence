@@ -1,3 +1,4 @@
+@import "./styles/nes-prefixed.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
