@@ -25,10 +25,10 @@ const Header = ({ ...props }) => {
 	const contextData = useContext(UserContext);
 
   const optionsData = [
-    {
-      name: "settings",
-      icon: <IoSettingsOutline />,
-    },
+    // {
+    //   name: "settings",
+    //   icon: <IoSettingsOutline />,
+    // },
     {
       name: "logout",
       icon: <TbLogout2 />,
@@ -64,7 +64,7 @@ const Header = ({ ...props }) => {
   };
 
   const toggleNotification = () => {
-    if (displayOptions) setDisplayOptions(false);
+    if (displayOptions) setDisplayOptions(false);``
     setReadNotif(true);
     setDisplayNotification(!displayNotification);
   };

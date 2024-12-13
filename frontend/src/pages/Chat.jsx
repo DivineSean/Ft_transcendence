@@ -161,7 +161,7 @@ const Chat = () => {
           <div
             className={`lg:w-[320px] md:w-[72px] w-full flex-col gap-32 ${uid ? "md:flex hidden" : "flex"}`}
           >
-            <div className="lg:flex hidden items-center relative w-full">
+            <div className="lg:flex md:hidden flex items-center relative w-full">
               <input
                 type="text"
                 placeholder="find users"
