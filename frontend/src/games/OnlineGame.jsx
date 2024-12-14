@@ -1,22 +1,14 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useWebSocket from "../customHooks/useWebsocket";
 
 const OnlineGame = ({ game = "" }) => {
     const [playerCount, setPlayerCount] = useState(0);
     const [inQueue, setInQueue] = useState(false);
     const navigate = useNavigate();
-    const ws = useRef(null);
-
-    useEffect(() => {
-        ws.current = new WebSocket(
-            `wss://${window.location.hostname}:8000/ws/matchmaking/${game}`,
-        )
-
-        ws.current.onopen = () => {
-            console.log("Matchmaking ws connected");
-        }
-
-        ws.current.onmessage = (event) => {
+    const { send } = useWebSocket(
+        `wss://${window.location.hostname}:8000/ws/matchmaking/${game}`, {
+        onMessage: (event) => {
             const data = JSON.parse(event.data);
             console.log(data);
             if (data.type == "update") setPlayerCount(data.message);
@@ -24,35 +16,24 @@ const OnlineGame = ({ game = "" }) => {
                 navigate(`${data.message.game.id}`, { state: data.message })
             }
         }
-
-        ws.current.onclose = () => {
-            console.log("Matchmaking ws disconnected");
-        }
-        return () => {
-            if (ws.current) ws.current.close();
-        }
-    }, []);
+    })
 
     const handleStartQueue = () => {
         setInQueue(true);
 
-        if (ws.current) {
-            ws.current.send(JSON.stringify({
-                type: "join_queue",
-                message: {},
-            }));
-        }
+        send(JSON.stringify({
+            type: "join_queue",
+            message: {},
+        }));
     }
 
     const handleLeaveQueue = () => {
         setInQueue(false);
 
-        if (ws.current) {
-            ws.current.send(JSON.stringify({
-                type: "leave_queue",
-                message: {},
-            }));
-        }
+        send(JSON.stringify({
+            type: "leave_queue",
+            message: {},
+        }));
     }
 
     return (

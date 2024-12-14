@@ -16,7 +16,14 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
         self.game_name = self.scope["url_route"]["kwargs"]["game_name"]
         print(f"--- game --> {self.game_name} ---", flush=True)
         self.group_name = f"{self.game_name}_matchmaking_group"
+        self.joined = False
         await self.channel_layer.group_add(self.group_name, self.channel_name)
+
+        searching = r.get(f"{self.game_name}_players_in_queue")
+        searching = int(searching) if searching is not None else 0
+        await self.send(
+            text_data=json.dumps({"type": "update", "message": searching})
+        )
 
     async def join_queue(self):
         try:
@@ -26,6 +33,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
                 "type": "update",
                 "message": n
             })
+            self.joined = True
         except Exception as e:
             await self.close(reason=str(e))
             return
@@ -38,11 +46,13 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
                 "type": "update",
                 "message": n
             })
+            self.joined = False
         except:
             return
     
     async def disconnect(self, code):
-        await matchmaker.remove_player(self.player, self.game_name)
+        if self.joined:
+            await self.leave_queue()
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
     async def receive(self, text_data):
