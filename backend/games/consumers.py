@@ -31,6 +31,7 @@ class GameConsumer(WebsocketConsumer):
         )
 
     def receive(self, text_data):
+        # TODO:
         # ignore messages coming from users not part of the game
         # isPlayer = any(player["user"]["id"] == self.user_id for player in self.game["players_details"])
         # if not isPlayer:

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import GameManager from "./GameManager";
 
 const OnlineGame = ({ game = "" }) => {
     const [playerCount, setPlayerCount] = useState(0);
@@ -9,21 +8,13 @@ const OnlineGame = ({ game = "" }) => {
     const ws = useRef(null);
 
     useEffect(() => {
-        return () => {
-            if (ws.current) ws.current.close();
-        };
-    }, []);
-
-    const handleStartQueue = () => {
-        setInQueue(true);
-
         ws.current = new WebSocket(
             `wss://${window.location.hostname}:8000/ws/matchmaking/${game}`,
-        );
+        )
 
         ws.current.onopen = () => {
             console.log("Matchmaking ws connected");
-        };
+        }
 
         ws.current.onmessage = (event) => {
             const data = JSON.parse(event.data);
@@ -32,22 +23,37 @@ const OnlineGame = ({ game = "" }) => {
             else if (data.type == "match_found") {
                 navigate(`${data.message.game.id}`, { state: data.message })
             }
-        };
+        }
 
         ws.current.onclose = () => {
             console.log("Matchmaking ws disconnected");
-        };
-    };
+        }
+        return () => {
+            if (ws.current) ws.current.close();
+        }
+    }, []);
+
+    const handleStartQueue = () => {
+        setInQueue(true);
+
+        if (ws.current) {
+            ws.current.send(JSON.stringify({
+                type: "join_queue",
+                message: {},
+            }));
+        }
+    }
 
     const handleLeaveQueue = () => {
         setInQueue(false);
 
         if (ws.current) {
-            ws.current.close();
-            ws.current = null;
-            setPlayerCount(0);
+            ws.current.send(JSON.stringify({
+                type: "leave_queue",
+                message: {},
+            }));
         }
-    };
+    }
 
     return (
         <div className="h-full flex flex-col justify-center items-center p-8">
