@@ -7,7 +7,7 @@ import { IoCloudUploadOutline } from "react-icons/io5";
 
 
 import { PiEyeClosedBold, PiEyeBold } from "react-icons/pi";
-import { BACKENDURL } from "../../utils/fetchWrapper";
+import FetchWrapper, { BACKENDURL } from "../../utils/fetchWrapper";
 
 const InputUpdateProfile = ({...props}) => {
 	const isPassword = props.type === 'password';
@@ -99,8 +99,17 @@ const InputUpdateProfile = ({...props}) => {
 }
 
 const UpdateProfile = ({setUpdateProfile}) => {
+	const FetchData = new FetchWrapper();
 	const contextData = useContext(UserContext);
-	const [isChecked, setIsChecked] = useState(contextData && contextData.userInfo.isTwoFa ? true : false);
+	const imageRef = useRef(null);
+	const canvasRef = useRef(null);
+	const [submittedImage, setSubmittedImage] = useState(null);
+	const [resizedImage, setResizedImage] = useState(null);
+	const [isChecked, setIsChecked] = useState(
+		contextData && contextData.userInfo.isTwoFa
+		? true
+		: false
+	);
 	const [image, setImage] = useState(
 		contextData && contextData.userInfo.profile_image
 		? BACKENDURL + contextData.userInfo.profile_image
@@ -129,16 +138,60 @@ const UpdateProfile = ({setUpdateProfile}) => {
 
 	const handleFileChange = (e) => {
 		const file = e.target.files[0];
+		const width = 800;
+
 		if (file) {
-			const imageUrl = URL.createObjectURL(file);
-			setImage(imageUrl);
+			let reader = new FileReader;
+
+			reader.readAsDataURL(file);
+
+			reader.onload = (e) => {
+
+				const imageUrl = e.target.result;
+				setImage(imageUrl);
+
+				if (imageRef && imageRef.current) {
+					imageRef.current.onload = (event) => {
+						if (canvasRef && canvasRef.current) {
+
+							const ratio = width / event.target.width;
+							canvasRef.current.width = width;
+							canvasRef.current.height = event.target.height * ratio;
+
+							const context = canvasRef.current.getContext('2d');
+							context.drawImage(imageRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
+
+							const newImageUrl = context.canvas.toDataURL('image/jpeg', 90);
+							setResizedImage(newImageUrl);
+							setSubmittedImage(newImageUrl);
+						}
+					}
+				}
+			}
 		}
 	};
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
-		console.log(e);
-		console.log(formData, isChecked, image);
+
+		const formData = new FormData();
+		if (submittedImage) {
+			const blob = await fetch(submittedImage).then(res => res.blob());
+			formData.append('profile_image', blob, `${contextData.userInfo.id}_profile.jpeg`);
+		}
+
+		try {
+			const res = await FetchData.putFormData('api/profile/update/', formData);
+			console.log(res);
+			if (res.ok) {
+				const data = await res.json();
+				const updatedImageUrl = `${data.profile_image}?t=${new Date().getTime()}`;
+				// contextData.updateProfileImage(updatedImageUrl);
+				console.log(data);
+			}
+		} catch (error) {
+			console.log('ata ach katrawan asahbi', error);
+		}
 	}
 
 
@@ -158,10 +211,13 @@ const UpdateProfile = ({setUpdateProfile}) => {
 				</div>
 				<form className="flex flex-col gap-32" onSubmit={handleSubmit}>
 					<div className="flex gap-16">
+						<img src={image} ref={imageRef} alt="profile" className="hidden" />
 						<div
-							className={`h-[100px] w-[100px] rounded-full bg-center bg-cover overflow-hidden border border-stroke-sc`}
+							className={`h-[100px] w-[100px] rounded-full flex flex-col bg-cover bg-center overflow-hidden border border-stroke-sc`}
 							style={{ backgroundImage: `url(${image})` }}
-						></div>
+						>
+							<canvas ref={canvasRef} className="hidden"></canvas>
+						</div>
 						<div className="flex flex-col gap-16 justify-end">
 							<h2 className="text-sm text-gray font-semibold">change profile picture</h2>
 							<input
@@ -286,3 +342,22 @@ const UpdateProfile = ({setUpdateProfile}) => {
 }
 
 export default UpdateProfile;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

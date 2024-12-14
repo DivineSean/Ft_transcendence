@@ -198,12 +198,12 @@ const Header = ({ ...props }) => {
           <div
             ref={(el) => (toggleOptionsRef.current[1] = el)}
             onClick={toggleOptions}
-            className="bg-gray w-32 h-32 rounded-full lg:block hidden overflow-hidden cursor-pointer border-[0.5px] border-stroke-sc"
+            className="bg-gray w-32 h-32 rounded-full lg:flex hidden overflow-hidden cursor-pointer border-[0.5px] border-stroke-sc"
           >
             <img
               src={
 								contextData.userInfo && contextData.userInfo.profile_image
-								? BACKENDURL + contextData.userInfo.profile_image
+								? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
 								: "/images/default.jpeg"
 							}
               alt="profile pic"

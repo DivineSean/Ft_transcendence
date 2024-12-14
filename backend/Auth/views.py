@@ -15,11 +15,15 @@ from rest_framework.views import APIView
 from django.shortcuts import render
 from django.core.cache import cache
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 import json
 from django.utils import timezone
 import os
 import uuid
 import jwt
+from PIL import Image
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -345,10 +349,47 @@ class Profile(APIView):
 				return Response({'error', "user not found"}, status=404)
 			# if not user:
 		
+		if user.profile_image:
+			imagePath = os.path.join(settings.MEDIA_ROOT, str(user.profile_image))
+			if not os.path.exists(imagePath):
+				user.profile_image = None
+				user.save()
+
 		# print(f'user {user}', flush=True)
 		serializer = UserSerializer(user)
 		# print(serializer.data)
 		return Response(serializer.data)
+	
+	def put(self, request, username=None):
+		user = request.user
+		print('user', user, flush=True)
+		file = request.FILES.get('profile_image')
+		print('file', file, flush=True)
+		if file:
+
+			print('there is a file', flush=True)
+
+			try:
+				Image.open(file).verify()
+				print('file is opned')
+			except Exception:
+				print('error, cannot open the file abro', flush=True)
+			
+			fs = FileSystemStorage(location=settings.MEDIA_ROOT + '/profile_images')
+
+			if fs.exists(file.name):
+				fs.delete(file.name)
+
+			savedFile = fs.save(file.name, file)
+
+			user.profile_image = f'profile_images/{savedFile}'
+			user.save()
+		else:
+			print('there is no file abro', flush=True)
+		
+		serializer = UserSerializer(user)
+
+		return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])

@@ -41,18 +41,17 @@ const OptionsSection = ({ data, type, reference, contextData}) => {
         )}
         {type === "options" && (
           <div
-            // to="/profile/overview"
 						onClick={() => {
 							contextData.setProfileInfo(contextData.userInfo);
 							navigate('/profile/overview');
 						}}
             className="flex gap-16 p-8 cursor-pointer hover-secondary rounded items-center"
           >
-            <div className="bg-gray w-32 h-32 rounded-full lg:block hidden overflow-hidden cursor-pointer">
+            <div className="bg-gray w-32 h-32 rounded-full lg:flex hidden overflow-hidden cursor-pointer">
               <img
                 src={
 									contextData.userInfo && contextData.userInfo.profile_image
-									? BACKENDURL + contextData.userInfo.profile_image
+									? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
 									: "/images/default.jpeg"
 								}
                 alt="profile pic"

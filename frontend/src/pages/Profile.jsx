@@ -66,7 +66,10 @@ const Profile = () => {
               />
             </div>
             <div className="lg:flex hidden flex-col secondary-glass p-16 gap-16 min-w-[320px] max-w-[320px]">
-              <div className="flex flex-col gap-8 items-center justify-center">
+              <div
+								className="flex flex-col gap-8 items-center justify-center"
+								
+							>
                 <CircularProgressbarWithChildren
                   value={50}
                   className="w-[120px] h-[120px] bg-black bg-opacity-40 rounded-full"
@@ -77,15 +80,17 @@ const Profile = () => {
                     trailColor: "rgba(80,80,80,0.2)",
                   })}
                 >
-                  <img
-                    className="w-[104px] h-[104px] rounded-full"
-                    src={
-											contextData.profileInfo.profile_image
-											? BACKENDURL + contextData.profileInfo.profile_image
-											: "/images/default.jpeg"
-										}
-                    alt="Profile image"
-                  />
+                  <div className="w-[104px] h-[104px] flex justify-center rounded-full overflow-hidden">
+										<img
+											src={
+												contextData.userInfo && contextData.userInfo.profile_image
+												? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
+												: "/images/default.jpeg"
+											}
+											alt="profile pic"
+											className="object-cover w-full"
+										/>
+									</div>
                 </CircularProgressbarWithChildren>
                 <h1 className="text-h-lg-md font-bold">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
                 <h2 className="text-txt-md lowercase">@{contextData.profileInfo.username}</h2>
@@ -150,15 +155,17 @@ const Profile = () => {
                       trailColor: "rgba(80,80,80,0.2)",
                     })}
                   >
-                    <img
-                      className="flex flex-col rounded-full w-[98px] h-[98px]"
-                      src={
-												contextData.profileInfo.profile_image
-												? BACKENDURL + contextData.profileInfo.profile_image
-												: "/images/default.jpeg"
-											}
-                      alt="Profile image"
-                    />
+										<div className="w-[98px] h-[98px] flex justify-center rounded-full overflow-hidden">
+											<img
+												src={
+													contextData.userInfo && contextData.userInfo.profile_image
+													? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}` 
+													: "/images/default.jpeg"
+												}
+												alt="profile pic"
+												className="object-cover w-full"
+											/>
+										</div>
                   </CircularProgressbarWithChildren>
                   <h1 className="text-h-sm-sm font-bold">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
                   <h2 className="text-txt-xs">@{contextData.profileInfo.username}</h2>

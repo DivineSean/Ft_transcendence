@@ -14,6 +14,7 @@ export const UserProvider = ({ children }) => {
 	const [generalLoading, setGeneralLoading] = useState(true);
 	const [userInfo, setUserInfo] = useState(null);
 	const [profileInfo, setProfileInfo] = useState(null);
+	const [profileImage, setProfileImage] = useState(null);
 
 
 	const getUserInfo = async () => {
@@ -23,6 +24,7 @@ export const UserProvider = ({ children }) => {
 				const data = await res.json();
 				setUserInfo(data);
 				setProfileInfo(data);
+				setProfileImage(data.profile_image);
 				setGeneralLoading(false);
 			} else {
 				if (res.status === 401) {
@@ -54,6 +56,14 @@ export const UserProvider = ({ children }) => {
 		}
 	}
 
+	const updateProfileImage = (newImageUrl) => {
+		setProfileImage(newImageUrl);
+		setUserInfo((prevUserInfo) => ({
+			...prevUserInfo,
+			profile_image: newImageUrl,
+		}))
+	}
+
 	const contextData = {
 		userInfo,
 		profileInfo,
@@ -61,6 +71,8 @@ export const UserProvider = ({ children }) => {
 		getUserInfo,
 		getProfile,
 		setProfileInfo,
+		setProfileImage,
+		updateProfileImage,
 	}
 
 	return (
