@@ -183,6 +183,11 @@ body {
   .bmo-height {
     height: calc(100vh - 116px);
   }
+  @media (max-width: 1099px) {
+    .bmo-height {
+      height: calc(100vh - 98px);
+    }
+  }
   .right-message::before {
     content: "";
     position: absolute;

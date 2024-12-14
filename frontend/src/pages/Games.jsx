@@ -1,14 +1,12 @@
-import GameManager from "../games/GameManager";
 import OnlineGame from "../games/OnlineGame";
 import Header from "../components/Header"
 import React, { useState, useEffect } from "react"
-// import "../styles/nes-prefixed.css"
 import { ImArrowUp } from "react-icons/im";
 import { Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
 
 const CrossButtons = () => {
     return (
-        <div className="grid grid-cols-3 grid-rows-3 max-h-[164px] max-w-[164px] w-[20vmin] h-[20vmin]">
+        <div className="grid grid-cols-3 grid-rows-3 min-h-[75px] min-w-[75px] max-h-[164px] max-w-[164px] w-[20vmin] h-[20vmin]">
             <button className="bg-[#FFD42A] rounded-t-md md:rounded-t-lg text-white row-start-1 col-start-2">
             </button>
 
@@ -216,42 +214,40 @@ const Games = () => {
         }
     ]
 
-
-    // TODO: Fix buttons overflowing out of the container for small window heights
     return (
         <div className="flex flex-col grow">
             <Header link="games" />
             <div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
             <div className="container md:px-16 px-0">
-                <div className="primary-glass p-16 md:p-32 h-full bmo-height">
-                    <div className="bg-[#2CA086] bmo-frame rounded-lg w-full h-full flex lg:flex-row flex-col gap-16 p-16 md:p-32">
+                <div className="primary-glass p-16 md:p-32 min-h-[570px] h-full bmo-height">
+                    <div className="bg-[#2CA086] bmo-frame rounded-lg min-h-[520px] w-full h-full flex lg:flex-row flex-col gap-16 p-16 md:p-32 overflow-y-auto no-scrollbar">
                         <div className="max-w-[20%] hidden lg:flex flex-col justify-between items-center">
                         </div>
                         <div className="grow min-h-fit h-[70%] lg:h-full flex flex-col gap-64 lg:gap-16">
                             <div className="bmo-screen rounded-xl relative overflow-hidden grow flex flex-col">
                                 <BmoScreen games={games} />
                             </div>
-                            <div className="flex justify-between items-center max-h-[47px]">
+                            <div className="flex justify-between items-center min-h-[23px] max-h-[47px]">
                                 <span className="bg-[#165044] rounded-md md:rounded-lg h-full w-[60%]"></span>
-                                <button className="bg-[#006680] rounded-full max-h-[47px] max-w-[47px] w-[6vmin] h-[6vmin]"></button>
+                                <button className="bg-[#006680] rounded-full min-h-[23px] min-w-[23px] max-h-[47px] max-w-[47px] w-[6vmin] h-[6vmin]"></button>
                             </div>
                         </div>
                         <div className="grow p-16 md:p-32 md:pb-0 justify-between lg:max-w-[20%] flex">
-                            <div className="gap-16 md:gap-32 flex flex-col justify-center">
+                            <div className="gap-16 md:gap-32 flex flex-col justify-center items-center">
                                 <CrossButtons />
-                                <span className="flex justify-around">
-                                    <button className="bg-[#006680] rounded-lg max-w-[64px] max-h-[22px] w-[7vmin] h-[2.5vmin]"></button>
-                                    <button className="bg-[#006680] rounded-lg max-w-[64px] max-h-[22px] w-[7vmin] h-[2.5vmin]"></button>
+                                <span className="flex justify-around gap-16">
+                                    <button className="bg-[#006680] rounded-lg min-w-[32px] min-h-[8px] max-w-[64px] max-h-[22px] w-[7vmin] h-[2.5vmin]"></button>
+                                    <button className="bg-[#006680] rounded-lg min-w-[32px] min-h-[8px] max-w-[64px] max-h-[22px] w-[7vmin] h-[2.5vmin]"></button>
                                 </span>
                             </div>
                             <div className="lg:hidden flex justify-end items-center gap-32">
                                 <span className="flex flex-col gap-8">
                                     <span className="flex gap-16 items-end">
                                         <button className="mb-2.5 border-b-[7.5vmin] border-[#5FBCD3] border-r-[5.2vmin] border-r-transparent border-l-[5.2vmin] border-l-transparent"></button>
-                                        <button className="bg-[#71C837] rounded-full w-[6.5vmin] h-[6.5vmin]"></button>
+                                        <button className="bg-[#71C837] rounded-full min-w-[24px] min-h-[24px] w-[6.5vmin] h-[6.5vmin]"></button>
                                     </span>
                                     <span className="flex justify-center">
-                                        <button className="bg-[#C83737] rounded-full max-h-[115px] max-w-[115px] w-[13.5vmin] h-[13.5vmin]"></button>
+                                        <button className="bg-[#C83737] rounded-full min-w-[50px] min-h-[50px] max-h-[115px] max-w-[115px] w-[13.5vmin] h-[13.5vmin]"></button>
                                     </span>
                                 </span>
                             </div>
@@ -260,8 +256,6 @@ const Games = () => {
                 </div>
             </div>
         </div>
-        // <GameManager />
-        // <Match />
     );
 };
 

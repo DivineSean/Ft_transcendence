@@ -7,12 +7,15 @@ const GameManager = () => {
     // const [ready, setReady] = useState(false);
     const ws = useRef(null);
 
+    // TODO: handle match accept
+    // TODO: handle reconnect after accepting
     const location = useLocation();
-    const GameDetails = location.state;
+    const gameDetails = location.state;
+    console.log('game state: ', gameDetails)
 
     const connectWebSocket = useCallback(() => {
-        const { id } = GameDetails.game;
-        const role = GameDetails.role;
+        const { id } = gameDetails.game;
+        const role = gameDetails.role;
         console.log(id, role);
         ws.current = new WebSocket(
             `wss://${window.location.hostname}:8000/ws/games/${id}`,
