@@ -98,10 +98,11 @@ const Menu = ({ ...props }) => {
       <div className="flex px-16 py-8 justify-between secondary-glass items-center ">
         <div className="flex gap-16 overflow-hidden">
           <div className="w-64 h-64 bg-gray rounded-full overflow-hidden">
+						
             <img
 							src={
 								userContextData.userInfo.profile_image
-								? BACKENDURL + userContextData.userInfo.profile_image
+								? `${BACKENDURL}${userContextData.userInfo.profile_image}?t=${new Date().getTime()}`
 								: "/images/default.jpeg"
 							}
 							alt="profile"

@@ -1,7 +1,7 @@
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .serializers import RegisterSerializer, PasswordUpdateSerializer, UserSerializer
+from .serializers import RegisterSerializer, PasswordUpdateSerializer, UserSerializer, UpdateUserSerializer
 from django.core.mail import get_connection, EmailMessage
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.views import PasswordResetView
@@ -18,11 +18,13 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.contrib.auth.hashers import check_password
 import json
 from django.utils import timezone
 import os
 import uuid
 import jwt
+import re
 from PIL import Image
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -362,18 +364,30 @@ class Profile(APIView):
 	
 	def put(self, request, username=None):
 		user = request.user
-		print('user', user, flush=True)
+
+		new_username = request.data.get('username', None)
+		if new_username:
+			username_regex = re.compile(r'^[a-zA-Z][a-zA-Z0-9_-]{3,}$')
+			if not username_regex.match(new_username):
+				return Response(
+					{'username': 'invalid username, examples user, user1, user-12, user_12'},
+					status=status.HTTP_400_BAD_REQUEST
+					)
+			if Users.objects.filter(username=new_username).exclude(id=user.id).exists():
+				return Response(
+					{'username': 'this username is already taken'},
+					status=status.HTTP_400_BAD_REQUEST
+				)
+			else:
+				user.username = new_username
+				user.save()
+
 		file = request.FILES.get('profile_image')
-		print('file', file, flush=True)
 		if file:
-
-			print('there is a file', flush=True)
-
 			try:
 				Image.open(file).verify()
-				print('file is opned')
 			except Exception:
-				print('error, cannot open the file abro', flush=True)
+				pass
 			
 			fs = FileSystemStorage(location=settings.MEDIA_ROOT + '/profile_images')
 
@@ -381,12 +395,18 @@ class Profile(APIView):
 				fs.delete(file.name)
 
 			savedFile = fs.save(file.name, file)
-
 			user.profile_image = f'profile_images/{savedFile}'
 			user.save()
-		else:
-			print('there is no file abro', flush=True)
 		
+
+		
+		serializer = UpdateUserSerializer(user, data=request.data, partial=True)
+		if serializer.is_valid():
+			serializer.save()
+			print('User updated successfully', flush=True)
+		else:
+			print('Error in serializer validation', flush=True)
+
 		serializer = UserSerializer(user)
 
 		return Response(serializer.data, status=status.HTTP_200_OK)

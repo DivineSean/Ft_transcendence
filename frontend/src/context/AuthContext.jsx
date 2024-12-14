@@ -42,7 +42,6 @@ export const AuthProvider = ({ children }) => {
     if (!value.trim()) {
       validationErrors[name] = `${name} is required!`;
     }
-		console.log('blur', name, value);
     setError(validationErrors);
   };
 
@@ -67,7 +66,6 @@ export const AuthProvider = ({ children }) => {
       [name]: value,
     });
     setError(validationErrors);
-		console.log(name, value);
   };
 
   const handleChangePassLogin = (e) => {
@@ -159,7 +157,6 @@ export const AuthProvider = ({ children }) => {
         });
         if (res.ok) {
           const data = await res.json();
-          console.log(data);
           if (data.requires_2fa) navigate(`/twofa/${data.uid}`);
           else {
             if (data.username === null) navigate(`setupusername/${data.uid}`);

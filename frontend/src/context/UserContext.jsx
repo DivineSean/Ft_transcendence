@@ -72,6 +72,7 @@ export const UserProvider = ({ children }) => {
 		getProfile,
 		setProfileInfo,
 		setProfileImage,
+		setUserInfo,
 		updateProfileImage,
 	}
 

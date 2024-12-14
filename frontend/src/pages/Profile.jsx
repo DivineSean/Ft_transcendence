@@ -142,7 +142,7 @@ const Profile = () => {
 								className="absolute flex gap-8 items-center font-light text-gray top-0 right-0 text-md secondary-glass p-8 cursor-pointer"
 							>
 								<FiEdit3 className="text-green"/>
-								<p className="md:block hidden">edit profile</p>
+								<p className="text-txt-xs md:text-txt-md">edit profile</p>
 							</div>
 							<div className="flex h-[184px] flex-col gap-8 py-16 items-center lg:hidden">
                   <CircularProgressbarWithChildren

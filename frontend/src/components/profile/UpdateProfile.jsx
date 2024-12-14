@@ -4,10 +4,12 @@ import UserContext from "../../context/UserContext";
 import AuthContext from "../../context/AuthContext";
 import { useContext, useEffect, useRef, useState } from "react";
 import { IoCloudUploadOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 
 import { PiEyeClosedBold, PiEyeBold } from "react-icons/pi";
 import FetchWrapper, { BACKENDURL } from "../../utils/fetchWrapper";
+import Toast from "../Toast";
 
 const InputUpdateProfile = ({...props}) => {
 	const isPassword = props.type === 'password';
@@ -100,11 +102,14 @@ const InputUpdateProfile = ({...props}) => {
 
 const UpdateProfile = ({setUpdateProfile}) => {
 	const FetchData = new FetchWrapper();
+	const navigate = useNavigate();
 	const contextData = useContext(UserContext);
+	const authContextData = useContext(AuthContext);
 	const imageRef = useRef(null);
 	const canvasRef = useRef(null);
 	const [submittedImage, setSubmittedImage] = useState(null);
-	const [resizedImage, setResizedImage] = useState(null);
+	const [loading, setLoading] = useState(false);
+	const [passwordLoading, setPasswordLoading] = useState(false);
 	const [isChecked, setIsChecked] = useState(
 		contextData && contextData.userInfo.isTwoFa
 		? true
@@ -112,22 +117,19 @@ const UpdateProfile = ({setUpdateProfile}) => {
 	);
 	const [image, setImage] = useState(
 		contextData && contextData.userInfo.profile_image
-		? BACKENDURL + contextData.userInfo.profile_image
+		? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
 		: '/images/default.jpeg'
 	);
 
 	const [formData, setFormData] = useState({
-    firstName: contextData.userInfo.first_name,
-    lastName: contextData.userInfo.last_name,
+    first_name: contextData.userInfo.first_name,
+    last_name: contextData.userInfo.last_name,
     username: contextData.userInfo.username,
-    email: contextData.userInfo.email,
-    oldPassword: "",
-    newPassword: "",
-		confirmPassword: "",
 		about: contextData.userInfo.about,
   });
 
 
+	useEffect(() => { authContextData.setGlobalMessage({message: "", isError: false,}) }, []);
 	const handleChange = (e) => {
     let { name, value } = e.target;
     setFormData({
@@ -162,7 +164,6 @@ const UpdateProfile = ({setUpdateProfile}) => {
 							context.drawImage(imageRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
 
 							const newImageUrl = context.canvas.toDataURL('image/jpeg', 90);
-							setResizedImage(newImageUrl);
 							setSubmittedImage(newImageUrl);
 						}
 					}
@@ -173,24 +174,59 @@ const UpdateProfile = ({setUpdateProfile}) => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		setLoading(true);
+		setPasswordLoading(true);
 
-		const formData = new FormData();
+		const updatedData = new FormData();
 		if (submittedImage) {
 			const blob = await fetch(submittedImage).then(res => res.blob());
-			formData.append('profile_image', blob, `${contextData.userInfo.id}_profile.jpeg`);
+			updatedData.append('profile_image', blob, `${contextData.userInfo.id}_profile.jpeg`);
 		}
 
+		// console.log('form data', formData);
+		Object.entries(formData).forEach(([key, value]) => {
+			updatedData.append(key, value);
+		});
+
+		updatedData.append('isTwoFa', isChecked);
+
 		try {
-			const res = await FetchData.putFormData('api/profile/update/', formData);
-			console.log(res);
+			const res = await FetchData.putFormData('api/profile/update/', updatedData);
+			setLoading(false);
+			setPasswordLoading(false);
 			if (res.ok) {
 				const data = await res.json();
 				const updatedImageUrl = `${data.profile_image}?t=${new Date().getTime()}`;
-				// contextData.updateProfileImage(updatedImageUrl);
-				console.log(data);
+				contextData.updateProfileImage(updatedImageUrl);
+				contextData.setUserInfo(data);
+				contextData.setProfileInfo(data);
+				authContextData.setGlobalMessage({ message: 'profile updated successfully', isError: false });
+			} else if (res.status === 400) {
+				const data = await res.json();
+				authContextData.setGlobalMessage({ message: data.username, isError: true });
 			}
 		} catch (error) {
 			console.log('ata ach katrawan asahbi', error);
+		}
+	}
+
+	const handleChangePassword = async (e) => {
+		e.preventDefault();
+		setPasswordLoading(true);
+		setLoading(true);
+		try {
+			const res = await FetchData.post("api/requestreset/", {
+				email: contextData.userInfo.email,
+			});
+			if (res.ok) {
+				navigate(`/forgotpassword/${contextData.userInfo.id}`);
+			} else {
+				setGlobalMessage({ message: data.error, isError: true });
+				setPasswordLoading(false);
+				setLoading(false);
+			}
+		} catch (error) {
+			console.log('chihaja mahiyach', error);
 		}
 	}
 
@@ -242,20 +278,20 @@ const UpdateProfile = ({setUpdateProfile}) => {
 
 					<div className="flex flex-col gap-32">
 						<InputUpdateProfile
-							formData={formData.firstName}
+							formData={formData.first_name}
 							onChange={handleChange}
 							title='first name'
 							type='text'
-							value={formData.firstName}
-							name='firstName'
+							value={formData.first_name}
+							name='first_name'
 						/>
 						<InputUpdateProfile
-							formData={formData.lastName}
-							value={formData.lastName}
+							formData={formData.last_name}
+							value={formData.last_name}
 							onChange={handleChange}
 							title='last name'
 							type='text'
-							name='lastName'
+							name='last_name'
 						/>
 						<InputUpdateProfile
 							formData={formData.username}
@@ -264,14 +300,6 @@ const UpdateProfile = ({setUpdateProfile}) => {
 							title='username'
 							type='text'
 							name='username'
-						/>
-						<InputUpdateProfile
-							formData={formData.email}
-							value={formData.email}
-							onChange={handleChange}
-							title='email'
-							type='email'
-							name='email'
 						/>
 						<InputUpdateProfile
 							formData={formData.about}
@@ -310,33 +338,29 @@ const UpdateProfile = ({setUpdateProfile}) => {
 							></div>
 						</label>
 					</div>
-					<div className="flex flex-wrap gap-32">
-						
-						<InputUpdateProfile
-							formData={formData.oldPassword}
-							onChange={handleChange}
-							title='old password'
-							type='password'
-							name='oldPassword'
-						/>
-						<InputUpdateProfile
-							formData={formData.newPassword}
-							onChange={handleChange}
-							title='new password'
-							type='password'
-							name='newPassword'
-						/>
-						<InputUpdateProfile
-							formData={formData.confirmPassword}
-							onChange={handleChange}
-							title='confirm password'
-							type='password'
-							name='confirmPassword'
-						/>
+					<div className="lowercase flex gap-8 justify-center font-light text-txt-sm">
+						if you want to change your password you click the
+						<button
+							disabled={passwordLoading}
+							className="text-green font-semibold tracking-wide disabled:text-stroke-sc"
+							onClick={handleChangePassword}
+						>
+							change password
+						</button>
 					</div>
-					<button className="bg-green p-8 text-black text-lg font-bold rounded-sm">save</button>
+					<button
+						disabled={loading}
+						className="bg-green p-8 text-black text-lg font-bold rounded-sm disabled:bg-stroke-pr disabled:text-stroke-sc"
+					>{loading ? 'loading...' : 'update'}</button>
 				</form>
 			</div>
+			{authContextData.globalMessage.message && (
+				<Toast
+					message={authContextData.globalMessage.message}
+					error={authContextData.globalMessage.isError}
+					onClose={authContextData.setGlobalMessage}
+				/>
+			)}
 		</>
 	)
 }
