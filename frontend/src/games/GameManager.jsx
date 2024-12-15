@@ -65,5 +65,4 @@ const GameManager = () => {
         </div>
     );
 };
-
 export default GameManager;

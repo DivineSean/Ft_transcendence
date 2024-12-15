@@ -153,17 +153,15 @@ const Chat = () => {
     if (window.innerWidth >= 768) setProfileSide(true);
   });
 
-  console.log(friendsData);
   return (
-    <div className="flex flex-col grow">
+    <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="chat" />
       <div className="container md:px-16 px-0">
-        <div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
         <div className="primary-glass p-16 flex gap-16 grow">
           <div
             className={`lg:w-[320px] md:w-[72px] w-full flex-col gap-32 ${uid ? "md:flex hidden" : "flex"}`}
           >
-            <div className="lg:flex hidden items-center relative w-full">
+            <div className="lg:flex md:hidden flex items-center relative w-full">
               <input
                 type="text"
                 placeholder="find users"

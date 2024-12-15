@@ -22,7 +22,14 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
+def callableDict():
+    listofblockedUsers = {}
+    listofblockedUsers["blockedUsers"] = []
+    return listofblockedUsers
+
+
 class Users(AbstractUser):
+
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
@@ -37,6 +44,15 @@ class Users(AbstractUser):
     about = models.TextField(
         default="I m an award-winning content writer who has eight years of experience creating compelling articles and short stories. I m continuously searching for new topics and stories to capture the attention of new readers. With my knowledge and experience, I can help you fulfill your content creation goals."
     )
+    profile_image = models.ImageField(
+        upload_to="profile_images/", blank=True, null=True
+    )
+    _2fa = models.BooleanField(default=True, null=False)
+
+    blockedUsers = models.JSONField(default=callableDict, null=True)
+
+    last_update = models.DateTimeField(auto_now=True)
+
     # Friends  = models.ManyToManyField("Users", blank = True)
 
     objects = CustomUserManager()

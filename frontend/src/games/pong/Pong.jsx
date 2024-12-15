@@ -8,7 +8,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState } from "react";
 
 let dt = 1; ////added for debugging purpose
-const Pong = ({ websocket, player }) => {
+const Pong = ({ websocket, player, names }) => {
   const sm = useRef(null);
   const loaderRef = useRef(null);
   const loaderTRef = useRef(null);
@@ -20,7 +20,7 @@ const Pong = ({ websocket, player }) => {
     loaderTRef.current = new GLTFLoader();
     loaderRef.current = new GLTFLoader();
     loaderBRef.current = new GLTFLoader();
-    sm.current = new SceneManager(player == 2 ? -1 : 1);
+    sm.current = new SceneManager(player == 2 ? -1 : 1, names);
     // let factor = sm.current.camera.aspect / aspect;
     const table = new Table(sm.current.scene, loaderTRef.current);
     const net = new Net(sm.current.scene, loaderRef.current);
@@ -62,9 +62,16 @@ const Pong = ({ websocket, player }) => {
     websocket.onmessage = (event) => {
       // console.log(event);
       const msg = JSON.parse(event.data);
-      console.log(msg);
       const opp = player == 1 ? 2 : 1;
-      if (msg.type == "play") setReady(true);
+      if (msg.type === "score") {
+        console.log(msg);
+        const scores = JSON.parse(msg.message.scores);
+        sm.current.scoreUpdate(scores, msg.message.role);
+        console.log(`ball serving ${ball.serving}`);
+        if (msg.message.role === 1) ball.serve(websocket, net, 1);
+        else if (msg.message.role === 2) ball.serve(websocket, net, -1);
+        else console.log("Im the problem");
+      } else if (msg.type == "play") setReady(true);
       else if (msg.message.content == "paddle") {
         players[opp - 1].rotating = false;
         players[opp - 1].x = msg.message.paddle.x;
@@ -86,14 +93,22 @@ const Pong = ({ websocket, player }) => {
         players[opp - 1].rotationZ = msg.message.paddle.rotZ;
         players[opp - 1].updatePos();
       } else if (msg.message.content == "ball") {
-        lastServerBallUpdate = Date.now();
         ball.x = msg.message.ball.x;
         ball.y = msg.message.ball.y;
         ball.z = msg.message.ball.z;
         ball.dx = msg.message.ball.dx;
         ball.dy = msg.message.ball.dy;
         ball.dz = msg.message.ball.dz;
-        ball.updatePos(dt);
+        ball.count = 0;
+        ball.serving = msg.message.ball.serving;
+        ball.lastshooter = msg.message.ball.lstshoot;
+        ball.updatePos();
+      } else if (msg.message.content == "lost") {
+        // ball.count = 0;
+        ball.serving = msg.message.ball.serving;
+        ball.lastshooter = msg.message.ball.lstshoot;
+        ball.sendLock = true;
+        ball.sendScore(websocket);
       }
     };
     sm.current.render();
@@ -132,7 +147,10 @@ const Pong = ({ websocket, player }) => {
       ball.z += ball.dz * alpha * fixedStep;
 
       players[player - 1].update(keyboard.current, ball, websocket, dt);
+      const cameraDirection = sm.current.camera.position;
       sm.current.renderer.render(sm.current.scene, sm.current.camera);
+      if (cameraDirection != sm.current.camera.position)
+        sm.current.scoreUpdate();
     };
 
     sm.current.renderer.setAnimationLoop(animate);

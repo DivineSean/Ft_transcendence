@@ -4,6 +4,7 @@ import {
   IoArrowBackOutline,
 } from "react-icons/io5";
 import { TbDiamond, TbPingPong } from "react-icons/tb";
+import { BACKENDURL } from "../../utils/fetchWrapper";
 
 const ProfileOptions = ({
   uid,
@@ -28,11 +29,18 @@ const ProfileOptions = ({
         onClick={goToProfileSide}
       />
       <div className="flex flex-col gap-8 items-center">
-        <div className="w-[104px] h-[104px] object-cover flex rounded-full overflow-hidden">
-          <img src="/images/profile.png" alt="p" />
+        <div className="w-[104px] h-[104px] object-cover flex rounded-full overflow-hidden border-[0.5px] border-stroke-sc">
+          <img
+            src={
+              friendInfo.profile_image
+                ? BACKENDURL + friendInfo.profile_image
+                : "/images/default.jpeg"
+            }
+            alt="p"
+          />
         </div>
         <h2 className="text-h-lg-md font-bold max-w-[200px] text-center">
-          {friendInfo.firstName} {friendInfo.lastName}
+          {friendInfo.first_name} {friendInfo.last_name}
         </h2>
         <p className="text-txt-md text-gray lowercase font-light tracking-wide">
           @{friendInfo.username}

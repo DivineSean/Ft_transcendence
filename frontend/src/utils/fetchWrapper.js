@@ -1,3 +1,5 @@
+export const BACKENDURL = `https://${window.location.hostname}:8000`;
+
 class FetchWrapper {
   constructor() {
     this.baseUrl = `https://${window.location.hostname}:8000/`;
@@ -31,6 +33,15 @@ class FetchWrapper {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+    });
+    return response;
+  }
+
+  async putFormData(url, data) {
+    const response = await fetch(`${this.baseUrl}${url}`, {
+      method: "PUT",
+      credentials: "include",
+      body: data,
     });
     return response;
   }

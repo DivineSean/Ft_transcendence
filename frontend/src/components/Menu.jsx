@@ -12,6 +12,8 @@ import { PiRanking } from "react-icons/pi";
 import { Link } from "react-router-dom";
 import { GoHome } from "react-icons/go";
 import { useContext } from "react";
+import UserContext from "../context/UserContext";
+import { BACKENDURL } from "../utils/fetchWrapper";
 
 const navLinks = [
   {
@@ -46,6 +48,7 @@ const navLinks = [
 
 const Menu = ({ ...props }) => {
   const { displayMenuGl, setDisplayMenuGl, logout } = useContext(AuthContext);
+  const userContextData = useContext(UserContext);
 
   const links = [];
   navLinks.forEach((link) => {
@@ -94,12 +97,25 @@ const Menu = ({ ...props }) => {
     <div className="fixed primary-glass-no-rounded max-h-screen p-16 text-white gap-32 overflow-y-scroll no-scrollbar lg:hidden flex flex-col absolute z-[100] right-0 left-0 bottom-0 top-0">
       <div className="flex px-16 py-8 justify-between secondary-glass items-center ">
         <div className="flex gap-16 overflow-hidden">
-          <div className="w-64 h-64 bg-gray rounded-full overflow-hidden">
-            <img src="/images/profile.png" alt="profile" className="w-full" />
+          <div className="w-64 h-64 bg-gray flex rounded-full overflow-hidden">
+            <img
+              src={
+                userContextData.userInfo.profile_image
+                  ? `${BACKENDURL}${userContextData.userInfo.profile_image}?t=${new Date().getTime()}`
+                  : "/images/default.jpeg"
+              }
+              alt="profile"
+              className="grow border-[0.5px] border-stroke-sc object-fit"
+            />
           </div>
           <div className="flex flex-col justify-center">
-            <h2 className="text-h-sm-sm font-semibold">Simhammed stoune</h2>
-            <p className="text-txt-xs">@sistoune</p>
+            <h2 className="text-h-sm-sm font-semibold">
+              {userContextData.userInfo.first_name}{" "}
+              {userContextData.userInfo.last_name}
+            </h2>
+            <p className="text-txt-xs lowercase">
+              @{userContextData.userInfo.username}
+            </p>
           </div>
         </div>
         <IoChevronBack
@@ -111,7 +127,7 @@ const Menu = ({ ...props }) => {
       <div className="grow md:block hidden"></div>
       <div
         onClick={logout}
-        className="menu-linkes flex p-16 gap-16 text-h-sm-sm rounded-md items-center hover:bg-logout-bg"
+        className="menu-linkes flex p-16 gap-16 text-h-sm-sm rounded-md items-center hover:bg-logout-bg cursor-pointer"
       >
         <TbLogout2 />
         logout

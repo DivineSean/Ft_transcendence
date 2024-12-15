@@ -11,114 +11,56 @@ from django.db import connection
 from django.db.models import Prefetch, OuterRef, Subquery, F, Q
 from django.db.models.functions import Coalesce
 from rest_framework.pagination import PageNumberPagination, BasePagination
+from django.conf import settings
+from .serializers import ConversationSerializer, UserSerializerOne
 
 
 class GetConversationRooms(APIView):
 
     def get(self, request):
-        # scope["user"] =>HTTP
-        response = Response(status=200)
+        user_id = request.user.id
 
-        # Get latest messages in a single query
-        latest_messages = (
-            Message.objects.filter(ConversationName=OuterRef("ConversationId"))
-            .order_by("-timestamp")
-            .values("message", "timestamp")[:1]
-        )
+        latest_messages = Message.objects.filter(
+            ConversationName=OuterRef("pk")
+        ).order_by("-timestamp")
 
-        print(f"user.id {request._user.id}", flush=True)
-        print(f"user {request._user}", flush=True)
-        conversations = (  # get all conversations with user infos and the latest messages, using sigle query
-            Conversation.objects.filter(
-                Q(Sender=request._user.id) | Q(Receiver=request._user.id)
+        conversations = (
+            Conversation.objects.filter(Q(Sender_id=user_id) | Q(Receiver_id=user_id))
+            .annotate(
+                latest_message=Subquery(latest_messages.values("message")[:1]),
+                latest_message_timestamp=Subquery(
+                    latest_messages.values("timestamp")[:1]
+                ),
+                is_read_message=Subquery(latest_messages.values("isRead")[:1]),
+                sender=Subquery(latest_messages.values("sender")[:1]),
             )
             .select_related("Sender", "Receiver")
-            .annotate(
-                latest_message=Subquery(latest_messages.values("message")),
-                latest_message_timestamp=Subquery(latest_messages.values("timestamp")),
-                is_read_message=Subquery(latest_messages.values("isRead")),
-            )
-            .values(
-                "ConversationId",
-                "Sender_id",
-                "Receiver_id",
-                "latest_message",
-                "latest_message_timestamp",
-                "is_read_message",
-                sender_first_name=F("Sender__first_name"),
-                receiver_first_name=F("Receiver__first_name"),
-                sender_last_name=F("Sender__last_name"),
-                receiver_last_name=F("Receiver__last_name"),
-                sender_username=F("Sender__username"),
-                receiver_username=F("Receiver__username"),
-                sender_isonline=F("Sender__isOnline"),
-                receiver_isonline=F("Receiver__isOnline"),
-                sender_last_login=F("Sender__last_login"),
-                receiver_last_login=F("Receiver__last_login"),
-                sender_about=F("Sender__about"),
-                receiver_about=F("Receiver__about"),
-            )
             .order_by("-latest_message_timestamp")
         )
 
-        users_data = []
-        for conv in conversations:
-            is_receiver = conv["Receiver_id"] == request._user.id
-            users_data.append(
+        serialized_data = {
+            "users": [
                 {
-                    "conversationId": conv["ConversationId"],
-                    "firstName": (
-                        conv["receiver_first_name"]
-                        if not is_receiver
-                        else conv["sender_first_name"]
-                    ),
-                    "lastName": (
-                        conv["receiver_last_name"]
-                        if not is_receiver
-                        else conv["sender_last_name"]
-                    ),
-                    "username": (
-                        conv["receiver_username"]
-                        if not is_receiver
-                        else conv["sender_username"]
-                    ),
-                    "isOnline": (
-                        conv["receiver_isonline"]
-                        if not is_receiver
-                        else conv["sender_isonline"]
-                    ),
-                    "lastLogin": (
-                        conv["receiver_last_login"].strftime("%b %d, %Y at %H:%M")
-                        if conv["receiver_last_login"] and not is_receiver
-                        else (
-                            conv["sender_last_login"].strftime("%b %d, %Y at %H:%M")
-                            if conv["sender_last_login"]
-                            else None
-                        )
-                    ),
-                    "about": (
-                        conv["receiver_about"]
-                        if not is_receiver
-                        else conv["sender_about"]
-                    ),
+                    "conversationId": conversation.ConversationId,
+                    "lastMessage": conversation.latest_message,
                     "messageDate": (
-                        conv["latest_message_timestamp"].strftime("%b %d, %H:%M")
-                        if conv["latest_message_timestamp"]
+                        conversation.latest_message_timestamp.strftime("%b %d, %H:%M")
+                        if conversation.latest_message_timestamp
                         else None
                     ),
-                    "lastMessage": conv["latest_message"],
-                    "isRead": conv["is_read_message"],
-                    "sender": True if not is_receiver else False,
-                    "friendId": (
-                        conv["Sender_id"]
-                        if conv["Sender_id"] != request._user.id
-                        else conv["Receiver_id"]
-                    ),
+                    "isRead": conversation.is_read_message,
+                    "sender": True if conversation.sender == user_id else False,
+                    **UserSerializerOne(
+                        conversation.Receiver
+                        if conversation.Sender.id == user_id
+                        else conversation.Sender
+                    ).data,
                 }
-            )
+                for conversation in conversations
+            ]
+        }
 
-        print(f"conversations ++++++++ {conversations}", flush=True)
-        return Response({"users": users_data}, status=200)
+        return Response(serialized_data)
 
 
 class SendMessage(APIView):
