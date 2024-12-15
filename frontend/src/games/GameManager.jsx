@@ -1,68 +1,68 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { useLocation } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
 import Pong from "./pong/Pong";
 
 const GameManager = () => {
-    const [playerNumber, setPlayerNumber] = useState(-1);
-    // const [ready, setReady] = useState(false);
-    const ws = useRef(null);
+  const [playerNumber, setPlayerNumber] = useState(-1);
+  // const [ready, setReady] = useState(false);
+  const ws = useRef(null);
 
-    // TODO: handle match accept
-    // TODO: handle reconnect after accepting
-    const location = useLocation();
-    const gameDetails = location.state;
-    console.log('game state: ', gameDetails)
+  // TODO: handle match accept
+  // TODO: handle reconnect after accepting
+  const location = useLocation();
+  const gameDetails = location.state;
+  console.log("game state: ", gameDetails);
 
-    const connectWebSocket = useCallback(() => {
-        const { id } = gameDetails.game;
-        const role = gameDetails.role;
-        console.log(id, role);
-        ws.current = new WebSocket(
-            `wss://${window.location.hostname}:8000/ws/games/${id}`,
-        );
+  const connectWebSocket = useCallback(() => {
+    const { id } = gameDetails.game;
+    const role = gameDetails.role;
+    console.log(id, role);
+    ws.current = new WebSocket(
+      `wss://${window.location.hostname}:8000/ws/games/${id}`,
+    );
 
-        ws.current.onopen = () => {
-            console.log("WebSocket connected");
-            ws.current.send(
-                JSON.stringify({
-                    type: "ready",
-                    message: {},
-                }),
-            );
-            setPlayerNumber(role);
-        };
-
-        ws.current.onclose = () => {
-            console.log("WebSocket closed");
-        };
-
-        ws.current.onerror = (error) => {
-            console.error("WebSocket error:", error);
-        };
-    }, []);
-
-    const handleJoinGame = () => {
-        if (!ws.current) {
-            connectWebSocket();
-        }
+    ws.current.onopen = () => {
+      console.log("WebSocket connected");
+      ws.current.send(
+        JSON.stringify({
+          type: "ready",
+          message: {},
+        }),
+      );
+      setPlayerNumber(role);
     };
 
-    useEffect(() => {
-        return () => {
-            if (ws.current) {
-                ws.current.close();
-            }
-        };
-    }, []);
+    ws.current.onclose = () => {
+      console.log("WebSocket closed");
+    };
 
-    return (
-        <div>
-            {playerNumber === -1 ? (
-                <button onClick={handleJoinGame}>Join Game</button>
-            ) : (
-                <Pong websocket={ws.current} player={playerNumber} />
-            )}
-        </div>
-    );
+    ws.current.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+  }, []);
+
+  const handleJoinGame = () => {
+    if (!ws.current) {
+      connectWebSocket();
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, []);
+
+  return (
+    <div>
+      {playerNumber === -1 ? (
+        <button onClick={handleJoinGame}>Join Game</button>
+      ) : (
+        <Pong websocket={ws.current} player={playerNumber} />
+      )}
+    </div>
+  );
 };
 export default GameManager;

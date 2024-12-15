@@ -21,18 +21,15 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
         searching = r.get(f"{self.game_name}_players_in_queue")
         searching = int(searching) if searching is not None else 0
-        await self.send(
-            text_data=json.dumps({"type": "update", "message": searching})
-        )
+        await self.send(text_data=json.dumps({"type": "update", "message": searching}))
 
     async def join_queue(self):
         try:
             await matchmaker.add_player(self.player, self.channel_name, self.game_name)
             n = r.incr(f"{self.game_name}_players_in_queue")
-            await self.channel_layer.group_send(self.group_name, {
-                "type": "update",
-                "message": n
-            })
+            await self.channel_layer.group_send(
+                self.group_name, {"type": "update", "message": n}
+            )
             self.joined = True
         except Exception as e:
             await self.close(reason=str(e))
@@ -42,14 +39,13 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
         try:
             await matchmaker.remove_player(self.player, self.channel_name)
             n = r.decr(f"{self.game_name}_players_in_queue")
-            await self.channel_layer.group_send(self.group_name, {
-                "type": "update",
-                "message": n
-            })
+            await self.channel_layer.group_send(
+                self.group_name, {"type": "update", "message": n}
+            )
             self.joined = False
         except:
             return
-    
+
     async def disconnect(self, code):
         if self.joined:
             await self.leave_queue()
