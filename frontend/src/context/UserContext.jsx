@@ -15,6 +15,8 @@ export const UserProvider = ({ children }) => {
   const [userInfo, setUserInfo] = useState(null);
   const [profileInfo, setProfileInfo] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
+	const [userFriends, setUserFriends] = useState(null);
+	const [userFriendRequest, setUserFriendRequest] = useState(null);
 
   const getUserInfo = async () => {
     try {
@@ -63,7 +65,32 @@ export const UserProvider = ({ children }) => {
     }));
   };
 
+	const getFriends = async () => {
+		try {
+			const res = await FetchData.get('friends/getFriends/');
+			if (res.ok) {
+				const data = await res.json();
+				setUserFriends(data);
+			}
+		} catch (error) {
+			console.log('chihaja mahiyach fhad get frinds', error);
+		}
+	}
+	const setFriendRequest = async () => {
+		try {
+			const res = await FetchData.get('friends/getfr/');
+			if (res.ok) {
+				const data = await res.json();
+				setUserFriendRequest(data);
+			}
+		} catch (error) {
+			console.log('chihaja mahiyach fhad get frinds', error);
+		}
+	}
+
   const contextData = {
+		userFriendRequest,
+		userFriends,
     userInfo,
     profileInfo,
     generalLoading,
@@ -73,6 +100,8 @@ export const UserProvider = ({ children }) => {
     setProfileImage,
     setUserInfo,
     updateProfileImage,
+		getFriends,
+		setFriendRequest,
   };
 
   return (

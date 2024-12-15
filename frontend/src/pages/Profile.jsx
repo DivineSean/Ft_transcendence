@@ -81,9 +81,9 @@ const Profile = () => {
                   <div className="w-[104px] h-[104px] flex justify-center rounded-full overflow-hidden">
                     <img
                       src={
-                        contextData.userInfo &&
-                        contextData.userInfo.profile_image
-                          ? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
+                        contextData.profileInfo &&
+                        contextData.profileInfo.profile_image
+                          ? `${BACKENDURL}${contextData.profileInfo.profile_image}?t=${new Date().getTime()}`
                           : "/images/default.jpeg"
                       }
                       alt="profile pic"
@@ -159,9 +159,9 @@ const Profile = () => {
                     <div className="w-[98px] h-[98px] flex justify-center rounded-full overflow-hidden">
                       <img
                         src={
-                          contextData.userInfo &&
-                          contextData.userInfo.profile_image
-                            ? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
+                          contextData.profileInfo &&
+                          contextData.profileInfo.profile_image
+                            ? `${BACKENDURL}${contextData.profileInfo.profile_image}?t=${new Date().getTime()}`
                             : "/images/default.jpeg"
                         }
                         alt="profile pic"
