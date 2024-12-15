@@ -14,9 +14,6 @@ from pathlib import Path
 from datetime import timedelta
 import os
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB
-FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
