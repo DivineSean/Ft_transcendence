@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import TwoFA from "./pages/authentication/TwoFA";
 import SetUpUsername from "./pages/authentication/SetUpUsername";
 import Rankings from "./pages/Rankings";
+import GameManager from "./games/GameManager";
 import Header from "./components/Header";
 import { UserProvider } from "./context/UserContext";
 
@@ -34,8 +35,8 @@ function App() {
               <Route path="profile/" element={<Profile />} />
               <Route path="profile/:section/" element={<Profile />} />
               <Route path="profile/:section/:username" element={<Profile />} />
-              <Route path="games/" element={<Games />} />
-              {/* <Route path='play/:game/:room_id' element={<Game />} /> */}
+              <Route path="games/:game/:mode/:uuid" element={<GameManager />} />
+              <Route path="games/*" element={<Games />} />
               <Route path="register/" element={<SignUp />} />
               <Route path="home/" element={<Home />} />
               <Route path="chat/" element={<Chat />} />

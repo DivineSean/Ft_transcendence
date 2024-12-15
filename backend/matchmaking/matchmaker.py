@@ -58,8 +58,11 @@ class Matchmaker:
         await self.start_loop()
 
     async def remove_player(self, player_id, game_name):
-        r.zrem(f"{game_name}_{QUEUE_KEY}", player_id)
-        r.hdel(f"{game_name}:players_channel_names", player_id)
+        try:
+            r.zrem(f"{game_name}_{QUEUE_KEY}", player_id)
+            r.hdel(f"{game_name}:players_channel_names", player_id)
+        except:
+            raise
 
     async def start_loop(self):
         async with self.lock:
@@ -173,11 +176,6 @@ class Matchmaker:
                         },
                     )
 
-    async def send_updates(self, channel_layer, game_name, message):
-        await channel_layer.group_send(
-            f"{game_name}_matchmaking_group", {"type": "update", "message": message}
-        )
-
     async def matchmaking_loop(self):
         channel_layer = get_channel_layer()
 
@@ -188,7 +186,6 @@ class Matchmaker:
                 players = r.zrange(
                     f"{game['name']}_{QUEUE_KEY}", 0, -1, withscores=True
                 )
-                await self.send_updates(channel_layer, game["name"], len(players))
                 if len(players) == 0:
                     del self.queues[game["name"]]
                     break
