@@ -2,8 +2,8 @@ import "../styles/loadingBmo.css";
 
 const LoadingPage = () => {
   return (
-    <div className="h-full w-full flex justify-center items-center backdrop-blur-md">
-      <div className="h-full w-full flex justify-center items-center backdrop-blur-md lg:scale-100 md:scale-75 scale-50">
+    <div className="h-full w-full flex justify-center items-center">
+      <div className="h-full w-full flex justify-center items-center lg:scale-75 md:scale-50 scale-50">
         <div className="main flex justify-center items-center w-[300px] h-[400px]">
           <div
             className="

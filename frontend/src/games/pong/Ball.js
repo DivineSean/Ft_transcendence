@@ -20,6 +20,11 @@ class Ball {
     this.dx = 0;
     this.dy = 0;
     this.dz = 0;
+
+    this.count = 0;
+    this.serving = true;
+    this.lastshooter = 1;
+    this.sendLock = false;
   }
 
   serve(ws, net, sign) {
@@ -31,19 +36,28 @@ class Ball {
     this.dx = 0;
     this.dy = 0;
     this.dz = 0;
+    this.count = 0;
+    this.serving = true;
+    this.lastshooter = sign;
+    this.sendLock = false;
+  }
 
-    this.isServed = false;
+  sendScore(ws) {
+    const data = { type: "score", message: {} };
+    ws.send(JSON.stringify(data));
+  }
+
+  sendLost(ws) {
+    // this.count = 0;
+    this.sendLock = true;
+    this.serving = true;
     const data = {
       type: "update",
       message: {
-        content: "ball",
+        content: "lost",
         ball: {
-          x: this.x,
-          y: this.y,
-          z: this.z,
-          dx: this.dx,
-          dy: this.dy,
-          dz: this.dz,
+          serving: this.serving,
+          lstshoot: this.lastshooter,
         },
       },
     };
@@ -59,39 +73,76 @@ class Ball {
       !player1.boundingBox
     )
       return;
+    console.log(`count ${this.count}`);
+    if (this.sendLock && this.serving && this.count >= 2) return;
     this.dy -= G;
     let flag = false;
     //serve
-    if (this.y < -36 && this.x < 0 && player === 2) this.serve(ws, net, 1);
-    else if (this.y < -36 && this.x > 0 && player === 1)
-      this.serve(ws, net, -1);
-
-    // Gravity
-    if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
+    if (this.serving) this.count = 0;
+    if (this.y < -50 && this.sendLock === false && this.serving === false) {
+      if (this.lastshooter === 1 && player === 1) {
+        console.log("me 1");
+        this.sendLost(ws);
+      } else if (this.lastshooter === -1 && player === 2) {
+        console.log("me 2");
+        this.sendLost(ws);
+      }
+      this.sendLock = true;
+      this.serving = true;
+      // this.count = 0;
+      return;
+    } else if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
       this.y = table.boundingBoxTable.max.y + 1;
-      // console.log(this.dy);
       this.dy *= -0.6;
+      if (this.sendLock === false && this.serving === false && this.count < 2) {
+        this.count++;
+        if (this.x < 0) this.lastshooter = -1;
+        else this.lastshooter = 1;
+        if (this.count === 2) {
+          if (this.lastshooter === -1 && player === 2) {
+            this.sendLost(ws);
+            console.log(`me 3`);
+          } else if (this.lastshooter === 1 && player === 1) {
+            this.sendLost(ws);
+            console.log("me 4");
+          }
+          return;
+        }
+      }
     }
     if (this.boundingSphere.intersectsBox(net.boundingBox)) {
       player1.netshoot(this, net, ws, player);
+      this.count = 0;
       flag = true;
     }
     // Paddles
     if (
       this.boundingSphere.intersectsBox(player1.boundingBox) &&
-      player1.rotating
+      player1.rotating &&
+      this.sendLock === false
     ) {
       player1.shoot(net, keyboard, this, dt);
+      this.serving = false;
+      this.lastshooter = player1.player;
+      this.count = 0;
       flag = true;
     } else if (
       this.boundingSphere.intersectsBox(player1.boundingBox) &&
-      !player1.rotating
+      !player1.rotating &&
+      !this.serving
     ) {
       player1.hit(this, ws);
+      this.serving = false;
+      this.count = 0;
+      this.lastshooter = player1.player;
       flag = true;
     }
 
     // Movement
+    this.x += this.dx * dt;
+    this.y += this.dy * dt;
+    this.z += this.dz * dt;
+
     if (flag) {
       const data = {
         type: "update",
@@ -105,33 +156,22 @@ class Ball {
             dy: this.dy,
             dz: this.dz,
             dt: dt,
+            serving: this.serving,
+            lstshoot: this.lastshooter,
           },
         },
       };
       ws.send(JSON.stringify(data));
     }
-    this.x += this.dx * dt;
-    this.y += this.dy * dt;
-    this.z += this.dz * dt;
 
     this.model.position.set(this.x, this.y, this.z);
     const box = new THREE.Box3().setFromObject(this.model);
     const center = box.getCenter(new THREE.Vector3());
     this.radius = box.getSize(new THREE.Vector3()).length() / 2;
     this.boundingSphere = new THREE.Sphere(center, this.radius - 0.5);
-
-    // const help = new THREE.Box3Helper(box, 0x50C878);
-    // this.scene.add(help);
-    // this.boundingSphere.set(this.model.position.center, this.model.position.radius + 0.5);
   }
 
-  updatePos(dt) {
-    // const clock = performance.now() / 1000;
-    // const fixedStep = 0.015; // 15ms
-    // let dts = fixedStep * 1000;
-    // this.x += this.dx * dts;
-    // this.y += this.dy * dts;
-    // this.z += this.dz * dts;
+  updatePos() {
     this.model.position.set(this.x, this.y, this.z);
   }
 
@@ -158,23 +198,7 @@ class Ball {
     const center = box.getCenter(new THREE.Vector3());
     this.radius = box.getSize(new THREE.Vector3()).length() / 2;
     this.boundingSphere = new THREE.Sphere(center, this.radius);
-
-    // If you want to visualize the bounding box for debugging
-    // const help = new THREE.Box3Helper(box, 0x50C878);
-    // this.scene.add(help);
   }
-
-  // render() {
-  // 	// ball
-  // 	const ballGeometry = new THREE.SphereGeometry(0.5, 32, 16);
-  // 	const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xfcb404 });
-  // 	this.model = new THREE.Mesh(ballGeometry, ballMaterial);
-  // 	this.model.castShadow = true;
-  // 	this.model.position.set(this.x, this.y, this.z);
-  // 	// collision
-  // 	this.boundingSphere = new THREE.Sphere(this.model.position, 0.5);
-  // 	this.scene.add(this.model);
-  // }
 }
 
 export default Ball;

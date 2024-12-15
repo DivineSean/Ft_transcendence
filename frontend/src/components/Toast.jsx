@@ -48,7 +48,7 @@ const Toast = ({ duration = 3000, error = true, message, onClose }) => {
       <div
         className={`
 				left-1/2 transform -translate-x-1/2 justify-between
-				py-8 px-16 fixed z-[10] overflow-hidden backdrop-blur-2xl
+				py-8 px-16 fixed z-[10000] overflow-hidden backdrop-blur-2xl
 				flex gap-8 items-center lg:right-32 top-32 rounded-lg 
 				border-[0.5px] border-stroke-sc max-w-[400px] min-w-[10px] transition-opacity
 				duration-800 ${opacity ? "opacity-100" : "opacity-0"}

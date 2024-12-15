@@ -47,7 +47,7 @@ class Chat(WebsocketConsumer):
             self.convId = f"conv-{text_data_json['convId']}"
             self.convName = text_data_json["convId"]
         except Exception as e:
-            print("error ------>", e, flush=True)
+            # print("error ------>", e, flush=True)
             self.close()
             return
 
@@ -120,15 +120,16 @@ class Chat(WebsocketConsumer):
             )
 
     def chat_read_message(self, event):
-        if event["sender"]["id"] != self.user["id"]:
-            Message.objects.filter(
-                isRead=False, ConversationName=event["convId"], sender=self.user["id"]
-            ).update(isRead=True)
+        messages = (
+            Message.objects.filter(isRead=False, ConversationName=event["convId"])
+            .exclude(sender=self.user["id"])
+            .update(isRead=True)
+        )
 
-            self.send(text_data=json.dumps({"type": "read", "convId": event["convId"]}))
+        self.send(text_data=json.dumps({"type": "read", "convId": event["convId"]}))
 
     def chat_message(self, event):
-        print(event["isRead"], flush=True)
+        # print(event["isRead"], flush=True)
         self.send(
             text_data=json.dumps(
                 {

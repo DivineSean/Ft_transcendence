@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Users
 from django.conf import settings
 from chat.models import Conversation
+from django.core.exceptions import ValidationError
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -50,7 +51,30 @@ class UserSerializer(serializers.ModelSerializer):
             return f"{settings.MEDIA_URL}{obj.profile_image}"
         return None
 
+    def update(self, validated_data):
+        instance = self.Meta.model(**validated_data)
+        instance.save()
+        return instance
+
     class Meta:
         model = Users
         fields = "__all__"
         extra_kwargs = {"profile_image": {"required": False}}
+        extra_kwargs = {"password": {"write_only": True}}
+
+
+class UpdateUserSerializer(serializers.ModelSerializer):
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            if value is not None:
+                setattr(instance, attr, value)
+        instance.save()
+        return instance
+
+    class Meta:
+        model = Users
+        fields = ["first_name", "last_name", "about", "isTwoFa"]
+        extra_kwargs = {
+            "profile_image": {"required": False},
+            "password": {"write_only": True},
+        }

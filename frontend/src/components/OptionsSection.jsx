@@ -1,11 +1,13 @@
 import AuthContext from "../context/AuthContext";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { useRef } from "react";
+import { BACKENDURL } from "../utils/fetchWrapper";
 
-const OptionsSection = ({ data, type, reference }) => {
+const OptionsSection = ({ data, type, reference, contextData }) => {
   const sectionRef = useRef([]);
   const { logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handleClick = (index) => {
     const clickedItem = sectionRef.current[index];
@@ -38,19 +40,28 @@ const OptionsSection = ({ data, type, reference }) => {
           </h2>
         )}
         {type === "options" && (
-          <Link
-            to="/profile/overview"
+          <div
+            onClick={() => {
+              contextData.setProfileInfo(contextData.userInfo);
+              navigate("/profile/overview");
+            }}
             className="flex gap-16 p-8 cursor-pointer hover-secondary rounded items-center"
           >
-            <div className="bg-gray w-32 h-32 rounded-full lg:block hidden overflow-hidden cursor-pointer">
+            <div className="bg-gray w-32 h-32 rounded-full lg:flex hidden overflow-hidden cursor-pointer">
               <img
-                src="/images/profile.png"
+                src={
+                  contextData.userInfo && contextData.userInfo.profile_image
+                    ? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
+                    : "/images/default.jpeg"
+                }
                 alt="profile pic"
                 className="w-full"
               />
             </div>
-            <h2 className="text-h-sm-md tracking-wide">si mohammed</h2>
-          </Link>
+            <h2 className="text-h-sm-sm tracking-wide lowercase">
+              {contextData.userInfo && contextData.userInfo.username}
+            </h2>
+          </div>
         )}
         <ul className="w-full flex flex-col gap-8">
           {data.map((section, i) => (

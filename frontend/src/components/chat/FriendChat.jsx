@@ -12,7 +12,6 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
           convId: friendInfo.conversationId,
         }),
       );
-      // console.log('ws is send to read the message');
     }
     friendInfo.isRead = true;
     navigate(`/chat/${friendInfo.conversationId}`);
@@ -116,9 +115,7 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
           <p className="text-txt-xs font-lighter text-stroke-sc">
             {friendInfo.messageDate}
           </p>
-          <div
-            className={`h-16 w-16 bg-transparent flex justify-center items-center rounded-full`}
-          >
+          <div>
             {!friendInfo.isRead &&
               !friendInfo.sender &&
               friendInfo.lastMessage && (

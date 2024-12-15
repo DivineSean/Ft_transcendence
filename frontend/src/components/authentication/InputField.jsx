@@ -11,9 +11,10 @@ const InputFieled = ({ ...props }) => {
           name={props.name}
           type={props.type}
           placeholder={props.placeholder}
+          defaultValue={props.value}
           onChange={props.onChange}
           onBlur={props.onBlur}
-          className={`py-16 login-input border-b-2 grow ${props.error ? "border-red" : "border-stroke-sc"}`}
+          className={`py-16 login-input border-b-2 grow ${props.error ? "border-red" : "border-stroke-sc"} ${props.additionalStyles}`}
         />
       )}
       {isPassword && (
@@ -26,7 +27,7 @@ const InputFieled = ({ ...props }) => {
             placeholder={props.placeholder}
             onChange={props.onChange}
             onBlur={props.onBlur}
-            className="bg-transparent outline-none grow"
+            className={`bg-transparent outline-none grow ${props.additionalStyles}`}
           />
           {!display && (
             <PiEyeClosedBold
