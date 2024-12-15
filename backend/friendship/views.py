@@ -9,6 +9,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from uuid import UUID
 from django.db.models import Q
+from Auth.serializers import UserFriendSerializer
 
 
 class SendFriendRequest(APIView):
@@ -54,11 +55,12 @@ class AcceptFriendRequest(APIView):
             return Response("friendRequestID Valid", status=400)
 
         if request._user == friendRequest.toUser:
-            friendRequest.accept()
+            friendRequest.delete()
             newFriendShip = Friendship.friends.get_or_create(
                 user1=friendRequest.fromUser,
                 user2=friendRequest.toUser,
             )
+
             return Response(
                 {
                     "message": "FriendRequest accepted",
@@ -80,7 +82,6 @@ class DeclineFriendRequest(APIView):
             return Response("Friend Request ID Valid", status=400)
 
         if request._user == friendRequest.toUser:
-            friendRequest.reject()
             friendRequest.delete()
 
             return Response({"message": "FriendRequest Declined"})
@@ -89,13 +90,32 @@ class DeclineFriendRequest(APIView):
 
 @api_view(["GET"])
 def getFriendsView(request):
-    listOfFriends = {}
-    listOfFriends["Friends"] = []
-    for element in Friendship.friends.getFriends(request._user):
-        listOfFriends["Friends"].append(element.email)
+    friends = Friendship.friends.getFriends(request._user)
+    listOfFriends = {
+        "friends": [{**UserFriendSerializer(friend).data} for friend in friends]
+    }
+
     return Response(listOfFriends)
 
 
+@api_view(["GET"])
+def getFriendRequests(request):
+    friendRequestList = FriendshipRequest.objects.filter(
+        Q(toUser=request._user)
+    ).select_related("fromUser")
+    data = {}
+    for request in friendRequestList:
+        data = {
+            "first_name": request.toUser.first_name,
+            "last_name": request.toUser.last_name,
+            "username": request.toUser.username,
+            "id": request.toUser.id,
+            "profile_image": str(request.toUser.profile_image),
+        }
+    return Response(data)
+
+
+#  {"User2":"37774119-da08-4302-b389-40f9d5d8043c"}
 @api_view(["POST"])
 def areFriends(request):  # Expecting User2 (ID)
     user2 = request.data.get("User2")
@@ -124,6 +144,7 @@ def blockUser(request):
         return Response("SameUser", status=status.HTTP_400_BAD_REQUEST)
 
     request._user.blockedUsers["blockedUsers"].append(user2)
+    request._user.save()
 
     Friendship.objects.filter(Q(user1=user2) | Q(user2=user2)).delete()
 

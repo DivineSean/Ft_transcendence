@@ -32,4 +32,9 @@ urlpatterns = [
         views.blockUser,
         name="blockUser",
     ),
+    path(
+        "friends/getfr/",
+        views.getFriendRequests,
+        name="getFr",
+    ),
 ]
