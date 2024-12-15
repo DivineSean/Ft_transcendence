@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Auth', '0004_users_blockedusers'),
+        ("Auth", "0004_users_blockedusers"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='users',
-            name='blockedUsers',
+            model_name="users",
+            name="blockedUsers",
             field=models.JSONField(default=Auth.models.callableDict, null=True),
         ),
     ]

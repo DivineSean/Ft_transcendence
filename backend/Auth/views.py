@@ -36,9 +36,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 @api_view(["POST"])
-def alter2FA(request): 
+def alter2FA(request):
     print(request.user)
     return Response("hello")
+
+
 # @api_view(['GET'])
 
 # def checkAuth(request): #Should be removed

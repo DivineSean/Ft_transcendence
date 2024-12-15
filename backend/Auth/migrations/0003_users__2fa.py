@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Auth', '0002_users_profile_image'),
+        ("Auth", "0002_users_profile_image"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='users',
-            name='_2fa',
+            model_name="users",
+            name="_2fa",
             field=models.BooleanField(default=True),
         ),
     ]

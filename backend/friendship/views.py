@@ -9,6 +9,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from uuid import UUID
 from django.db.models import Q
+
+
 class SendFriendRequest(APIView):
     def post(self, request):
         response = Response(status=200)
@@ -90,13 +92,12 @@ def getFriendsView(request):
     listOfFriends = {}
     listOfFriends["Friends"] = []
     for element in Friendship.friends.getFriends(request._user):
-        listOfFriends["Friends"].append(
-            element.email
-        )
-    return Response(listOfFriends) 
+        listOfFriends["Friends"].append(element.email)
+    return Response(listOfFriends)
+
 
 @api_view(["POST"])
-def areFriends(request): #Expecting User2 (ID)
+def areFriends(request):  # Expecting User2 (ID)
     user2 = request.data.get("User2")
     if user2 == None:
         return Response("User2 requiered", status=status.HTTP_401_UNAUTHORIZED)
@@ -106,11 +107,11 @@ def areFriends(request): #Expecting User2 (ID)
         return Response("Not a valid UUID", status=status.HTTP_400_BAD_REQUEST)
     if Users.objects.get(id=user2).email == request._user.email:
         return Response("SameUser", status=status.HTTP_400_BAD_REQUEST)
-        
+
     return Response(str(Friendship.friends.areFriends(request._user, user2)))
 
 
-@api_view(["POST"]) #should be in consummers for realtime block
+@api_view(["POST"])  # should be in consummers for realtime block
 def blockUser(request):
     user2 = request.data.get("User2")
     if user2 == None:
@@ -121,9 +122,9 @@ def blockUser(request):
         return Response("Not a valid UUID", status=status.HTTP_400_BAD_REQUEST)
     if Users.objects.get(id=user2).email == request._user.email:
         return Response("SameUser", status=status.HTTP_400_BAD_REQUEST)
-    
+
     request._user.blockedUsers["blockedUsers"].append(user2)
-    
-    Friendship.objects.filter(Q(user1 = user2) | Q(user2 = user2)).delete()
-    
+
+    Friendship.objects.filter(Q(user1=user2) | Q(user2=user2)).delete()
+
     return Response(str(request._user.blockedUsers), status=status.HTTP_201_CREATED)

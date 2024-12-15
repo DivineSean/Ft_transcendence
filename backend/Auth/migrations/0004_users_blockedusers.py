@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Auth', '0003_users__2fa'),
+        ("Auth", "0003_users__2fa"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='users',
-            name='blockedUsers',
-            field=models.JSONField(default={'blockedUsers': []}, null=True),
+            model_name="users",
+            name="blockedUsers",
+            field=models.JSONField(default={"blockedUsers": []}, null=True),
         ),
     ]

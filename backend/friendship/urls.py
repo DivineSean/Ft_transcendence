@@ -32,5 +32,4 @@ urlpatterns = [
         views.blockUser,
         name="blockUser",
     ),
-
 ]
