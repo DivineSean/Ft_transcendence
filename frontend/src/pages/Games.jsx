@@ -221,7 +221,10 @@ const Games = () => {
             <div className="container md:px-16 px-0">
                 <div className="primary-glass p-16 md:p-32 min-h-[570px] h-full bmo-height">
                     <div className="bg-[#2CA086] bmo-frame rounded-lg min-h-[520px] w-full h-full flex lg:flex-row flex-col gap-16 p-16 md:p-32 overflow-y-auto no-scrollbar">
-                        <div className="max-w-[20%] hidden lg:flex flex-col justify-between items-center">
+                        <div className="max-w-[20%] hidden lg:pt-16 lg:flex flex-col justify-between items-center">
+                            <button className="bg-[#006680] rounded-lg min-w-[32px] min-h-[8px] max-w-[64px] max-h-[22px] w-[7vmin] h-[2.5vmin]"></button>
+                            <CrossButtons />
+                            <span></span>
                         </div>
                         <div className="grow min-h-fit h-[70%] lg:h-full flex flex-col gap-64 lg:gap-16">
                             <div className="bmo-screen rounded-xl relative overflow-hidden grow flex flex-col">
@@ -232,24 +235,26 @@ const Games = () => {
                                 <button className="bg-[#006680] rounded-full min-h-[23px] min-w-[23px] max-h-[47px] max-w-[47px] w-[6vmin] h-[6vmin]"></button>
                             </div>
                         </div>
-                        <div className="grow p-16 md:p-32 md:pb-0 justify-between lg:max-w-[20%] flex">
-                            <div className="gap-16 md:gap-32 flex flex-col justify-center items-center">
+                        <div className="grow p-16 md:p-32 md:pb-0 lg:p-0 justify-between lg:max-w-[20%] flex">
+                            <div className="lg:hidden gap-16 md:gap-32 flex flex-col justify-center items-center">
                                 <CrossButtons />
                                 <span className="flex justify-around gap-16">
                                     <button className="bg-[#006680] rounded-lg min-w-[32px] min-h-[8px] max-w-[64px] max-h-[22px] w-[7vmin] h-[2.5vmin]"></button>
                                     <button className="bg-[#006680] rounded-lg min-w-[32px] min-h-[8px] max-w-[64px] max-h-[22px] w-[7vmin] h-[2.5vmin]"></button>
                                 </span>
                             </div>
-                            <div className="lg:hidden flex justify-end items-center gap-32">
+                            <div className="grow flex lg:flex-col lg:justify-between lg:pt-16 justify-end items-center gap-32">
+                                <button className="hidden lg:block bg-[#006680] rounded-lg min-w-[32px] min-h-[8px] max-w-[64px] max-h-[22px] w-[7vmin] h-[2.5vmin]"></button>
                                 <span className="flex flex-col gap-8">
                                     <span className="flex gap-16 items-end">
-                                        <button className="mb-2.5 border-b-[7.5vmin] border-[#5FBCD3] border-r-[5.2vmin] border-r-transparent border-l-[5.2vmin] border-l-transparent"></button>
-                                        <button className="bg-[#71C837] rounded-full min-w-[24px] min-h-[24px] w-[6.5vmin] h-[6.5vmin]"></button>
+                                        <button className="mb-[2.5%] border-b-[clamp(10px,7.5vmin,60px)] border-[#5FBCD3] border-r-[clamp(5px,5.2vmin,40px)] border-r-transparent border-l-[clamp(5px,5.2vmin,40px)] border-l-transparent"></button>
+                                        <button className="bg-[#71C837] rounded-full min-w-[24px] min-h-[24px] max-w-[50px] max-h-[50px] w-[6.5vmin] h-[6.5vmin]"></button>
                                     </span>
                                     <span className="flex justify-center">
                                         <button className="bg-[#C83737] rounded-full min-w-[50px] min-h-[50px] max-h-[115px] max-w-[115px] w-[13.5vmin] h-[13.5vmin]"></button>
                                     </span>
                                 </span>
+                                <span className="hidden lg:block"></span>
                             </div>
                         </div>
                     </div>
