@@ -41,6 +41,8 @@ class Users(AbstractUser):
         upload_to="profile_images/", blank=True, null=True
     )
 
+    last_update = models.DateTimeField(auto_now=True)
+
     # Friends  = models.ManyToManyField("Users", blank = True)
 
     objects = CustomUserManager()

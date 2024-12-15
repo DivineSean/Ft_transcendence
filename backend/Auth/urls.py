@@ -36,4 +36,6 @@ urlpatterns = [
     ),
     path("api/user/", views.getUser, name="firstLastName"),
     path("api/setupusername/", views.setUpUsername, name="firstLastName"),
+    path("api/profile/<str:username>/", views.Profile.as_view(), name="profile"),
+    path("api/profile/update/", views.Profile.as_view(), name="updateProfie"),
 ]

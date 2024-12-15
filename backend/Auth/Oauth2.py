@@ -29,9 +29,9 @@ def download_providers_images(url, userId, isIntra):
     response = requests.get(url)
     if response.status_code == 200:
         if isIntra:
-            file_name = f"{userId}_profile.jpg"
+            file_name = f"{userId}_profile.jpeg"
         else:
-            file_name = f"{userId}_profile.png"
+            file_name = f"{userId}_profile.jpeg"
         return ContentFile(response.content, file_name)
     return None
 

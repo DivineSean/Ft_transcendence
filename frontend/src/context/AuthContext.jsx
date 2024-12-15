@@ -157,7 +157,6 @@ export const AuthProvider = ({ children }) => {
         });
         if (res.ok) {
           const data = await res.json();
-          console.log(data);
           if (data.requires_2fa) navigate(`/twofa/${data.uid}`);
           else {
             if (data.username === null) navigate(`setupusername/${data.uid}`);
@@ -170,7 +169,6 @@ export const AuthProvider = ({ children }) => {
               isError: true,
             });
           else {
-            const data = await res.json();
             setGlobalMessage({
               message: `error: email or password are invalid please try again!`,
               isError: true,

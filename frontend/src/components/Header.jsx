@@ -11,6 +11,9 @@ import { TbLogout2 } from "react-icons/tb";
 import { SlMenu } from "react-icons/sl";
 import { Link } from "react-router-dom";
 import Menu from "./Menu";
+import FetchWrapper from "../utils/fetchWrapper";
+import { BACKENDURL } from "../utils/fetchWrapper";
+import UserContext from "../context/UserContext";
 
 const navLinks = ["home", "profile", "chat", "rankings", "games", "explore"];
 
@@ -19,11 +22,13 @@ const Header = ({ ...props }) => {
   const [displayOptions, setDisplayOptions] = useState(false);
   const [displayNotification, setDisplayNotification] = useState(false);
   const [readNotif, setReadNotif] = useState(false);
+  const contextData = useContext(UserContext);
+
   const optionsData = [
-    {
-      name: "settings",
-      icon: <IoSettingsOutline />,
-    },
+    // {
+    //   name: "settings",
+    //   icon: <IoSettingsOutline />,
+    // },
     {
       name: "logout",
       icon: <TbLogout2 />,
@@ -60,6 +65,7 @@ const Header = ({ ...props }) => {
 
   const toggleNotification = () => {
     if (displayOptions) setDisplayOptions(false);
+    ``;
     setReadNotif(true);
     setDisplayNotification(!displayNotification);
   };
@@ -88,7 +94,7 @@ const Header = ({ ...props }) => {
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
-
+    contextData.getUserInfo();
     return () => {
       document.addEventListener("mousedown", handleClickOutside);
     };
@@ -134,6 +140,7 @@ const Header = ({ ...props }) => {
         <div className="relative w-full">
           {displayOptions && (
             <OptionsSection
+              contextData={contextData}
               data={optionsData}
               reference={optionSectionRef}
               type="options"
@@ -148,7 +155,7 @@ const Header = ({ ...props }) => {
           )}
         </div>
       </div>
-      <header className="backdrop-blur-3xl sticky top-0 z-[2] lg:mb-32 mb-16 lg:px-0 px-16">
+      <header className="backdrop-blur-3xl sticky top-0 z-[2] lg:px-0 px-16">
         <div className="flex items-center lg:gap-32 gap-16 py-16 max-w-[1440px] m-auto lg:px-32 relative">
           <Link
             to="/home"
@@ -192,10 +199,14 @@ const Header = ({ ...props }) => {
           <div
             ref={(el) => (toggleOptionsRef.current[1] = el)}
             onClick={toggleOptions}
-            className="bg-gray w-32 h-32 rounded-full lg:block hidden overflow-hidden cursor-pointer"
+            className="bg-gray w-32 h-32 rounded-full lg:flex hidden overflow-hidden cursor-pointer border-[0.5px] border-stroke-sc"
           >
             <img
-              src="/images/profile.png"
+              src={
+                contextData.userInfo && contextData.userInfo.profile_image
+                  ? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
+                  : "/images/default.jpeg"
+              }
               alt="profile pic"
               className="w-full"
             />

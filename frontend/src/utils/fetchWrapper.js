@@ -37,6 +37,15 @@ class FetchWrapper {
     return response;
   }
 
+  async putFormData(url, data) {
+    const response = await fetch(`${this.baseUrl}${url}`, {
+      method: "PUT",
+      credentials: "include",
+      body: data,
+    });
+    return response;
+  }
+
   async delete(url) {
     const response = await fetch(`${this.baseUrl}${url}`, {
       method: "DELETE",
