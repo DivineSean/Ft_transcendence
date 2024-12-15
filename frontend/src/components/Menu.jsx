@@ -97,7 +97,7 @@ const Menu = ({ ...props }) => {
     <div className="fixed primary-glass-no-rounded max-h-screen p-16 text-white gap-32 overflow-y-scroll no-scrollbar lg:hidden flex flex-col absolute z-[100] right-0 left-0 bottom-0 top-0">
       <div className="flex px-16 py-8 justify-between secondary-glass items-center ">
         <div className="flex gap-16 overflow-hidden">
-          <div className="w-64 h-64 bg-gray rounded-full overflow-hidden">
+          <div className="w-64 h-64 bg-gray flex rounded-full overflow-hidden">
 						
             <img
 							src={
@@ -106,7 +106,7 @@ const Menu = ({ ...props }) => {
 								: "/images/default.jpeg"
 							}
 							alt="profile"
-							className="w-full border-[0.5px] border-stroke-sc"
+							className="grow border-[0.5px] border-stroke-sc object-fit"
 						/>
           </div>
           <div className="flex flex-col justify-center">

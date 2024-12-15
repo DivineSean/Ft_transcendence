@@ -1,126 +1,34 @@
 import { RxCross2 } from "react-icons/rx";
-import InputFieled from "../authentication/InputField";
 import UserContext from "../../context/UserContext";
 import AuthContext from "../../context/AuthContext";
 import { useContext, useEffect, useRef, useState } from "react";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
-
-import { PiEyeClosedBold, PiEyeBold } from "react-icons/pi";
 import FetchWrapper, { BACKENDURL } from "../../utils/fetchWrapper";
 import Toast from "../Toast";
-
-const InputUpdateProfile = ({...props}) => {
-	const isPassword = props.type === 'password';
-	const [display, setDisplay] = useState(false);
-	const inputRef = useRef()
-	return (
-		<div className="relative flex items-center grow w-full">
-			{!isPassword
-				?
-				<>
-					{props.type !== 'about' &&
-						<>
-							<input
-								defaultValue={props.value}
-								ref={inputRef}
-								onChange={props.onChange}
-								name={props.name}
-								type={props.type}
-								className="
-									peer outline-none bg-transparent grow border border-stroke-sc
-									rounded-sm text-txt-sm font-light p-8 focus:border-gray transition-all
-								"
-							/>
-							<label
-								className={`
-									absolute top-1/2 -translate-y-1/2
-									${props.formData ? 'top-[-8px] left-0 text-txt-xs' : 'left-8 text-txt-sm' } text-gray
-									transition-all peer-focus:left-0 peer-focus:text-txt-xs peer-focus:top-[-8px]
-								`}
-							> {props.title} </label>
-						</>
-					}
-				</>
-				:
-				<>
-					<input
-						onChange={props.onChange}
-						name={props.name}
-						type={display ? 'text' : 'password'}
-						className="
-							peer outline-none bg-transparent pr-32 grow border border-stroke-sc rounded-sm text-txt-sm
-							font-light p-8 focus:border-gray transition-all
-						"
-					/>
-					<label
-						className={`
-							absolute top-1/2 -translate-y-1/2
-							${props.formData ? 'top-[-8px] left-0 text-txt-xs' : 'left-8 text-txt-sm' } text-gray
-							transition-all peer-focus:left-0 peer-focus:text-txt-xs peer-focus:top-[-8px]
-						`}
-					> {props.title} </label>
-					{!display &&
-						<PiEyeClosedBold
-							className="text-gray text-txt-xl cursor-pointer absolute right-8"
-							onClick={() => setDisplay(true)}
-						/>
-					}
-					{display &&
-						<PiEyeBold
-							className="text-gray text-txt-xl cursor-pointer absolute right-8"
-							onClick={() => setDisplay(false)}
-						/>
-					}
-				</>
-			}
-			{props.type === 'about' &&
-				<>
-					<textarea
-						name={props.name}
-						defaultValue={props.value}
-						onChange={props.onChange}
-						className="
-							bg-transparent border border-stroke-sc rounded-sm min-w-full outline-none
-							h-[100px] custom-scrollbar resize-none p-8 peer grow text-txt-sm font-light
-							focus:border-gray transition-all
-						"
-					></textarea>
-					<label
-						className={`
-							absolute text-gray -translate-y-1/2 
-							${props.formData ? 'top-[-8px] left-0 text-txt-xs' : 'left-8 top-24 text-txt-sm' }
-							transition-all peer-focus:left-0 peer-focus:text-txt-xs peer-focus:top-[-8px]
-						`}
-					> {props.title} </label>
-				</>
-			}
-		</div>
-	)
-}
+import InputUpdateProfile from "./InputUpdateProfile";
 
 const UpdateProfile = ({setUpdateProfile}) => {
 	const FetchData = new FetchWrapper();
-	const navigate = useNavigate();
+
 	const contextData = useContext(UserContext);
 	const authContextData = useContext(AuthContext);
+
 	const imageRef = useRef(null);
 	const canvasRef = useRef(null);
+
+	const navigate = useNavigate();
+
 	const [submittedImage, setSubmittedImage] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [passwordLoading, setPasswordLoading] = useState(false);
-	const [isChecked, setIsChecked] = useState(
-		contextData && contextData.userInfo.isTwoFa
-		? true
-		: false
-	);
+	const [isChecked, setIsChecked] = useState(contextData && contextData.userInfo.isTwoFa ? true : false);
 	const [image, setImage] = useState(
 		contextData && contextData.userInfo.profile_image
 		? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
 		: '/images/default.jpeg'
 	);
-
 	const [formData, setFormData] = useState({
     first_name: contextData.userInfo.first_name,
     last_name: contextData.userInfo.last_name,
@@ -128,9 +36,9 @@ const UpdateProfile = ({setUpdateProfile}) => {
 		about: contextData.userInfo.about,
   });
 
-
 	useEffect(() => { authContextData.setGlobalMessage({message: "", isError: false,}) }, []);
-	const handleChange = (e) => {
+
+	const handleChange = (e) => { // handle chang of input field
     let { name, value } = e.target;
     setFormData({
       ...formData,
@@ -138,11 +46,11 @@ const UpdateProfile = ({setUpdateProfile}) => {
     });
   };
 
-	const handleFileChange = (e) => {
+	const handleFileChange = (e) => { // handle file change and resize it
 		const file = e.target.files[0];
 		const width = 800;
 
-		if (file) {
+		if (file) { // resize the image
 			let reader = new FileReader;
 
 			reader.readAsDataURL(file);
@@ -172,7 +80,7 @@ const UpdateProfile = ({setUpdateProfile}) => {
 		}
 	};
 
-	const handleSubmit = async (e) => {
+	const handleSubmit = async (e) => { // submit the data to the backend server
 		e.preventDefault();
 		setLoading(true);
 		setPasswordLoading(true);
@@ -182,8 +90,6 @@ const UpdateProfile = ({setUpdateProfile}) => {
 			const blob = await fetch(submittedImage).then(res => res.blob());
 			updatedData.append('profile_image', blob, `${contextData.userInfo.id}_profile.jpeg`);
 		}
-
-		// console.log('form data', formData);
 		Object.entries(formData).forEach(([key, value]) => {
 			updatedData.append(key, value);
 		});
@@ -210,23 +116,28 @@ const UpdateProfile = ({setUpdateProfile}) => {
 		}
 	}
 
+	// if the user want to change it's password then must to reset it with already made endpoint
 	const handleChangePassword = async (e) => {
 		e.preventDefault();
-		setPasswordLoading(true);
-		setLoading(true);
-		try {
-			const res = await FetchData.post("api/requestreset/", {
-				email: contextData.userInfo.email,
-			});
-			if (res.ok) {
-				navigate(`/forgotpassword/${contextData.userInfo.id}`);
-			} else {
-				setGlobalMessage({ message: data.error, isError: true });
-				setPasswordLoading(false);
-				setLoading(false);
+		if (!loading) {
+			console.log('ach hadchi');
+			setPasswordLoading(true);
+			setLoading(true);
+			try {
+				const res = await FetchData.post("api/requestreset/", {
+					email: contextData.userInfo.email,
+				});
+				if (res.ok) {
+					navigate(`/forgotpassword/${contextData.userInfo.id}`);
+					authContextData.setGlobalMessage({ message: 'check your email', isError: false });
+				} else {
+					authContextData.setGlobalMessage({ message: data.error, isError: true });
+					setPasswordLoading(false);
+					setLoading(false);
+				}
+			} catch (error) {
+				console.log('chihaja mahiyach', error);
 			}
-		} catch (error) {
-			console.log('chihaja mahiyach', error);
 		}
 	}
 
@@ -340,13 +251,13 @@ const UpdateProfile = ({setUpdateProfile}) => {
 					</div>
 					<div className="lowercase flex gap-8 justify-center font-light text-txt-sm">
 						if you want to change your password you click the
-						<button
+						<label
 							disabled={passwordLoading}
-							className="text-green font-semibold tracking-wide disabled:text-stroke-sc"
+							className="text-green font-semibold tracking-wide disabled:text-stroke-sc cursor-pointer"
 							onClick={handleChangePassword}
 						>
 							change password
-						</button>
+						</label>
 					</div>
 					<button
 						disabled={loading}
@@ -366,22 +277,3 @@ const UpdateProfile = ({setUpdateProfile}) => {
 }
 
 export default UpdateProfile;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
