@@ -57,6 +57,7 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {"profile_image": {"required": False}}
         extra_kwargs = {"password": {"write_only": True}}
 
+
 class UserFriendSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(format="hex_verbose")
     profile_image = serializers.SerializerMethodField()
@@ -68,7 +69,7 @@ class UserFriendSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Users
-        fields = ['first_name', 'last_name', 'id', 'username', 'profile_image']
+        fields = ["first_name", "last_name", "id", "username", "profile_image"]
         extra_kwargs = {"profile_image": {"required": False}}
         extra_kwargs = {"password": {"write_only": True}}
 

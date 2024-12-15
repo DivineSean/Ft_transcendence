@@ -16,43 +16,110 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Game',
+            name="Game",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=20, unique=True)),
-                ('min_players', models.PositiveSmallIntegerField(default=2, help_text='Minimum number of players required to start the game')),
-                ('max_players', models.PositiveSmallIntegerField(default=2, help_text='Maximum players allowed in the game')),
-                ('description', models.TextField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=20, unique=True)),
+                (
+                    "min_players",
+                    models.PositiveSmallIntegerField(
+                        default=2,
+                        help_text="Minimum number of players required to start the game",
+                    ),
+                ),
+                (
+                    "max_players",
+                    models.PositiveSmallIntegerField(
+                        default=2, help_text="Maximum players allowed in the game"
+                    ),
+                ),
+                ("description", models.TextField(blank=True, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='GameRoom',
+            name="GameRoom",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('game', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='games.game')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "game",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, to="games.game"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='PlayerRating',
+            name="PlayerRating",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('rating', models.PositiveIntegerField(default=951)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('game', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='games.game')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("rating", models.PositiveIntegerField(default=951)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "game",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, to="games.game"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Player',
+            name="Player",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('rating_gain', models.PositiveSmallIntegerField()),
-                ('rating_loss', models.PositiveSmallIntegerField()),
-                ('role', models.PositiveSmallIntegerField()),
-                ('score', models.PositiveIntegerField(default=0)),
-                ('game_room', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='games.gameroom')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("rating_gain", models.PositiveSmallIntegerField()),
+                ("rating_loss", models.PositiveSmallIntegerField()),
+                ("role", models.PositiveSmallIntegerField()),
+                ("score", models.PositiveIntegerField(default=0)),
+                (
+                    "game_room",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="games.gameroom"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

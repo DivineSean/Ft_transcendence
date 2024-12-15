@@ -16,14 +16,39 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Notifications',
+            name="Notifications",
             fields=[
-                ('notificationId', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False, unique=True)),
-                ('notifType', models.CharField(choices=[('FR', 'Friend Request'), ('IG', 'Invite Game'), ('IT', 'Invite Tournament'), ('ME', 'Message')], max_length=2)),
-                ('notifMessage', models.CharField(max_length=255, null=True)),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('isRead', models.BooleanField(default=False)),
-                ('userId', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "notificationId",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "notifType",
+                    models.CharField(
+                        choices=[
+                            ("FR", "Friend Request"),
+                            ("IG", "Invite Game"),
+                            ("IT", "Invite Tournament"),
+                            ("ME", "Message"),
+                        ],
+                        max_length=2,
+                    ),
+                ),
+                ("notifMessage", models.CharField(max_length=255, null=True)),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                ("isRead", models.BooleanField(default=False)),
+                (
+                    "userId",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]
