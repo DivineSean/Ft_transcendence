@@ -48,7 +48,7 @@ const navLinks = [
 
 const Menu = ({ ...props }) => {
   const { displayMenuGl, setDisplayMenuGl, logout } = useContext(AuthContext);
-	const userContextData = useContext(UserContext);
+  const userContextData = useContext(UserContext);
 
   const links = [];
   navLinks.forEach((link) => {
@@ -98,20 +98,24 @@ const Menu = ({ ...props }) => {
       <div className="flex px-16 py-8 justify-between secondary-glass items-center ">
         <div className="flex gap-16 overflow-hidden">
           <div className="w-64 h-64 bg-gray flex rounded-full overflow-hidden">
-						
             <img
-							src={
-								userContextData.userInfo.profile_image
-								? `${BACKENDURL}${userContextData.userInfo.profile_image}?t=${new Date().getTime()}`
-								: "/images/default.jpeg"
-							}
-							alt="profile"
-							className="grow border-[0.5px] border-stroke-sc object-fit"
-						/>
+              src={
+                userContextData.userInfo.profile_image
+                  ? `${BACKENDURL}${userContextData.userInfo.profile_image}?t=${new Date().getTime()}`
+                  : "/images/default.jpeg"
+              }
+              alt="profile"
+              className="grow border-[0.5px] border-stroke-sc object-fit"
+            />
           </div>
           <div className="flex flex-col justify-center">
-            <h2 className="text-h-sm-sm font-semibold">{userContextData.userInfo.first_name} {userContextData.userInfo.last_name}</h2>
-            <p className="text-txt-xs lowercase">@{userContextData.userInfo.username}</p>
+            <h2 className="text-h-sm-sm font-semibold">
+              {userContextData.userInfo.first_name}{" "}
+              {userContextData.userInfo.last_name}
+            </h2>
+            <p className="text-txt-xs lowercase">
+              @{userContextData.userInfo.username}
+            </p>
           </div>
         </div>
         <IoChevronBack

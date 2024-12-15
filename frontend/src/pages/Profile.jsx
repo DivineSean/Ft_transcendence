@@ -15,7 +15,7 @@ import { GiFlamedLeaf } from "react-icons/gi";
 import { FaClover } from "react-icons/fa6";
 import Header from "../components/Header";
 import NotFound from "./NotFound";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import "react-circular-progressbar/dist/styles.css";
 import { BACKENDURL } from "../utils/fetchWrapper";
 import LoadingPage from "./LoadingPage";
@@ -28,34 +28,35 @@ const profileMenu = ["overview", "statistics", "achievements", "friends"];
 const Profile = () => {
   const { displayMenuGl } = useContext(AuthContext);
   const { section, username } = useParams();
-	const [udpateProfile, setUpdateProfile] = useState(false);
-	const navigate = useNavigate();
-	const userUsername = username ? username : 0;
-	const [selectedMenu, setSelectedMenu] = useState(section ? section : 'overview');
-	const contextData = useContext(UserContext);
-	
+  const [udpateProfile, setUpdateProfile] = useState(false);
+  const navigate = useNavigate();
+  const userUsername = username ? username : 0;
+  const [selectedMenu, setSelectedMenu] = useState(
+    section ? section : "overview",
+  );
+  const contextData = useContext(UserContext);
 
-	if (!section)
-		navigate('/profile/overview');
-	useEffect(() => {
-		if (!profileMenu.includes(section)) {
-			navigate('/profile/overview');
-			setSelectedMenu('overview');
-		}
-	}, []);
+  if (!section) navigate("/profile/overview");
+  useEffect(() => {
+    if (!profileMenu.includes(section)) {
+      navigate("/profile/overview");
+      setSelectedMenu("overview");
+    }
+  }, []);
 
-	useEffect(() => {
-		if (userUsername)
-			contextData.getProfile(userUsername);
-	}, [username]);
+  useEffect(() => {
+    if (userUsername) contextData.getProfile(userUsername);
+  }, [username]);
 
-	return (
+  return (
     <div className="flex flex-col grow lg:gap-32 gap-16 relative">
       <Header link="profile" />
-			{!contextData.profileInfo && <LoadingPage />}
+      {!contextData.profileInfo && <LoadingPage />}
       {!displayMenuGl && contextData.profileInfo && (
         <div className="container">
-					{udpateProfile && <UpdateProfile setUpdateProfile={setUpdateProfile}/>}
+          {udpateProfile && (
+            <UpdateProfile setUpdateProfile={setUpdateProfile} />
+          )}
           <div className="flex primary-glass p-16 lg:gap-32 gap-16 relative overflow-hidden get-height">
             <div className="absolute top-0 left-0 w-full lg:h-[232px] h-[216px]">
               <div className="w-full h-full absolute cover-gradient"></div>
@@ -66,10 +67,7 @@ const Profile = () => {
               />
             </div>
             <div className="lg:flex hidden flex-col secondary-glass p-16 gap-16 min-w-[320px] max-w-[320px]">
-              <div
-								className="flex flex-col gap-8 items-center justify-center"
-								
-							>
+              <div className="flex flex-col gap-8 items-center justify-center">
                 <CircularProgressbarWithChildren
                   value={50}
                   className="w-[120px] h-[120px] bg-black bg-opacity-40 rounded-full"
@@ -81,19 +79,22 @@ const Profile = () => {
                   })}
                 >
                   <div className="w-[104px] h-[104px] flex justify-center rounded-full overflow-hidden">
-										<img
-											src={
-												contextData.userInfo && contextData.userInfo.profile_image
-												? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
-												: "/images/default.jpeg"
-											}
-											alt="profile pic"
-											className="object-cover w-full"
-										/>
-									</div>
+                    <img
+                      src={
+                        contextData.userInfo &&
+                        contextData.userInfo.profile_image
+                          ? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
+                          : "/images/default.jpeg"
+                      }
+                      alt="profile pic"
+                      className="object-cover w-full"
+                    />
+                  </div>
                 </CircularProgressbarWithChildren>
                 <h1 className="text-h-lg-md font-bold">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
-                <h2 className="text-txt-md lowercase">@{contextData.profileInfo.username}</h2>
+                <h2 className="text-txt-md lowercase">
+                  @{contextData.profileInfo.username}
+                </h2>
               </div>
               <div className="flex flex-col gap-16 overflow-y-scroll no-scrollbar">
                 <div className="flex flex-col gap-16 text-gray mt-8">
@@ -137,14 +138,14 @@ const Profile = () => {
             </div>
             <div className="flex flex-col grow z-[1] gap-16">
               <div className="flex flex-col gap-32 md:items-start items-center lg:min-h-[216px] relative">
-							<div
-								onClick={() => setUpdateProfile(true)}
-								className="absolute flex gap-8 items-center font-light text-gray top-0 right-0 text-md secondary-glass p-8 cursor-pointer"
-							>
-								<FiEdit3 className="text-green"/>
-								<p className="text-txt-xs md:text-txt-md">edit profile</p>
-							</div>
-							<div className="flex h-[184px] flex-col gap-8 py-16 items-center lg:hidden">
+                <div
+                  onClick={() => setUpdateProfile(true)}
+                  className="absolute flex gap-8 items-center font-light text-gray top-0 right-0 text-md secondary-glass p-8 cursor-pointer"
+                >
+                  <FiEdit3 className="text-green" />
+                  <p className="text-txt-xs md:text-txt-md">edit profile</p>
+                </div>
+                <div className="flex h-[184px] flex-col gap-8 py-16 items-center lg:hidden">
                   <CircularProgressbarWithChildren
                     value={75}
                     className="w-[112px] h-[112px] bg-black bg-opacity-40 rounded-full flex"
@@ -155,20 +156,23 @@ const Profile = () => {
                       trailColor: "rgba(80,80,80,0.2)",
                     })}
                   >
-										<div className="w-[98px] h-[98px] flex justify-center rounded-full overflow-hidden">
-											<img
-												src={
-													contextData.userInfo && contextData.userInfo.profile_image
-													? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}` 
-													: "/images/default.jpeg"
-												}
-												alt="profile pic"
-												className="object-cover w-full"
-											/>
-										</div>
+                    <div className="w-[98px] h-[98px] flex justify-center rounded-full overflow-hidden">
+                      <img
+                        src={
+                          contextData.userInfo &&
+                          contextData.userInfo.profile_image
+                            ? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
+                            : "/images/default.jpeg"
+                        }
+                        alt="profile pic"
+                        className="object-cover w-full"
+                      />
+                    </div>
                   </CircularProgressbarWithChildren>
                   <h1 className="text-h-sm-sm font-bold">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
-                  <h2 className="text-txt-xs">@{contextData.profileInfo.username}</h2>
+                  <h2 className="text-txt-xs">
+                    @{contextData.profileInfo.username}
+                  </h2>
                 </div>
                 <div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">
                   <div className="flex w-[213px] items-center justify-center">
@@ -181,7 +185,7 @@ const Profile = () => {
                   <div className="flex flex-col gap-16 max-w-[432px] md:items-start items-center md:text-left text-center">
                     <h1 className="text-h-sm-sm font-bold">about</h1>
                     <p className="text-txt-xs leading-16 text-gray">
-											{contextData.profileInfo.about}
+                      {contextData.profileInfo.about}
                     </p>
                   </div>
                 </div>
@@ -189,7 +193,7 @@ const Profile = () => {
               <div className="flex">
                 {profileMenu.map((menu) => (
                   <Link
-                    to={`/profile/${menu}/${username !== undefined ? username : ''}`}
+                    to={`/profile/${menu}/${username !== undefined ? username : ""}`}
                     key={menu}
                     className={`grow flex flex-col gap-8 items-center cursor-pointer md:text-h-lg-sm text-txt-xs font-bold`}
                     onClick={() => setSelectedMenu(menu)}

@@ -22,7 +22,7 @@ const Header = ({ ...props }) => {
   const [displayOptions, setDisplayOptions] = useState(false);
   const [displayNotification, setDisplayNotification] = useState(false);
   const [readNotif, setReadNotif] = useState(false);
-	const contextData = useContext(UserContext);
+  const contextData = useContext(UserContext);
 
   const optionsData = [
     // {
@@ -64,7 +64,8 @@ const Header = ({ ...props }) => {
   };
 
   const toggleNotification = () => {
-    if (displayOptions) setDisplayOptions(false);``
+    if (displayOptions) setDisplayOptions(false);
+    ``;
     setReadNotif(true);
     setDisplayNotification(!displayNotification);
   };
@@ -93,7 +94,7 @@ const Header = ({ ...props }) => {
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
-		contextData.getUserInfo();
+    contextData.getUserInfo();
     return () => {
       document.addEventListener("mousedown", handleClickOutside);
     };
@@ -139,7 +140,7 @@ const Header = ({ ...props }) => {
         <div className="relative w-full">
           {displayOptions && (
             <OptionsSection
-							contextData={contextData}
+              contextData={contextData}
               data={optionsData}
               reference={optionSectionRef}
               type="options"
@@ -202,10 +203,10 @@ const Header = ({ ...props }) => {
           >
             <img
               src={
-								contextData.userInfo && contextData.userInfo.profile_image
-								? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
-								: "/images/default.jpeg"
-							}
+                contextData.userInfo && contextData.userInfo.profile_image
+                  ? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
+                  : "/images/default.jpeg"
+              }
               alt="profile pic"
               className="w-full"
             />

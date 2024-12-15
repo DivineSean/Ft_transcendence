@@ -11,7 +11,7 @@ const InputFieled = ({ ...props }) => {
           name={props.name}
           type={props.type}
           placeholder={props.placeholder}
-					defaultValue={props.value}
+          defaultValue={props.value}
           onChange={props.onChange}
           onBlur={props.onBlur}
           className={`py-16 login-input border-b-2 grow ${props.error ? "border-red" : "border-stroke-sc"} ${props.additionalStyles}`}

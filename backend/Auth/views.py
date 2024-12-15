@@ -1,7 +1,12 @@
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .serializers import RegisterSerializer, PasswordUpdateSerializer, UserSerializer, UpdateUserSerializer
+from .serializers import (
+    RegisterSerializer,
+    PasswordUpdateSerializer,
+    UserSerializer,
+    UpdateUserSerializer,
+)
 from django.core.mail import get_connection, EmailMessage
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.views import PasswordResetView
@@ -337,79 +342,79 @@ class CheckPasswordChange(APIView):
 
 
 class Profile(APIView):
-	
-	def get(self, request, username=None):
-		if username == '0':
-			user = request.user
-		else:
-			try:
-				user = Users.objects.filter(username=username).first()
-				if not user:
-					return Response({'error', "user not found"}, status=404)
-			except:
-				# print('warah dakchi mahowach', flush=True)
-				return Response({'error', "user not found"}, status=404)
-			# if not user:
-		
-		if user.profile_image:
-			imagePath = os.path.join(settings.MEDIA_ROOT, str(user.profile_image))
-			if not os.path.exists(imagePath):
-				user.profile_image = None
-				user.save()
 
-		# print(f'user {user}', flush=True)
-		serializer = UserSerializer(user)
-		# print(serializer.data)
-		return Response(serializer.data)
-	
-	def put(self, request, username=None):
-		user = request.user
+    def get(self, request, username=None):
+        if username == "0":
+            user = request.user
+        else:
+            try:
+                user = Users.objects.filter(username=username).first()
+                if not user:
+                    return Response({"error", "user not found"}, status=404)
+            except:
+                # print('warah dakchi mahowach', flush=True)
+                return Response({"error", "user not found"}, status=404)
+            # if not user:
 
-		new_username = request.data.get('username', None)
-		if new_username:
-			username_regex = re.compile(r'^[a-zA-Z][a-zA-Z0-9_-]{3,}$')
-			if not username_regex.match(new_username):
-				return Response(
-					{'username': 'invalid username, examples user, user1, user-12, user_12'},
-					status=status.HTTP_400_BAD_REQUEST
-					)
-			if Users.objects.filter(username=new_username).exclude(id=user.id).exists():
-				return Response(
-					{'username': 'this username is already taken'},
-					status=status.HTTP_400_BAD_REQUEST
-				)
-			else:
-				user.username = new_username
-				user.save()
+        if user.profile_image:
+            imagePath = os.path.join(settings.MEDIA_ROOT, str(user.profile_image))
+            if not os.path.exists(imagePath):
+                user.profile_image = None
+                user.save()
 
-		file = request.FILES.get('profile_image')
-		if file:
-			try:
-				Image.open(file).verify()
-			except Exception:
-				pass
-			
-			fs = FileSystemStorage(location=settings.MEDIA_ROOT + '/profile_images')
+        # print(f'user {user}', flush=True)
+        serializer = UserSerializer(user)
+        # print(serializer.data)
+        return Response(serializer.data)
 
-			if fs.exists(file.name):
-				fs.delete(file.name)
+    def put(self, request, username=None):
+        user = request.user
 
-			savedFile = fs.save(file.name, file)
-			user.profile_image = f'profile_images/{savedFile}'
-			user.save()
-		
+        new_username = request.data.get("username", None)
+        if new_username:
+            username_regex = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]{3,}$")
+            if not username_regex.match(new_username):
+                return Response(
+                    {
+                        "username": "invalid username, examples user, user1, user-12, user_12"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if Users.objects.filter(username=new_username).exclude(id=user.id).exists():
+                return Response(
+                    {"username": "this username is already taken"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            else:
+                user.username = new_username
+                user.save()
 
-		
-		serializer = UpdateUserSerializer(user, data=request.data, partial=True)
-		if serializer.is_valid():
-			serializer.save()
-			print('User updated successfully', flush=True)
-		else:
-			print('Error in serializer validation', flush=True)
+        file = request.FILES.get("profile_image")
+        if file:
+            try:
+                Image.open(file).verify()
+            except Exception:
+                pass
 
-		serializer = UserSerializer(user)
+            fs = FileSystemStorage(location=settings.MEDIA_ROOT + "/profile_images")
 
-		return Response(serializer.data, status=status.HTTP_200_OK)
+            if fs.exists(file.name):
+                fs.delete(file.name)
+
+            savedFile = fs.save(file.name, file)
+            user.profile_image = f"profile_images/{savedFile}"
+            user.save()
+
+        serializer = UpdateUserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            print("User updated successfully", flush=True)
+        else:
+            print("Error in serializer validation", flush=True)
+
+        serializer = UserSerializer(user)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])

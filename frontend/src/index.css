@@ -195,9 +195,9 @@ body {
     border-right: 0 solid transparent;
     border-top: 12px solid rgba(80, 80, 80, 0.4);
   }
-	.special-glass {
-		backdrop-filter: blur(200px);
-	}
+  .special-glass {
+    backdrop-filter: blur(200px);
+  }
 }
 
 /* -------- start home -------- */
@@ -236,10 +236,10 @@ body {
 /* -------- end loading animation -------- */
 
 .two-fa-radio + span {
-	display: inline-block;
+  display: inline-block;
   position: relative;
   padding-left: 30px;
-	cursor: pointer;
+  cursor: pointer;
 }
 
 .two-fa-radio + span:before {
@@ -249,7 +249,7 @@ body {
   top: 50%;
   left: 0px;
   border-radius: 50%;
-	transform: translateY(-50%);
+  transform: translateY(-50%);
   margin-right: 5px;
   width: 16px;
   height: 16px;
