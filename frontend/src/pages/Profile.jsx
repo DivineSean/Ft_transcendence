@@ -49,7 +49,7 @@ const Profile = () => {
   }, [username]);
 
   return (
-    <div className="flex flex-col grow lg:gap-32 gap-16 relative">
+    <div className="flex flex-col w-full grow lg:gap-32 gap-16 relative">
       <Header link="profile" />
       {!contextData.profileInfo && <LoadingPage />}
       {!displayMenuGl && contextData.profileInfo && (
@@ -57,7 +57,7 @@ const Profile = () => {
           {udpateProfile && (
             <UpdateProfile setUpdateProfile={setUpdateProfile} />
           )}
-          <div className="flex primary-glass p-16 lg:gap-32 gap-16 relative overflow-hidden get-height">
+          <div className="flex primary-glass p-16 w-full lg:gap-32 gap-16 relative  get-height">
             <div className="absolute top-0 left-0 w-full lg:h-[232px] h-[216px]">
               <div className="w-full h-full absolute cover-gradient"></div>
               <img
@@ -66,7 +66,7 @@ const Profile = () => {
                 alt="Profile Cover image"
               />
             </div>
-            <div className="lg:flex hidden flex-col secondary-glass p-16 gap-16 min-w-[320px] max-w-[320px]">
+            <div className="lg:flex hidden flex-col w-full secondary-glass p-16 gap-16 min-w-[320px] max-w-[320px]">
               <div className="flex flex-col gap-8 items-center justify-center">
                 <CircularProgressbarWithChildren
                   value={50}
@@ -136,8 +136,8 @@ const Profile = () => {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col grow z-[1] gap-16">
-              <div className="flex flex-col gap-32 md:items-start items-center lg:min-h-[216px] relative">
+            <div className="flex flex-col w-full overflow-hidden grow z-[1] gap-16">
+              <div className="flex flex-col gap-32 md:items-start w-full items-center lg:min-h-[216px] relative">
                 <div
                   onClick={() => setUpdateProfile(true)}
                   className="absolute flex gap-8 items-center font-light text-gray top-0 right-0 text-md secondary-glass p-8 cursor-pointer"
@@ -190,7 +190,7 @@ const Profile = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex">
+              <div className="flex w-full">
                 {profileMenu.map((menu) => (
                   <Link
                     to={`/profile/${menu}/${username !== undefined ? username : ""}`}
