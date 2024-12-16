@@ -134,20 +134,16 @@ const ModeDetails = ({ games }) => {
     if (!modeObject) navigate(`/games/${game}`);
   }
 
-  const Modes = () => {
-    switch (mode) {
-      case "ai":
-        return <div>ai</div>;
-      case "online":
-        return <OnlineGame game={game} />;
-      case "local":
-        return <div>local</div>;
-      default:
-        return <div>no such mode</div>;
-    }
-  };
-
-  return <>{Modes()}</>;
+  switch (mode) {
+    case "ai":
+      return <div>ai</div>;
+    case "online":
+      return <OnlineGame game={game} />;
+    case "local":
+      return <div>local</div>;
+    default:
+      return <div>no such mode</div>;
+  }
 };
 
 const BmoScreen = ({ games }) => {

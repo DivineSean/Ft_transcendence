@@ -20,7 +20,6 @@ class Game(models.Model):
         null=False,
         help_text="Maximum players allowed in the game",
     )
-    description = models.TextField(null=True, blank=True)
 
     def clean(self):
         if self.min_players > self.max_players:
@@ -31,8 +30,16 @@ class Game(models.Model):
 
 
 class GameRoom(models.Model):
+    class Status(models.TextChoices):
+        WAITING = "waiting", "Waiting for Players"
+        ONGOING = "ongoing", "Game Ongoing"
+        PAUSED = "paused", "Game Paused"
+        COMPLETED = "completed", "Game Completed"
+        EXPIRED = "expired", "Game Expired"
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     game = models.ForeignKey(Game, on_delete=models.PROTECT)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.WAITING)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
@@ -42,6 +49,7 @@ class Player(models.Model):
     rating_gain = models.PositiveSmallIntegerField()
     rating_loss = models.PositiveSmallIntegerField()
     role = models.PositiveSmallIntegerField()
+    ready = models.BooleanField(default=False)
     score = models.PositiveIntegerField(default=0)
 
 

@@ -13,6 +13,7 @@ r = redis.StrictRedis(
     port=settings.REDIS_CONNECTION["port"],
     password=settings.REDIS_CONNECTION["password"],
     db=settings.REDIS_CONNECTION["db"],
+    decode_responses=True,
 )
 
 QUEUE_KEY = "matchmaking_queue"
@@ -20,6 +21,7 @@ RATING_TOLERANCE_BASELINE = 0
 TOLERANCE_EXPANSION_RATE = 50
 TOLERANCE_EXPANSION_TIME = 20
 TOLERANCE_CAP = 1000
+GAME_EXPIRATION=60
 
 
 class Matchmaker:
@@ -110,7 +112,7 @@ class Matchmaker:
             match = []
             for player, rating in batch:
                 if len(match) < game["max_players"]:
-                    match.append({"id": player.decode("utf-8"), "rating": rating})
+                    match.append({"id": player, "rating": rating})
 
                 if len(match) == game["max_players"]:
                     matches.append(match)
@@ -161,18 +163,19 @@ class Matchmaker:
                 player["role"] = role
                 r.zrem(f"{game['name']}_{QUEUE_KEY}", player["id"])
                 channel = r.hget(f"{game['name']}:players_channel_names", player["id"])
-                channels.append(channel.decode("utf-8"))
+                channels.append(channel)
                 role += 1
 
             game_room = await self.create_game(game["id"], match)
             if game_room:
+                r.hset(f"{game_room['id']}:game_room_state", mapping=game_room)
                 # Notify all players
                 for i in range(0, len(channels)):
                     await channel_layer.send(
                         channels[i],
                         {
                             "type": "match",
-                            "message": {"role": match[i]["role"], "game": game_room},
+                            "message": {"room_id": game_room["id"]},
                         },
                     )
 

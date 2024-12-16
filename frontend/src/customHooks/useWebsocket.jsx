@@ -13,6 +13,7 @@ const useWebSocket = (
   } = {},
 ) => {
   const websocketRef = useRef(null);
+  const messageHandlers = useRef([]);
   const messageQueue = useRef([]);
   const connectedRef = useRef(false);
   const reconnectAttemptsRef = useRef(0);
@@ -21,6 +22,14 @@ const useWebSocket = (
   const debugLog = (...args) => {
     if (debug) console.log("[WebSocket Hook]", ...args);
   };
+
+  const addMessageHandler = (handler) => {
+    messageHandlers.current.push(handler);
+  }
+
+  const removeMessageHandler = (handler) => {
+    messageHandlers.current = messageHandlers.current.filter((h) => h !== handler)
+  }
 
   const connect = useCallback(() => {
     if (connectedRef.current) return;
@@ -47,6 +56,7 @@ const useWebSocket = (
       debugLog("Message received:", event.data);
 
       onMessage?.(event);
+      messageHandlers.current.forEach((handler) => handler(event))
     };
 
     ws.onerror = (event) => {
@@ -117,7 +127,7 @@ const useWebSocket = (
     websocketRef.current?.close();
   }, []);
 
-  return { send, close };
+  return { send, close, addMessageHandler, removeMessageHandler };
 };
 
 export default useWebSocket;
