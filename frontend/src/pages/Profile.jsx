@@ -32,7 +32,7 @@ import Toast from "../components/Toast";
 
 const profileMenu = ["overview", "statistics", "achievements", "friends"];
 
-const FriendUpdates = () => {
+const FriendManagementButtons = () => {
 	const contextData = useContext(UserContext);
 
 	return (
@@ -40,7 +40,7 @@ const FriendUpdates = () => {
 			{	!contextData.profileInfo.isBlockedByUser &&
 				!contextData.profileInfo.isUserBlocked &&
 				contextData.profileInfo.isFriend &&
-				<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green hover:text-black rounded-md text-green font-semibold tracking-wide">
+				<button className="secondary-glass grow lg:w-full p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide">
 					<IoChatbubbleEllipsesOutline />
 					<p>message</p>
 				</button>
@@ -50,7 +50,7 @@ const FriendUpdates = () => {
 				!contextData.profileInfo.isUserBlocked &&
 				!contextData.profileInfo.isFriend &&
 				!contextData.profileInfo.isSentRequest &&
-				<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green hover:text-black rounded-md text-green font-semibold tracking-wide">
+				<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide">
 					<IoMdPersonAdd />
 					<p>add</p>
 				</button>
@@ -61,11 +61,11 @@ const FriendUpdates = () => {
 				!contextData.profileInfo.isFriend &&
 				contextData.profileInfo.isSentRequest &&
 				<>
-					<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green hover:text-black rounded-md text-green font-semibold tracking-wide">
+					<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide">
 						<ImUserPlus />
 						<p>confirm</p>
 					</button>
-					<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red hover:text-white rounded-md text-red font-semibold tracking-wide">
+					<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide">
 						<ImUserMinus />
 						<p>delete</p>
 					</button>
@@ -74,31 +74,32 @@ const FriendUpdates = () => {
 
 			{	!contextData.profileInfo.isBlockedByUser &&
 				contextData.profileInfo.isUserBlocked &&
-				<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green hover:text-black rounded-md text-green font-semibold tracking-wide">
-					<ImUserMinus />
-					<p>unblock</p>
-				</button>
+				<>
+					<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide">
+						<ImUserMinus />
+						<p>unblock</p>
+					</button>
+					{/* <p className="text-center normal-case text-txt-xs text-red">this user have been blocked by you click to unblock</p> */}
+				</>
 			}
 
 			{	!contextData.profileInfo.isBlockedByUser &&
 				!contextData.profileInfo.isUserBlocked &&
 				contextData.profileInfo.isFriend &&
-				<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red hover:text-white rounded-md text-red font-semibold tracking-wide">
+				<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide">
 					<ImUserMinus />
 					<p>unfriend</p>
 				</button>
 			}
 
-			{/* {	!contextData.profileInfo.isBlockedByUser && 
+			{	!contextData.profileInfo.isBlockedByUser && 
 				!contextData.profileInfo.isUserBlocked &&
 				contextData.profileInfo.isFriend &&
-				<button className="secondary-glass p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red hover:text-white rounded-md text-red font-semibold tracking-wide">
+				<button className="secondary-glass text-txt-sm p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide">
 					<MdOutlineBlock />
 					<p>block</p>
 				</button>
-			} */}
-
-			
+			}
 		</>
 	)
 }
@@ -129,31 +130,25 @@ const Profile = () => {
 
   useEffect(() => {
     if (username) {
-			console.log('dkhelna l username');
 			contextData.getProfile(username);
-			contextData.setUserInfo(null);
 			contextData.setProfileInfo(null);
 			contextData.setUserFriends(null);
-		}
-		else {
-			console.log('kayn lmlawi machi username');
+		} else {
 			contextData.getProfile();
-			contextData.setUserInfo(null);
 			contextData.setProfileInfo(null);
 		}
   }, [username]);
 	
 	useEffect(() => {
 		if (contextData.profileInfo && contextData.profileInfo.found === 'no') {
-			console.log('makaynch hada');
 			navigate("/profile/overview");
 		}
 	}, [contextData.profileInfo])
 
+	// this is to know if the visited profile is the current user profile or not
 	const me = (contextData.userInfo
 		&& contextData.profileInfo
 		&& contextData.userInfo.username === contextData.profileInfo.username );
-
 
   return (
     <div className="flex flex-col w-full grow lg:gap-32 gap-16 relative">
@@ -163,10 +158,11 @@ const Profile = () => {
           message={authContextData.globalMessage.message}
           error={authContextData.globalMessage.isError}
           onClose={authContextData.setGlobalMessage}
+					position='bottomRight'
         />
       )}
       {!contextData.profileInfo && <LoadingPage />}
-      {!authContextData.displayMenuGl && contextData.profileInfo && (
+      {!authContextData.displayMenuGl && contextData.profileInfo !== null && (
         <div className="container">
           {udpateProfile && (
             <UpdateProfile setUpdateProfile={setUpdateProfile} />
@@ -210,51 +206,55 @@ const Profile = () => {
                   @{contextData.profileInfo.username}
                 </h2>
               </div>
-              <div className="flex flex-col gap-16 overflow-y-scroll no-scrollbar">
-                {/* <div className="bg-stroke-sc min-h-[1px] w-full"></div> */}
+              <div className="flex flex-col gap-16 overflow-y-scroll no-scrollbar grow justify-between">
 								{ !me &&
-									<div className="flex gap-8 flex-wrap text-txt-md">
-										<FriendUpdates />
+									<div className="flex gap-8 flex-wrap text-txt-md py-4">
+										<FriendManagementButtons />
 									</div>
 								}
                 { !me && <div className="bg-stroke-sc min-h-[1px] w-full"></div> }
-                <div className="flex flex-col gap-16 text-gray mt-8">
-                  <div className="flex justify-center gap-16">
-                    <div className="flex items-center border rounded-lg border-stroke-sc p-8 gap-8">
-                      <GiCrossedSwords className="text-green text-txt-2xl" />
-                      <p>34</p>
-                    </div>
-                    <div className="flex items-center border rounded-lg border-stroke-sc p-8 gap-8">
-                      <FaClover className="text-green text-txt-2xl" />
-                      <p>72</p>
-                    </div>
-                  </div>
-                  <div className="flex justify-center gap-16">
-                    <div className="flex items-center border rounded-lg border-stroke-sc p-8 gap-8">
-                      <GiFlamedLeaf className="text-green text-txt-2xl" />
-                      <p>16</p>
-                    </div>
-                    <div className="flex items-center border rounded-lg border-stroke-sc p-8 gap-8">
-                      <LiaMedalSolid className="text-green text-txt-2xl" />
-                      <p>442</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-stroke-sc min-h-[1px] w-full"></div>
-                <div className="flex flex-col gap-8">
-                  <h1 className="text-h-lg-md font-bold">about</h1>
-                  <p className="text-txt-xs leading-16 text-gray">
-                    {contextData.profileInfo.about}
-                  </p>
-                </div>
-                <div className="bg-stroke-sc min-h-[1px] w-full"></div>
-                <div>
-                  <img
-                    className="w-[241px] h-[288px]"
-                    src="/images/bmo.png"
-                    alt="Player Character"
-                  />
-                </div>
+								{!contextData.profileInfo.isUserBlocked ?
+									<>
+										<div className="flex flex-col gap-16 text-gray mt-8">
+											<div className="flex justify-center gap-16">
+												<div className="flex items-center border rounded-lg border-stroke-sc p-8 gap-8">
+													<GiCrossedSwords className="text-green text-txt-2xl" />
+													<p>34</p>
+												</div>
+												<div className="flex items-center border rounded-lg border-stroke-sc p-8 gap-8">
+													<FaClover className="text-green text-txt-2xl" />
+													<p>72</p>
+												</div>
+											</div>
+											<div className="flex justify-center gap-16">
+												<div className="flex items-center border rounded-lg border-stroke-sc p-8 gap-8">
+													<GiFlamedLeaf className="text-green text-txt-2xl" />
+													<p>16</p>
+												</div>
+												<div className="flex items-center border rounded-lg border-stroke-sc p-8 gap-8">
+													<LiaMedalSolid className="text-green text-txt-2xl" />
+													<p>442</p>
+												</div>
+											</div>
+										</div>
+										<div className="bg-stroke-sc min-h-[1px] w-full"></div>
+										<div className="flex flex-col gap-8">
+											<h1 className="text-h-lg-md font-bold">about</h1>
+											<p className="text-txt-xs leading-16 text-gray">
+												{contextData.profileInfo.about}
+											</p>
+										</div>
+										<div className="bg-stroke-sc min-h-[1px] w-full"></div>
+										<div>
+											<img
+												className="w-[241px] h-[288px]"
+												src="/images/bmo.png"
+												alt="Player Character"
+											/>
+										</div>
+									</> :
+									<p className="text-center text-txt-xs treacking-wide text-red normal-case grow flex items-center">you can't see the content of this user while you are blocking him</p>
+								}
               </div>
             </div>
             <div className="flex flex-col w-full overflow-hidden grow z-[1] gap-16">
@@ -300,46 +300,56 @@ const Profile = () => {
 									</div>
 									{ !me &&
 										<div className="flex gap-8 items-end text-txt-xs">
-											<FriendUpdates />
+											<FriendManagementButtons />
 										</div>
 									}
 								</div>
-                <div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">
-                  <div className="flex w-[213px] items-center justify-center">
-                    <img
-                      className="flex w-[140px] h-[166px]"
-                      src="/images/bmo.png"
-                      alt="Player Caractere"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-16 max-w-[432px] md:items-start items-center md:text-left text-center">
-                    <h1 className="text-h-sm-sm font-bold">about</h1>
-                    <p className="text-txt-xs leading-16 text-gray">
-                      {contextData.profileInfo.about}
-                    </p>
-                  </div>
-                </div>
+								{!contextData.profileInfo.isUserBlocked &&
+									<div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">
+										<div className="flex w-[213px] items-center justify-center">
+											<img
+												className="flex w-[140px] h-[166px]"
+												src="/images/bmo.png"
+												alt="Player Caractere"
+											/>
+										</div>
+										<div className="flex flex-col gap-16 max-w-[432px] md:items-start items-center md:text-left text-center">
+											<h1 className="text-h-sm-sm font-bold">about</h1>
+											<p className="text-txt-xs leading-16 text-gray">
+												{contextData.profileInfo.about}
+											</p>
+										</div>
+									</div>
+								}
               </div>
-              <div className="flex w-full">
-                {profileMenu.map((menu) => (
-                  <Link
-                    to={`/profile/${menu}/${username !== undefined ? username : ""}`}
-                    key={menu}
-                    className={`grow flex flex-col gap-8 items-center cursor-pointer md:text-h-lg-sm text-txt-xs font-bold`}
-                    onClick={() => setSelectedMenu(menu)}
-                  >
-                    <span>{menu}</span>
-                    {selectedMenu === menu && (
-                      <div className="bg-green h-[2px] w-full"></div>
-                    )}
-                  </Link>
-                ))}
-              </div>
-              {selectedMenu === "overview" && <ProfileOverview />}
-              {selectedMenu === "statistics" && <ProfileStatistics />}
-              {selectedMenu === "achievements" && <ProfileAchievements />}
-              {selectedMenu === "friends" && <ProfileFriends username={username} />}
-            </div>
+							{!contextData.profileInfo.isUserBlocked ?
+								<>
+									<div className="flex w-full">
+										{profileMenu.map((menu) => (
+											<Link
+												to={`/profile/${menu}/${username !== undefined ? username : ""}`}
+												key={menu}
+												className={`grow flex flex-col gap-8 items-center cursor-pointer md:text-h-lg-sm text-txt-xs font-bold`}
+												onClick={() => setSelectedMenu(menu)}
+											>
+												<span>{menu}</span>
+												{selectedMenu === menu && (
+													<div className="bg-green h-[2px] w-full"></div>
+												)}
+											</Link>
+										))}
+									</div>
+										{selectedMenu === "overview" && <ProfileOverview />}
+										{selectedMenu === "statistics" && <ProfileStatistics />}
+										{selectedMenu === "achievements" && <ProfileAchievements />}
+										{selectedMenu === "friends" && <ProfileFriends username={username} />}
+								</>
+								:
+								<p className="h-full flex flex-col text-center text-txt-xs text-red justify-center normal-case">
+									you can't see the content of this user while you are blocking him
+								</p>
+							}
+						</div>
           </div>
         </div>
       )}

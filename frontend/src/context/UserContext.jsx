@@ -23,9 +23,8 @@ export const UserProvider = ({ children }) => {
       const res = await FetchData.get(`api/profile/`);
       if (res.ok) {
         const data = await res.json();
-				console.log('ggg');
         setUserInfo(data);
-        setProfileInfo(data);
+        // setProfileInfo(data);
         setProfileImage(data.profile_image);
         setGeneralLoading(false);
       } else {
@@ -47,9 +46,13 @@ export const UserProvider = ({ children }) => {
       const res = await FetchData.get(`api/profile/${username}`);
       if (res.ok) {
         const data = await res.json();
-				// console.log(data);
-				console.log('bruh');
-        setProfileInfo(data);
+				console.log('data', data.isBlockedByUser);
+				if (data.isBlockedByUser) {
+					console.log('rak mblocki fin ghadi');
+					authContextData.setGlobalMessage({message: 'the user you request is blocked you!!', isError: true});
+					navigate('/profile/overview')
+				} else
+        	setProfileInfo(data);
       } else {
         console.log("hello");
         if (res.status === 404) navigate("/profile/overview");

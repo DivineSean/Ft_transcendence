@@ -6,7 +6,6 @@ import { IoCloudUploadOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
 import FetchWrapper, { BACKENDURL } from "../../utils/fetchWrapper";
-import Toast from "../Toast";
 import InputUpdateProfile from "./InputUpdateProfile";
 
 const UpdateProfile = ({ setUpdateProfile }) => {
@@ -299,13 +298,6 @@ const UpdateProfile = ({ setUpdateProfile }) => {
           </button>
         </form>
       </div>
-      {authContextData.globalMessage.message && (
-        <Toast
-          message={authContextData.globalMessage.message}
-          error={authContextData.globalMessage.isError}
-          onClose={authContextData.setGlobalMessage}
-        />
-      )}
     </>
   );
 };
