@@ -105,7 +105,7 @@ const Menu = ({ ...props }) => {
                   : "/images/default.jpeg"
               }
               alt="profile"
-              className="grow border-[0.5px] border-stroke-sc object-fit"
+              className="grow border-[0.5px] border-stroke-sc object-cover"
             />
           </div>
           <div className="flex flex-col justify-center">

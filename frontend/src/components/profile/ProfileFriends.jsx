@@ -10,12 +10,12 @@ import { useNavigate } from 'react-router-dom';
 const Friends = ({ friend }) => {
 	const navigate = useNavigate();
   return (
-    <div
+		<div
 			onClick={() => navigate('/profile/overview/'+friend.username)}
 			className="flex h-[72px] w-full gap-16 p-8 items-center justify-between secondary-glass-friends cursor-pointer"
 		>
       <div className="flex gap-16">
-				<div className="flex rounded-full w-[56px] h-[56px] border-[0.5px] border-stroke-sc overflow-hidden">
+				<div className="flex rounded-full min-w-[56px] w-[56px] h-[56px] border-[0.5px] border-stroke-sc overflow-hidden">
 					<img
 						src={
 							friend.profile_image
@@ -46,9 +46,14 @@ const Friends = ({ friend }) => {
 };
 
 const FriendRequest = ({ friendRequest }) => {
+	const navigate = useNavigate();
 	return (
-		<div className="w-[150px] flex-shrink-0 border-[0.5px] border-stroke-sc flex flex-col rounded-md overflow-hidden">
-			<div className="overflow-hidden grow flex border-b-[0.5px] border-stroke-sc">
+		<div className="w-[150px] secondary flex-shrink-0 border-[0.5px] border-stroke-sc flex flex-col rounded-md overflow-hidden">
+			<div
+				onClick={() => navigate('/profile/overview/' + friendRequest.username)}
+				className="overflow-hidden grow flex border-b-[0.5px] border-stroke-sc relative cursor-pointer"
+			>
+				<div className="absolute bg-black h-[70%] w-full cover-gradient bottom-0"></div>
 				<img
 					src={
 						friendRequest.profile_image
@@ -56,13 +61,13 @@ const FriendRequest = ({ friendRequest }) => {
 						: "/images/default.jpeg"
 					}
 					alt="request"
-					className="object-cover grow"
+					className="object-cover grow "
 				/>
+				<div className="text-txt-xs p-8 pt-16 text-whiter w-full tracking-wide font-semibold absolute bottom-0 cover-gradient">
+					{friendRequest.first_name} {friendRequest.last_name}
+				</div>
 			</div>
-			<div className="text-txt-xs px-8 py-4 text-gray tracking-wide font-semibold">
-				{friendRequest.first_name} {friendRequest.last_name}
-			</div>
-			<div className="p-8 grow flex gap-8 justify-center items-center">
+			<div className="p-8 flex gap-8 justify-center items-center">
 				<button className="hover-secondary text-green p-8 transition-all rounded-md grow flex justify-center hover:bg-green hover:text-black">
 					<IoMdCheckmark className="text-lg" />
 				</button>
@@ -74,7 +79,7 @@ const FriendRequest = ({ friendRequest }) => {
 	)
 }
 
-const ProfileFriends = () => {
+const ProfileFriends = ({ username }) => {
 	const userContextData = useContext(UserContext);
 	const scrollContainer = useRef(null);
 	const [showLeftButton, setShowLeftButton] = useState(false);
@@ -100,7 +105,7 @@ const ProfileFriends = () => {
 	}
 
 	useEffect(() => {
-		userContextData.getFriends();
+		userContextData.getFriends(username);
 		userContextData.setFriendRequest();
 		const container = scrollContainer.current;
 		if (container) {
@@ -109,7 +114,7 @@ const ProfileFriends = () => {
 			
 			return () => container.removeEventListener('scroll', handleScroll);
 		}
-	}, []);
+	}, [scrollContainer.current]);
 
 	if (userContextData.userFriends) {
 		userContextData.userFriends.friends.map((item) => {
@@ -118,51 +123,55 @@ const ProfileFriends = () => {
 	}
 
 	const friendRequest = [];
-	if (userContextData.userFriendRequest) {
-		userContextData.userFriendRequest.map((item) => {
-			friendRequest.push(<FriendRequest key={item.id} friendRequest={{...item}} />);
-		})
+	if (userContextData && userContextData.userInfo && userContextData.userInfo.username === userContextData.profileInfo.username) {
+		if (userContextData.userFriendRequest) {
+			userContextData.userFriendRequest.map((item) => {
+				friendRequest.push(<FriendRequest key={item.id} friendRequest={{...item}} />);
+			})
+		}
 	}
 
   return (
     <>
       <div className="flex flex-col gap-32 h-full w-full no-scrollbar overflow-y-scroll">
-				<div className="flex flex-col gap-8 relative">
-					<h2 className="font-semibold tracking-wide ">friend requests</h2>
-					{
-						friendRequest.length
-						? <div
-								ref={scrollContainer}
-								className="min-h-[240px] overflow-x-auto no-scrollbar w-full py-8 flex gap-16 scroll-smooth"
-							>
-								{friendRequest}
-								{ showRightButton &&
-									<button
-										onClick={scrollRight}
-										className="absolute top-1/2 right-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
-									>
-										<FaChevronRight />
-									</button>
-								}
-								{ showLeftButton && 
-									<button
-										onClick={scrollLeft}
-										className="absolute top-1/2 left-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
-									>
-										<FaChevronLeft />
-									</button>
-								}
-							</div>
-						: <p className="text-txt-sm flex justify-center text-stroke-sc">
-								you have no friend request.
-							</p>
-					}
-
-				</div>
+				{
+					userContextData && userContextData.userInfo && userContextData.userInfo.username === userContextData.profileInfo.username &&
+					<div className="flex flex-col gap-8 relative">
+						<h2 className="font-semibold tracking-wide ">friend requests</h2>
+						{ 
+							friendRequest.length
+							? <div
+									ref={scrollContainer}
+									className="min-h-[240px] overflow-x-auto no-scrollbar w-full p-8 flex gap-16 scroll-smooth bg-black/15 rounded-md"
+								>
+									{friendRequest}
+									{ showRightButton &&
+										<button
+											onClick={scrollRight}
+											className="absolute top-1/2 right-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
+										>
+											<FaChevronRight />
+										</button>
+									}
+									{ showLeftButton && 
+										<button
+											onClick={scrollLeft}
+											className="absolute top-1/2 left-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
+										>
+											<FaChevronLeft />
+										</button>
+									}
+								</div>
+							: <p className="text-txt-sm flex justify-center text-stroke-sc">
+									you have no friend request.
+								</p>
+						}
+					</div>
+				}
 				<div className="flex flex-col gap-8">
 					<h2 className="font-semibold tracking-wide ">friends</h2>
 					{friends.length
-						? <div className="grid gap-16 sm:grid-cols-2 grid-cols-1 xl:grid-cols-3">
+						? <div className="grid gap-16 sm:grid-cols-2 grid-cols-1">
 								{friends}
 							</div>
 						: <p className="text-txt-sm flex justify-center text-stroke-sc">

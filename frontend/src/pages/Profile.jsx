@@ -22,15 +22,92 @@ import LoadingPage from "./LoadingPage";
 import UserContext from "../context/UserContext";
 import { FiEdit3 } from "react-icons/fi";
 import UpdateProfile from "../components/profile/UpdateProfile";
+import { MdOutlineBlock } from "react-icons/md";
+import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
+import { IoMdPersonAdd } from "react-icons/io";
+import { ImUserPlus, ImUserMinus } from "react-icons/im";
+import { CgUnblock } from "react-icons/cg";
+import Toast from "../components/Toast";
+
 
 const profileMenu = ["overview", "statistics", "achievements", "friends"];
 
+const FriendUpdates = () => {
+	const contextData = useContext(UserContext);
+
+	return (
+		<>
+			{	!contextData.profileInfo.isBlockedByUser &&
+				!contextData.profileInfo.isUserBlocked &&
+				contextData.profileInfo.isFriend &&
+				<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green hover:text-black rounded-md text-green font-semibold tracking-wide">
+					<IoChatbubbleEllipsesOutline />
+					<p>message</p>
+				</button>
+			}
+
+			{	!contextData.profileInfo.isBlockedByUser &&
+				!contextData.profileInfo.isUserBlocked &&
+				!contextData.profileInfo.isFriend &&
+				!contextData.profileInfo.isSentRequest &&
+				<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green hover:text-black rounded-md text-green font-semibold tracking-wide">
+					<IoMdPersonAdd />
+					<p>add</p>
+				</button>
+			}
+
+			{	!contextData.profileInfo.isBlockedByUser &&
+				!contextData.profileInfo.isUserBlocked &&
+				!contextData.profileInfo.isFriend &&
+				contextData.profileInfo.isSentRequest &&
+				<>
+					<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green hover:text-black rounded-md text-green font-semibold tracking-wide">
+						<ImUserPlus />
+						<p>confirm</p>
+					</button>
+					<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red hover:text-white rounded-md text-red font-semibold tracking-wide">
+						<ImUserMinus />
+						<p>delete</p>
+					</button>
+				</>
+			}
+
+			{	!contextData.profileInfo.isBlockedByUser &&
+				contextData.profileInfo.isUserBlocked &&
+				<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green hover:text-black rounded-md text-green font-semibold tracking-wide">
+					<ImUserMinus />
+					<p>unblock</p>
+				</button>
+			}
+
+			{	!contextData.profileInfo.isBlockedByUser &&
+				!contextData.profileInfo.isUserBlocked &&
+				contextData.profileInfo.isFriend &&
+				<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red hover:text-white rounded-md text-red font-semibold tracking-wide">
+					<ImUserMinus />
+					<p>unfriend</p>
+				</button>
+			}
+
+			{/* {	!contextData.profileInfo.isBlockedByUser && 
+				!contextData.profileInfo.isUserBlocked &&
+				contextData.profileInfo.isFriend &&
+				<button className="secondary-glass p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red hover:text-white rounded-md text-red font-semibold tracking-wide">
+					<MdOutlineBlock />
+					<p>block</p>
+				</button>
+			} */}
+
+			
+		</>
+	)
+}
+
 const Profile = () => {
-  const { displayMenuGl } = useContext(AuthContext);
+  const authContextData = useContext(AuthContext);
   const { section, username } = useParams();
   const [udpateProfile, setUpdateProfile] = useState(false);
   const navigate = useNavigate();
-  const userUsername = username ? username : 0;
   const [selectedMenu, setSelectedMenu] = useState(
     section ? section : "overview",
   );
@@ -44,21 +121,58 @@ const Profile = () => {
     }
   }, []);
 
+	useEffect(() => {
+		navigate(`/profile/${section}/${username ? username : ''}`);
+		authContextData.setDisplayMenuGl(false);
+		setSelectedMenu(section);
+	}, [section]);
+
   useEffect(() => {
-    if (userUsername) contextData.getProfile(userUsername);
+    if (username) {
+			console.log('dkhelna l username');
+			contextData.getProfile(username);
+			contextData.setUserInfo(null);
+			contextData.setProfileInfo(null);
+			contextData.setUserFriends(null);
+		}
+		else {
+			console.log('kayn lmlawi machi username');
+			contextData.getProfile();
+			contextData.setUserInfo(null);
+			contextData.setProfileInfo(null);
+		}
   }, [username]);
+	
+	useEffect(() => {
+		if (contextData.profileInfo && contextData.profileInfo.found === 'no') {
+			console.log('makaynch hada');
+			navigate("/profile/overview");
+		}
+	}, [contextData.profileInfo])
+
+	const me = (contextData.userInfo
+		&& contextData.profileInfo
+		&& contextData.userInfo.username === contextData.profileInfo.username );
+
 
   return (
     <div className="flex flex-col w-full grow lg:gap-32 gap-16 relative">
       <Header link="profile" />
+			{authContextData.globalMessage.message && (
+        <Toast
+          message={authContextData.globalMessage.message}
+          error={authContextData.globalMessage.isError}
+          onClose={authContextData.setGlobalMessage}
+        />
+      )}
       {!contextData.profileInfo && <LoadingPage />}
-      {!displayMenuGl && contextData.profileInfo && (
+      {!authContextData.displayMenuGl && contextData.profileInfo && (
         <div className="container">
           {udpateProfile && (
             <UpdateProfile setUpdateProfile={setUpdateProfile} />
           )}
-          <div className="flex primary-glass p-16 w-full lg:gap-32 gap-16 relative  get-height">
-            <div className="absolute top-0 left-0 w-full lg:h-[232px] h-[216px]">
+          <div className="flex primary-glass overflow-hidden p-16 w-full lg:gap-32 gap-16 relative  get-height">
+            <div className={`absolute top-0 left-0 w-full lg:h-[232px] ${me ? 'h-[216px]' : 'h-[260px]'}`}>
               <div className="w-full h-full absolute cover-gradient"></div>
               <img
                 className="object-cover w-full h-full object-center"
@@ -97,6 +211,13 @@ const Profile = () => {
                 </h2>
               </div>
               <div className="flex flex-col gap-16 overflow-y-scroll no-scrollbar">
+                {/* <div className="bg-stroke-sc min-h-[1px] w-full"></div> */}
+								{ !me &&
+									<div className="flex gap-8 flex-wrap text-txt-md">
+										<FriendUpdates />
+									</div>
+								}
+                { !me && <div className="bg-stroke-sc min-h-[1px] w-full"></div> }
                 <div className="flex flex-col gap-16 text-gray mt-8">
                   <div className="flex justify-center gap-16">
                     <div className="flex items-center border rounded-lg border-stroke-sc p-8 gap-8">
@@ -138,42 +259,51 @@ const Profile = () => {
             </div>
             <div className="flex flex-col w-full overflow-hidden grow z-[1] gap-16">
               <div className="flex flex-col gap-32 md:items-start w-full items-center lg:min-h-[216px] relative">
-                <div
-                  onClick={() => setUpdateProfile(true)}
-                  className="absolute flex gap-8 items-center font-light text-gray top-0 right-0 text-md secondary-glass p-8 cursor-pointer"
-                >
-                  <FiEdit3 className="text-green" />
-                  <p className="text-txt-xs md:text-txt-md">edit profile</p>
-                </div>
-                <div className="flex h-[184px] flex-col gap-8 py-16 items-center lg:hidden">
-                  <CircularProgressbarWithChildren
-                    value={75}
-                    className="w-[112px] h-[112px] bg-black bg-opacity-40 rounded-full flex"
-                    strokeWidth={6}
-                    styles={buildStyles({
-                      strokeLinecap: "round",
-                      pathColor: "#31E78B",
-                      trailColor: "rgba(80,80,80,0.2)",
-                    })}
-                  >
-                    <div className="w-[98px] h-[98px] flex justify-center rounded-full overflow-hidden">
-                      <img
-                        src={
-                          contextData.profileInfo &&
-                          contextData.profileInfo.profile_image
-                            ? `${BACKENDURL}${contextData.profileInfo.profile_image}?t=${new Date().getTime()}`
-                            : "/images/default.jpeg"
-                        }
-                        alt="profile pic"
-                        className="object-cover w-full"
-                      />
-                    </div>
-                  </CircularProgressbarWithChildren>
-                  <h1 className="text-h-sm-sm font-bold">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
-                  <h2 className="text-txt-xs">
-                    @{contextData.profileInfo.username}
-                  </h2>
-                </div>
+                {me &&
+									<div
+										onClick={() => setUpdateProfile(true)}
+										className="absolute flex gap-8 items-center font-light text-gray top-0 right-0 text-md secondary-glass p-8 cursor-pointer"
+									>
+										<FiEdit3 className="text-green" />
+										<p className="text-txt-xs md:text-txt-md">edit profile</p>
+									</div>
+								}
+								<div className="w-full flex gap-16 flex-col items-center lg:hidden">
+									<div className="flex h-[184px] flex-col gap-8 py-16 items-center">
+										<CircularProgressbarWithChildren
+											value={75}
+											className="w-[112px] h-[112px] bg-black bg-opacity-40 rounded-full flex"
+											strokeWidth={6}
+											styles={buildStyles({
+												strokeLinecap: "round",
+												pathColor: "#31E78B",
+												trailColor: "rgba(80,80,80,0.2)",
+											})}
+										>
+											<div className="w-[98px] h-[98px] flex justify-center rounded-full overflow-hidden">
+												<img
+													src={
+														contextData.profileInfo &&
+														contextData.profileInfo.profile_image
+															? `${BACKENDURL}${contextData.profileInfo.profile_image}?t=${new Date().getTime()}`
+															: "/images/default.jpeg"
+													}
+													alt="profile pic"
+													className="object-cover w-full"
+												/>
+											</div>
+										</CircularProgressbarWithChildren>
+										<h1 className="text-h-sm-sm font-bold">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
+										<h2 className="text-txt-xs">
+											@{contextData.profileInfo.username}
+										</h2>
+									</div>
+									{ !me &&
+										<div className="flex gap-8 items-end text-txt-xs">
+											<FriendUpdates />
+										</div>
+									}
+								</div>
                 <div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">
                   <div className="flex w-[213px] items-center justify-center">
                     <img
@@ -208,7 +338,7 @@ const Profile = () => {
               {selectedMenu === "overview" && <ProfileOverview />}
               {selectedMenu === "statistics" && <ProfileStatistics />}
               {selectedMenu === "achievements" && <ProfileAchievements />}
-              {selectedMenu === "friends" && <ProfileFriends />}
+              {selectedMenu === "friends" && <ProfileFriends username={username} />}
             </div>
           </div>
         </div>

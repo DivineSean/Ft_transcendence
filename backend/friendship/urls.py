@@ -23,6 +23,11 @@ urlpatterns = [
 				name="getFriends",
 		),
 		path(
+				"friends/getFriends/<str:username>",
+				views.getFriendsView,
+				name="getFriends",
+		),
+		path(
 				"friends/areFriends/",
 				views.areFriends,
 				name="areFriends",

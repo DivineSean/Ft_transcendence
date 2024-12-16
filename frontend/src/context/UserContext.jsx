@@ -20,9 +20,10 @@ export const UserProvider = ({ children }) => {
 
   const getUserInfo = async () => {
     try {
-      const res = await FetchData.get(`api/profile/0`);
+      const res = await FetchData.get(`api/profile/`);
       if (res.ok) {
         const data = await res.json();
+				console.log('ggg');
         setUserInfo(data);
         setProfileInfo(data);
         setProfileImage(data.profile_image);
@@ -46,6 +47,8 @@ export const UserProvider = ({ children }) => {
       const res = await FetchData.get(`api/profile/${username}`);
       if (res.ok) {
         const data = await res.json();
+				// console.log(data);
+				console.log('bruh');
         setProfileInfo(data);
       } else {
         console.log("hello");
@@ -65,9 +68,10 @@ export const UserProvider = ({ children }) => {
     }));
   };
 
-	const getFriends = async () => {
+	const getFriends = async (username) => {
+		const url = username ? `friends/getFriends/${username}` : `friends/getFriends/`;
 		try {
-			const res = await FetchData.get('friends/getFriends/');
+			const res = await FetchData.get(url);
 			if (res.ok) {
 				const data = await res.json();
 				setUserFriends(data);
@@ -102,6 +106,7 @@ export const UserProvider = ({ children }) => {
     updateProfileImage,
 		getFriends,
 		setFriendRequest,
+		setUserFriends,
   };
 
   return (

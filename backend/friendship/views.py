@@ -89,8 +89,15 @@ class DeclineFriendRequest(APIView):
 
 
 @api_view(["GET"])
-def getFriendsView(request):
-		friends = Friendship.friends.getFriends(request._user)
+def getFriendsView(request, username=None):
+		# print('username forandship hhh => ', username, flush=True)
+		if username == None:
+			# print('wa hada ana hhhh', flush=True)
+			user = request._user
+		else:
+			# print('hada machi ana wellah ma ana', flush=True)
+			user = Users.objects.filter(username=username).first()
+		friends = Friendship.friends.getFriends(user)
 		listOfFriends = {
 			"friends": [{**UserFriendSerializer(friend).data} for friend in friends]
 		}
@@ -101,20 +108,11 @@ def getFriendRequests(request):
 		friendRequestList = FriendshipRequest.objects.filter(
 				Q(toUser=request._user)
 		).select_related("fromUser")
+		
 		data = UserFriendSerializer(
 			[friend_request.fromUser for friend_request in friendRequestList], many=True
 		).data
-		
-		# for friend_request in friendRequestList:
-		# 		# Append each request data as a dictionary
-		# 		data.append({
-		# 				# "first_name": friend_request.fromUser.first_name,
-		# 				# "last_name": friend_request.fromUser.last_name,
-		# 				# "username": friend_request.fromUser.username,
-		# 				# "id": friend_request.fromUser.id,
-		# 				# "profile_image": str(friend_request.fromUser.profile_image),
-		# 				[{**UserFriendSerializer(friend_request).data}]
-		# 		})
+
 		return Response(data)
 
 
@@ -146,6 +144,7 @@ def blockUser(request):
 				return Response("SameUser", status=status.HTTP_400_BAD_REQUEST)
 
 		request._user.blockedUsers["blockedUsers"].append(user2)
+		request._user.save()
 
 		Friendship.objects.filter(Q(user1=user2) | Q(user2=user2)).delete()
 
