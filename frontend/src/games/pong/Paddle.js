@@ -77,7 +77,7 @@ class Paddle {
         this.rotatePaddle();
       }
       if (keyboard[this.controls.right] && !this.rotating) {
-        this.z -= speed * dt; 
+        this.z -= speed * dt;
         this.rotationX = 0;
         this.rotationZ = -Math.PI / 2;
         this.rotationY = 0;
@@ -92,20 +92,16 @@ class Paddle {
         this.right = false;
       }
       if (keyboard[this.controls.up] && !this.rotating) {
-        this.x -= speed * dt; 
+        this.x -= speed * dt;
       }
       if (keyboard[this.controls.down] && !this.rotating) {
         this.x += speed * dt;
       }
     }
-    if (this.z > 0 && this.z > 40)
-      this.z = 40;
-    else if (this.z < 0 && this.z < -40)
-      this.z = -40;
-    if (this.x > 0 && this.x > 50)
-      this.x = 50;
-    else if (this.x < 0 && this.x < -50)
-      this.x = -50;
+    if (this.z > 0 && this.z > 40) this.z = 40;
+    else if (this.z < 0 && this.z < -40) this.z = -40;
+    if (this.x > 0 && this.x > 50) this.x = 50;
+    else if (this.x < 0 && this.x < -50) this.x = -50;
     if (this.rotating) {
       const data = {
         type: "update",
