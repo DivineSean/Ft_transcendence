@@ -165,19 +165,19 @@ def areFriends(request):  # Expecting User2 (ID)
 
 @api_view(["POST"])  # should be in consummers for realtime block
 def blockUser(request):
-		user2 = request.data.get("User2")
-		if user2 == None:
-				return Response("User2 requiered", status=status.HTTP_401_UNAUTHORIZED)
+		userId = request.data.get("userId")
+		if userId == None:
+				return Response("userId requiered", status=status.HTTP_401_UNAUTHORIZED)
 		try:
-				UUID(user2, version=4)
+				UUID(userId, version=4)
 		except:
 				return Response("Not a valid UUID", status=status.HTTP_400_BAD_REQUEST)
-		if Users.objects.get(id=user2).email == request._user.email:
+		if Users.objects.get(id=userId).email == request._user.email:
 				return Response("SameUser", status=status.HTTP_400_BAD_REQUEST)
 
-		request._user.blockedUsers["blockedUsers"].append(user2)
+		request._user.blockedUsers["blockedUsers"].append(userId)
 		request._user.save()
 
-		Friendship.objects.filter(Q(user1=user2) | Q(user2=user2)).delete()
+		Friendship.objects.filter(Q(user1=userId) | Q(user2=userId)).delete()
 
 		return Response(str(request._user.blockedUsers), status=status.HTTP_201_CREATED)

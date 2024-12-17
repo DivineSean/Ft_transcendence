@@ -352,115 +352,116 @@ class CheckPasswordChange(APIView):
 
 class Profile(APIView):
 
-		def get(self, request, username=None):
-				foundedUser = 'yes'
-				isFriend = None
-				isBlocked = None
-				isRequest = None
-				if username == None:
-						user = request.user
-				else:
-						try:
-								user = Users.objects.filter(username=username).first()
-								if not user:
-									user = request.user
-									foundedUser = 'no'
-										# return Response({"error", "user not found"}, status=404)
-						except:
-									user = request.user
-									foundedUser = 'no'
-								# print('warah dakchi mahowach', flush=True)
-								# return Response({"error", "user not found"}, status=404)
-						# if not user:
+	def get(self, request, username=None):
+		foundedUser = 'yes'
+		print('username', username, flush=True)
 
-				if user.profile_image:
-						imagePath = os.path.join(settings.MEDIA_ROOT, str(user.profile_image))
-						if not os.path.exists(imagePath):
-								user.profile_image = None
-								user.save()
-			
-				extraFields = {}
-				if foundedUser == 'yes' and user != request._user:
-					isFriend = Friendship.objects.filter(
-						Q(user1=user, user2=request._user) |
-						Q(user1=request._user, user2=user)
-					).exists()
+		try:
+			if not username:
+				username = request._user.username
+				print('hna manakynch username', username)
+			user = Users.objects.filter(username=username).first()
 
-					isSentRequest = FriendshipRequest.objects.filter(
-						fromUser=user, toUser=request._user
-					).exists()
-
-					isReceiveRequest = FriendshipRequest.objects.filter(
-						fromUser=request._user, toUser=user
-					).exists()
-
-					isBlockedByUser = str(request._user.id) in user.blockedUsers.get('blockedUsers', [])
-					isUserBlocked = str(user.id) in request._user.blockedUsers.get('blockedUsers', [])
-
-					# print('ewa sf 3afa weldi ===========>', request._user.blockedUsers.get('blockedUsers', []), user.id, isUserBlocked, flush=True)
-
-					extraFields= {
-						'isFriend': isFriend,
-						'isSentRequest': isSentRequest,
-						'isBlockedByUser': isBlockedByUser,
-						'isUserBlocked': isUserBlocked,
-						'isReceiveRequest': isReceiveRequest,
-					}
-
-
-				# print(f'user {user}', flush=True)
-				serializer = UserSerializer(user)
-				# print(serializer.data)
-				return Response({**serializer.data, 'found': foundedUser, **extraFields})
-
-		def put(self, request, username=None):
+			if not user:
+				print('mal9inach user bhad l username', flush=True)
 				user = request.user
+				foundedUser = 'no'
+					# return Response({"error", "user not found"}, status=404)
+		except:
+			user = request.user
+			foundedUser = 'no'
 
-				new_username = request.data.get("username", None)
-				if new_username:
-						username_regex = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]{3,}$")
-						if not username_regex.match(new_username):
-								return Response(
-										{
-												"username": "invalid username, examples user, user1, user-12, user_12"
-										},
-										status=status.HTTP_400_BAD_REQUEST,
-								)
-						if Users.objects.filter(username=new_username).exclude(id=user.id).exists():
-								return Response(
-										{"username": "this username is already taken"},
-										status=status.HTTP_400_BAD_REQUEST,
-								)
-						else:
-								user.username = new_username
-								user.save()
+		if user.profile_image:
+			imagePath = os.path.join(settings.MEDIA_ROOT, str(user.profile_image))
+			if not os.path.exists(imagePath):
+				user.profile_image = None
+				user.save()
+	
+		print('found', foundedUser, flush=True)
+		extraFields = {}
+		if foundedUser == 'yes' and user != request._user:
+			isFriend = Friendship.objects.filter(
+				Q(user1=user, user2=request._user) |
+				Q(user1=request._user, user2=user)
+			).exists()
 
-				file = request.FILES.get("profile_image")
-				if file:
-						try:
-								Image.open(file).verify()
-						except Exception:
-								pass
+			isSentRequest = FriendshipRequest.objects.filter(
+				fromUser=user, toUser=request._user
+			).exists()
 
-						fs = FileSystemStorage(location=settings.MEDIA_ROOT + "/profile_images")
+			isReceiveRequest = FriendshipRequest.objects.filter(
+				fromUser=request._user, toUser=user
+			).exists()
 
-						if fs.exists(file.name):
-								fs.delete(file.name)
+			isBlockedByUser = str(request._user.id) in user.blockedUsers.get('blockedUsers', [])
+			isUserBlocked = str(user.id) in request._user.blockedUsers.get('blockedUsers', [])
 
-						savedFile = fs.save(file.name, file)
-						user.profile_image = f"profile_images/{savedFile}"
-						user.save()
+			# print('ewa sf 3afa weldi ===========>', request._user.blockedUsers.get('blockedUsers', []), user.id, isUserBlocked, flush=True)
 
-				serializer = UpdateUserSerializer(user, data=request.data, partial=True)
-				if serializer.is_valid():
-						serializer.save()
-						print("User updated successfully", flush=True)
-				else:
-						print("Error in serializer validation", flush=True)
+			extraFields= {
+				'isFriend': isFriend,
+				'isSentRequest': isSentRequest,
+				'isBlockedByUser': isBlockedByUser,
+				'isUserBlocked': isUserBlocked,
+				'isReceiveRequest': isReceiveRequest,
+			}
 
-				serializer = UserSerializer(user)
 
-				return Response(serializer.data, status=status.HTTP_200_OK)
+		# print(f'user {user}', flush=True)
+		serializer = UserSerializer(user)
+		print(extraFields, flush=True)
+		# print(serializer.data)
+		return Response({**serializer.data, 'found': foundedUser, 'me': user.id == request._user.id, **extraFields})
+
+
+	def put(self, request, username=None):
+		user = request.user
+
+		new_username = request.data.get("username", None)
+		if new_username:
+			username_regex = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]{3,}$")
+			if not username_regex.match(new_username):
+				return Response(
+					{
+						"username": "invalid username, examples user, user1, user-12, user_12"
+					},
+					status=status.HTTP_400_BAD_REQUEST,
+				)
+			if Users.objects.filter(username=new_username).exclude(id=user.id).exists():
+				return Response(
+					{"username": "this username is already taken"},
+					status=status.HTTP_400_BAD_REQUEST,
+				)
+			else:
+				user.username = new_username
+				user.save()
+
+		file = request.FILES.get("profile_image")
+		if file:
+			try:
+				Image.open(file).verify()
+			except Exception:
+				pass
+
+			fs = FileSystemStorage(location=settings.MEDIA_ROOT + "/profile_images")
+
+			if fs.exists(file.name):
+				fs.delete(file.name)
+
+			savedFile = fs.save(file.name, file)
+			user.profile_image = f"profile_images/{savedFile}"
+			user.save()
+
+		serializer = UpdateUserSerializer(user, data=request.data, partial=True)
+		if serializer.is_valid():
+			serializer.save()
+			print("User updated successfully", flush=True)
+		else:
+			print("Error in serializer validation", flush=True)
+
+		serializer = UserSerializer(user)
+
+		return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])

@@ -46,6 +46,7 @@ const Friends = ({ friend }) => {
 };
 
 const FriendRequest = ({ friendRequest }) => {
+	const contextData = useContext(UserContext);
 	const navigate = useNavigate();
 	return (
 		<div className="w-[150px] secondary flex-shrink-0 border-[0.5px] border-stroke-sc flex flex-col rounded-md overflow-hidden">
@@ -68,10 +69,17 @@ const FriendRequest = ({ friendRequest }) => {
 				</div>
 			</div>
 			<div className="p-8 flex gap-8 justify-center items-center">
-				<button className="hover-secondary text-green p-8 transition-all rounded-md grow flex justify-center hover:bg-green hover:text-black">
+				<button
+					// onClick={() => contextData.acceptFriendRequest(contextData.profileInfo.id)}
+					onClick={() => contextData.acceptFriendRequest(friendRequest.id)}
+					className="hover-secondary text-green p-8 transition-all rounded-md grow flex justify-center hover:bg-green hover:text-black"
+				>
 					<IoMdCheckmark className="text-lg" />
 				</button>
-				<button className="hover-secondary text-red p-8 transition-all rounded-md flex justify-center hover:bg-red hover:text-white">
+				<button
+					// onClick={}
+					className="hover-secondary text-red p-8 transition-all rounded-md flex justify-center hover:bg-red hover:text-white"
+				>
 					<IoMdClose className="text-lg" />
 				</button>
 			</div>
@@ -103,10 +111,13 @@ const ProfileFriends = ({ username }) => {
 			setShowRightButton(scrollLeft < scrollWidth - clientWidth);
 		}
 	}
-
 	useEffect(() => {
 		userContextData.getFriends(username);
-		userContextData.getFriendRequest();
+		if (userContextData.refresh && userContextData.profileInfo && userContextData.profileInfo.me)
+			userContextData.getFriendRequest();
+	}, []);
+
+	useEffect(() => {
 		const container = scrollContainer.current;
 		if (container) {
 			container.addEventListener('scroll', handleScroll);
@@ -115,6 +126,14 @@ const ProfileFriends = ({ username }) => {
 			return () => container.removeEventListener('scroll', handleScroll);
 		}
 	}, [scrollContainer.current]);
+	
+	useEffect(() => {
+		if (userContextData.profileInfo && userContextData.profileInfo.me) {
+			console.log('hana tani 3la had lblan', userContextData.refresh);
+			userContextData.getFriends(username);
+			userContextData.getFriendRequest();
+		}
+	}, [userContextData.refresh])
 
 	if (userContextData.userFriends) {
 		userContextData.userFriends.friends.map((item) => {

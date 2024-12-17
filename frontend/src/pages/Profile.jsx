@@ -32,8 +32,16 @@ import Toast from "../components/Toast";
 
 const profileMenu = ["overview", "statistics", "achievements", "friends"];
 
-const FriendManagementButtons = () => {
+const FriendManagementButtons = ({approval, setApproval}) => {
 	const contextData = useContext(UserContext);
+
+	const handleBlock = () => {
+		setApproval({
+			'visible': true,
+			'message': 'are you sure!',
+			'type': 'block',
+		});
+	}
 	return (
 		<>
 			{	!contextData.profileInfo.isBlockedByUser &&
@@ -114,7 +122,10 @@ const FriendManagementButtons = () => {
 			{	!contextData.profileInfo.isBlockedByUser && 
 				!contextData.profileInfo.isUserBlocked &&
 				contextData.profileInfo.isFriend &&
-				<button className="secondary-glass text-txt-sm p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide">
+				<button
+					onClick={handleBlock}
+					className="secondary-glass text-txt-sm p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
+				>
 					<MdOutlineBlock />
 					<p>block</p>
 				</button>
@@ -123,27 +134,33 @@ const FriendManagementButtons = () => {
 	)
 }
 
+
 const Profile = () => {
   const authContextData = useContext(AuthContext);
   const { section, username } = useParams();
   const [udpateProfile, setUpdateProfile] = useState(false);
   const navigate = useNavigate();
+	const [approval, setApproval] = useState({
+		'visible': false,
+		'message': null,
+		'type': null,
+	})
   const [selectedMenu, setSelectedMenu] = useState(
     section ? section : "overview",
   );
   const contextData = useContext(UserContext);
 
-  if (!section) navigate("/profile/overview");
+  if (!section) {
+		navigate("/profile/overview");
+	}
   useEffect(() => {
-
-    if (!profileMenu.includes(section)) {
+		
+		if (!profileMenu.includes(section)) {
       navigate("/profile/overview");
       setSelectedMenu("overview");
-    } else {
-			contextData.getProfile();
-		}
+    }
   }, []);
-
+	
 	useEffect(() => {
 		navigate(`/profile/${section}/${username ? username : ''}`);
 		authContextData.setDisplayMenuGl(false);
@@ -151,7 +168,7 @@ const Profile = () => {
 	}, [section]);
 
   useEffect(() => {
-    if (username) {
+		if (username) {
 			contextData.getProfile(username);
 			contextData.setProfileInfo(null);
 			contextData.setUserFriends(null);
@@ -166,31 +183,19 @@ const Profile = () => {
 			
 			navigate("/profile/overview");
 		}
-	}, [contextData.profileInfo])
+	}, [contextData.profileInfo && contextData.profileInfo.found])
 
 	useEffect(() => { // update the profile info after hit any profile button
 		if (contextData.refresh) {
+			console.log(contextData.profileInfo.username);
 			contextData.getProfile(contextData.profileInfo.username);
 			contextData.setRefresh(false);
 		}
 	}, [contextData.refresh])
 
-	// this is to know if the visited profile is the current user profile or not
-	const me = (contextData.userInfo
-		&& contextData.profileInfo
-		&& contextData.userInfo.username === contextData.profileInfo.username );
-
   return (
     <div className="flex flex-col w-full grow lg:gap-32 gap-16 relative">
       <Header link="profile" />
-			{authContextData.globalMessage.message && (
-        <Toast
-          message={authContextData.globalMessage.message}
-          error={authContextData.globalMessage.isError}
-          onClose={authContextData.setGlobalMessage}
-					position='bottomRight'
-        />
-      )}
       {!contextData.profileInfo && <LoadingPage />}
       {!authContextData.displayMenuGl && contextData.profileInfo !== null && (
         <div className="container">
@@ -198,7 +203,7 @@ const Profile = () => {
             <UpdateProfile setUpdateProfile={setUpdateProfile} />
           )}
           <div className="flex primary-glass overflow-hidden p-16 w-full lg:gap-32 gap-16 relative  get-height">
-            <div className={`absolute top-0 left-0 w-full lg:h-[232px] ${me ? 'h-[216px]' : 'h-[260px]'}`}>
+            <div className={`absolute top-0 left-0 w-full lg:h-[232px] ${contextData.profileInfo.me ? 'h-[216px]' : 'h-[260px]'}`}>
               <div className="w-full h-full absolute cover-gradient"></div>
               <img
                 className="object-cover w-full h-full object-center"
@@ -237,12 +242,12 @@ const Profile = () => {
                 </h2>
               </div>
               <div className="flex flex-col gap-16 overflow-y-scroll no-scrollbar grow justify-between">
-								{ !me &&
+								{ !contextData.profileInfo.me &&
 									<div className="flex gap-8 flex-wrap text-txt-md py-4">
-										<FriendManagementButtons />
+										<FriendManagementButtons approval={approval} setApproval={setApproval} />
 									</div>
 								}
-                { !me && <div className="bg-stroke-sc min-h-[1px] w-full"></div> }
+                { !contextData.profileInfo.me && <div className="bg-stroke-sc min-h-[1px] w-full"></div> }
 								{!contextData.profileInfo.isUserBlocked ?
 									<>
 										<div className="flex flex-col gap-16 text-gray mt-8">
@@ -289,7 +294,7 @@ const Profile = () => {
             </div>
             <div className="flex flex-col w-full overflow-hidden grow z-[1] gap-16">
               <div className="flex flex-col gap-32 md:items-start w-full items-center lg:min-h-[216px] relative">
-                {me &&
+                {contextData.profileInfo.me &&
 									<div
 										onClick={() => setUpdateProfile(true)}
 										className="absolute flex gap-8 items-center font-light text-gray top-0 right-0 text-md secondary-glass p-8 cursor-pointer"
@@ -328,9 +333,9 @@ const Profile = () => {
 											@{contextData.profileInfo.username}
 										</h2>
 									</div>
-									{ !me &&
+									{ !contextData.profileInfo.me &&
 										<div className="flex gap-8 items-end text-txt-xs">
-											<FriendManagementButtons />
+											<FriendManagementButtons approval={approval} setApproval={setApproval} />
 										</div>
 									}
 								</div>
@@ -381,10 +386,66 @@ const Profile = () => {
 							}
 						</div>
           </div>
+					{approval.visible && <Approval approval={approval} setApproval={setApproval} />}
         </div>
+      )}
+			{authContextData.globalMessage.message && (
+				<Toast
+				message={authContextData.globalMessage.message}
+				error={authContextData.globalMessage.isError}
+				onClose={authContextData.setGlobalMessage}
+				position='topCenter'
+        />
       )}
     </div>
   );
 };
+
+const Approval = ({approval, setApproval}) => {
+	const contextData = useContext(UserContext);
+
+	const handleApproval = () => {
+		if (approval.type === 'block')
+			contextData.blockFriend();
+		setApproval({visible: false, message: null, type: null})
+	}
+
+	return (
+		<>
+			<div
+				onClick={() => setApproval({'visible': false, 'message': null, type: null})}
+				className="bg-black/50 h-full w-full absolute top-0 left-0 flex justify-center items-center"
+			></div>
+			<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+				<div className="secondary-glass p-16 px-32 flex flex-col items-center gap-32 z-[10]">
+					<div className="flex flex-col gap-8 w-full items-center">
+						<h2 className="font-bold text-txt-lg text-red">{approval.type}?</h2>
+						<p className="text-txt-md lowercase">{approval.message}</p>
+					</div>
+					<div className="flex gap-16">
+						<button
+							onClick={() => setApproval({'visible': false, 'message': null, type: null})}
+							className="
+								px-16 py-8 bg-red rounded-md hover-secondary text-green font-semibold hover:bg-green hover:text-black
+								transition-all
+							"
+						>
+							cancel
+						</button>
+						<button
+							onClick={handleApproval}
+							className="
+								px-16 py-8 bg-red rounded-md hover-secondary text-red font-semibold hover:bg-red hover:text-white
+								transition-all
+							"
+						>
+							confirm
+						</button>
+					</div>
+				</div>
+			</div>
+		</>
+	)
+}
 
 export default Profile;

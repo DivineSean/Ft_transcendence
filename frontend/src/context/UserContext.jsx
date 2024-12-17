@@ -18,6 +18,7 @@ export const UserProvider = ({ children }) => {
 	const [userFriends, setUserFriends] = useState(null);
 	const [userFriendRequest, setUserFriendRequest] = useState(null);
 	const [refresh, setRefresh] = useState(false);
+	const [isMe, setIsMe] = useState(true);
 
   const getUserInfo = async () => {
     try {
@@ -25,7 +26,6 @@ export const UserProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         setUserInfo(data);
-        // setProfileInfo(data);
         setProfileImage(data.profile_image);
         setGeneralLoading(false);
       } else {
@@ -43,8 +43,12 @@ export const UserProvider = ({ children }) => {
   };
 
   const getProfile = async (username) => {
+		let url; // i did this to make the username None (not undefined) cause the backend trigger it as invalid username
+		if (username) 	url = `api/profile/${username}`;
+		else 						url = `api/profile/`;
+
     try {
-      const res = await FetchData.get(`api/profile/${username}`);
+      const res = await FetchData.get(url);
       if (res.ok) {
 
         const data = await res.json();
@@ -141,6 +145,20 @@ export const UserProvider = ({ children }) => {
 		}
 	}
 
+	const blockFriend = async () => {
+		try {
+			const res = await FetchData.post('friends/blockUser/', {'userId': profileInfo.id})
+			console.log(res);
+			if (res.ok) {
+				const data = await res.json();
+				setRefresh(true);
+				console.log('block', data);
+			}
+		} catch (error) {
+			console.log('error block', error);
+		}
+	}
+
   const contextData = {
 		refresh,
 		userFriendRequest,
@@ -157,10 +175,12 @@ export const UserProvider = ({ children }) => {
 		getFriends,
 		getFriendRequest,
 		setUserFriends,
-		sendFriendRequest,
 		setRefresh,
+
+		sendFriendRequest,
 		cancelFriendRequest,
 		acceptFriendRequest,
+		blockFriend,
   };
 
   return (
