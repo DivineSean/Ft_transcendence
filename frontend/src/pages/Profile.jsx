@@ -34,7 +34,6 @@ const profileMenu = ["overview", "statistics", "achievements", "friends"];
 
 const FriendManagementButtons = () => {
 	const contextData = useContext(UserContext);
-
 	return (
 		<>
 			{	!contextData.profileInfo.isBlockedByUser &&
@@ -50,9 +49,26 @@ const FriendManagementButtons = () => {
 				!contextData.profileInfo.isUserBlocked &&
 				!contextData.profileInfo.isFriend &&
 				!contextData.profileInfo.isSentRequest &&
-				<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide">
+				!contextData.profileInfo.isReceiveRequest &&
+				<button
+				onClick={() => contextData.sendFriendRequest(contextData.profileInfo.id)}
+				className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
+				>
 					<IoMdPersonAdd />
-					<p>add</p>
+					<p>add friend</p>
+				</button>
+			}
+
+			{	!contextData.profileInfo.isBlockedByUser &&
+				!contextData.profileInfo.isUserBlocked &&
+				!contextData.profileInfo.isFriend &&
+				contextData.profileInfo.isReceiveRequest &&
+				<button
+					onClick={contextData.cancelFriendRequest}
+					className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
+				>
+					<ImUserMinus />
+					<p>cancel request</p>
 				</button>
 			}
 
@@ -61,7 +77,10 @@ const FriendManagementButtons = () => {
 				!contextData.profileInfo.isFriend &&
 				contextData.profileInfo.isSentRequest &&
 				<>
-					<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide">
+					<button
+						onClick={() => contextData.acceptFriendRequest(contextData.profileInfo.id)}
+						className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
+					>
 						<ImUserPlus />
 						<p>confirm</p>
 					</button>
@@ -116,10 +135,13 @@ const Profile = () => {
 
   if (!section) navigate("/profile/overview");
   useEffect(() => {
+
     if (!profileMenu.includes(section)) {
       navigate("/profile/overview");
       setSelectedMenu("overview");
-    }
+    } else {
+			contextData.getProfile();
+		}
   }, []);
 
 	useEffect(() => {
@@ -141,9 +163,17 @@ const Profile = () => {
 	
 	useEffect(() => {
 		if (contextData.profileInfo && contextData.profileInfo.found === 'no') {
+			
 			navigate("/profile/overview");
 		}
 	}, [contextData.profileInfo])
+
+	useEffect(() => { // update the profile info after hit any profile button
+		if (contextData.refresh) {
+			contextData.getProfile(contextData.profileInfo.username);
+			contextData.setRefresh(false);
+		}
+	}, [contextData.refresh])
 
 	// this is to know if the visited profile is the current user profile or not
 	const me = (contextData.userInfo

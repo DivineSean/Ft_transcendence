@@ -17,6 +17,7 @@ export const UserProvider = ({ children }) => {
   const [profileImage, setProfileImage] = useState(null);
 	const [userFriends, setUserFriends] = useState(null);
 	const [userFriendRequest, setUserFriendRequest] = useState(null);
+	const [refresh, setRefresh] = useState(false);
 
   const getUserInfo = async () => {
     try {
@@ -45,12 +46,16 @@ export const UserProvider = ({ children }) => {
     try {
       const res = await FetchData.get(`api/profile/${username}`);
       if (res.ok) {
+
         const data = await res.json();
-				console.log('data', data.isBlockedByUser);
+				console.log('getProfile', data);
+
 				if (data.isBlockedByUser) {
+
 					console.log('rak mblocki fin ghadi');
 					authContextData.setGlobalMessage({message: 'the user you request is blocked you!!', isError: true});
 					navigate('/profile/overview')
+
 				} else
         	setProfileInfo(data);
       } else {
@@ -83,19 +88,61 @@ export const UserProvider = ({ children }) => {
 			console.log('chihaja mahiyach fhad get frinds', error);
 		}
 	}
-	const setFriendRequest = async () => {
+
+	const getFriendRequest = async () => {
 		try {
 			const res = await FetchData.get('friends/getfr/');
 			if (res.ok) {
 				const data = await res.json();
 				setUserFriendRequest(data);
+				console.log('friend request', data);
 			}
 		} catch (error) {
-			console.log('chihaja mahiyach fhad get frinds', error);
+			console.log('chihaja mahiyach fhad get friends', error);
+		}
+	}
+
+	const sendFriendRequest = async (id) => {
+		try {
+			const res = await FetchData.post('friends/SendRequest/', {'receiverID': id});
+			if (res.ok) {
+				const data = await res.json();
+				setRefresh(true);
+				authContextData.setGlobalMessage({message: data.message, isError: data.status !== '200'});
+			}
+		} catch (error) {
+			console.log('error in send friend request: ', error);
+		}
+	}
+
+	const cancelFriendRequest = async () => {
+		try {
+			const res = await FetchData.post('friendrequest/cancel/', {'userId': profileInfo.id});
+			if (res.ok) {
+				const data = await res.json();
+				setRefresh(true);
+				authContextData.setGlobalMessage({message: data.message, isError: data.status !== '200'});
+			}
+		} catch (error) {
+			console.log('error cancel', error);
+		}
+	}
+	
+	const acceptFriendRequest = async (userId) => {
+		try {
+			const res = await FetchData.post('friends/AcceptRequest/', {'userId': userId});
+			if (res.ok) {
+				const data = await res.json();
+				setRefresh(true);
+				authContextData.setGlobalMessage({message: data.message, isError: data.status !== '200'});
+			}
+		} catch (error) {
+			console.log('accept error:', error);
 		}
 	}
 
   const contextData = {
+		refresh,
 		userFriendRequest,
 		userFriends,
     userInfo,
@@ -108,8 +155,12 @@ export const UserProvider = ({ children }) => {
     setUserInfo,
     updateProfileImage,
 		getFriends,
-		setFriendRequest,
+		getFriendRequest,
 		setUserFriends,
+		sendFriendRequest,
+		setRefresh,
+		cancelFriendRequest,
+		acceptFriendRequest,
   };
 
   return (

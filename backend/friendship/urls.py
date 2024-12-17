@@ -18,6 +18,11 @@ urlpatterns = [
 				name="Decline_friend_request",
 		),
 		path(
+			"friendrequest/cancel/",
+			views.cancelFriendRequest,
+			name='cancel_friend_request',
+		),
+		path(
 				"friends/getFriends/",
 				views.getFriendsView,
 				name="getFriends",

@@ -106,7 +106,7 @@ const ProfileFriends = ({ username }) => {
 
 	useEffect(() => {
 		userContextData.getFriends(username);
-		userContextData.setFriendRequest();
+		userContextData.getFriendRequest();
 		const container = scrollContainer.current;
 		if (container) {
 			container.addEventListener('scroll', handleScroll);

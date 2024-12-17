@@ -13,65 +13,69 @@ from Auth.serializers import UserFriendSerializer
 
 
 class SendFriendRequest(APIView):
-		def post(self, request):
-				response = Response(status=200)
+	def post(self, request):
+		# response = Response(status=200)
+		userId = request.data.get("receiverID")
+		if userId:
+			try:
 
-				try:
-						receieverData = Users.objects.get(id=request.data.get("receiverID"))
-						if receieverData.email == request._user.email:
-								return Response(
-										"Error : Trying to send friend request to current account",
-										status=400,
-								)
-				except:
-						return Response("ID of Receiver not Valid", status=400)
+				receieverData = Users.objects.get(id=userId)
+				if receieverData.email == request._user.email:
+					return Response(
+						"Error : Trying to send friend request to current account",
+						status=400,
+					)
+
+			except:
+				return Response("ID of Receiver not Valid", status=400)
+
+			try:
+
+				friendRequest = FriendshipRequest.objects.get(
+					Q(fromUser=userId) | Q(toUser=request._user.id)
+				)
+				return Response({'status': '400', 'message': 'you cannot send the friend request to this user'})
+
+			except FriendshipRequest.DoesNotExist:
 
 				friendRequest, isCreated = FriendshipRequest.objects.get_or_create(
-						fromUser=request._user,
-						toUser=Users.objects.get(email=receieverData),
-						accepted_at=None,
+					fromUser=request._user,
+					toUser=Users.objects.get(email=receieverData),
+					accepted_at=None,
 				)
 
-				friendRequestID = FriendshipRequest.objects.get(
-						fromUser=request._user, toUser=Users.objects.get(email=receieverData)
-				).FriendshipRequestID
-				resData = {
-						"message": "FriendShip  Sent",
-						"friendRequestID": str(friendRequestID),
-						"User": request._user.email,
-				}
-				response.data = resData
-				return response
-
+		return Response({'status': '200', 'message': 'request sent successfully'})
 
 class AcceptFriendRequest(APIView):
-		def post(self, request):
+	def post(self, request):
+		userId = request.data.get('userId')
 
-				try:
-						friendRequest = FriendshipRequest.objects.get(
-								FriendshipRequestID=request.data.get("friendRequestID")
-						)
-				except:
-						return Response("friendRequestID Valid", status=400)
+		if userId:
+			try:
+				friendRequest = FriendshipRequest.objects.get(
+					Q(fromUser=userId) | Q(toUser=request._user.id)
+				)
 
-				if request._user == friendRequest.toUser:
-						friendRequest.accept()
-						newFriendShip = Friendship.friends.get_or_create(
-								user1=friendRequest.fromUser,
-								user2=friendRequest.toUser,
-						)
-						return Response(
-								{
-										"message": "FriendRequest accepted",
-										"FriendShipID": str(newFriendShip[0].friendshipID),
-								}
-						)
-				return Response("Not Destined User", status=400)
+				friendRequest.accept()
+
+				newFriendShip = Friendship.friends.get_or_create(
+					user1=friendRequest.fromUser,
+					user2=friendRequest.toUser,
+				)
+
+				friendRequest.delete()
+
+			except FriendshipRequest.DoesNotExist:
+				return Response({'status': '404', 'message': 'this friend request does not exsits!'})
+
+		return Response({'status': '200', 'message': 'the friend request accepted successfuly'})
 
 
 class DeclineFriendRequest(APIView):
 		def post(self, request):
+			userId = request.data.get("friendRequestID")
 
+			if userId:
 				response = Response(status=200)
 				try:
 						friendRequest = FriendshipRequest.objects.get(
@@ -86,6 +90,27 @@ class DeclineFriendRequest(APIView):
 
 						return Response({"message": "FriendRequest Declined"})
 				return Response("Not Destined User")
+
+
+
+@api_view(['POST'])
+def cancelFriendRequest(request):
+	print(request.data, flush=True)
+
+	userId = request.data.get('userId')
+	if userId:
+		try:
+			friendRequest = FriendshipRequest.objects.get(
+				Q(fromUser=userId) | Q(toUser=userId)
+			)
+			if request._user == friendRequest.fromUser:
+				friendRequest.delete()
+		except:
+			return Response({'status': '400', 'message': 'this request not found'})
+			
+	# print(friendRequest.fromUser, friendRequest.toUser, flush=True)
+		# print('request has been deleted successfully', flush=True)
+	return Response({'status': '200', 'message': 'the request canceled successfuly'})
 
 
 @api_view(["GET"])
@@ -109,10 +134,17 @@ def getFriendRequests(request):
 				Q(toUser=request._user)
 		).select_related("fromUser")
 		
-		data = UserFriendSerializer(
-			[friend_request.fromUser for friend_request in friendRequestList], many=True
-		).data
+		data = [
+			{
+				**UserFriendSerializer(friend_request.fromUser).data,
+				'requestId': str(friend_request.FriendshipRequestID),
+			}
+			for friend_request in friendRequestList
+		]
 
+		for friend_request in friendRequestList:
+			print(friend_request.FriendshipRequestID, flush=True)
+		print(data, flush=True)
 		return Response(data)
 
 

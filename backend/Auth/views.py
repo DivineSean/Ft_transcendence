@@ -390,18 +390,21 @@ class Profile(APIView):
 						fromUser=user, toUser=request._user
 					).exists()
 
-					print('jkdslfgjkdfhgjkhdsfjkghjkdsfhgjkhdsfgkljhgk', flush=True)
+					isReceiveRequest = FriendshipRequest.objects.filter(
+						fromUser=request._user, toUser=user
+					).exists()
 
 					isBlockedByUser = str(request._user.id) in user.blockedUsers.get('blockedUsers', [])
 					isUserBlocked = str(user.id) in request._user.blockedUsers.get('blockedUsers', [])
 
-					print('ewa sf 3afa weldi ===========>', request._user.blockedUsers.get('blockedUsers', []), user.id, isUserBlocked, flush=True)
+					# print('ewa sf 3afa weldi ===========>', request._user.blockedUsers.get('blockedUsers', []), user.id, isUserBlocked, flush=True)
 
 					extraFields= {
 						'isFriend': isFriend,
 						'isSentRequest': isSentRequest,
 						'isBlockedByUser': isBlockedByUser,
-						'isUserBlocked': isUserBlocked
+						'isUserBlocked': isUserBlocked,
+						'isReceiveRequest': isReceiveRequest,
 					}
 
 
