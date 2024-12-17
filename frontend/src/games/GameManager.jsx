@@ -1,14 +1,21 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import Pong from "./pong/Pong";
 
-const GameManager = ({ GameDetails }) => {
+const GameManager = () => {
   const [playerNumber, setPlayerNumber] = useState(-1);
   // const [ready, setReady] = useState(false);
   const ws = useRef(null);
 
+  // TODO: handle match accept
+  // TODO: handle reconnect after accepting
+  const location = useLocation();
+  const gameDetails = location.state;
+  console.log("game state: ", gameDetails);
+
   const connectWebSocket = useCallback(() => {
-    const { id } = GameDetails.game;
-    const role = GameDetails.role;
+    const { id } = gameDetails.game;
+    const role = gameDetails.role;
     console.log(id, role);
     ws.current = new WebSocket(
       `wss://${window.location.hostname}:8000/ws/games/${id}`,
@@ -24,16 +31,6 @@ const GameManager = ({ GameDetails }) => {
       );
       setPlayerNumber(role);
     };
-
-    ws.current.onmessage = (e) =>
-      console.log("message tzeft: ", JSON.parse(e.data));
-    // ws.current.onmessage = (event) => {
-    // 	const data = JSON.parse(event.data);
-    // 	if (data.type === 'play') {
-    // 		setReady(true);
-    // 	}
-    // 	console.log('Message from server:', data);
-    // };
 
     ws.current.onclose = () => {
       console.log("WebSocket closed");
@@ -68,5 +65,4 @@ const GameManager = ({ GameDetails }) => {
     </div>
   );
 };
-
 export default GameManager;

@@ -99,7 +99,10 @@ const TwoFaInput = ({ type, saveValues }) => {
                   onKeyDown={(e) => handleKeyDown2FA(e, index)}
                   onPaste={handlePaste}
                   ref={(el) => (inputs.current[index] = el)}
-                  className="bg-transparent outline-none text-center border-b-2 border-stroke-sc max-w-40 focus:border-green"
+                  className="
+										bg-transparent outline-none text-center rounded-sm border
+										border-stroke-sc max-w-40 focus:border-green py-8
+									"
                 />
               ))}
             </div>
@@ -147,7 +150,10 @@ const TwoFaInput = ({ type, saveValues }) => {
                 onKeyDown={(e) => handleKeyDown2FA(e, index)}
                 onPaste={handlePaste}
                 ref={(el) => (inputs.current[index] = el)}
-                className="bg-transparent outline-none text-center border-b-2 border-stroke-sc max-w-40 focus:border-green"
+                className="
+									bg-transparent outline-none text-center rounded-sm border
+									border-stroke-sc max-w-40 focus:border-green py-8
+								"
               />
             ))}
           </div>

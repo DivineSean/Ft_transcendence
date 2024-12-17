@@ -11,7 +11,6 @@ urlpatterns = [
     path("api/callback/", Oauth2.callback, name="42login"),
     path("api/google/", Oauth2.loginGoogle, name="loginGoogle"),
     path("api/users/", Oauth2.show_users, name="users"),
-    # path('api/check_auth/', views.checkAuth, name='check_auth'),
     path("api/resent2fa/", views.resend2FACode, name="resend_2fa_code"),
     path("api/register/", views.registerView, name="register"),
     path(
@@ -36,4 +35,7 @@ urlpatterns = [
     ),
     path("api/user/", views.getUser, name="firstLastName"),
     path("api/setupusername/", views.setUpUsername, name="firstLastName"),
+    path("api/configure2FA", views.alter2FA, name="2fa"),
+    path("api/profile/<str:username>/", views.Profile.as_view(), name="profile"),
+    path("api/profile/update/", views.Profile.as_view(), name="updateProfie"),
 ]

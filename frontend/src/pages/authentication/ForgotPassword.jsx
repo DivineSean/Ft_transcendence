@@ -5,6 +5,8 @@ import ResetPassword from "./ResetPassword";
 import Toast from "../../components/Toast";
 import { Link } from "react-router-dom";
 import { useContext } from "react";
+import { IoArrowBackOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 const ForgotPassword = () => {
   const { uid } = useParams();
@@ -16,6 +18,7 @@ const ForgotPassword = () => {
     setGlobalMessage,
     requestResetPassword,
   } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   return (
     <div className="grow">
@@ -33,6 +36,10 @@ const ForgotPassword = () => {
             <div className="cover-gradient grow"></div>
           </div>
           <div className="md:px-64 px-32 flex flex-col justify-center md:gap-32 gap-24 lg:py-64 py-32 grow">
+            <IoArrowBackOutline
+              className="text-txt-2xl cursor-pointer"
+              onClick={() => navigate(-1)}
+            />
             {!uid && (
               <>
                 <div className="flex flex-col gap-8">

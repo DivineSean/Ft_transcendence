@@ -8,7 +8,7 @@ const Friends = () => {
         <img
           src="/images/profile.png"
           alt="Friend Personal image"
-          className="flex rounded-full w-[56px] h-[56px]"
+          className="flex rounded-full w-[56px] h-[56px] border-[0.5px] border-stroke-sc"
         />
         <div className="flex flex-col justify-center">
           <div className="text-txt-xs font-bold cursor-pointer">

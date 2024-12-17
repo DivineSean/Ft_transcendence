@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../../context/AuthContext";
 import FetchWrapper from "../../utils/fetchWrapper";
-import useAuth from "../../customHooks/useAuth";
 import Toast from "../../components/Toast";
 import { FcGoogle } from "react-icons/fc";
 import LoadingPage from "../LoadingPage";

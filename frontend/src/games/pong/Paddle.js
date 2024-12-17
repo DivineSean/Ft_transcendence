@@ -1,9 +1,4 @@
 import * as THREE from "three";
-import { vec3 } from "three/webgpu";
-import { rotate } from "three/webgpu";
-import { distance } from "three/webgpu";
-
-const BALL_MAX_SPEED = 0.05;
 
 class Paddle {
   constructor(ws, scene, player, position, controls, loader, ball) {
@@ -23,24 +18,13 @@ class Paddle {
     this.z = position.z;
 
     if (this.player === -1) {
-      //OLD
-      // this.rotationX = Math.PI / 2;
-      // this.rotationZ = Math.PI / 2;
-      //NEW
       this.rotationX = -Math.PI;
       this.rotationZ = Math.PI / 2;
     } else {
-      //OLD
-      // this.rotationX = -Math.PI / 2;
-      // this.rotationZ = -Math.PI / 2;
-      //NEW
       this.rotationX = 0;
       this.rotationZ = -Math.PI / 2;
     }
     this.rotationY = 0;
-    // this.rotationX = Math.PI / 2;
-    // this.rotationZ = -Math.PI / 2;
-
     this.dx = 0.0;
     this.dy = 0.0;
     this.dz = 0.0;
@@ -53,45 +37,39 @@ class Paddle {
   update(keyboard, ball, ws, dt) {
     if (!this.model) return;
     this.ball = ball;
-    // apply friction
     this.dx *= 0.8;
     this.dy *= 0.8;
     this.dz *= 0.8;
-    //TO DO : FIX RIGHT LEFT WHEN SHOT THE BALL
+    let speed = 0.03;
+    let x = this.x;
+    let y = this.y;
+    let z = this.z;
     if (this.player == -1) {
       this.x = Math.min(this.x + this.dx * dt, -5);
+      speed *= this.player;
       if (keyboard[this.controls.space] && !this.rotating) {
         this.rotatePaddle();
       }
       if (keyboard[this.controls.left] && !this.rotating) {
-        this.dz += 0.008 * this.player;
-        this.z = this.z + this.dz * dt;
-        // this.rotationX = Math.PI / 2;
-        // this.rotationZ = Math.PI / 2;
+        this.z += speed * dt;
         this.rotationX = 0;
         this.rotationZ = Math.PI / 2;
         this.rotationY = 0;
         this.left = false;
         this.right = true;
-      }
-      if (keyboard[this.controls.right] && !this.rotating) {
-        this.dz -= 0.008 * this.player;
-        this.z = this.z + this.dz * dt;
-        // this.rotationX = -Math.PI / 2;
-        // this.rotationZ = Math.PI / 2;
+      } else if (keyboard[this.controls.right] && !this.rotating) {
+        this.z -= speed * dt;
         this.rotationX = -Math.PI;
         this.rotationZ = Math.PI / 2;
         this.rotationY = 0;
         this.left = true;
         this.right = false;
       }
-      if (keyboard[this.controls.down] && !this.rotating) {
-        this.dx += 0.008 * this.player;
-        this.x = this.x + this.dx * dt;
-      }
       if (keyboard[this.controls.up] && !this.rotating) {
-        this.dx -= 0.008 * this.player;
-        this.x = this.x + this.dx * dt;
+        this.x -= speed * dt;
+      }
+      if (keyboard[this.controls.down] && !this.rotating) {
+        this.x += speed * dt;
       }
     } else {
       this.x = Math.max(this.x + this.dx * dt, 5);
@@ -99,36 +77,31 @@ class Paddle {
         this.rotatePaddle();
       }
       if (keyboard[this.controls.right] && !this.rotating) {
-        this.dz -= 0.008 * this.player;
-        this.z = this.z + this.dz * dt;
-        // this.rotationX = -Math.PI / 2;
-        // this.rotationZ = -Math.PI / 2;
+        this.z -= speed * dt;
         this.rotationX = 0;
         this.rotationZ = -Math.PI / 2;
         this.rotationY = 0;
         this.left = false;
         this.right = true;
-      }
-      if (keyboard[this.controls.left] && !this.rotating) {
-        this.dz += 0.008 * this.player;
-        this.z = this.z + this.dz * dt;
-        // this.rotationX = Math.PI / 2;
-        // this.rotationZ = -Math.PI / 2;
+      } else if (keyboard[this.controls.left] && !this.rotating) {
+        this.z += speed * dt;
         this.rotationX = Math.PI;
         this.rotationZ = -Math.PI / 2;
         this.rotationY = 0;
         this.left = true;
         this.right = false;
       }
-      if (keyboard[this.controls.down] && !this.rotating) {
-        this.dx += 0.008 * this.player;
-        this.x = this.x + this.dx * dt;
-      }
       if (keyboard[this.controls.up] && !this.rotating) {
-        this.dx -= 0.008 * this.player;
-        this.x = this.x + this.dx * dt;
+        this.x -= speed * dt;
+      }
+      if (keyboard[this.controls.down] && !this.rotating) {
+        this.x += speed * dt;
       }
     }
+    if (this.z > 0 && this.z > 40) this.z = 40;
+    else if (this.z < 0 && this.z < -40) this.z = -40;
+    if (this.x > 0 && this.x > 50) this.x = 50;
+    else if (this.x < 0 && this.x < -50) this.x = -50;
     if (this.rotating) {
       const data = {
         type: "update",
@@ -142,7 +115,7 @@ class Paddle {
         },
       };
       ws.send(JSON.stringify(data));
-    } else if (Math.abs(this.dx) > 0.001 || Math.abs(this.dz) > 0.001) {
+    } else if (this.x !== x || this.z !== z) {
       const data = {
         type: "update",
         message: {
@@ -303,7 +276,8 @@ class Paddle {
   }
 
   shoot(net, keyboard, ball, dt) {
-    ball.isServed = true;
+    // ball.isServed = true;
+    // ball.lastshooter = this.player;
     if (this.player === 1) {
       ball.x = this.boundingBox.min.x - 1;
     } else {
@@ -330,8 +304,6 @@ class Paddle {
       if (this.player === 1) {
         if (this.z < -12) {
           ball.dz = 0.032;
-          console.log(this.z);
-          console.log("1");
         } else if (this.z < 0) {
           ball.dz = 0.016;
         } else if (this.z >= 0) {
@@ -378,16 +350,23 @@ class Paddle {
 
   netshoot(ball, net, ws, player) {
     ball.dx = Math.min(Math.abs(ball.dx) + 0.05, 0.01);
-    if (ball.x < net.boundingBox.min.x + ball.radius) {
+    if (
+      ball.x < net.boundingBox.min.x + ball.radius &&
+      ball.lastshooter === -1
+    ) {
       ball.x = net.boundingBox.min.x - ball.radius;
       ball.dx *= -1;
-    } else if (ball.x > net.boundingBox.max.x - ball.radius) {
+    } else if (
+      ball.x > net.boundingBox.max.x - ball.radius &&
+      ball.lastshooter === 1
+    ) {
       ball.x = net.boundingBox.max.x + ball.radius;
       ball.dx *= 1;
     }
   }
 
   hit(ball, ws) {
+    // ball.lastshooter = this.player;
     if (this.player === 1) {
       ball.x = this.boundingBox.min.x - ball.radius;
     } else {

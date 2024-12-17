@@ -9,7 +9,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         initial_games = [
             {
-                "name": "Pong",
+                "name": "pong",
                 "min_players": 2,
                 "max_players": 2,
                 "description": "Ping-pong game",

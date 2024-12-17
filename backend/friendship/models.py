@@ -6,6 +6,7 @@ import uuid
 
 
 class FriendshipRequest(models.Model):
+    # For now I'm not removing friendRequest after being accepted or deleted, just updating the timestamp (not quite sure about best practise)
     """had l model bach tstori friend request 9bel mat accepta wla declina"""
 
     FriendshipRequestID = models.UUIDField(

@@ -1,6 +1,7 @@
 from channels.generic.websocket import WebsocketConsumer
 from rest_framework.serializers import ValidationError
 from games.serializers import GameRoomSerializer
+from matchmaking.matchmaker import r
 from asgiref.sync import async_to_sync
 from django.core.cache import cache
 from django.db import models
@@ -10,19 +11,20 @@ import json
 
 class GameConsumer(WebsocketConsumer):
     def connect(self):
+        self.accept()
         self.game_uuid = self.scope["url_route"]["kwargs"]["room_uuid"]
         self.user_id = self.scope["user"].id
 
         try:
             game = GameRoom.objects.get(pk=self.game_uuid)
             serializer = GameRoomSerializer(game)
-            self.game = serializer.data
-        except (models.ObjectDoesNotExist, ValidationError):
+            serialized_game = serializer.data
+            r.set(f"{self.game_uuid}:game_room_state", json.dumps(serialized_game))
+        except Exception as e:
+            self.close(code=1006, reason=e)
             return
 
-        self.accept()
         print(f"-------> {self.game_uuid}", flush=True)
-        print(f"-------> {self.game}", flush=True)
         async_to_sync(self.channel_layer.group_add)(self.game_uuid, self.channel_name)
 
     def disconnect(self, code):
@@ -31,10 +33,11 @@ class GameConsumer(WebsocketConsumer):
         )
 
     def receive(self, text_data):
+        # TODO:
         # ignore messages coming from users not part of the game
         # isPlayer = any(player["user"]["id"] == self.user_id for player in self.game["players_details"])
         # if not isPlayer:
-        # 	return
+        #   return
 
         try:
             data = json.loads(text_data)
@@ -64,21 +67,26 @@ class GameConsumer(WebsocketConsumer):
 
         # TODO: Update scores on the database
         role = None
-        for player in self.game["players_details"]:
-            if player["user"]["id"] == self.user_id:
+        game = json.loads(r.get(f"{self.game_uuid}:game_room_state"))
+        for player in game["players_details"]:
+            if str(player["user"]["id"]) == str(self.user_id):
                 player["score"] += 1
                 role = player["role"]
                 break
         scores = {
-            player["role"]: player["score"] for player in self.game["players_details"]
+            player["role"]: str(player["score"]) for player in game["players_details"]
         }
 
+        r.set(f"{self.game_uuid}:game_room_state", json.dumps(game))
         async_to_sync(self.channel_layer.group_send)(
             self.game_uuid,
             {
                 "type": "broadcast",
                 "info": "score",
-                "message": {"role": role, "scores": scores},
+                "message": {
+                    "role": role,
+                    "scores": json.dumps(scores),
+                },
             },
         )
 

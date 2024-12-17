@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 export class Net {
   constructor(scene, loader) {
@@ -22,19 +21,14 @@ export class Net {
     this.model.position.set(this.x, this.y, this.z);
     this.model.traverse((child) => {
       if (child.isMesh) {
-        child.castShadow = true; // Enable shadow casting
-        child.receiveShadow = true; // Typically, nets don’t receive shadows
+        child.castShadow = true;
+        child.receiveShadow = true;
       }
     });
     this.scene.add(this.model);
     const min = new THREE.Vector3(-0.5, -29, -27);
     const max = new THREE.Vector3(0.5, -23.5, 27);
     this.boundingBox = new THREE.Box3(min, max);
-
-    // this.boundingBox = new THREE.Box3().setFromObject(this.model);
-    // this.boundingBox.y.max -= 0.2;
-    const help = new THREE.Box3Helper(this.boundingBox, 0x008039);
-    this.scene.add(help);
   }
 }
 export default Net;
