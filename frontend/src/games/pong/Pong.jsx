@@ -14,7 +14,7 @@ const Pong = ({ websocket, player, names }) => {
   const loaderTRef = useRef(null);
   const loaderBRef = useRef(null);
   const keyboard = useRef({});
-  const [ready, setReady] = useState(false);
+  let [ready, setReady] = useState(false);
 
   useEffect(() => {
     loaderTRef.current = new GLTFLoader();
@@ -63,10 +63,11 @@ const Pong = ({ websocket, player, names }) => {
       const opp = player == 1 ? 2 : 1;
       if (msg.type === "score") {
         const scores = JSON.parse(msg.message.scores);
-        setReady(sm.current.scoreUpdate(scores, msg.message.role, ball));
+        ready = sm.current.scoreUpdate(scores, msg.message.role, ball);
         if (msg.message.role === 1) {
           ball.serve(websocket, net, 1);
-        } else if (msg.message.role === 2) {
+        }
+        else if (msg.message.role === 2) {
           ball.serve(websocket, net, -1);
         }
       } else if (msg.type == "play") setReady(true);
@@ -93,10 +94,13 @@ const Pong = ({ websocket, player, names }) => {
         players[opp - 1].rotationZ = msg.message.paddle.rotZ;
         players[opp - 1].updatePos();
       } else if (msg.message.content == "ball") {
-        if (msg.message.ball.stats === "shoot") {
+        if (msg.message.ball.stats === "shoot")
+        {
           ball.paddleHitSound.currentTime = 0;
           ball.paddleHitSound.play();
-        } else if (msg.message.ball.stats === "hit") {
+        }
+        else if (msg.message.ball.stats === "hit")
+        {
           ball.onlyHit.currentTime = 0;
           ball.onlyHit.play();
         }
@@ -129,8 +133,7 @@ const Pong = ({ websocket, player, names }) => {
     const clock = new Clock();
 
     const animate = () => {
-      if (
-        !ready ||
+      if (!ready ||
         !ball.model ||
         !net.boundingBox ||
         !table.boundingBoxTable ||
@@ -149,7 +152,8 @@ const Pong = ({ websocket, player, names }) => {
         !ball.Victory
       )
         return;
-      if (!ball.BackgroundMusic.isPlaying) {
+      if(!ball.BackgroundMusic.isPlaying)
+      {
         ball.BackgroundMusic.currentTime = 0;
         ball.BackgroundMusic.play();
       }
@@ -169,19 +173,18 @@ const Pong = ({ websocket, player, names }) => {
         );
         simulatedTime += fixedStep;
       }
-
-      if (ball.serving && !ball.timeout && !ball.sendLock) {
-        if (
-          (player === 1 && ball.lastshooter === 1) ||
-          (player === 2 && ball.lastshooter === -1)
-        ) {
+      
+      if (ball.serving && !ball.timeout && !ball.sendLock)
+      {
+        if ((player === 1 && ball.lastshooter === 1) || (player === 2 && ball.lastshooter === -1))
+        {
           ball.CheckTimer(websocket);
           ball.labelRenderer.render(sm.current.scene, sm.current.camera);
         }
       }
-      if (Math.floor((Date.now() - sm.current.lastTime) / 1000) > 0)
+      if (Math.floor(((Date.now() - sm.current.lastTime) / 1000)) > 0)
         sm.current.TimerCSS();
-
+      
       const alpha = (timeNow - simulatedTime) / fixedStep;
       ball.x += ball.dx * alpha * fixedStep;
       ball.y += ball.dy * alpha * fixedStep;
