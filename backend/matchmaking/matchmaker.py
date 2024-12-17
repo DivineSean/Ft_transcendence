@@ -168,7 +168,8 @@ class Matchmaker:
 
             game_room = await self.create_game(game["id"], match)
             if game_room:
-                r.hset(f"{game_room['id']}:game_room_state", mapping=game_room)
+                r.hset(f"game_room_state:{game_room['id']}", mapping=game_room)
+                r.expire(f"game_room_state:{game_room['id']}", GAME_EXPIRATION)
                 # Notify all players
                 for i in range(0, len(channels)):
                     await channel_layer.send(

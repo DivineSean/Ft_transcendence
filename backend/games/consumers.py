@@ -32,12 +32,12 @@ class GameConsumer(AsyncWebsocketConsumer):
         # WARNING: still have to handle spectators (players not taking part of the game)
         try:
             # WARNING: the data is all manipulated in redis atm, will implement presistent data later
-            game_state = r.hgetall(f"{self.game_uuid}:game_room_state")
+            game_state = r.hgetall(f"game_room_state:{self.game_uuid}")
             if game_state is None:
                 game = await database_sync_to_async(GameRoom.objects.get)(pk=self.game_uuid)
                 serializer = GameRoomSerializer(game)
                 serialized_game = serializer.data
-                r.hset(f"{self.game_uuid}:game_room_state", mapping=serialized_game)
+                r.hset(f"game_room_state:{self.game_uuid}", mapping=serialized_game)
         except Exception as e:
             await self.close(code=1006, reason=e)
             return
@@ -103,7 +103,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         # TODO: Update scores on the database
         # FIX: the game state is now in redis hash; this part should be redone
         role = None
-        game = json.loads(r.get(f"{self.game_uuid}:game_room_state"))
+        game = json.loads(r.get(f"game_room_state:{self.game_uuid}"))
         for player in game["players_details"]:
             if str(player["user"]["id"]) == str(self.user_id):
                 player["score"] += 1
@@ -113,7 +113,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             player["role"]: str(player["score"]) for player in game["players_details"]
         }
 
-        r.set(f"{self.game_uuid}:game_room_state", json.dumps(game))
+        r.set(f"game_room_state:{self.game_uuid}", json.dumps(game))
         await self.channel_layer.group_send(
             self.group_name,
             {
@@ -127,7 +127,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         )
 
     async def update_readiness(self):
-        self.players = json.loads(r.hget(f"{self.game_uuid}:game_room_state", "players_details"))
+        self.players = json.loads(r.hget(f"game_room_state:{self.game_uuid}", "players_details"))
         for player in self.players:
             if player["user"]["id"] == self.user_id and not player["ready"]:
                 player["ready"] = True
@@ -143,12 +143,12 @@ class GameConsumer(AsyncWebsocketConsumer):
                 )
                 break
         print(self.players, flush=True)
-        r.hset(f"{self.game_uuid}:game_room_state", "players_details", json.dumps(self.players))
+        r.hset(f"game_room_state:{self.game_uuid}", "players_details", json.dumps(self.players))
         all_ready = all(player.get("ready", False) for player in self.players)
         print("--------> ready ", all_ready, flush=True)
         if all_ready:
-            r.hset(f"{self.game_uuid}:game_room_state", "status", "ongoing")
-            game_state = r.hgetall(f"{self.game_uuid}:game_room_state")
+            r.hset(f"game_room_state:{self.game_uuid}", "status", "ongoing")
+            game_state = r.hgetall(f"game_room_state:{self.game_uuid}")
             await self.channel_layer.group_send(
                 self.group_name,
                 {
@@ -170,18 +170,3 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self.send(
             text_data=json.dumps({"type": event["info"], "message": event["message"]})
         )
-
-    async def listen_for_expiry(self):
-        for message in self.pubsub.listen():
-            print("--------------------------------------------------> message hhhhhhhhhh", message, flush=True)
-            if message["type"] == "pmessage":
-                print("--------------------------------------------------> message", message, flush=True)
-                if message["data"] == f"{self.game_uuid}:game_room_state":
-                    await self.send(
-                        text_data=json.dumps({
-                            "type": "expired",
-                            "message": {},
-                        })
-                    )
-                    break
-            await asyncio.sleep(1)
