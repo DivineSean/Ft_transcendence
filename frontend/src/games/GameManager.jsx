@@ -6,6 +6,7 @@ const GameManager = () => {
   const [playerNumber, setPlayerNumber] = useState(-1);
   // const [ready, setReady] = useState(false);
   const ws = useRef(null);
+  const [players, setPlayers] = useState([]);
 
   // TODO: handle match accept
   // TODO: handle reconnect after accepting
@@ -16,6 +17,9 @@ const GameManager = () => {
   const connectWebSocket = useCallback(() => {
     const { id } = gameDetails.game;
     const role = gameDetails.role;
+    setPlayers(
+      gameDetails.game.players_details.map((player) => player.user.username),
+    );
     console.log(id, role);
     ws.current = new WebSocket(
       `wss://${window.location.hostname}:8000/ws/games/${id}`,
@@ -60,7 +64,7 @@ const GameManager = () => {
       {playerNumber === -1 ? (
         <button onClick={handleJoinGame}>Join Game</button>
       ) : (
-        <Pong websocket={ws.current} player={playerNumber} />
+        <Pong websocket={ws.current} player={playerNumber} names={players} />
       )}
     </div>
   );

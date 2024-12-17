@@ -14,7 +14,7 @@ const Pong = ({ websocket, player, names }) => {
   const loaderTRef = useRef(null);
   const loaderBRef = useRef(null);
   const keyboard = useRef({});
-  const [ready, setReady] = useState(false);
+  let [ready, setReady] = useState(false);
 
   useEffect(() => {
     loaderTRef.current = new GLTFLoader();
@@ -63,7 +63,7 @@ const Pong = ({ websocket, player, names }) => {
       const opp = player == 1 ? 2 : 1;
       if (msg.type === "score") {
         const scores = JSON.parse(msg.message.scores);
-        setReady(sm.current.scoreUpdate(scores, msg.message.role, ball));
+        ready = sm.current.scoreUpdate(scores, msg.message.role, ball);
         if (msg.message.role === 1) {
           ball.serve(websocket, net, 1);
         } else if (msg.message.role === 2) {
