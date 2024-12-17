@@ -26,7 +26,7 @@ const PongLocal = () => {
     const controls = {
       up: "ArrowUp",
       down: "ArrowDown",
-      left: "ArrowLeft", 
+      left: "ArrowLeft",
       right: "ArrowRight",
       space: "Space",
     };
@@ -62,8 +62,7 @@ const PongLocal = () => {
         ready = sm.current.scoreUpdate(scores, msg.message.role, ball);
         if (msg.message.role === 1) {
           ball.serve(websocket, net, 1);
-        }
-        else if (msg.message.role === 2) {
+        } else if (msg.message.role === 2) {
           ball.serve(websocket, net, -1);
         }
       } else if (msg.type == "play") setReady(true);
@@ -90,13 +89,10 @@ const PongLocal = () => {
         players[opp - 1].rotationZ = msg.message.paddle.rotZ;
         players[opp - 1].updatePos();
       } else if (msg.message.content == "ball") {
-        if (msg.message.ball.stats === "shoot")
-        {
+        if (msg.message.ball.stats === "shoot") {
           ball.paddleHitSound.currentTime = 0;
           ball.paddleHitSound.play();
-        }
-        else if (msg.message.ball.stats === "hit")
-        {
+        } else if (msg.message.ball.stats === "hit") {
           ball.onlyHit.currentTime = 0;
           ball.onlyHit.play();
         }
@@ -129,7 +125,8 @@ const PongLocal = () => {
     const clock = new Clock();
 
     const animate = () => {
-      if (!ready ||
+      if (
+        !ready ||
         !ball.model ||
         !net.boundingBox ||
         !table.boundingBoxTable ||
@@ -148,8 +145,7 @@ const PongLocal = () => {
         !ball.Victory
       )
         return;
-      if(!ball.BackgroundMusic.isPlaying)
-      {
+      if (!ball.BackgroundMusic.isPlaying) {
         ball.BackgroundMusic.currentTime = 0;
         ball.BackgroundMusic.play();
       }
@@ -169,18 +165,19 @@ const PongLocal = () => {
         );
         simulatedTime += fixedStep;
       }
-      
-      if (ball.serving && !ball.timeout && !ball.sendLock)
-      {
-        if ((player === 1 && ball.lastshooter === 1) || (player === 2 && ball.lastshooter === -1))
-        {
+
+      if (ball.serving && !ball.timeout && !ball.sendLock) {
+        if (
+          (player === 1 && ball.lastshooter === 1) ||
+          (player === 2 && ball.lastshooter === -1)
+        ) {
           ball.CheckTimer(websocket);
           ball.labelRenderer.render(sm.current.scene, sm.current.camera);
         }
       }
-      if (Math.floor(((Date.now() - sm.current.lastTime) / 1000)) > 0)
+      if (Math.floor((Date.now() - sm.current.lastTime) / 1000) > 0)
         sm.current.TimerCSS();
-      
+
       const alpha = (timeNow - simulatedTime) / fixedStep;
       ball.x += ball.dx * alpha * fixedStep;
       ball.y += ball.dy * alpha * fixedStep;

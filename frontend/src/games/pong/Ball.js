@@ -1,5 +1,8 @@
 import * as THREE from "three";
-import { CSS2DRenderer, CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer.js";
+import {
+  CSS2DRenderer,
+  CSS2DObject,
+} from "three/examples/jsm/renderers/CSS2DRenderer.js";
 
 const G = 0.0009;
 
@@ -53,20 +56,19 @@ class Ball {
     this.label.position.set(0, 0, 0);
     this.scene.add(this.label);
     this.timeout = false;
-    
   }
 
   serve(ws, net, sign) {
     this.scene.remove(this.label);
-    if(this.player === 1 && sign === 1 || this.player === 2 && sign === -1)
-    {
+    if (
+      (this.player === 1 && sign === 1) ||
+      (this.player === 2 && sign === -1)
+    ) {
       this.scoreSound.currentTime = 0;
       this.scoreSound.play();
       this.scene.add(this.label);
       this.div.textContent = "10 Seconds To Serve the Ball\n\t0s\t";
-    }
-    else
-    {
+    } else {
       this.lostSound.currentTime = 0;
       this.lostSound.play();
     }
@@ -88,14 +90,13 @@ class Ball {
   CheckTimer(ws) {
     const Timer = Math.floor((Date.now() - this.startTime) / 1000);
     this.div.textContent = `10 Seconds To Serve the Ball ${Timer}s`;
-    
+
     if (Timer === 10) {
       this.sendLost(ws);
       this.sendLock = true;
       this.timeout = true;
     }
   }
-  
 
   sendScore(ws) {
     const data = { type: "score", message: {} };
@@ -191,9 +192,7 @@ class Ball {
       this.count = 0;
       this.lastshooter = player1.player;
       flag = true;
-    }
-    else if (player1.rotating)
-    {
+    } else if (player1.rotating) {
       this.swing.currentTime = 0;
       this.swing.play();
     }
@@ -256,72 +255,104 @@ class Ball {
     const listener = new THREE.AudioListener();
 
     // Load all sounds
-    audioLoader.load(`https://${window.location.hostname}:3000/src/games/pong/Sounds/bounce.mp3`, (buffer) => {
-      this.bounceSound = new THREE.Audio(listener);
-      this.bounceSound.setBuffer(buffer);
-      this.bounceSound.setVolume(0.8);
-    });
-    
-    audioLoader.load(`https://${window.location.hostname}:3000/src/games/pong/Sounds/NetHit.mp3`, (buffer) => {
-      this.netHitSound = new THREE.Audio(listener);
-      this.netHitSound.setBuffer(buffer);
-      this.netHitSound.setVolume(0.8);
-    });
-    
-    audioLoader.load(`https://${window.location.hostname}:3000/src/games/pong/Sounds/hit.mp3`, (buffer) => {
-      this.paddleHitSound = new THREE.Audio(listener);
-      this.paddleHitSound.setBuffer(buffer);
-      this.paddleHitSound.setVolume(0.8);
-    });
-    
-    audioLoader.load(`https://${window.location.hostname}:3000/src/games/pong/Sounds/BallHit.mp3`, (buffer) => {
-      this.onlyHit = new THREE.Audio(listener);
-      this.onlyHit.setBuffer(buffer);
-      this.onlyHit.setVolume(0.8);
-    });
+    audioLoader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Sounds/bounce.mp3`,
+      (buffer) => {
+        this.bounceSound = new THREE.Audio(listener);
+        this.bounceSound.setBuffer(buffer);
+        this.bounceSound.setVolume(0.8);
+      },
+    );
 
-    audioLoader.load(`https://${window.location.hostname}:3000/src/games/pong/Sounds/swing.mp3`, (buffer) => {
-      this.swing = new THREE.Audio(listener);
-      this.swing.setBuffer(buffer);
-      this.swing.setVolume(0.5);
-    });
+    audioLoader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Sounds/NetHit.mp3`,
+      (buffer) => {
+        this.netHitSound = new THREE.Audio(listener);
+        this.netHitSound.setBuffer(buffer);
+        this.netHitSound.setVolume(0.8);
+      },
+    );
 
-    audioLoader.load(`https://${window.location.hostname}:3000/src/games/pong/Sounds/Music4.mp3`, (buffer) => {
-      this.BackgroundMusic = new THREE.Audio(listener);
-      this.BackgroundMusic.setBuffer(buffer);
-      this.BackgroundMusic.setVolume(0.1);
-    });
+    audioLoader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Sounds/hit.mp3`,
+      (buffer) => {
+        this.paddleHitSound = new THREE.Audio(listener);
+        this.paddleHitSound.setBuffer(buffer);
+        this.paddleHitSound.setVolume(0.8);
+      },
+    );
 
-    audioLoader.load(`https://${window.location.hostname}:3000/src/games/pong/Sounds/scoring.mp3`, (buffer) => {
-      this.scoreSound = new THREE.Audio(listener);
-      this.scoreSound.setBuffer(buffer);
-      this.scoreSound.setVolume(0.5);
-    });
+    audioLoader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Sounds/BallHit.mp3`,
+      (buffer) => {
+        this.onlyHit = new THREE.Audio(listener);
+        this.onlyHit.setBuffer(buffer);
+        this.onlyHit.setVolume(0.8);
+      },
+    );
 
+    audioLoader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Sounds/swing.mp3`,
+      (buffer) => {
+        this.swing = new THREE.Audio(listener);
+        this.swing.setBuffer(buffer);
+        this.swing.setVolume(0.5);
+      },
+    );
 
-    audioLoader.load(`https://${window.location.hostname}:3000/src/games/pong/Sounds/aww.mp3`, (buffer) => {
-      this.lostSound = new THREE.Audio(listener);
-      this.lostSound.setBuffer(buffer);
-      this.lostSound.setVolume(0.5);
-    });
+    audioLoader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Sounds/Music4.mp3`,
+      (buffer) => {
+        this.BackgroundMusic = new THREE.Audio(listener);
+        this.BackgroundMusic.setBuffer(buffer);
+        this.BackgroundMusic.setVolume(0.1);
+      },
+    );
 
-    audioLoader.load(`https://${window.location.hostname}:3000/src/games/pong/Sounds/MatchPoint.mp3`, (buffer) => {
-      this.ballMatchPoint = new THREE.Audio(listener);
-      this.ballMatchPoint.setBuffer(buffer);
-      this.ballMatchPoint.setVolume(0.5);
-    });
+    audioLoader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Sounds/scoring.mp3`,
+      (buffer) => {
+        this.scoreSound = new THREE.Audio(listener);
+        this.scoreSound.setBuffer(buffer);
+        this.scoreSound.setVolume(0.5);
+      },
+    );
 
-    audioLoader.load(`https://${window.location.hostname}:3000/src/games/pong/Sounds/Defeat.mp3`, (buffer) => {
-      this.Defeat = new THREE.Audio(listener);
-      this.Defeat.setBuffer(buffer);
-      this.Defeat.setVolume(0.5);
-    });
+    audioLoader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Sounds/aww.mp3`,
+      (buffer) => {
+        this.lostSound = new THREE.Audio(listener);
+        this.lostSound.setBuffer(buffer);
+        this.lostSound.setVolume(0.5);
+      },
+    );
 
-    audioLoader.load(`https://${window.location.hostname}:3000/src/games/pong/Sounds/Victory.mp3`, (buffer) => {
-      this.Victory = new THREE.Audio(listener);
-      this.Victory.setBuffer(buffer);
-      this.Victory.setVolume(0.5);
-    });
+    audioLoader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Sounds/MatchPoint.mp3`,
+      (buffer) => {
+        this.ballMatchPoint = new THREE.Audio(listener);
+        this.ballMatchPoint.setBuffer(buffer);
+        this.ballMatchPoint.setVolume(0.5);
+      },
+    );
+
+    audioLoader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Sounds/Defeat.mp3`,
+      (buffer) => {
+        this.Defeat = new THREE.Audio(listener);
+        this.Defeat.setBuffer(buffer);
+        this.Defeat.setVolume(0.5);
+      },
+    );
+
+    audioLoader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Sounds/Victory.mp3`,
+      (buffer) => {
+        this.Victory = new THREE.Audio(listener);
+        this.Victory.setBuffer(buffer);
+        this.Victory.setVolume(0.5);
+      },
+    );
     this.scene.add(this.model);
 
     const box = new THREE.Box3().setFromObject(this.model);
