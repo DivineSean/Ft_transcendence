@@ -1,38 +1,34 @@
-import SceneManager from "./SceneManager";
-import Table from "./Table";
-import Paddle from "./Paddle";
-import Net from "./Net";
-import Ball from "./Ball";
+import SceneManager from "SceneManager";
+import Table from "../Table";
+import Paddle from "../Paddle";
+import Net from "../Net";
+import Ball from "../Ball";
 import { Clock } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState } from "react";
 
-let dt = 1; ////added for debugging purpose
-const Pong = ({ websocket, player, names }) => {
+const PongLocal = () => {
   const sm = useRef(null);
   const loaderRef = useRef(null);
   const loaderTRef = useRef(null);
   const loaderBRef = useRef(null);
   const keyboard = useRef({});
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     loaderTRef.current = new GLTFLoader();
     loaderRef.current = new GLTFLoader();
     loaderBRef.current = new GLTFLoader();
-    sm.current = new SceneManager(player == 2 ? -1 : 1, names);
+    sm.current = new SceneManager();
     // let factor = sm.current.camera.aspect / aspect;
     const table = new Table(sm.current.scene, loaderTRef.current);
     const net = new Net(sm.current.scene, loaderRef.current);
-    const ball = new Ball(sm.current.scene, loaderBRef.current, player);
+    const ball = new Ball(sm.current.scene, loaderBRef.current);
     const controls = {
       up: "ArrowUp",
       down: "ArrowDown",
-      left: "ArrowLeft", // Move left
-      right: "ArrowRight", // Move right
+      left: "ArrowLeft",
+      right: "ArrowRight",
       space: "Space",
-      // Q: "KeyQ"
-      // E: "KeyE",
     };
 
     const players = [
@@ -63,7 +59,7 @@ const Pong = ({ websocket, player, names }) => {
       const opp = player == 1 ? 2 : 1;
       if (msg.type === "score") {
         const scores = JSON.parse(msg.message.scores);
-        setReady(sm.current.scoreUpdate(scores, msg.message.role, ball));
+        ready = sm.current.scoreUpdate(scores, msg.message.role, ball);
         if (msg.message.role === 1) {
           ball.serve(websocket, net, 1);
         } else if (msg.message.role === 2) {
@@ -226,4 +222,4 @@ const Pong = ({ websocket, player, names }) => {
   return <canvas id="pong"></canvas>;
 };
 
-export default Pong;
+export default PongLocal;

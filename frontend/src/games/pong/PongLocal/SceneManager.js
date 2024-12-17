@@ -4,109 +4,97 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
 
 export class SceneManager {
-  constructor(player, names) {
-    this.player = player;
-    this.names = names;
-    // Camera
-    this.camera = new THREE.PerspectiveCamera(
-      80,
-      window.innerWidth / window.innerHeight,
-      1,
-      1000,
-    );
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.position.set(90 * player, 20, 0);
-    this.camera.lookAt(0, -28.5, 0);
-
-    // Renderer
-    this.renderer = new THREE.WebGLRenderer({
-      canvas: document.querySelector("#pong"),
-    });
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-    // this.renderer.shadowMap.type = THREE.VSMShadowMap;
-    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.8;
-
-    // Add OrbitControls for camera manipulation
-
-    const controls = new OrbitControls(this.camera, this.renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.25;
-    controls.screenSpacePanning = false;
-    controls.enableRotate = false;
-    controls.enableZoom = false;
-    controls.enablePan = false;
-    controls.enabled = false;
-    controls.update();
-
-    // Scene
-    this.scene = new THREE.Scene();
-
-    // Lighting (Directional Lights)
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(-80, 20, -45); // Position it above the room
-    directionalLight.target.position.set(0, -25.5, 0); // P
-    directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048; // Shadow map width (increase for higher resolution)
-    directionalLight.shadow.mapSize.height = 2048;
-    directionalLight.shadow.camera.near = 0.5;
-    directionalLight.shadow.camera.far = 200;
-    directionalLight.shadow.camera.left = -200;
-    directionalLight.shadow.camera.right = 200;
-    directionalLight.shadow.camera.top = 200;
-    directionalLight.shadow.camera.bottom = -200;
-    directionalLight.shadow.radius = 0.5;
-    directionalLight.shadow.blurSamples = 3;
-    this.scene.add(directionalLight);
-
-    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight1.position.set(80, 20, 45); // Position it above the room
-    directionalLight1.target.position.set(0, -25.5, 0); // P
-    directionalLight1.castShadow = true;
-    directionalLight1.shadow.mapSize.width = 2048; // Shadow map width (increase for higher resolution)
-    directionalLight1.shadow.mapSize.height = 2048;
-    directionalLight1.shadow.camera.near = 0.5;
-    directionalLight1.shadow.camera.far = 200;
-    directionalLight1.shadow.camera.left = -200;
-    directionalLight1.shadow.camera.right = 200;
-    directionalLight1.shadow.camera.top = 200;
-    directionalLight1.shadow.camera.bottom = -200;
-    directionalLight1.shadow.radius = 0.5;
-    directionalLight1.shadow.blurSamples = 3;
-    this.scene.add(directionalLight1);
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-    this.scene.add(ambientLight);
-
-    this.P1Score = undefined;
-    this.P2Score = undefined;
-    this.P1ScoreBarre = undefined;
-    this.P2ScoreBarre = undefined;
-    this.P1red = undefined;
-    this.P2red = undefined;
-    this.P1MatchPoint = undefined;
-    this.P2MatchPoint = undefined;
-
-    this.startTime = Date.now();
-    this.lastTime = Date.now();
-    this.timerDiv = this.createRoundedPlane(
-      0.4,
-      0.19,
-      0.05,
-      0x212d45,
-      0.4,
-      0,
-      false,
-      undefined,
-    );
-    //this.addTextToPlane(this.timerDiv, "00:00", 0, 0, 0xffffff);
-    this.updateTextOnPlane(this.timerDiv, "00:00", -0.095, 0, 0.05, 0xffffff);
+  constructor() {
+    // Camera 1
+    // this.camera = new THREE.PerspectiveCamera(
+    //   80,
+    //   window.innerWidth / window.innerHeight,
+    //   1,
+    //   1000,
+    // );
+    // this.camera.aspect = window.innerWidth / window.innerHeight;
+    // this.camera.position.set(90, 20, 0);
+    // this.camera.lookAt(0, -28.5, 0);
+    // // Camera 2
+    // this.camera1 = new THREE.PerspectiveCamera(
+    //     80,
+    //     window.innerWidth / window.innerHeight,
+    //     1,
+    //     1000,
+    //   );
+    // this.camera1.aspect = window.innerWidth / window.innerHeight;
+    // this.camera1.position.set(-90, 20, 0);
+    // this.camera1.lookAt(0, -28.5, 0);
+    // // Renderer
+    // this.renderer = new THREE.WebGLRenderer({
+    //   canvas: document.querySelector("#pong"),
+    // });
+    // this.renderer.setPixelRatio(window.devicePixelRatio);
+    // this.renderer.setSize(window.innerWidth, window.innerHeight);
+    // this.renderer.shadowMap.enabled = true;
+    // this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // // this.renderer.shadowMap.type = THREE.VSMShadowMap;
+    // this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    // this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    // this.renderer.toneMappingExposure = 1.8;
+    // // Add OrbitControls for camera manipulation
+    // const controls = new OrbitControls(this.camera, this.renderer.domElement);
+    // controls.enableDamping = true;
+    // controls.dampingFactor = 0.25;
+    // controls.screenSpacePanning = false;
+    // controls.enableRotate = false;
+    // controls.enableZoom = false;
+    // controls.enablePan = false;
+    // controls.enabled = false;
+    // controls.update();
+    // // Scene
+    // this.scene = new THREE.Scene();
+    // // Lighting (Directional Lights)
+    // const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    // directionalLight.position.set(-80, 20, -45); // Position it above the room
+    // directionalLight.target.position.set(0, -25.5, 0); // P
+    // directionalLight.castShadow = true;
+    // directionalLight.shadow.mapSize.width = 2048; // Shadow map width (increase for higher resolution)
+    // directionalLight.shadow.mapSize.height = 2048;
+    // directionalLight.shadow.camera.near = 0.5;
+    // directionalLight.shadow.camera.far = 200;
+    // directionalLight.shadow.camera.left = -200;
+    // directionalLight.shadow.camera.right = 200;
+    // directionalLight.shadow.camera.top = 200;
+    // directionalLight.shadow.camera.bottom = -200;
+    // directionalLight.shadow.radius = 0.5;
+    // directionalLight.shadow.blurSamples = 3;
+    // this.scene.add(directionalLight);
+    // const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1);
+    // directionalLight1.position.set(80, 20, 45); // Position it above the room
+    // directionalLight1.target.position.set(0, -25.5, 0); // P
+    // directionalLight1.castShadow = true;
+    // directionalLight1.shadow.mapSize.width = 2048; // Shadow map width (increase for higher resolution)
+    // directionalLight1.shadow.mapSize.height = 2048;
+    // directionalLight1.shadow.camera.near = 0.5;
+    // directionalLight1.shadow.camera.far = 200;
+    // directionalLight1.shadow.camera.left = -200;
+    // directionalLight1.shadow.camera.right = 200;
+    // directionalLight1.shadow.camera.top = 200;
+    // directionalLight1.shadow.camera.bottom = -200;
+    // directionalLight1.shadow.radius = 0.5;
+    // directionalLight1.shadow.blurSamples = 3;
+    // this.scene.add(directionalLight1);
+    // const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+    // this.scene.add(ambientLight);
+    // this.P1Score = undefined;
+    // this.P2Score = undefined;
+    // this.P1ScoreBarre = undefined;
+    // this.P2ScoreBarre = undefined;
+    // this.P1red = undefined;
+    // this.P2red = undefined;
+    // this.P1MatchPoint = undefined;
+    // this.P2MatchPoint = undefined;
+    // this.startTime = Date.now();
+    // this.lastTime = Date.now();
+    // this.timerDiv = this.createRoundedPlane(0.4, 0.19, 0.05, 0x212d45, 0.4, 0, false, undefined);
+    // //this.addTextToPlane(this.timerDiv, "00:00", 0, 0, 0xffffff);
+    // this.updateTextOnPlane(this.timerDiv, "00:00", -0.095, 0, 0.05, 0xffffff);
   }
 
   TimerCSS() {
