@@ -89,17 +89,18 @@ class sAuthMiddleWare(MiddlewareMixin):
             )
         return response  # Dima rj3 l9lawi
 
+
 class JwtMiddlware(BaseMiddleware):
     def populate_scope(self, scope):
         if "user" not in scope:
             scope["user"] = UserLazyObject()
 
     async def get_user(self, scope):
-        access_token = scope['cookies'].get("accessToken")
-        refresh_token = scope['cookies'].get("refreshToken")
+        access_token = scope["cookies"].get("accessToken")
+        refresh_token = scope["cookies"].get("refreshToken")
 
         user, _ = await self.authenticate(access_token, refresh_token)
-        scope['user'] = user
+        scope["user"] = user
 
     async def resolve_scope(self, scope):
         scope["user"]._wrapped = await self.get_user(scope)
@@ -128,18 +129,19 @@ class JwtMiddlware(BaseMiddleware):
 
         self.populate_scope(scope)
         await self.resolve_scope(scope)
-        if scope['user'] is AnonymousUser:
-            await send({
-                "type": "websocket.accept"
-            })
-            await send({
-                "type": "websocket.close",
-                "code": 4003,
-                "reason": "User in not authenticated",
-            })
+        if scope["user"] is AnonymousUser:
+            await send({"type": "websocket.accept"})
+            await send(
+                {
+                    "type": "websocket.close",
+                    "code": 4003,
+                    "reason": "User in not authenticated",
+                }
+            )
 
             return
         return await super().__call__(scope, receive, send)
+
 
 def JwtAuthMiddlwareStack(inner):
     return CookieMiddleware(JwtMiddlware(inner))
