@@ -17,6 +17,7 @@ import Rankings from "./pages/Rankings";
 import GameManager from "./games/GameManager";
 import Header from "./components/Header";
 import { UserProvider } from "./context/UserContext";
+import PongLocal from "./games/pong/PongLocal/PongLocal";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
               <Route path="profile/:section/" element={<Profile />} />
               <Route path="profile/:section/:username" element={<Profile />} />
               <Route path="games/:game/:mode/:uuid" element={<GameManager />} />
+              <Route path="games/:game/:mode/PongLocal" element={<PongLocal />} />
               <Route path="games/*" element={<Games />} />
               <Route path="register/" element={<SignUp />} />
               <Route path="home/" element={<Home />} />

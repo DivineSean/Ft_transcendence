@@ -1,14 +1,13 @@
 import * as THREE from "three";
 
 class Paddle {
-  constructor(ws, scene, player, position, controls, loader, ball) {
+  constructor(scene, player, position, controls, loader, ball) {
     this.scene = scene;
     this.player = player;
     this.controls = controls;
     this.loader = loader;
     this.ball = ball;
     this.power = 0.0;
-    this.ws = ws;
     this.model = undefined;
     this.shadow = undefined;
     this.boundingBox = undefined;
@@ -34,16 +33,14 @@ class Paddle {
     this.rotating = false;
   }
 
-  update(keyboard, ball, ws, dt) {
+  update(keyboard, ball, dt) {
     if (!this.model) return;
     this.ball = ball;
     this.dx *= 0.8;
     this.dy *= 0.8;
     this.dz *= 0.8;
     let speed = 0.04;
-    let x = this.x;
-    let y = this.y;
-    let z = this.z;
+
     if (this.player == -1) {
       this.x = Math.min(this.x + this.dx * dt, -5);
       speed *= this.player;
@@ -102,55 +99,11 @@ class Paddle {
     else if (this.z < 0 && this.z < -40) this.z = -40;
     if (this.x > 0 && this.x > 50) this.x = 50;
     else if (this.x < 0 && this.x < -50) this.x = -50;
-    if (this.rotating) {
-      const data = {
-        type: "update",
-        message: {
-          content: "rotating",
-          paddle: {
-            rotX: this.rotationX,
-            rotY: this.rotationY,
-            rotZ: this.rotationZ,
-          },
-        },
-      };
-      ws.send(JSON.stringify(data));
-    } else if (this.x !== x || this.z !== z) {
-      const data = {
-        type: "update",
-        message: {
-          content: "paddle",
-          paddle: {
-            x: this.x,
-            y: this.y,
-            z: this.z,
-            dx: this.dx,
-            dy: this.dy,
-            dz: this.dz,
-            rotX: this.rotationX,
-            rotY: this.rotationY,
-            rotZ: this.rotationZ,
-          },
-        },
-      };
-      ws.send(JSON.stringify(data));
-    }
     this.model.position.set(this.x, this.y, this.z);
     this.model.rotation.set(this.rotationX, this.rotationY, this.rotationZ);
     this.boundingBox.setFromObject(this.model);
     let s = new THREE.Vector3();
     this.boundingBox.getCenter(s);
-  }
-
-  send(ws, info, content) {
-    const data = {
-      type: "update",
-      message: {
-        info: info,
-        content: content,
-      },
-    };
-    ws.send(JSON.stringify(data));
   }
 
   checkCollision() {
@@ -168,8 +121,8 @@ class Paddle {
     if (!this.left && !this.right) return;
     this.rotating = true;
     const rotationDuration = 200;
-    const initialRotationY = this.rotationY; // Current rotation around Y axis
-    const initialRotationZ = this.rotationZ; // Current rotation around X axis
+    const initialRotationY = this.rotationY; 
+    const initialRotationZ = this.rotationZ; 
     const initialRotationX = this.rotationX;
     let targetRotationZ;
     let targetRotationY;
@@ -177,41 +130,30 @@ class Paddle {
 
     if (this.left) {
       if (this.player === -1) {
-        targetRotationY = initialRotationY - Math.PI / 4; // Rotate 45 degrees to the left
-      } else targetRotationY = initialRotationY + Math.PI / 4; // Rotate 45 degrees to the left
-      targetRotationZ = initialRotationZ + Math.PI / 8; // Rotate 22.5 degrees around X
+        targetRotationY = initialRotationY - Math.PI / 4;
+      } else targetRotationY = initialRotationY + Math.PI / 4; 
+      targetRotationZ = initialRotationZ + Math.PI / 8; 
       if (this.ball.y > this.boundingBox.max.y) {
         this.rotationY = 0;
         this.rotationX = Math.PI / 2;
         this.rotationZ = -Math.PI / 2;
-
-        // this.rotationX = 0;
-        // if (this.player === -1)
-        // {
-        // 	this.rotationX = -10;
-        // 	targetRotationX = initialRotationX + Math.PI / 2;
-        // }
       }
     } else if (this.right) {
       if (this.player === -1) {
-        targetRotationY = initialRotationY - Math.PI / 4; // Rotate 45 degrees to the right
-      } else targetRotationY = initialRotationY + Math.PI / 4; // Rotate 45 degrees to the right
-      targetRotationZ = initialRotationZ + Math.PI / 8; // Rotate 22.5 degrees around X
+        targetRotationY = initialRotationY - Math.PI / 4;
+      } else targetRotationY = initialRotationY + Math.PI / 4;
+      targetRotationZ = initialRotationZ + Math.PI / 8;
       if (this.ball.y > this.boundingBox.max.y) {
         this.rotationY = 0;
         this.rotationX = Math.PI / 2;
         this.rotationZ = -Math.PI / 2;
-        // this.rotationX = -10;
-        // targetRotationX = initialRotationX + Math.PI / 2;
       }
     }
     const start = Date.now();
 
     const animateRotation = () => {
       const elapsed = Date.now() - start;
-      const t = Math.min(elapsed / rotationDuration, 1); // Clamp t to 0 to 1
-
-      // Easing function (ease-out)
+      const t = Math.min(elapsed / rotationDuration, 1);
       const easedT = 1 - Math.pow(1 - t, 3);
 
       // Update rotations
@@ -275,9 +217,8 @@ class Paddle {
     animateReset();
   }
 
-  shoot(net, keyboard, ball, dt) {
-    // ball.isServed = true;
-    // ball.lastshooter = this.player;
+  shoot(net, keyboard, ball) {
+
     if (this.player === 1) {
       ball.x = this.boundingBox.min.x - 1;
     } else {
@@ -348,7 +289,7 @@ class Paddle {
     } else ball.dz = (Math.abs(this.z - 24) / 10000) * this.player;
   }
 
-  netshoot(ball, net, ws, player) {
+  netshoot(ball, net) {
     ball.dx = Math.min(Math.abs(ball.dx) + 0.05, 0.01);
     if (
       ball.x < net.boundingBox.min.x + ball.radius &&
@@ -365,7 +306,7 @@ class Paddle {
     }
   }
 
-  hit(ball, ws) {
+  hit(ball) {
     // ball.lastshooter = this.player;
     if (this.player === 1) {
       ball.x = this.boundingBox.min.x - ball.radius;
@@ -375,11 +316,6 @@ class Paddle {
 
     ball.dx = Math.min(Math.abs(ball.dx) + 0.05, 0.01);
     ball.dx *= -this.player;
-  }
-
-  updatePos() {
-    this.model.position.set(this.x, this.y, this.z);
-    this.model.rotation.set(this.rotationX, this.rotationY, this.rotationZ);
   }
 
   async render() {

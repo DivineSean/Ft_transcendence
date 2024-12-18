@@ -6,6 +6,7 @@ import Ball from "./Ball";
 import { Clock } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState } from "react";
+import { div } from "three/src/nodes/TSL.js";
 
 let dt = 1; ////added for debugging purpose
 const Pong = ({ websocket, player, names }) => {
@@ -85,8 +86,11 @@ const Pong = ({ websocket, player, names }) => {
         players[opp - 1].rotationZ = msg.message.paddle.rotZ;
         players[opp - 1].updatePos();
       } else if (msg.message.content == "rotating") {
-        ball.swing.currentTime = 0;
-        ball.swing.play();
+        if(!ball.swing.isPlaying)
+        {
+          ball.swing.currentTime = 0;
+          ball.swing.play();
+        }
         players[opp - 1].rotating = true;
         players[opp - 1].rotationX = msg.message.paddle.rotX;
         players[opp - 1].rotationY = msg.message.paddle.rotY;
@@ -94,11 +98,17 @@ const Pong = ({ websocket, player, names }) => {
         players[opp - 1].updatePos();
       } else if (msg.message.content == "ball") {
         if (msg.message.ball.stats === "shoot") {
-          ball.paddleHitSound.currentTime = 0;
-          ball.paddleHitSound.play();
+          if(!ball.paddleHitSound.isPlaying)
+          {
+            ball.paddleHitSound.currentTime = 0;
+            ball.paddleHitSound.play();
+          }
         } else if (msg.message.ball.stats === "hit") {
-          ball.onlyHit.currentTime = 0;
-          ball.onlyHit.play();
+          if(!ball.onlyHit.isPlaying)
+          {
+            ball.onlyHit.currentTime = 0;
+            ball.onlyHit.play();
+          }
         }
         ball.x = msg.message.ball.x;
         ball.y = msg.message.ball.y;
@@ -120,7 +130,7 @@ const Pong = ({ websocket, player, names }) => {
     sm.current.render();
     table.render();
     net.render();
-    ball.render();
+    ball.render(sm.current);
     players[0].render();
     players[1].render();
 
@@ -223,7 +233,13 @@ const Pong = ({ websocket, player, names }) => {
       window.removeEventListener("resize", onWindowResize);
     };
   }, [ready]);
-  return <canvas id="pong"></canvas>;
+
+  return (
+    <div id="message" className="relative w-full h-screen overflow-hidden">
+      <canvas id="pong" className="block w-full h-full"></canvas>
+    </div>
+  );
+  
 };
 
 export default Pong;
