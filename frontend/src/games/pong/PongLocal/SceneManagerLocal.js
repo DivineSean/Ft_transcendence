@@ -110,8 +110,8 @@ export class SceneManager {
     this.P2ScoreBarreS1 = undefined;
     this.P1redS1 = undefined;
     this.P2redS1 = undefined;
-    this.P1MatchPointS1 = undefined;
-    this.P2MatchPointS1 = undefined;
+    this.P1MatchPointS1 = null;
+    this.P2MatchPointS1 = null;
 
     this.P1ScoreS2 = undefined;
     this.P2ScoreS2 = undefined;
@@ -119,8 +119,8 @@ export class SceneManager {
     this.P2ScoreBarreS2 = undefined;
     this.P1redS2 = undefined;
     this.P2redS2 = undefined;
-    this.P1MatchPointS2 = undefined;
-    this.P2MatchPointS2 = undefined;
+    this.P1MatchPointS2 = null;
+    this.P2MatchPointS2 = null;
 
     this.audioLoader = new THREE.AudioLoader();
     this.listener = new THREE.AudioListener();
@@ -182,36 +182,24 @@ export class SceneManager {
 
   updateTextOnPlane(plane, text, x, y, z, color) {
     const loader = new FontLoader();
-
     loader.load(
       `https://${window.location.hostname}:3000/src/games/pong/Font.json`,
       (font) => {
-        // Remove the old text mesh (if any)
         plane.children.forEach((child) => {
           if (child.isMesh && child.geometry instanceof TextGeometry) {
             plane.remove(child);
-            child.geometry.dispose(); // Clean up geometry
-            child.material.dispose(); // Clean up material
+            child.geometry.dispose();
+            child.material.dispose();
           }
         });
-
-        // Create new text geometry
         const textGeometry = new TextGeometry(text, {
           font: font,
           size: 0.07,
           depth: 0.01,
         });
-
-        // Create new material
         const textMaterial = new THREE.MeshBasicMaterial({ color: color });
-
-        // Create new text mesh
         const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-
-        // Set position of the new text
         textMesh.position.set(x, y, z);
-
-        // Add the new text mesh to the plane
         plane.add(textMesh);
       },
     );
@@ -236,6 +224,8 @@ export class SceneManager {
       ball.serve(net, -1);
     }
     if (P[0] === 6) {
+      this.RemovePlaneText(this.P1MatchPointS1);
+      this.RemovePlaneText(this.P1MatchPointS2);
       this.P1MatchPointS1 = this.createRoundedPlane(1, this.camera,
         0.6,
         0.19,
@@ -256,12 +246,14 @@ export class SceneManager {
         false,
         undefined,
       );
-      this.P1MatchPointS1.position.set(this.P1MatchPointS1.position.x, this.P1MatchPointS1.position.y - 0.5, this.P1MatchPointS1.position.z + 0.3);
-      this.P1MatchPointS2.position.set(this.P1MatchPointS2.position.x, this.P1MatchPointS2.position.y - 0.5, this.P1MatchPointS2.position.z - 0.3);
+      this.P1MatchPointS1.position.set(this.P1MatchPointS1.position.x, this.P1MatchPointS1.position.y - 0.5, this.P1MatchPointS1.position.z);
+      this.P1MatchPointS2.position.set(this.P1MatchPointS2.position.x, this.P1MatchPointS2.position.y - 0.5, this.P1MatchPointS2.position.z);
       this.addTextToPlane(this.P1MatchPointS1, "Match Point", -0.25, 0, 0xffffff);
       this.addTextToPlane(this.P1MatchPointS2, "Match Point", -0.25, 0, 0xffffff);
     } 
     if (P[1] === 6) {
+      this.RemovePlaneText(this.P2MatchPointS1);
+      this.RemovePlaneText(this.P2MatchPointS2);
       this.P2MatchPointS1 = this.createRoundedPlane(1, this.camera,
         0.6,
         0.19,
@@ -282,16 +274,19 @@ export class SceneManager {
         false,
         undefined,
       );
-      this.P2MatchPointS1.position.set(this.P2MatchPointS1.position.x, this.P2MatchPointS1.position.y - 0.5, this.P2MatchPointS1.position.z + 0.3);
-      this.P2MatchPointS2.position.set(this.P2MatchPointS2.position.x, this.P2MatchPointS2.position.y - 0.5, this.P2MatchPointS2.position.z - 0.3);
+      this.P2MatchPointS1.position.set(this.P2MatchPointS1.position.x, this.P2MatchPointS1.position.y - 0.5, this.P2MatchPointS1.position.z);
+      this.P2MatchPointS2.position.set(this.P2MatchPointS2.position.x, this.P2MatchPointS2.position.y - 0.5, this.P2MatchPointS2.position.z);
       this.addTextToPlane(this.P2MatchPointS1, "Match Point", -0.25, 0, 0xffffff);
       this.addTextToPlane(this.P2MatchPointS2, "Match Point", -0.25, 0, 0xffffff);
     }
     if ((P[0] === 6) || (P[1] === 6)) 
     {
-      ball.BackgroundMusic.setVolume(0.03);
-      ball.ballMatchPoint.currentTime = 0;
-      ball.ballMatchPoint.play();
+      if (!ball.BackgroundMusic.isPlaying)
+      {
+        ball.BackgroundMusic.setVolume(0.03);
+        ball.ballMatchPoint.currentTime = 0;
+        ball.ballMatchPoint.play();
+      }
     }
     this.updateTextOnPlane(this.P1ScoreBarreS1, P[0].toString(), 0, 0, 0.03, 0xffffff);
     this.updateTextOnPlane(this.P2ScoreBarreS1, P[1].toString(), 0, 0, 0.03, 0xffffff);
@@ -387,6 +382,17 @@ export class SceneManager {
     this.scene.add(Score);
     return Score;
   }
+
+  RemoveText(plane) {
+    if (!plane) return;
+    for (let i = plane.children.length - 1; i >= 0; i--) {
+        const child = plane.children[i];
+        plane.remove(child);
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) child.material.dispose();
+    }
+  }
+
 
   scoreRender(flag, whoscore) {
     // NameBar
@@ -622,10 +628,84 @@ export class SceneManager {
       this.updateTextOnPlane(this.timerDivS2, "00:00", -0.095, 0, 0.05, 0xffffff);
   }
 
+
+  RemovePlaneText(plane)
+  {
+    if (plane)
+      {
+        this.RemoveText(plane);
+        this.scene.remove(plane);
+        if (plane.geometry) plane.geometry.dispose();
+        if (plane.material) plane.material.dispose();
+        plane = null;
+      }
+  }
+
+  addMatchPoint(Score)
+  {
+    if (Score[0] === 6)
+    {
+      this.RemovePlaneText(this.P1MatchPointS1);
+      this.RemovePlaneText(this.P1MatchPointS2);
+      this.P1MatchPointS1 = this.createRoundedPlane(1, this.camera,
+        0.6,
+        0.19,
+        0.05,
+        0x212d45,
+        0.13,
+        -0.82,
+        false,
+        undefined,
+      );
+      this.P1MatchPointS2 = this.createRoundedPlane(-1, this.camera2,
+        0.6,
+        0.19,
+        0.05,
+        0x212d45,
+        0.13,
+        -(0.82 * -1),
+        false,
+        undefined,
+      );
+      this.P1MatchPointS1.position.set(this.P1MatchPointS1.position.x, this.P1MatchPointS1.position.y - 0.5, this.P1MatchPointS1.position.z);
+      this.P1MatchPointS2.position.set(this.P1MatchPointS2.position.x, this.P1MatchPointS2.position.y - 0.5, this.P1MatchPointS2.position.z);
+      this.addTextToPlane(this.P1MatchPointS1, "Match Point", -0.25, 0, 0xffffff);
+      this.addTextToPlane(this.P1MatchPointS2, "Match Point", -0.25, 0, 0xffffff);
+    }
+    if (Score[1] === 6)
+    {
+      this.RemovePlaneText(this.P2MatchPointS1);
+      this.RemovePlaneText(this.P2MatchPointS2);
+      this.P2MatchPointS1 = this.createRoundedPlane(1, this.camera,
+        0.6,
+        0.19,
+        0.05,
+        0x212d45,
+        -0.13,
+        -(0.82),
+        false,
+        undefined,
+      );
+      this.P2MatchPointS2 = this.createRoundedPlane(-1, this.camera2,
+        0.6,
+        0.19,
+        0.05,
+        0x212d45,
+        -0.13,
+        -(0.82 * -1),
+        false,
+        undefined,
+      );
+      this.P2MatchPointS1.position.set(this.P2MatchPointS1.position.x, this.P2MatchPointS1.position.y - 0.5, this.P2MatchPointS1.position.z);
+      this.P2MatchPointS2.position.set(this.P2MatchPointS2.position.x, this.P2MatchPointS2.position.y - 0.5, this.P2MatchPointS2.position.z);
+      this.addTextToPlane(this.P2MatchPointS1, "Match Point", -0.25, 0, 0xffffff);
+      this.addTextToPlane(this.P2MatchPointS2, "Match Point", -0.25, 0, 0xffffff);
+    }
+  }
+
   render() {
-    // Optional: Adding a point light for more localized highlights or for lighting specific areas (like the center of the room)
-    const pointLight = new THREE.PointLight(0xffffff, 100000, 500); // Low intensity, limited range
-    pointLight.position.set(0, -150, 0); // Placing in the center of the room
+    const pointLight = new THREE.PointLight(0xffffff, 100000, 500);
+    pointLight.position.set(0, -150, 0);
     this.createWall(100, 0, 0, 200, 110, true, pointLight);
     this.createWall(-100, 0, 0, 200, 110, true, pointLight);
     this.createWall(0, 0, 100, 200, 110, false, pointLight);
@@ -651,17 +731,13 @@ export class SceneManager {
     this.scene.remove(this.P2ScoreBarreS1);
     this.scene.remove(this.P1redS1);
     this.scene.remove(this.P2redS1);
-    this.scene.remove(this.P1MatchPointS1);
-    this.scene.remove(this.P2MatchPointS1);
-
+    
     this.scene.remove(this.P1ScoreS2);
     this.scene.remove(this.P2ScoreS2);
     this.scene.remove(this.P1ScoreBarreS2);
     this.scene.remove(this.P2ScoreBarreS2);
     this.scene.remove(this.P1redS2);
     this.scene.remove(this.P2redS2);
-    this.scene.remove(this.P1MatchPointS2);
-    this.scene.remove(this.P2MatchPointS2);
   }
 
 

@@ -222,6 +222,7 @@ const Pong = ({ websocket, player, names }) => {
       ball.labelRenderer.setSize(window.innerWidth, window.innerHeight);
       sm.current.ScalePlan();
       sm.current.scoreRender(ball.scoreboard, ball.whoscore);
+      sm.current.addMatchPoint(ball.scoreboard);
       sm.current.TimeRender(false);
       sm.current.TimerCSS();
     };

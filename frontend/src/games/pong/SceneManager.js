@@ -136,8 +136,8 @@ export class SceneManager {
       side: THREE.DoubleSide,
     });
     const wall = new THREE.Mesh(wallGeometry, wallMaterial);
-    wall.rotateX(Math.PI / 2); // Rotate to stand vertically
-    wall.position.set(x, y, z); // Adjust position
+    wall.rotateX(Math.PI / 2);
+    wall.position.set(x, y, z);
     wall.receiveShadow = true;
     pointLight.target = wall;
     this.scene.add(wall);
@@ -149,32 +149,21 @@ export class SceneManager {
     loader.load(
       `https://${window.location.hostname}:3000/src/games/pong/Font.json`,
       (font) => {
-        // Remove the old text mesh (if any)
         plane.children.forEach((child) => {
           if (child.isMesh && child.geometry instanceof TextGeometry) {
             plane.remove(child);
-            child.geometry.dispose(); // Clean up geometry
-            child.material.dispose(); // Clean up material
+            child.geometry.dispose();
+            child.material.dispose();
           }
         });
-
-        // Create new text geometry
         const textGeometry = new TextGeometry(text, {
           font: font,
           size: 0.07,
           depth: 0.01,
         });
-
-        // Create new material
         const textMaterial = new THREE.MeshBasicMaterial({ color: color });
-
-        // Create new text mesh
         const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-
-        // Set position of the new text
         textMesh.position.set(x, y, z);
-
-        // Add the new text mesh to the plane
         plane.add(textMesh);
       },
     );
@@ -189,6 +178,7 @@ export class SceneManager {
     if (whoScore === 1) this.scene.add(this.P1red);
     else if (whoScore === 2) this.scene.add(this.P2red);
     if (P["1"] === "6") {
+      this.RemovePlaneText(this.P1MatchPoint);
       this.P1MatchPoint = this.createRoundedPlane(
         0.6,
         0.19,
@@ -199,10 +189,11 @@ export class SceneManager {
         false,
         undefined,
       );
-      this.P1MatchPoint.position.set(this.P1MatchPoint.position.x, this.P1MatchPoint.position.y - 0.5, this.P1MatchPoint.position.z + (0.3 * this.player));
+      this.P1MatchPoint.position.set(this.P1MatchPoint.position.x, this.P1MatchPoint.position.y - 0.5, this.P1MatchPoint.position.z);
       this.addTextToPlane(this.P1MatchPoint, "Match Point", -0.25, 0, 0xffffff);
     }
     if (P["2"] === "6") {
+      this.RemovePlaneText(this.P2MatchPoint);
       this.P2MatchPoint = this.createRoundedPlane(
         0.6,
         0.19,
@@ -213,7 +204,7 @@ export class SceneManager {
         false,
         undefined,
       );
-      this.P2MatchPoint.position.set(this.P2MatchPoint.position.x, this.P2MatchPoint.position.y - 0.5, this.P2MatchPoint.position.z + (0.3 * this.player));
+      this.P2MatchPoint.position.set(this.P2MatchPoint.position.x, this.P2MatchPoint.position.y - 0.5, this.P2MatchPoint.position.z);
       this.addTextToPlane(this.P2MatchPoint, "Match Point", -0.25, 0, 0xffffff);
     }
     if (
@@ -268,7 +259,6 @@ export class SceneManager {
           }
         }
       }
-      this.renderer.xr.getSession().end();
       return false;
     }
     return true;
@@ -524,8 +514,64 @@ export class SceneManager {
     this.scene.remove(this.P2ScoreBarre);
     this.scene.remove(this.P1red);
     this.scene.remove(this.P2red);
-    this.scene.remove(this.P1MatchPoint);
-    this.scene.remove(this.P2MatchPoint);
+  }
+
+  RemoveText(plane) {
+    if (!plane) return;
+    for (let i = plane.children.length - 1; i >= 0; i--) {
+        const child = plane.children[i];
+        plane.remove(child);
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) child.material.dispose();
+    }
+  }
+
+  RemovePlaneText(plane)
+  {
+    if (plane)
+      {
+        this.RemoveText(plane);
+        this.scene.remove(plane);
+        if (plane.geometry) plane.geometry.dispose();
+        if (plane.material) plane.material.dispose();
+        plane = null;
+      }
+  }
+
+  addMatchPoint(Score)
+  {
+    if (Score[0] === 6)
+    {
+      this.RemovePlaneText(this.P1MatchPoint);
+      this.P1MatchPoint = this.createRoundedPlane(
+        0.6,
+        0.19,
+        0.05,
+        0x212d45,
+        0.13,
+        -(0.82 * this.player),
+        false,
+        undefined,
+      );
+      this.P1MatchPoint.position.set(this.P1MatchPoint.position.x, this.P1MatchPoint.position.y - 0.5, this.P1MatchPoint.position.z);
+      this.addTextToPlane(this.P1MatchPoint, "Match Point", -0.25, 0, 0xffffff);
+    }
+    if (Score[1] === 6)
+    {
+      this.RemovePlaneText(this.P2MatchPoint);
+      this.P2MatchPoint = this.createRoundedPlane(
+        0.6,
+        0.19,
+        0.05,
+        0x212d45,
+        -0.13,
+        -(0.82 * this.player),
+        false,
+        undefined,
+      );
+      this.P2MatchPoint.position.set(this.P2MatchPoint.position.x, this.P2MatchPoint.position.y - 0.5, this.P2MatchPoint.position.z);
+      this.addTextToPlane(this.P2MatchPoint, "Match Point", -0.25, 0, 0xffffff);
+    }
   }
 
   cleanUp() {}
