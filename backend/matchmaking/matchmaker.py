@@ -1,8 +1,10 @@
 from channels.consumer import database_sync_to_async
+from django.db.models.base import sync_to_async
 from games.models import Game, PlayerRating
 from games.serializers import GameRoomSerializer, GameSerializer
 from channels.layers import get_channel_layer
 from django.conf import settings
+from games.tasks import mark_game_room_as_expired
 import redis
 import time
 import asyncio
@@ -77,10 +79,14 @@ class Matchmaker:
         game_data = {"game": game_id, "players": players}
         serializer = GameRoomSerializer(data=game_data)
         game_room = None
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid():
             game = serializer.create(serializer.validated_data)
             serialized = GameRoomSerializer(game)
             game_room = serialized.data
+            mark_game_room_as_expired.apply_async(
+                args=[game_room['id']],
+                countdown=GAME_EXPIRATION
+            )
         return game_room
 
     def create_batches(self, players, rating_tolerance):
@@ -169,7 +175,6 @@ class Matchmaker:
             game_room = await self.create_game(game["id"], match)
             if game_room:
                 r.hset(f"game_room_state:{game_room['id']}", mapping=game_room)
-                r.expire(f"game_room_state:{game_room['id']}", GAME_EXPIRATION)
                 # Notify all players
                 for i in range(0, len(channels)):
                     await channel_layer.send(
