@@ -198,24 +198,6 @@ def getFriendRequests(request):
     return Response(data)
 
 
-@api_view(["GET"])
-def getFriendRequests(request):
-    friendRequestList = FriendshipRequest.objects.filter(
-        Q(toUser=request._user)
-    ).select_related("fromUser")
-    data = {}
-    for request in friendRequestList:
-        data = {
-            "first_name": request.toUser.first_name,
-            "last_name": request.toUser.last_name,
-            "username": request.toUser.username,
-            "id": request.toUser.id,
-            "profile_image": str(request.toUser.profile_image),
-        }
-    return Response(data)
-
-
-#  {"User2":"37774119-da08-4302-b389-40f9d5d8043c"}
 @api_view(["POST"])
 def areFriends(request):  # Expecting User2 (ID)
     user2 = request.data.get("User2")

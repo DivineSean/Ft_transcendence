@@ -135,6 +135,7 @@ const ProfileFriends = ({ username }) => {
   }
 
   const friendRequest = [];
+	console.log('user', userContextData.userFriendRequest);
   if (
     userContextData &&
     userContextData.userInfo &&
