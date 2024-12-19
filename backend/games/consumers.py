@@ -1,6 +1,4 @@
-from channels.consumer import database_sync_to_async
 from channels.generic.websocket import WebsocketConsumer, async_to_sync
-from channels.layers import asyncio
 from rest_framework.serializers import ValidationError
 from games.serializers import GameRoomSerializer, PlayerSerializer
 from django.conf import settings
@@ -19,35 +17,6 @@ r = redis.Redis(
 ACCEPT_DEADLINE=1000
 
 class GameConsumer(WebsocketConsumer):
-    def broadcast_game_accept(self, game_state):
-        self.send(
-            text_data=json.dumps({"type": "accept", "message": game_state})
-        )
-
-    def connect_player(self):
-        # INFO:
-        # if one of the players isnt ready, send accept_match event
-        # else if the player is reconnecting send reconneting event
-        # WARNING: still have to handle spectators (players not taking part of the game)
-        try:
-            # WARNING: the data is all manipulated in redis atm, will implement presistent data later
-            game_state = r.hgetall(f"game_room_state:{self.game_uuid}")
-            if not game_state:
-                game = GameRoom.objects.get(pk=self.game_uuid)
-                serializer = GameRoomSerializer(game)
-                game_state = serializer.data
-                r.hset(f"game_room_state:{self.game_uuid}", mapping=game_state)
-            print("---------------> ", game_state, flush=True)
-            self.players = game_state["players_details"] = json.loads(game_state["players_details"])
-        except Exception as e:
-            self.close(code=1006, reason=e)
-            return
-
-        print(" game_state ---------------> ", game_state, self.players, flush=True)
-        self.send(
-            text_data=json.dumps({"type": "game_manager", "message": game_state})
-        )
-
     def connect(self):
         self.accept()
         self.user_id = str(self.scope["user"].id)
@@ -90,6 +59,30 @@ class GameConsumer(WebsocketConsumer):
                 )
             case "ready":
                 self.update_readiness()
+
+    def connect_player(self):
+        # INFO:
+        # if one of the players isnt ready, send accept_match event
+        # else if the player is reconnecting send reconneting event
+        # WARNING: still have to handle spectators (players not taking part of the game)
+        try:
+            # WARNING: the data is all manipulated in redis atm, will implement presistent data later
+            game_state = r.hgetall(f"game_room_state:{self.game_uuid}")
+            if not game_state:
+                game = GameRoom.objects.get(pk=self.game_uuid)
+                serializer = GameRoomSerializer(game)
+                game_state = serializer.data
+                r.hset(f"game_room_state:{self.game_uuid}", mapping=game_state)
+            print("---------------> ", game_state, flush=True)
+            self.players = game_state["players_details"] = json.loads(game_state["players_details"])
+        except Exception as e:
+            self.close(code=1006, reason=e)
+            return
+
+        print(" game_state ---------------> ", game_state, self.players, flush=True)
+        self.send(
+            text_data=json.dumps({"type": "game_manager", "message": game_state})
+        )
 
     def update_score(self):
 
@@ -150,6 +143,10 @@ class GameConsumer(WebsocketConsumer):
                     "message": game_state
                 },
             )
+    def save_game_state(self, countdown=60):
+        # save data to redis
+        # schedule a task to read from redis and update the db
+        pass
 
     def whisper(self, event):
         if event["sender"] != self.channel_name:

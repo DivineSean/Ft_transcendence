@@ -27,3 +27,7 @@ def mark_game_room_as_expired(game_room_id):
             return f"GameRoom {game_room_id} marked as expired."
     except GameRoom.DoesNotExist:
         return f"GameRoom {game_room_id} does not exist."
+
+@shared_task
+def sync_game_room_state(game_room_id):
+# TODO: get game room state from redis, then update the state field in the database accordingly
