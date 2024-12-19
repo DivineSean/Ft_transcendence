@@ -220,6 +220,10 @@ const Pong = ({ websocket, player, names }) => {
 
       sm.current.renderer.setSize(window.innerWidth, window.innerHeight);
       ball.labelRenderer.setSize(window.innerWidth, window.innerHeight);
+      sm.current.ScalePlan();
+      sm.current.scoreRender(ball.scoreboard, ball.whoscore);
+      sm.current.TimeRender(false);
+      sm.current.TimerCSS();
     };
 
     window.addEventListener("keydown", handleKeyDown);

@@ -133,7 +133,7 @@ const PongLocal = () => {
     const handleKeyUp = (event) => {
       keyboard.current[event.code] = false;
     };
-
+    
     const onWindowResize = () => {
       sm.current.camera.aspect = (window.innerWidth / 2) / window.innerHeight;
       sm.current.camera.updateProjectionMatrix();
@@ -141,6 +141,10 @@ const PongLocal = () => {
       sm.current.camera2.updateProjectionMatrix();
 
       sm.current.renderer.setSize(window.innerWidth, window.innerHeight);
+      sm.current.ScalePlan();
+      sm.current.scoreRender(ball.scoreboard, ball.whoscore);
+      sm.current.TimeRender(false);
+      sm.current.TimerCSS();
     };
 
     window.addEventListener("keydown", handleKeyDown);

@@ -122,33 +122,6 @@ export class SceneManager {
     this.P1MatchPointS2 = undefined;
     this.P2MatchPointS2 = undefined;
 
-    this.startTime = Date.now();
-    this.lastTime = Date.now();
-    this.timerDivS1 = this.createRoundedPlane(1, this.camera,
-      0.4,
-      0.19,
-      0.05,
-      0x212d45,
-      0.4,
-      0,
-      false,
-      undefined,
-    );
-    this.timerDivS1.position.set(this.timerDivS1.position.x, this.timerDivS1.position.y - 0.5, this.timerDivS1.position.z + 0.3);
-    this.updateTextOnPlane(this.timerDivS1, "00:00", -0.095, 0, 0.05, 0xffffff);
-    this.timerDivS2 = this.createRoundedPlane(-1, this.camera2,
-      0.4,
-      0.19,
-      0.05,
-      0x212d45,
-      0.4,
-      0,
-      false,
-      undefined,
-    );
-    this.timerDivS2.position.set(this.timerDivS2.position.x, this.timerDivS2.position.y - 0.5, this.timerDivS2.position.z - 0.3);
-    this.updateTextOnPlane(this.timerDivS2, "00:00", -0.095, 0, 0.05, 0xffffff);
-
     this.audioLoader = new THREE.AudioLoader();
     this.listener = new THREE.AudioListener();
   }
@@ -249,6 +222,7 @@ export class SceneManager {
     this.scene.remove(this.P1redS2);
     this.scene.remove(this.P2redS1);
     this.scene.remove(this.P2redS2);
+    ball.whoscore = whoScore;
     if (whoScore === 1){
       this.scene.add(this.P1redS1);
       this.scene.add(this.P1redS2);
@@ -414,7 +388,7 @@ export class SceneManager {
     return Score;
   }
 
-  scoreRender() {
+  scoreRender(flag, whoscore) {
     // NameBar
     this.P1ScoreS1 = this.createRoundedPlane(1, this.camera,
       1,
@@ -426,7 +400,7 @@ export class SceneManager {
       false,
       undefined,
     );
-    this.P1ScoreS1.position.set(this.P1ScoreS1.position.x, this.P1ScoreS1.position.y - 0.5, this.P1ScoreS1.position.z + 0.3);
+    this.P1ScoreS1.position.set(this.P1ScoreS1.position.x, this.P1ScoreS1.position.y - 0.5, this.P1ScoreS1.position.z);
     this.addTextToPlane(this.P1ScoreS1, "Player 1", -0.4, 0, 0x000000);
 
     this.P1ScoreS2 = this.createRoundedPlane(-1, this.camera2,
@@ -439,7 +413,7 @@ export class SceneManager {
       false,
       undefined,
     );
-    this.P1ScoreS2.position.set(this.P1ScoreS2.position.x, this.P1ScoreS2.position.y - 0.5, this.P1ScoreS2.position.z - 0.3);
+    this.P1ScoreS2.position.set(this.P1ScoreS2.position.x, this.P1ScoreS2.position.y - 0.5, this.P1ScoreS2.position.z);
     this.addTextToPlane(this.P1ScoreS2, "Player 1", -0.4, 0, 0x000000);
 
     this.P2ScoreS1 = this.createRoundedPlane(1, this.camera,
@@ -452,7 +426,7 @@ export class SceneManager {
       false,
       undefined,
     );
-    this.P2ScoreS1.position.set(this.P2ScoreS1.position.x, this.P2ScoreS1.position.y - 0.5, this.P2ScoreS1.position.z + 0.3);
+    this.P2ScoreS1.position.set(this.P2ScoreS1.position.x, this.P2ScoreS1.position.y - 0.5, this.P2ScoreS1.position.z);
     this.addTextToPlane(this.P2ScoreS1, "Player 2", -0.4, 0, 0x000000);
 
     this.P2ScoreS2 = this.createRoundedPlane(-1, this.camera2,
@@ -465,7 +439,7 @@ export class SceneManager {
       false,
       undefined,
     );
-    this.P2ScoreS2.position.set(this.P2ScoreS2.position.x, this.P2ScoreS2.position.y - 0.5, this.P2ScoreS2.position.z - 0.3);
+    this.P2ScoreS2.position.set(this.P2ScoreS2.position.x, this.P2ScoreS2.position.y - 0.5, this.P2ScoreS2.position.z);
     this.addTextToPlane(this.P2ScoreS2, "Player 2", -0.4, 0, 0x000000);
 
     // ScoreBarre
@@ -479,8 +453,11 @@ export class SceneManager {
       true,
       undefined,
     );
-    this.P1ScoreBarreS1.position.set(this.P1ScoreBarreS1.position.x, this.P1ScoreBarreS1.position.y - 0.5, this.P1ScoreBarreS1.position.z + 0.3);
-    this.addTextToPlane(this.P1ScoreBarreS1, "0", 0, 0, 0xffffff);
+    this.P1ScoreBarreS1.position.set(this.P1ScoreBarreS1.position.x, this.P1ScoreBarreS1.position.y - 0.5, this.P1ScoreBarreS1.position.z);
+    if (flag === undefined)
+      this.addTextToPlane(this.P1ScoreBarreS1, "0", 0, 0, 0xffffff);
+    else
+      this.addTextToPlane(this.P1ScoreBarreS1, flag[0].toString(), 0, 0, 0xffffff);
 
     this.P1ScoreBarreS2 = this.createRoundedPlane(-1, this.camera2,
       0.2,
@@ -492,8 +469,11 @@ export class SceneManager {
       true,
       undefined,
     );
-    this.P1ScoreBarreS2.position.set(this.P1ScoreBarreS2.position.x, this.P1ScoreBarreS2.position.y - 0.5, this.P1ScoreBarreS2.position.z - 0.3);
-    this.addTextToPlane(this.P1ScoreBarreS2, "0", 0, 0, 0xffffff);
+    this.P1ScoreBarreS2.position.set(this.P1ScoreBarreS2.position.x, this.P1ScoreBarreS2.position.y - 0.5, this.P1ScoreBarreS2.position.z);
+    if(flag === undefined)
+      this.addTextToPlane(this.P1ScoreBarreS2, "0", 0, 0, 0xffffff);
+    else
+      this.addTextToPlane(this.P1ScoreBarreS2, flag[0].toString(), 0, 0, 0xffffff);
 
     this.P2ScoreBarreS1 = this.createRoundedPlane(1, this.camera,
       0.2,
@@ -505,8 +485,11 @@ export class SceneManager {
       true,
       undefined,
     );
-    this.P2ScoreBarreS1.position.set(this.P2ScoreBarreS1.position.x, this.P2ScoreBarreS1.position.y - 0.5, this.P2ScoreBarreS1.position.z + 0.3);
-    this.addTextToPlane(this.P2ScoreBarreS1, "0", 0, 0, 0xffffff);
+    this.P2ScoreBarreS1.position.set(this.P2ScoreBarreS1.position.x, this.P2ScoreBarreS1.position.y - 0.5, this.P2ScoreBarreS1.position.z);
+    if(flag === undefined)
+      this.addTextToPlane(this.P2ScoreBarreS1, "0", 0, 0, 0xffffff);
+    else
+      this.addTextToPlane(this.P2ScoreBarreS1, flag[1].toString(), 0, 0, 0xffffff);
 
     this.P2ScoreBarreS2 = this.createRoundedPlane(-1, this.camera2,
       0.2,
@@ -518,10 +501,19 @@ export class SceneManager {
       true,
       undefined,
     );
-    this.P2ScoreBarreS2.position.set(this.P2ScoreBarreS2.position.x, this.P2ScoreBarreS2.position.y - 0.5, this.P2ScoreBarreS2.position.z - 0.3);
-    this.addTextToPlane(this.P2ScoreBarreS2, "0", 0, 0, 0xffffff);
+    this.P2ScoreBarreS2.position.set(this.P2ScoreBarreS2.position.x, this.P2ScoreBarreS2.position.y - 0.5, this.P2ScoreBarreS2.position.z);
+    if(flag === undefined)
+      this.addTextToPlane(this.P2ScoreBarreS2, "0", 0, 0, 0xffffff);
+    else
+      this.addTextToPlane(this.P2ScoreBarreS2, flag[1].toString(), 0, 0, 0xffffff);
 
     // ServeBarre
+    let P1redFlag = false;
+    let P2redFlag = false;
+    if (whoscore === 1)
+      P1redFlag = true;
+    else
+      P2redFlag = true;
     this.P1redS1 = this.createRoundedPlane(1, this.camera,
       0.04,
       0.19,
@@ -529,7 +521,7 @@ export class SceneManager {
       0xb30000,
       0,
       -0.306,
-      true,
+      P1redFlag,
       this.P1ScoreS1,
     );
     this.P1redS2 = this.createRoundedPlane(-1, this.camera2,
@@ -539,7 +531,7 @@ export class SceneManager {
       0xb30000,
       0,
       -0.306 * -1,
-      true,
+      P1redFlag,
       this.P1ScoreS2,
     );
     this.P2redS1 = this.createRoundedPlane(1, this.camera,
@@ -549,7 +541,7 @@ export class SceneManager {
       0xb30000,
       0,
       -0.326,
-      false,
+      P2redFlag,
       this.P2ScoreS1,
     );
     this.P2redS2 = this.createRoundedPlane(-1, this.camera2,
@@ -559,7 +551,7 @@ export class SceneManager {
       0xb30000,
       0,
       -0.326 * -1,
-      false,
+      P2redFlag,
       this.P2ScoreS2,
     );
   }
@@ -600,6 +592,36 @@ export class SceneManager {
     this.renderer.setScissorTest(false);
   }
 
+  TimeRender(flag)
+  {
+    this.timerDivS1 = this.createRoundedPlane(1, this.camera,
+      0.4,
+      0.19,
+      0.05,
+      0x212d45,
+      0.4,
+      0,
+      false,
+      undefined,
+    );
+    this.timerDivS1.position.set(this.timerDivS1.position.x, this.timerDivS1.position.y - 0.5, this.timerDivS1.position.z);
+    if (flag === true)
+      this.updateTextOnPlane(this.timerDivS1, "00:00", -0.095, 0, 0.05, 0xffffff);
+    this.timerDivS2 = this.createRoundedPlane(-1, this.camera2,
+      0.4,
+      0.19,
+      0.05,
+      0x212d45,
+      0.4,
+      0,
+      false,
+      undefined,
+    );
+    this.timerDivS2.position.set(this.timerDivS2.position.x, this.timerDivS2.position.y - 0.5, this.timerDivS2.position.z);
+    if (flag === true)
+      this.updateTextOnPlane(this.timerDivS2, "00:00", -0.095, 0, 0.05, 0xffffff);
+  }
+
   render() {
     // Optional: Adding a point light for more localized highlights or for lighting specific areas (like the center of the room)
     const pointLight = new THREE.PointLight(0xffffff, 100000, 500); // Low intensity, limited range
@@ -613,8 +635,35 @@ export class SceneManager {
     this.scene.add(pointLight);
 
     //score
-    this.scoreRender();
+    this.scoreRender(undefined, 1);
+    this.startTime = Date.now();
+    this.lastTime = Date.now();
+    this.TimeRender(true);
   }
+
+  ScalePlan()
+  {
+    this.scene.remove(this.timerDivS1);
+    this.scene.remove(this.timerDivS2);
+    this.scene.remove(this.P1ScoreS1);
+    this.scene.remove(this.P2ScoreS1);
+    this.scene.remove(this.P1ScoreBarreS1);
+    this.scene.remove(this.P2ScoreBarreS1);
+    this.scene.remove(this.P1redS1);
+    this.scene.remove(this.P2redS1);
+    this.scene.remove(this.P1MatchPointS1);
+    this.scene.remove(this.P2MatchPointS1);
+
+    this.scene.remove(this.P1ScoreS2);
+    this.scene.remove(this.P2ScoreS2);
+    this.scene.remove(this.P1ScoreBarreS2);
+    this.scene.remove(this.P2ScoreBarreS2);
+    this.scene.remove(this.P1redS2);
+    this.scene.remove(this.P2redS2);
+    this.scene.remove(this.P1MatchPointS2);
+    this.scene.remove(this.P2MatchPointS2);
+  }
+
 
   cleanUp() {}
 }

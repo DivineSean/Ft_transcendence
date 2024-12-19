@@ -27,6 +27,8 @@ class Ball {
     this.DorV = 0;
     this.player = player;
     this.radius = 0;
+    this.scoreboard = [0, 0];
+    this.whoscore = 1;
 
     this.x = 42;
     // this.y = 6;
