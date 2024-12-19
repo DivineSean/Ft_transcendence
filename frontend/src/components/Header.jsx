@@ -208,7 +208,7 @@ const Header = ({ ...props }) => {
                   : "/images/default.jpeg"
               }
               alt="profile pic"
-              className="w-full"
+              className="grow object-cover"
             />
           </div>
           <div onClick={toggleMenu} className="lg:hidden block cursor-pointer">

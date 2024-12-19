@@ -18,6 +18,7 @@ import GameManager from "./games/GameManager";
 import Header from "./components/Header";
 import { UserProvider } from "./context/UserContext";
 import PongLocal from "./games/pong/PongLocal/PongLocal";
+import { NotifProvider } from "./context/NotifContext";
 
 function App() {
   return (
@@ -26,7 +27,8 @@ function App() {
       <Router>
         <AuthProvider>
           <UserProvider>
-            <Routes>
+              <NotifProvider>
+               <Routes>
               <Route path="forgotpassword/" element={<ForgotPassword />} />
               <Route path="forgotpassword/:uid" element={<ForgotPassword />} />
               <Route path="setupusername/:uid" element={<SetUpUsername />} />
@@ -46,6 +48,7 @@ function App() {
               <Route path="rankings" element={<Rankings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </NotifProvider>
           </UserProvider>
         </AuthProvider>
       </Router>

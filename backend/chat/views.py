@@ -15,8 +15,7 @@ from django.conf import settings
 from .serializers import ConversationSerializer, UserSerializerOne
 
 
-class GetConversationRooms(APIView):
-
+class ChatConversation(APIView):
     def get(self, request):
         user_id = request.user.id
 
@@ -42,6 +41,7 @@ class GetConversationRooms(APIView):
             "users": [
                 {
                     "conversationId": conversation.ConversationId,
+                    "isBlocked": conversation.isBlocked,
                     "lastMessage": conversation.latest_message,
                     "messageDate": (
                         conversation.latest_message_timestamp.strftime("%b %d, %H:%M")
@@ -62,37 +62,47 @@ class GetConversationRooms(APIView):
 
         return Response(serialized_data)
 
-
-class SendMessage(APIView):
-
     def post(self, request, *args, **kwargs):
+
         try:
-            ReceiverData = Users.objects.get(id=request.data.get("receiverID"))
-            if ReceiverData.email == request._user.email:
+            userData = Users.objects.get(id=request.data.get("userId"))
+            if userData.email == request._user.email:
                 return Response("Same clients", status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response(
                 "ID of receiver not valid", status=status.HTTP_400_BAD_REQUEST
             )
-        newConversation, isNew = Conversation.objects.get_or_create(
-            Sender=request._user, Receiver=ReceiverData
-        )
+
+        conversation = Conversation.objects.filter(
+            Q(Sender=request._user, Receiver=userData)
+            | Q(Sender=userData, Receiver=request._user)
+        ).exists()
+
         response = Response(status=status.HTTP_200_OK)
 
-        if not isNew:
-            resData = {
-                "message": "Conversation already created",
-                "ConversationID": str(newConversation.ConversationId),
-                "sender": str(user.email),
-            }
-            response.status_code = status.HTTP_400_BAD_REQUEST
-        else:
+        if not conversation:
+            newConversation = Conversation.objects.create(
+                Sender=request._user, Receiver=userData
+            )
             resData = {
                 "message": "Conversation  created",
-                "ConversationID": str(newConversation.ConversationId),
-                "sender": str(user.email),
+                "conversationId": str(newConversation.ConversationId),
+                "sender": str(request._user.email),
             }
             response.status_code = status.HTTP_201_CREATED
+
+        else:
+            conv = Conversation.objects.get(
+                Q(Sender=request._user, Receiver=userData)
+                | Q(Sender=userData, Receiver=request._user)
+            )
+            resData = {
+                "message": "Conversation already created",
+                "conversationId": str(conv.ConversationId),
+                "sender": str(request._user.email),
+            }
+            response.status_code = status.HTTP_200_OK
+
         response.data = resData
 
         return response
