@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import TwoFA from "./pages/authentication/TwoFA";
 import SetUpUsername from "./pages/authentication/SetUpUsername";
 import Rankings from "./pages/Rankings";
+import GameManager from "./games/GameManager";
 import Header from "./components/Header";
 import { UserProvider } from "./context/UserContext";
 import { NotifProvider } from "./context/NotifContext";

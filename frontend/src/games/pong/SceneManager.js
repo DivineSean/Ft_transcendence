@@ -16,8 +16,6 @@ export class SceneManager {
     );
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.position.set(90 * player, 20, 0);
-    // this.camera.position.set(90 * player, -24, 0);//9dam
-    // this.camera.position.set(0 * player, -24, 90);//jenb
     this.camera.lookAt(0, -28.5, 0);
 
     // Renderer
@@ -26,8 +24,8 @@ export class SceneManager {
     });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.shadowMap.enabled = true; // Enable shadow maps in the renderer
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Use soft shadows (optional)
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     // this.renderer.shadowMap.type = THREE.VSMShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -35,14 +33,19 @@ export class SceneManager {
     this.renderer.toneMappingExposure = 1.8;
 
     // Add OrbitControls for camera manipulation
+
     const controls = new OrbitControls(this.camera, this.renderer.domElement);
-    controls.enableDamping = true; // Optional, for smooth camera movement
-    controls.dampingFactor = 0.25; // Optional, controls the speed of damping
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.25;
     controls.screenSpacePanning = false;
+    controls.enableRotate = false;
+    controls.enableZoom = false;
+    controls.enablePan = false;
+    controls.enabled = false;
+    controls.update();
 
     // Scene
     this.scene = new THREE.Scene();
-    // this.scene.background = new THREE.Color(0x000000); // This will be set to the HDRI later
 
     // Lighting (Directional Lights)
 
@@ -87,6 +90,41 @@ export class SceneManager {
     this.P2ScoreBarre = undefined;
     this.P1red = undefined;
     this.P2red = undefined;
+    this.P1MatchPoint = undefined;
+    this.P2MatchPoint = undefined;
+
+    this.startTime = Date.now();
+    this.lastTime = Date.now();
+    this.timerDiv = this.createRoundedPlane(
+      0.4,
+      0.19,
+      0.05,
+      0x212d45,
+      0.4,
+      0,
+      false,
+      undefined,
+    );
+    //this.addTextToPlane(this.timerDiv, "00:00", 0, 0, 0xffffff);
+    this.updateTextOnPlane(this.timerDiv, "00:00", -0.095, 0, 0.05, 0xffffff);
+  }
+
+  TimerCSS() {
+    this.lastTime = Date.now();
+    const elapsedTimeInSeconds = Math.floor(
+      (this.lastTime - this.startTime) / 1000,
+    );
+    const minutes = Math.floor(elapsedTimeInSeconds / 60);
+    const seconds = elapsedTimeInSeconds % 60;
+    const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    this.updateTextOnPlane(
+      this.timerDiv,
+      `${formattedTime}`,
+      -0.095,
+      0,
+      0.05,
+      0xffffff,
+    );
   }
 
   createWall(x, y, z, width, height, rotate, pointLight) {
@@ -117,7 +155,7 @@ export class SceneManager {
     this.scene.add(wall);
   }
 
-  updateTextOnPlane(plane, text, x, y, color) {
+  updateTextOnPlane(plane, text, x, y, z, color) {
     const loader = new FontLoader();
 
     loader.load(
@@ -133,7 +171,6 @@ export class SceneManager {
         });
 
         // Create new text geometry
-        console.log(text);
         const textGeometry = new TextGeometry(text, {
           font: font,
           size: 0.07,
@@ -147,7 +184,7 @@ export class SceneManager {
         const textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
         // Set position of the new text
-        textMesh.position.set(x, y, 0.03);
+        textMesh.position.set(x, y, z);
 
         // Add the new text mesh to the plane
         plane.add(textMesh);
@@ -155,13 +192,77 @@ export class SceneManager {
     );
   }
 
-  scoreUpdate(P, whoScore) {
+  scoreUpdate(P, whoScore, ball) {
     this.scene.remove(this.P1red);
     this.scene.remove(this.P2red);
     if (whoScore === 1) this.scene.add(this.P1red);
     else if (whoScore === 2) this.scene.add(this.P2red);
-    this.updateTextOnPlane(this.P1ScoreBarre, P["1"], 0, 0, 0xffffff);
-    this.updateTextOnPlane(this.P2ScoreBarre, P["2"], 0, 0, 0xffffff);
+    if (P["1"] === "6") {
+      this.P1MatchPoint = this.createRoundedPlane(
+        0.6,
+        0.19,
+        0.05,
+        0x212d45,
+        0.13,
+        -(0.82 * this.player),
+        false,
+        undefined,
+      );
+      this.addTextToPlane(this.P1MatchPoint, "Match Point", -0.25, 0, 0xffffff);
+    } else if (P["2"] === "6") {
+      this.P2MatchPoint = this.createRoundedPlane(
+        0.6,
+        0.19,
+        0.05,
+        0x212d45,
+        -0.13,
+        -(0.82 * this.player),
+        false,
+        undefined,
+      );
+      this.addTextToPlane(this.P2MatchPoint, "Match Point", -0.25, 0, 0xffffff);
+    }
+    if (
+      (this.player === -1 && P["1"] === "6") ||
+      (this.player === 1 && P["2"] === "6")
+    ) {
+      ball.BackgroundMusic.setVolume(0.03);
+      ball.ballMatchPoint.currentTime = 0;
+      ball.ballMatchPoint.play();
+    }
+    this.updateTextOnPlane(this.P1ScoreBarre, P["1"], 0, 0, 0.03, 0xffffff);
+    this.updateTextOnPlane(this.P2ScoreBarre, P["2"], 0, 0, 0.03, 0xffffff);
+    if (P["1"] === "7" || P["2"] === "7") {
+      ball.bounceSound.setVolume(0);
+      ball.netHitSound.setVolume(0);
+      ball.paddleHitSound.setVolume(0);
+      ball.onlyHit.setVolume(0);
+      ball.swing.setVolume(0);
+      ball.scoreSound.setVolume(0);
+      ball.BackgroundMusic.setVolume(0);
+      ball.lostSound.setVolume(0);
+      ball.ballMatchPoint.setVolume(0);
+      if (P["1"] === "7") {
+        if (this.player === 1) {
+          ball.Victory.currentTime = 0;
+          ball.Victory.play();
+        } else {
+          ball.Defeat.currentTime = 0;
+          ball.Defeat.play();
+        }
+      } else {
+        if (this.player === 1) {
+          ball.Defeat.currentTime = 0;
+          ball.Defeat.play();
+        } else {
+          ball.Victory.currentTime = 0;
+          ball.Victory.play();
+        }
+      }
+      this.renderer.xr.getSession().end();
+      return false;
+    }
+    return true;
   }
 
   createRoundedPlane(width, height, radius, clor, y, z, flag, PlayerScore) {
