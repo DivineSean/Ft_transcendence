@@ -41,7 +41,7 @@ class Users(AbstractUser):
 
     isOnline = models.BooleanField(default=False)
     isTwoFa = models.BooleanField(default=False)
-    about = models.TextField()
+    about = models.TextField(blank=True)
     profile_image = models.ImageField(
         upload_to="profile_images/", blank=True, null=True
     )

@@ -328,8 +328,8 @@ const Profile = () => {
                     <div className="bg-stroke-sc min-h-[1px] w-full"></div>
                     <div className="flex flex-col gap-8">
                       <h1 className="text-h-lg-md font-bold">about</h1>
-                      <p className="text-txt-xs leading-16 text-gray">
-                        {contextData.profileInfo.about}
+                      <p className={`text-txt-xs leading-16 ${contextData.profileInfo.about ? 'text-gray' : 'text-stroke-sc'}`}>
+                        {contextData.profileInfo.about ? contextData.profileInfo.about : 'no about provided'}
                       </p>
                     </div>
                     <div className="bg-stroke-sc min-h-[1px] w-full"></div>
@@ -410,8 +410,8 @@ const Profile = () => {
                     </div>
                     <div className="flex flex-col gap-16 max-w-[432px] md:items-start items-center md:text-left text-center">
                       <h1 className="text-h-sm-sm font-bold">about</h1>
-                      <p className="text-txt-xs leading-16 text-gray">
-                        {contextData.profileInfo.about}
+                      <p className={`text-txt-xs leading-16 ${contextData.profileInfo.about ? 'text-gray' : 'text-stroke-sc'}`}>
+												{contextData.profileInfo.about ? contextData.profileInfo.about : 'no about provided'}
                       </p>
                     </div>
                   </div>
