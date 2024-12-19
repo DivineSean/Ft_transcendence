@@ -3,38 +3,54 @@ from . import views
 
 urlpatterns = [
     path(
-        "friends/SendRequest/",
+        "api/friendrequests/",
+        views.getFriendRequests,
+        name="getFr",
+    ),
+    path(
+        "api/friendrequest/send/",
         views.SendFriendRequest.as_view(),
         name="send_friend_request",
     ),
     path(
-        "friends/AcceptRequest/",
+        "api/friendrequest/accept/",
         views.AcceptFriendRequest.as_view(),
         name="Accept_friend_request",
     ),
     path(
-        "friends/declineRequest/",
+        "api/friendrequest/decline/",
         views.DeclineFriendRequest.as_view(),
         name="Decline_friend_request",
     ),
     path(
-        "friends/getFriends/",
+        "api/friendrequest/cancel/",
+        views.cancelFriendRequest,
+        name="cancel_friend_request",
+    ),
+    path(
+        "api/friends/",
         views.getFriendsView,
         name="getFriends",
+    ),
+    path(
+        "api/friends/<str:username>",
+        views.getFriendsView,
+        name="getFriends",
+    ),
+    path(
+        "api/friend/block/",
+        views.blockUser,
+        name="blockUser",
+    ),
+    path(
+        "api/friend/unfriend/",
+        views.unfriend,
+        name="unfriend",
     ),
     path(
         "friends/areFriends/",
         views.areFriends,
         name="areFriends",
     ),
-    path(
-        "friends/blockUser/",
-        views.blockUser,
-        name="blockUser",
-    ),
-    path(
-        "friends/getfr/",
-        views.getFriendRequests,
-        name="getFr",
-    ),
+    path("api/user/unblock/", views.unblockUser, name="unblockUser"),
 ]

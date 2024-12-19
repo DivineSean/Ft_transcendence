@@ -16,6 +16,7 @@ from django.forms.models import model_to_dict
 from rest_framework import exceptions, status
 from rest_framework.response import Response
 from .models import Users, TwoFactorCode
+from friendship.models import FriendshipRequest, Friendship
 from rest_framework.views import APIView
 from django.shortcuts import render
 from django.core.cache import cache
@@ -31,6 +32,7 @@ import uuid
 import jwt
 import re
 from PIL import Image
+from django.db.models import Prefetch, OuterRef, Subquery, F, Q
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -351,17 +353,23 @@ class CheckPasswordChange(APIView):
 class Profile(APIView):
 
     def get(self, request, username=None):
-        if username == "0":
+        foundedUser = "yes"
+        print("username", username, flush=True)
+
+        try:
+            if not username:
+                username = request._user.username
+                print("hna manakynch username", username)
+            user = Users.objects.filter(username=username).first()
+
+            if not user:
+                print("mal9inach user bhad l username", flush=True)
+                user = request.user
+                foundedUser = "no"
+                # return Response({"error", "user not found"}, status=404)
+        except:
             user = request.user
-        else:
-            try:
-                user = Users.objects.filter(username=username).first()
-                if not user:
-                    return Response({"error", "user not found"}, status=404)
-            except:
-                # print('warah dakchi mahowach', flush=True)
-                return Response({"error", "user not found"}, status=404)
-            # if not user:
+            foundedUser = "no"
 
         if user.profile_image:
             imagePath = os.path.join(settings.MEDIA_ROOT, str(user.profile_image))
@@ -369,16 +377,53 @@ class Profile(APIView):
                 user.profile_image = None
                 user.save()
 
+        print("found", foundedUser, flush=True)
+        extraFields = {}
+        if foundedUser == "yes" and user != request._user:
+            isFriend = Friendship.objects.filter(
+                Q(user1=user, user2=request._user) | Q(user1=request._user, user2=user)
+            ).exists()
+
+            isSentRequest = FriendshipRequest.objects.filter(
+                fromUser=user, toUser=request._user
+            ).exists()
+
+            isReceiveRequest = FriendshipRequest.objects.filter(
+                fromUser=request._user, toUser=user
+            ).exists()
+
+            isBlockedByUser = str(request._user.id) in user.blockedUsers or False
+            isUserBlocked = str(user.id) in request._user.blockedUsers or False
+
+            # print('ewa sf 3afa weldi ===========>', request._user.blockedUsers.get('blockedUsers', []), user.id, isUserBlocked, flush=True)
+
+            extraFields = {
+                "isFriend": isFriend,
+                "isSentRequest": isSentRequest,
+                "isBlockedByUser": isBlockedByUser,
+                "isUserBlocked": isUserBlocked,
+                "isReceiveRequest": isReceiveRequest,
+            }
+
         # print(f'user {user}', flush=True)
         serializer = UserSerializer(user)
+        print(extraFields, flush=True)
         # print(serializer.data)
-        return Response(serializer.data)
+        return Response(
+            {
+                **serializer.data,
+                "found": foundedUser,
+                "me": user.id == request._user.id,
+                **extraFields,
+            }
+        )
 
     def put(self, request, username=None):
         user = request.user
 
         new_username = request.data.get("username", None)
         if new_username:
+            new_username = new_username.lower()
             username_regex = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]{3,}$")
             if not username_regex.match(new_username):
                 return Response(
@@ -421,7 +466,10 @@ class Profile(APIView):
 
         serializer = UserSerializer(user)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            {**serializer.data, "me": user.id == request._user.id},
+            status=status.HTTP_200_OK,
+        )
 
 
 @api_view(["POST"])
