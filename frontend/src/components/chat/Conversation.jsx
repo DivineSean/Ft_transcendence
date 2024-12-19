@@ -291,8 +291,8 @@ const Conversation = ({
 				</form>
 			}
 			{ friendInfo.isBlocked &&
-				<div className="text-txt-sm text-center p-16 text-stroke-sc lowercase bg-black/20 rounded-md">
-					sorr you cannot send any message because this conversatoin is blocked
+				<div className="cursor-not-allowed text-txt-sm text-center p-16 text-stroke-sc lowercase bg-black/20 rounded-md">
+					sorry you cannot send any message because this conversatoin is blocked
 				</div>
 			}
     </div>
