@@ -134,9 +134,8 @@ const ModeDetails = ({ games }) => {
           : undefined;
       if (!modeObject) navigate(`/games/${game}`);
     }
-    if (mode === "local")
-      navigate("PongLocal");
-  }, [])
+    if (mode === "local") navigate("PongLocal");
+  }, []);
 
   const Modes = () => {
     switch (mode) {
@@ -145,7 +144,11 @@ const ModeDetails = ({ games }) => {
       case "online":
         return <OnlineGame game={game} />;
       case "local":
-        return <div className="h-full flex flex-col justify-center items-center p-8">Waiting...</div>;
+        return (
+          <div className="h-full flex flex-col justify-center items-center p-8">
+            Waiting...
+          </div>
+        );
       default:
         return <div>no such mode</div>;
     }

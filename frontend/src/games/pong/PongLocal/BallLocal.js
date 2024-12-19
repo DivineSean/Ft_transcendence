@@ -22,7 +22,7 @@ class Ball {
     this.Victory = undefined;
     this.DorV = 0;
     this.radius = 0;
-    this.scoreboard = [0 , 0];
+    this.scoreboard = [0, 0];
     this.whoscore = 1;
 
     this.x = 42;
@@ -40,15 +40,11 @@ class Ball {
   }
 
   serve(net, sign) {
-    if (sign === 1 && !this.scoreSound.isPlaying)
-    {
+    if (sign === 1 && !this.scoreSound.isPlaying) {
       this.scoreSound.currentTime = 0;
       this.scoreSound.play();
-    } 
-    else
-    {
-      if(!this.lostSound.isPlaying)
-      {
+    } else {
+      if (!this.lostSound.isPlaying) {
         this.lostSound.currentTime = 0;
         this.lostSound.play();
       }
@@ -77,36 +73,27 @@ class Ball {
       }
       return;
     }
-    if (this.boundingSphere.intersectsBox(table.boundingBoxTable))
-    {
+    if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
       this.y = table.boundingBoxTable.max.y + 1;
       this.dy *= -0.6;
-      if (!this.bounceSound.isPlaying)
-      {
+      if (!this.bounceSound.isPlaying) {
         this.bounceSound.currentTime = 0;
         this.bounceSound.play();
       }
-      if (!this.serving)
-        this.count++;
+      if (!this.serving) this.count++;
       if (this.x < 0) this.lastshooter = -1;
       else this.lastshooter = 1;
-      if (this.count === 2)
-      {
-        if (this.lastshooter === -1)
-        {
+      if (this.count === 2) {
+        if (this.lastshooter === -1) {
           sm.scoreUpdate(this.scoreboard, 1, this, net);
-        }
-        else if (this.lastshooter === 1)
-        {
+        } else if (this.lastshooter === 1) {
           sm.scoreUpdate(this.scoreboard, 2, this, net);
         }
         return;
       }
     }
-    if (this.boundingSphere.intersectsBox(net.boundingBox))
-    {
-      if (!this.netHitSound.isPlaying)
-      {
+    if (this.boundingSphere.intersectsBox(net.boundingBox)) {
+      if (!this.netHitSound.isPlaying) {
         this.netHitSound.currentTime = 0.5;
         this.netHitSound.play();
       }
@@ -115,10 +102,11 @@ class Ball {
     }
 
     //Paddles
-    if (this.boundingSphere.intersectsBox(player1.boundingBox) && player1.rotating)
-    {
-      if (!this.paddleHitSound.isPlaying)
-      {
+    if (
+      this.boundingSphere.intersectsBox(player1.boundingBox) &&
+      player1.rotating
+    ) {
+      if (!this.paddleHitSound.isPlaying) {
         this.paddleHitSound.currentTime = 0;
         this.paddleHitSound.play();
       }
@@ -126,25 +114,29 @@ class Ball {
       player1.shoot(net, keyboard, this, dt);
       this.lastshooter = player1.player;
       this.count = 0;
-    } else if (this.boundingSphere.intersectsBox(player1.boundingBox) && !player1.rotating && !this.serving) {
-      if (!this.onlyHit.isPlaying)
-      {
+    } else if (
+      this.boundingSphere.intersectsBox(player1.boundingBox) &&
+      !player1.rotating &&
+      !this.serving
+    ) {
+      if (!this.onlyHit.isPlaying) {
         this.onlyHit.currentTime = 0;
         this.onlyHit.play();
       }
       player1.hit(this);
       this.count = 0;
       this.lastshooter = player1.player;
-    } else if (player1.rotating && !this.swing.isPlaying){
+    } else if (player1.rotating && !this.swing.isPlaying) {
       this.swing.currentTime = 0;
       this.swing.play();
     }
 
     //Paddles
-    if (this.boundingSphere.intersectsBox(player2.boundingBox) && player2.rotating)
-    {
-      if (!this.paddleHitSound.isPlaying)
-      {
+    if (
+      this.boundingSphere.intersectsBox(player2.boundingBox) &&
+      player2.rotating
+    ) {
+      if (!this.paddleHitSound.isPlaying) {
         this.paddleHitSound.currentTime = 0;
         this.paddleHitSound.play();
       }
@@ -152,16 +144,19 @@ class Ball {
       player2.shoot(net, keyboard, this);
       this.lastshooter = player2.player;
       this.count = 0;
-    } else if (this.boundingSphere.intersectsBox(player2.boundingBox) && !player2.rotating && !this.serving) {
-      if (!this.onlyHit.isPlaying)
-      {
+    } else if (
+      this.boundingSphere.intersectsBox(player2.boundingBox) &&
+      !player2.rotating &&
+      !this.serving
+    ) {
+      if (!this.onlyHit.isPlaying) {
         this.onlyHit.currentTime = 0;
         this.onlyHit.play();
       }
       player2.hit(this);
       this.count = 0;
       this.lastshooter = player2.player;
-    } else if (player2.rotating && !this.swing.isPlaying){
+    } else if (player2.rotating && !this.swing.isPlaying) {
       this.swing.currentTime = 0;
       this.swing.play();
     }

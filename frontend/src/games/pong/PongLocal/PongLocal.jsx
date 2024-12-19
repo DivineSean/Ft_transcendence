@@ -26,19 +26,19 @@ const PongLocal = () => {
 
     const controls = [
       {
-        up: "KeyW",         
-        down: "KeyS",      
-        left: "KeyA",      
-        right: "KeyD",      
-        space: "Space",    
+        up: "KeyW",
+        down: "KeyS",
+        left: "KeyA",
+        right: "KeyD",
+        space: "Space",
       },
       {
-        up: "Numpad8", 
-        down: "Numpad2", 
-        left: "Numpad4",    
-        right: "Numpad6",   
+        up: "Numpad8",
+        down: "Numpad2",
+        left: "Numpad4",
+        right: "Numpad6",
         space: "ShiftRight",
-      }
+      },
     ];
     const players = [
       new Paddle(
@@ -58,7 +58,6 @@ const PongLocal = () => {
         ball,
       ),
     ];
-
 
     sm.current.render();
     table.render();
@@ -101,7 +100,8 @@ const PongLocal = () => {
 
       table.update();
       while (timeNow > simulatedTime + fixedStep) {
-        ball.update(sm.current,
+        ball.update(
+          sm.current,
           net,
           table,
           players[0],
@@ -133,11 +133,11 @@ const PongLocal = () => {
     const handleKeyUp = (event) => {
       keyboard.current[event.code] = false;
     };
-    
+
     const onWindowResize = () => {
-      sm.current.camera.aspect = (window.innerWidth / 2) / window.innerHeight;
+      sm.current.camera.aspect = window.innerWidth / 2 / window.innerHeight;
       sm.current.camera.updateProjectionMatrix();
-      sm.current.camera2.aspect = (window.innerWidth / 2) / window.innerHeight;
+      sm.current.camera2.aspect = window.innerWidth / 2 / window.innerHeight;
       sm.current.camera2.updateProjectionMatrix();
 
       sm.current.renderer.setSize(window.innerWidth, window.innerHeight);

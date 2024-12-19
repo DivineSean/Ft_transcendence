@@ -86,8 +86,7 @@ const Pong = ({ websocket, player, names }) => {
         players[opp - 1].rotationZ = msg.message.paddle.rotZ;
         players[opp - 1].updatePos();
       } else if (msg.message.content == "rotating") {
-        if(!ball.swing.isPlaying)
-        {
+        if (!ball.swing.isPlaying) {
           ball.swing.currentTime = 0;
           ball.swing.play();
         }
@@ -98,14 +97,12 @@ const Pong = ({ websocket, player, names }) => {
         players[opp - 1].updatePos();
       } else if (msg.message.content == "ball") {
         if (msg.message.ball.stats === "shoot") {
-          if(!ball.paddleHitSound.isPlaying)
-          {
+          if (!ball.paddleHitSound.isPlaying) {
             ball.paddleHitSound.currentTime = 0;
             ball.paddleHitSound.play();
           }
         } else if (msg.message.ball.stats === "hit") {
-          if(!ball.onlyHit.isPlaying)
-          {
+          if (!ball.onlyHit.isPlaying) {
             ball.onlyHit.currentTime = 0;
             ball.onlyHit.play();
           }
@@ -244,7 +241,6 @@ const Pong = ({ websocket, player, names }) => {
       <canvas id="pong" className="block w-full h-full"></canvas>
     </div>
   );
-  
 };
 
 export default Pong;

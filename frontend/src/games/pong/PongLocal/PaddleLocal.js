@@ -121,8 +121,8 @@ class Paddle {
     if (!this.left && !this.right) return;
     this.rotating = true;
     const rotationDuration = 200;
-    const initialRotationY = this.rotationY; 
-    const initialRotationZ = this.rotationZ; 
+    const initialRotationY = this.rotationY;
+    const initialRotationZ = this.rotationZ;
     const initialRotationX = this.rotationX;
     let targetRotationZ;
     let targetRotationY;
@@ -131,8 +131,8 @@ class Paddle {
     if (this.left) {
       if (this.player === -1) {
         targetRotationY = initialRotationY - Math.PI / 4;
-      } else targetRotationY = initialRotationY + Math.PI / 4; 
-      targetRotationZ = initialRotationZ + Math.PI / 8; 
+      } else targetRotationY = initialRotationY + Math.PI / 4;
+      targetRotationZ = initialRotationZ + Math.PI / 8;
       if (this.ball.y > this.boundingBox.max.y) {
         this.rotationY = 0;
         this.rotationX = Math.PI / 2;
@@ -218,7 +218,6 @@ class Paddle {
   }
 
   shoot(net, keyboard, ball) {
-
     if (this.player === 1) {
       ball.x = this.boundingBox.min.x - 1;
     } else {

@@ -189,7 +189,11 @@ export class SceneManager {
         false,
         undefined,
       );
-      this.P1MatchPoint.position.set(this.P1MatchPoint.position.x, this.P1MatchPoint.position.y - 0.5, this.P1MatchPoint.position.z);
+      this.P1MatchPoint.position.set(
+        this.P1MatchPoint.position.x,
+        this.P1MatchPoint.position.y - 0.5,
+        this.P1MatchPoint.position.z,
+      );
       this.addTextToPlane(this.P1MatchPoint, "Match Point", -0.25, 0, 0xffffff);
     }
     if (P["2"] === "6") {
@@ -204,15 +208,18 @@ export class SceneManager {
         false,
         undefined,
       );
-      this.P2MatchPoint.position.set(this.P2MatchPoint.position.x, this.P2MatchPoint.position.y - 0.5, this.P2MatchPoint.position.z);
+      this.P2MatchPoint.position.set(
+        this.P2MatchPoint.position.x,
+        this.P2MatchPoint.position.y - 0.5,
+        this.P2MatchPoint.position.z,
+      );
       this.addTextToPlane(this.P2MatchPoint, "Match Point", -0.25, 0, 0xffffff);
     }
     if (
       (this.player === -1 && P["1"] === "6") ||
       (this.player === 1 && P["2"] === "6")
     ) {
-      if(!ball.BackgroundMusic.isPlaying)
-      {
+      if (!ball.BackgroundMusic.isPlaying) {
         ball.BackgroundMusic.setVolume(0.03);
         ball.ballMatchPoint.currentTime = 0;
         ball.ballMatchPoint.play();
@@ -232,28 +239,24 @@ export class SceneManager {
       ball.ballMatchPoint.setVolume(0);
       if (P["1"] === "7") {
         if (this.player === 1) {
-          if(!ball.Victory.isPlaying)
-          {
+          if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
           }
         } else {
-          if(!ball.Defeat.isPlaying)
-          {
+          if (!ball.Defeat.isPlaying) {
             ball.Defeat.currentTime = 0;
             ball.Defeat.play();
           }
         }
       } else {
         if (this.player === 1) {
-          if(!ball.Defeat.isPlaying)
-          {
+          if (!ball.Defeat.isPlaying) {
             ball.Defeat.currentTime = 0;
             ball.Defeat.play();
           }
         } else {
-          if(!ball.Victory.isPlaying)
-          {
+          if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
           }
@@ -347,7 +350,11 @@ export class SceneManager {
       false,
       undefined,
     );
-    this.P1Score.position.set(this.P1Score.position.x, this.P1Score.position.y - 0.5, this.P1Score.position.z);
+    this.P1Score.position.set(
+      this.P1Score.position.x,
+      this.P1Score.position.y - 0.5,
+      this.P1Score.position.z,
+    );
     this.addTextToPlane(this.P1Score, this.names[0], -0.4, 0, 0x000000);
 
     if (this.player === -1) {
@@ -373,7 +380,11 @@ export class SceneManager {
         undefined,
       );
     }
-    this.P2Score.position.set(this.P2Score.position.x, this.P2Score.position.y - 0.5, this.P2Score.position.z);
+    this.P2Score.position.set(
+      this.P2Score.position.x,
+      this.P2Score.position.y - 0.5,
+      this.P2Score.position.z,
+    );
     this.addTextToPlane(this.P2Score, this.names[1], -0.4, 0, 0x000000);
 
     // ScoreBarre
@@ -387,11 +398,21 @@ export class SceneManager {
       true,
       undefined,
     );
-    this.P1ScoreBarre.position.set(this.P1ScoreBarre.position.x, this.P1ScoreBarre.position.y - 0.5, this.P1ScoreBarre.position.z);
+    this.P1ScoreBarre.position.set(
+      this.P1ScoreBarre.position.x,
+      this.P1ScoreBarre.position.y - 0.5,
+      this.P1ScoreBarre.position.z,
+    );
     if (flag === undefined)
       this.addTextToPlane(this.P1ScoreBarre, "0", 0, 0, 0xffffff);
     else
-      this.addTextToPlane(this.P1ScoreBarre, flag[0].toString(), 0, 0, 0xffffff);
+      this.addTextToPlane(
+        this.P1ScoreBarre,
+        flag[0].toString(),
+        0,
+        0,
+        0xffffff,
+      );
 
     if (this.player === -1) {
       this.P2ScoreBarre = this.createRoundedPlane(
@@ -416,17 +437,25 @@ export class SceneManager {
         undefined,
       );
     }
-    this.P2ScoreBarre.position.set(this.P2ScoreBarre.position.x, this.P2ScoreBarre.position.y - 0.5, this.P2ScoreBarre.position.z);
-    if(flag === undefined)
+    this.P2ScoreBarre.position.set(
+      this.P2ScoreBarre.position.x,
+      this.P2ScoreBarre.position.y - 0.5,
+      this.P2ScoreBarre.position.z,
+    );
+    if (flag === undefined)
       this.addTextToPlane(this.P2ScoreBarre, "0", 0, 0, 0xffffff);
     else
-      this.addTextToPlane(this.P2ScoreBarre, flag[1].toString(), 0, 0, 0xffffff);
+      this.addTextToPlane(
+        this.P2ScoreBarre,
+        flag[1].toString(),
+        0,
+        0,
+        0xffffff,
+      );
     let P1redFlag = false;
     let P2redFlag = false;
-    if (whoscore === 1)
-      P1redFlag = true;
-    else
-      P2redFlag = true;
+    if (whoscore === 1) P1redFlag = true;
+    else P2redFlag = true;
     // ServeBarre
     this.P1red = this.createRoundedPlane(
       0.04,
@@ -469,8 +498,7 @@ export class SceneManager {
     );
   }
 
-  TimeRender(flag)
-  {
+  TimeRender(flag) {
     this.timerDiv = this.createRoundedPlane(
       0.4,
       0.19,
@@ -481,7 +509,11 @@ export class SceneManager {
       false,
       undefined,
     );
-    this.timerDiv.position.set(this.timerDiv.position.x, this.timerDiv.position.y - 0.5, this.timerDiv.position.z);
+    this.timerDiv.position.set(
+      this.timerDiv.position.x,
+      this.timerDiv.position.y - 0.5,
+      this.timerDiv.position.z,
+    );
     if (flag === true)
       this.updateTextOnPlane(this.timerDiv, "00:00", -0.095, 0, 0.05, 0xffffff);
   }
@@ -505,8 +537,7 @@ export class SceneManager {
     this.TimeRender(true);
   }
 
-  ScalePlan()
-  {
+  ScalePlan() {
     this.scene.remove(this.timerDiv);
     this.scene.remove(this.P1Score);
     this.scene.remove(this.P2Score);
@@ -519,29 +550,25 @@ export class SceneManager {
   RemoveText(plane) {
     if (!plane) return;
     for (let i = plane.children.length - 1; i >= 0; i--) {
-        const child = plane.children[i];
-        plane.remove(child);
-        if (child.geometry) child.geometry.dispose();
-        if (child.material) child.material.dispose();
+      const child = plane.children[i];
+      plane.remove(child);
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) child.material.dispose();
     }
   }
 
-  RemovePlaneText(plane)
-  {
-    if (plane)
-      {
-        this.RemoveText(plane);
-        this.scene.remove(plane);
-        if (plane.geometry) plane.geometry.dispose();
-        if (plane.material) plane.material.dispose();
-        plane = null;
-      }
+  RemovePlaneText(plane) {
+    if (plane) {
+      this.RemoveText(plane);
+      this.scene.remove(plane);
+      if (plane.geometry) plane.geometry.dispose();
+      if (plane.material) plane.material.dispose();
+      plane = null;
+    }
   }
 
-  addMatchPoint(Score)
-  {
-    if (Score[0] === 6)
-    {
+  addMatchPoint(Score) {
+    if (Score[0] === 6) {
       this.RemovePlaneText(this.P1MatchPoint);
       this.P1MatchPoint = this.createRoundedPlane(
         0.6,
@@ -553,11 +580,14 @@ export class SceneManager {
         false,
         undefined,
       );
-      this.P1MatchPoint.position.set(this.P1MatchPoint.position.x, this.P1MatchPoint.position.y - 0.5, this.P1MatchPoint.position.z);
+      this.P1MatchPoint.position.set(
+        this.P1MatchPoint.position.x,
+        this.P1MatchPoint.position.y - 0.5,
+        this.P1MatchPoint.position.z,
+      );
       this.addTextToPlane(this.P1MatchPoint, "Match Point", -0.25, 0, 0xffffff);
     }
-    if (Score[1] === 6)
-    {
+    if (Score[1] === 6) {
       this.RemovePlaneText(this.P2MatchPoint);
       this.P2MatchPoint = this.createRoundedPlane(
         0.6,
@@ -569,7 +599,11 @@ export class SceneManager {
         false,
         undefined,
       );
-      this.P2MatchPoint.position.set(this.P2MatchPoint.position.x, this.P2MatchPoint.position.y - 0.5, this.P2MatchPoint.position.z);
+      this.P2MatchPoint.position.set(
+        this.P2MatchPoint.position.x,
+        this.P2MatchPoint.position.y - 0.5,
+        this.P2MatchPoint.position.z,
+      );
       this.addTextToPlane(this.P2MatchPoint, "Match Point", -0.25, 0, 0xffffff);
     }
   }
