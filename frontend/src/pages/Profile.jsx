@@ -35,11 +35,11 @@ const profileMenu = ["overview", "statistics", "achievements", "friends"];
 const FriendManagementButtons = ({approval, setApproval}) => {
 	const contextData = useContext(UserContext);
 
-	const handleBlock = () => {
+	const handleApprovedAction = (type) => {
 		setApproval({
 			'visible': true,
 			'message': 'are you sure!',
-			'type': 'block',
+			'type': type,
 		});
 	}
 	return (
@@ -47,7 +47,10 @@ const FriendManagementButtons = ({approval, setApproval}) => {
 			{	!contextData.profileInfo.isBlockedByUser &&
 				!contextData.profileInfo.isUserBlocked &&
 				contextData.profileInfo.isFriend &&
-				<button className="secondary-glass grow lg:w-full p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide">
+				<button
+					onClick={contextData.sendMessage}
+					className="secondary-glass grow lg:w-full p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
+				>
 					<IoChatbubbleEllipsesOutline />
 					<p>message</p>
 				</button>
@@ -92,7 +95,10 @@ const FriendManagementButtons = ({approval, setApproval}) => {
 						<ImUserPlus />
 						<p>confirm</p>
 					</button>
-					<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide">
+					<button
+						onClick={() => contextData.declineRequest(contextData.profileInfo.id)}
+						className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
+					>
 						<ImUserMinus />
 						<p>delete</p>
 					</button>
@@ -102,7 +108,10 @@ const FriendManagementButtons = ({approval, setApproval}) => {
 			{	!contextData.profileInfo.isBlockedByUser &&
 				contextData.profileInfo.isUserBlocked &&
 				<>
-					<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide">
+					<button
+						onClick={contextData.unblockUser}
+						className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
+					>
 						<ImUserMinus />
 						<p>unblock</p>
 					</button>
@@ -113,7 +122,10 @@ const FriendManagementButtons = ({approval, setApproval}) => {
 			{	!contextData.profileInfo.isBlockedByUser &&
 				!contextData.profileInfo.isUserBlocked &&
 				contextData.profileInfo.isFriend &&
-				<button className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide">
+				<button
+					onClick={() => handleApprovedAction('unfriend')}
+					className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
+				>
 					<ImUserMinus />
 					<p>unfriend</p>
 				</button>
@@ -123,7 +135,7 @@ const FriendManagementButtons = ({approval, setApproval}) => {
 				!contextData.profileInfo.isUserBlocked &&
 				contextData.profileInfo.isFriend &&
 				<button
-					onClick={handleBlock}
+					onClick={() => handleApprovedAction('block')}
 					className="secondary-glass text-txt-sm p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
 				>
 					<MdOutlineBlock />
@@ -151,21 +163,44 @@ const Profile = () => {
   const contextData = useContext(UserContext);
 
   if (!section) {
+		// console.log('lwla');
 		navigate("/profile/overview");
 	}
   useEffect(() => {
 		
 		if (!profileMenu.includes(section)) {
+			// console.log('tania');
       navigate("/profile/overview");
       setSelectedMenu("overview");
     }
   }, []);
-	
+
 	useEffect(() => {
-		navigate(`/profile/${section}/${username ? username : ''}`);
-		authContextData.setDisplayMenuGl(false);
-		setSelectedMenu(section);
-	}, [section]);
+		if (section !== selectedMenu) {
+			// console.log('khouna rah section tbadlat');
+			setSelectedMenu(section);
+			authContextData.setDisplayMenuGl(false);
+		}
+		// console.log('section updated');
+	});
+	
+	// useEffect(() => {
+	// 	console.log('talta');
+	// 	if (username)
+	// 		navigate(`/profile/${section}/${username ? username : ''}`);
+	// 	else
+	// 		navigate(`/profile/${section}/`);
+	// 	authContextData.setDisplayMenuGl(false);
+	// 	setSelectedMenu(section);
+	// }, [section]);
+
+	// useEffect(() => {
+	// 	console.log('selected: ', selectedMenu);
+	// })
+
+	// useEffect(() => {
+	// 	console.log('selected dependencies: ', selectedMenu);
+	// }, [selectedMenu])
 
   useEffect(() => {
 		if (username) {
@@ -177,17 +212,25 @@ const Profile = () => {
 			contextData.setProfileInfo(null);
 		}
   }, [username]);
+
+	const handleNavigation = (menu) => {
+
+		if (username)	navigate(`/profile/${menu}/${username}`);
+		else					navigate(`/profile/${menu}`);
+		contextData.setRefresh(true);
+		setSelectedMenu(menu);
+	}
 	
 	useEffect(() => {
 		if (contextData.profileInfo && contextData.profileInfo.found === 'no') {
-			
+			// console.log('rab3a');
 			navigate("/profile/overview");
 		}
 	}, [contextData.profileInfo && contextData.profileInfo.found])
 
 	useEffect(() => { // update the profile info after hit any profile button
 		if (contextData.refresh) {
-			console.log(contextData.profileInfo.username);
+			// console.log(contextData.profileInfo.username);
 			contextData.getProfile(contextData.profileInfo.username);
 			contextData.setRefresh(false);
 		}
@@ -237,7 +280,7 @@ const Profile = () => {
                   </div>
                 </CircularProgressbarWithChildren>
                 <h1 className="text-h-lg-md font-bold">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
-                <h2 className="text-txt-md lowercase">
+                <h2 className="text-txt-md normal-case">
                   @{contextData.profileInfo.username}
                 </h2>
               </div>
@@ -329,7 +372,7 @@ const Profile = () => {
 											</div>
 										</CircularProgressbarWithChildren>
 										<h1 className="text-h-sm-sm font-bold">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
-										<h2 className="text-txt-xs">
+										<h2 className="text-txt-xs normal-case">
 											@{contextData.profileInfo.username}
 										</h2>
 									</div>
@@ -361,17 +404,17 @@ const Profile = () => {
 								<>
 									<div className="flex w-full">
 										{profileMenu.map((menu) => (
-											<Link
-												to={`/profile/${menu}/${username !== undefined ? username : ""}`}
+											<div
 												key={menu}
 												className={`grow flex flex-col gap-8 items-center cursor-pointer md:text-h-lg-sm text-txt-xs font-bold`}
-												onClick={() => setSelectedMenu(menu)}
+												onClick={() => handleNavigation(menu)}
+												// onClick={() => setSelectedMenu(menu)}
 											>
 												<span>{menu}</span>
 												{selectedMenu === menu && (
 													<div className="bg-green h-[2px] w-full"></div>
 												)}
-											</Link>
+											</div>
 										))}
 									</div>
 										{selectedMenu === "overview" && <ProfileOverview />}
@@ -407,6 +450,8 @@ const Approval = ({approval, setApproval}) => {
 	const handleApproval = () => {
 		if (approval.type === 'block')
 			contextData.blockFriend();
+		else if (approval.type === 'unfriend')
+			contextData.unfriend();
 		setApproval({visible: false, message: null, type: null})
 	}
 

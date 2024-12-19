@@ -393,8 +393,8 @@ class Profile(APIView):
 				fromUser=request._user, toUser=user
 			).exists()
 
-			isBlockedByUser = str(request._user.id) in user.blockedUsers.get('blockedUsers', [])
-			isUserBlocked = str(user.id) in request._user.blockedUsers.get('blockedUsers', [])
+			isBlockedByUser = str(request._user.id) in user.blockedUsers or False
+			isUserBlocked = str(user.id) in request._user.blockedUsers or False
 
 			# print('ewa sf 3afa weldi ===========>', request._user.blockedUsers.get('blockedUsers', []), user.id, isUserBlocked, flush=True)
 
@@ -419,6 +419,7 @@ class Profile(APIView):
 
 		new_username = request.data.get("username", None)
 		if new_username:
+			new_username = new_username.lower()
 			username_regex = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]{3,}$")
 			if not username_regex.match(new_username):
 				return Response(
@@ -461,7 +462,7 @@ class Profile(APIView):
 
 		serializer = UserSerializer(user)
 
-		return Response(serializer.data, status=status.HTTP_200_OK)
+		return Response({**serializer.data, 'me': user.id == request._user.id}, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
@@ -530,3 +531,4 @@ def setUpUsername(request):
 		dump = json.dumps(data)
 		http_response.content = dump
 		return http_response
+

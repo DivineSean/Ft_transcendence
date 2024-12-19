@@ -81,7 +81,7 @@ export const UserProvider = ({ children }) => {
   };
 
 	const getFriends = async (username) => {
-		const url = username ? `friends/getFriends/${username}` : `friends/getFriends/`;
+		const url = username ? `api/friends/${username}` : `api/friends/`;
 		try {
 			const res = await FetchData.get(url);
 			if (res.ok) {
@@ -95,7 +95,7 @@ export const UserProvider = ({ children }) => {
 
 	const getFriendRequest = async () => {
 		try {
-			const res = await FetchData.get('friends/getfr/');
+			const res = await FetchData.get('api/friendrequests/');
 			if (res.ok) {
 				const data = await res.json();
 				setUserFriendRequest(data);
@@ -108,7 +108,7 @@ export const UserProvider = ({ children }) => {
 
 	const sendFriendRequest = async (id) => {
 		try {
-			const res = await FetchData.post('friends/SendRequest/', {'receiverID': id});
+			const res = await FetchData.post('api/friendrequest/send/', {'userId': id});
 			if (res.ok) {
 				const data = await res.json();
 				setRefresh(true);
@@ -121,7 +121,7 @@ export const UserProvider = ({ children }) => {
 
 	const cancelFriendRequest = async () => {
 		try {
-			const res = await FetchData.post('friendrequest/cancel/', {'userId': profileInfo.id});
+			const res = await FetchData.post('api/friendrequest/cancel/', {'userId': profileInfo.id});
 			if (res.ok) {
 				const data = await res.json();
 				setRefresh(true);
@@ -134,7 +134,7 @@ export const UserProvider = ({ children }) => {
 	
 	const acceptFriendRequest = async (userId) => {
 		try {
-			const res = await FetchData.post('friends/AcceptRequest/', {'userId': userId});
+			const res = await FetchData.post('api/friendrequest/accept/', {'userId': userId});
 			if (res.ok) {
 				const data = await res.json();
 				setRefresh(true);
@@ -145,9 +145,39 @@ export const UserProvider = ({ children }) => {
 		}
 	}
 
+	const declineRequest = async (userId) => {
+		try {
+			const res = await FetchData.post('api/friendrequest/decline/', {'userId': userId});
+			console.log(res);
+			if (res.ok) {
+				const data = await res.json();
+				setRefresh(true);
+				authContextData.setGlobalMessage({message: data.message, isError: data.status !== '200'})
+				console.log('rejected', data);
+			}
+		} catch (error) {
+			authContextData.setGlobalMessage({message: error.message, isError: true});
+		}
+	}
+
+	const unfriend = async () => {
+		try {
+			const res = await FetchData.post('api/friend/unfriend/', {'userId': profileInfo.id});
+			console.log(res);
+			if (res.ok) {
+				const data = await res.json();
+				setRefresh(true);
+				authContextData.setGlobalMessage({message: data.message, isError: data.status !== '200'});
+				console.log(data);
+			}
+		} catch (error) {
+			authContextData.setGlobalMessage({message: error.message, isError: true});
+		}
+	}
+
 	const blockFriend = async () => {
 		try {
-			const res = await FetchData.post('friends/blockUser/', {'userId': profileInfo.id})
+			const res = await FetchData.post('api/friend/block/', {'userId': profileInfo.id})
 			console.log(res);
 			if (res.ok) {
 				const data = await res.json();
@@ -156,6 +186,37 @@ export const UserProvider = ({ children }) => {
 			}
 		} catch (error) {
 			console.log('error block', error);
+		}
+	}
+
+	const unblockUser = async () => {
+		try {
+			const res = await FetchData.post('api/user/unblock/', {'userId': profileInfo.id});
+			console.log(res);
+			if (res.ok) {
+				const data = await res.json();
+				setRefresh(true);
+				authContextData.setGlobalMessage({message: data.message, isError: data.status !== '200'});
+			}
+		} catch (error) {
+			authContextData.setGlobalMessage({message: error.message, isError: true});
+		}
+	}
+
+	const sendMessage = async () => {
+		try {
+			const res = await FetchData.post('api/chat/conversations/', {'userId': profileInfo.id});
+			console.log(res);
+			if (res.ok) {
+				const data = await res.json();
+				navigate(`/chat/${data.conversationId}`);
+				console.log(data);
+			} else if (res.status === 400) {
+				const data = await res.json();
+				console.log(data);
+			}
+		} catch (error) {
+			authContextData.setGlobalMessage({message: error.message, isError: true});
 		}
 	}
 
@@ -180,7 +241,11 @@ export const UserProvider = ({ children }) => {
 		sendFriendRequest,
 		cancelFriendRequest,
 		acceptFriendRequest,
+		declineRequest,
 		blockFriend,
+		unfriend,
+		unblockUser,
+		sendMessage,
   };
 
   return (

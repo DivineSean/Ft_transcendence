@@ -32,7 +32,7 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
                 new
               </div>
             )}
-          <div className="w-56 h-56 rounded-full border-2 border-green overflow-hidden">
+          <div className="w-56 h-56 rounded-full border-2 border-green flex overflow-hidden">
             <img
               src={
                 friendInfo.profile_image
@@ -40,7 +40,7 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
                   : "/images/default.jpeg"
               }
               alt="img"
-              className="w-full"
+              className="grow object-cover"
             />
           </div>
           <div className="absolute w-16 h-16 bg-green rounded-full right-0 bottom-0"></div>
@@ -56,7 +56,7 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
                 new
               </div>
             )}
-          <div className="w-56 h-56 rounded-full border-2 border-stroke-sc overflow-hidden">
+          <div className="w-56 h-56 rounded-full flex border-2 border-stroke-sc overflow-hidden">
             <img
               src={
                 friendInfo.profile_image
@@ -64,7 +64,7 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
                   : "/images/default.jpeg"
               }
               alt="img"
-              className="w-full"
+              className="grow object-cover"
             />
           </div>
           <div className="absolute w-16 h-16 bg-black border-[3px] border-stroke-sc rounded-full right-0 bottom-0"></div>

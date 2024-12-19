@@ -24,9 +24,8 @@ class CustomUserManager(BaseUserManager):
 
 def callableDict():
     listofblockedUsers = {}
-    listofblockedUsers["blockedUsers"] = []
+    listofblockedUsers = []
     return listofblockedUsers
-
 
 class Users(AbstractUser):
 
@@ -47,7 +46,6 @@ class Users(AbstractUser):
     profile_image = models.ImageField(
         upload_to="profile_images/", blank=True, null=True
     )
-    _2fa = models.BooleanField(default=True, null=False)
 
     blockedUsers = models.JSONField(default=callableDict, null=True)
 

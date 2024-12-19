@@ -10,12 +10,13 @@ from rest_framework.decorators import api_view
 from uuid import UUID
 from django.db.models import Q
 from Auth.serializers import UserFriendSerializer
+from chat.views import Conversation
 
 
 class SendFriendRequest(APIView):
 	def post(self, request):
 		# response = Response(status=200)
-		userId = request.data.get("receiverID")
+		userId = request.data.get("userId")
 		if userId:
 			try:
 
@@ -51,6 +52,9 @@ class AcceptFriendRequest(APIView):
 		userId = request.data.get('userId')
 
 		if userId:
+			if userId == request._user.id:
+				return Response({'error': 'invalid user id'}, status=status.HTTP_400_BAD_REQUEST)
+
 			try:
 				friendRequest = FriendshipRequest.objects.get(
 					Q(fromUser=userId) | Q(toUser=request._user.id)
@@ -73,24 +77,45 @@ class AcceptFriendRequest(APIView):
 
 class DeclineFriendRequest(APIView):
 		def post(self, request):
-			userId = request.data.get("friendRequestID")
+			userId = request.data.get("userId")
 
 			if userId:
-				response = Response(status=200)
+				if userId == request._user.id:
+					return Response({'error': 'invalid user id'}, status=status.HTTP_400_BAD_REQUEST)
+
 				try:
-						friendRequest = FriendshipRequest.objects.get(
-								FriendshipRequestID=request.data.get("friendRequestID")
-						)
+					friendRequest = FriendshipRequest.objects.get(
+						Q(fromUser=userId) | Q(toUser=request._user.id)
+					)
+
+					friendRequest.reject()
+					friendRequest.delete()
 				except:
-						return Response("Friend Request ID Valid", status=400)
+					return Response({'status': '400', 'message': 'this friend request does not exsits!'})
 
-				if request._user == friendRequest.toUser:
-						friendRequest.reject()
-						friendRequest.delete()
+			print('declined userId', userId, flush=True)
+			return Response({'status': '200', 'message': 'friend request rejected successfully'})
 
-						return Response({"message": "FriendRequest Declined"})
-				return Response("Not Destined User")
+@api_view(['POST'])
+def unfriend(request):
+	userId = request.data.get('userId')
 
+	if userId:
+		if userId == request._user.id:
+			return Response({'error', 'ivalid user id'}, status=status.HTTP_400_BAD_REQUEST)
+		
+		print('userId unfriend', userId, flush=True)
+		try:
+			friendship = Friendship.objects.get(
+				Q(user1=request._user.id, user2=userId) | Q(user1=userId, user2=request._user.id)
+			)
+
+			friendship.delete()
+
+		except Friendship.DoesNotExist:
+			return Response({'status': '404', 'message': 'this friendship does not exsits!'})
+
+	return Response({'message': 'the friendship deleted successfully'})
 
 
 @api_view(['POST'])
@@ -175,9 +200,53 @@ def blockUser(request):
 		if Users.objects.get(id=userId).email == request._user.email:
 				return Response("SameUser", status=status.HTTP_400_BAD_REQUEST)
 
-		request._user.blockedUsers["blockedUsers"].append(userId)
+		try:
+			conversation = Conversation.objects.get(
+				Q(Sender=userId, Receiver=request._user.id) |
+				Q(Sender=request._user.id, Receiver=userId)
+			)
+			conversation.isBlocked = True
+			conversation.save()
+		except:
+			pass
+		request._user.blockedUsers.append(userId)
 		request._user.save()
 
-		Friendship.objects.filter(Q(user1=userId) | Q(user2=userId)).delete()
+		Friendship.objects.filter(
+			Q(user1=userId) | Q(user2=userId)
+		).delete()
 
 		return Response(str(request._user.blockedUsers), status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+def unblockUser(request):
+	userId = request.data.get('userId')
+
+	if userId:
+		if userId == request._user.id:
+			return Response({'error': 'ivalid user id'}, status=status.HTTP_400_BAD_REQUEST)
+		
+		blockedUsers = request._user.blockedUsers or []
+
+		if userId not in blockedUsers:
+			return Response({'status': '404', 'message': 'the user provied not in blocked list'})
+		
+		try:
+			conversation = Conversation.objects.get(
+				Q(Sender=userId, Receiver=request._user.id) |
+				Q(Sender=request._user.id, Receiver=userId)
+			)
+			conversation.isBlocked = False
+			conversation.save()
+		except:
+			pass
+
+		blockedUsers.remove(userId)
+		request._user.blockedUsers = blockedUsers
+		request._user.save()
+
+	else:
+		return Response({'error': 'no user id provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+	return Response({'status': '200', 'message': 'ublocked successfully'})

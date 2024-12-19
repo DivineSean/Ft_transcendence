@@ -2,49 +2,57 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+	path(
+				"api/friendrequests/",
+				views.getFriendRequests,
+				name="getFr",
+		),
 		path(
-				"friends/SendRequest/",
+				"api/friendrequest/send/",
 				views.SendFriendRequest.as_view(),
 				name="send_friend_request",
 		),
 		path(
-				"friends/AcceptRequest/",
+				"api/friendrequest/accept/",
 				views.AcceptFriendRequest.as_view(),
 				name="Accept_friend_request",
 		),
 		path(
-				"friends/declineRequest/",
+				"api/friendrequest/decline/",
 				views.DeclineFriendRequest.as_view(),
 				name="Decline_friend_request",
 		),
 		path(
-			"friendrequest/cancel/",
+			"api/friendrequest/cancel/",
 			views.cancelFriendRequest,
 			name='cancel_friend_request',
 		),
+
+
 		path(
-				"friends/getFriends/",
+				"api/friends/",
 				views.getFriendsView,
 				name="getFriends",
 		),
 		path(
-				"friends/getFriends/<str:username>",
+				"api/friends/<str:username>",
 				views.getFriendsView,
 				name="getFriends",
+		),
+		path(
+				"api/friend/block/",
+				views.blockUser,
+				name="blockUser",
+		),
+		path(
+				"api/friend/unfriend/",
+				views.unfriend,
+				name="unfriend",
 		),
 		path(
 				"friends/areFriends/",
 				views.areFriends,
 				name="areFriends",
 		),
-		path(
-				"friends/blockUser/",
-				views.blockUser,
-				name="blockUser",
-		),
-		path(
-				"friends/getfr/",
-				views.getFriendRequests,
-				name="getFr",
-		),
+		path('api/user/unblock/', views.unblockUser, name="unblockUser"),
 ]

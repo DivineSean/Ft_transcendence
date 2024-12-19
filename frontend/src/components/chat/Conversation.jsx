@@ -220,7 +220,7 @@ const Conversation = ({
             className="md:hidden block text-txt-xl cursor-pointer"
           />
           <div
-            className={`md:w-56 md:h-56 h-48 w-48 rounded-full border overflow-hidden ${friendInfo.isOnline ? "border-green" : "border-stroke-sc"}`}
+            className={`md:w-56 md:h-56 h-48 w-48 rounded-full flex border overflow-hidden ${friendInfo.isOnline ? "border-green" : "border-stroke-sc"}`}
           >
             <img
               src={
@@ -229,6 +229,7 @@ const Conversation = ({
                   : "/images/default.jpeg"
               }
               alt="profile"
+							className="grow object-cover"
             />
           </div>
           <div className="flex flex-col justify-between h-full">
@@ -269,24 +270,31 @@ const Conversation = ({
           )}
         <div ref={downScrollRef}></div>
       </div>
-      <form className="flex items-center relative" onSubmit={sendMessage}>
-        <input
-          onChange={heandleIsTyping}
-          onBlur={handleBlur}
-          autoFocus
-          type="text"
-          autoComplete="off"
-          placeholder="Aa..."
-          name="message"
-          className="send-glass text-txt-md px-16 pr-56 py-12 outline-none text-white w-full grow"
-        />
-        <button
-          type="submit"
-          className="text-gray absolute right-16 text-txt-3xl cursor-pointer hover:text-green"
-        >
-          <BiSolidSend />
-        </button>
-      </form>
+			{ !friendInfo.isBlocked &&
+				<form className="flex items-center relative" onSubmit={sendMessage}>
+					<input
+						onChange={heandleIsTyping}
+						onBlur={handleBlur}
+						autoFocus
+						type="text"
+						autoComplete="off"
+						placeholder="Aa..."
+						name="message"
+						className="send-glass text-txt-md px-16 pr-56 py-12 outline-none text-white w-full grow"
+					/>
+					<button
+						type="submit"
+						className="text-gray absolute right-16 text-txt-3xl cursor-pointer hover:text-green"
+					>
+						<BiSolidSend />
+					</button>
+				</form>
+			}
+			{ friendInfo.isBlocked &&
+				<div className="text-txt-sm text-center p-16 text-stroke-sc lowercase bg-black/20 rounded-md">
+					sorr you cannot send any message because this conversatoin is blocked
+				</div>
+			}
     </div>
   );
 };

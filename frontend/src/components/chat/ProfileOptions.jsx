@@ -36,7 +36,8 @@ const ProfileOptions = ({
                 ? BACKENDURL + friendInfo.profile_image
                 : "/images/default.jpeg"
             }
-            alt="p"
+            alt="profile"
+						className="grow object-cover"
           />
         </div>
         <h2 className="text-h-lg-md font-bold max-w-[200px] text-center">

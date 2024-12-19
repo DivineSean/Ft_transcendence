@@ -15,87 +15,97 @@ from django.conf import settings
 from .serializers import ConversationSerializer, UserSerializerOne
 
 
-class GetConversationRooms(APIView):
+class ChatConversation(APIView):
+	def get(self, request):
+		user_id = request.user.id
 
-    def get(self, request):
-        user_id = request.user.id
+		latest_messages = Message.objects.filter(
+			ConversationName=OuterRef("pk")
+		).order_by("-timestamp")
 
-        latest_messages = Message.objects.filter(
-            ConversationName=OuterRef("pk")
-        ).order_by("-timestamp")
+		conversations = (
+			Conversation.objects.filter(Q(Sender_id=user_id) | Q(Receiver_id=user_id))
+			.annotate(
+				latest_message=Subquery(latest_messages.values("message")[:1]),
+				latest_message_timestamp=Subquery(
+					latest_messages.values("timestamp")[:1]
+				),
+				is_read_message=Subquery(latest_messages.values("isRead")[:1]),
+				sender=Subquery(latest_messages.values("sender")[:1]),
+			)
+			.select_related("Sender", "Receiver")
+			.order_by("-latest_message_timestamp")
+		)
 
-        conversations = (
-            Conversation.objects.filter(Q(Sender_id=user_id) | Q(Receiver_id=user_id))
-            .annotate(
-                latest_message=Subquery(latest_messages.values("message")[:1]),
-                latest_message_timestamp=Subquery(
-                    latest_messages.values("timestamp")[:1]
-                ),
-                is_read_message=Subquery(latest_messages.values("isRead")[:1]),
-                sender=Subquery(latest_messages.values("sender")[:1]),
-            )
-            .select_related("Sender", "Receiver")
-            .order_by("-latest_message_timestamp")
-        )
+		serialized_data = {
+			"users": [
+				{
+					"conversationId": conversation.ConversationId,
+					"isBlocked": conversation.isBlocked,
+					"lastMessage": conversation.latest_message,
+					"messageDate": (
+						conversation.latest_message_timestamp.strftime("%b %d, %H:%M")
+						if conversation.latest_message_timestamp
+						else None
+					),
+					"isRead": conversation.is_read_message,
+					"sender": True if conversation.sender == user_id else False,
+					**UserSerializerOne(
+						conversation.Receiver
+						if conversation.Sender.id == user_id
+						else conversation.Sender
+					).data,
+				}
+				for conversation in conversations
+			]
+		}
 
-        serialized_data = {
-            "users": [
-                {
-                    "conversationId": conversation.ConversationId,
-                    "lastMessage": conversation.latest_message,
-                    "messageDate": (
-                        conversation.latest_message_timestamp.strftime("%b %d, %H:%M")
-                        if conversation.latest_message_timestamp
-                        else None
-                    ),
-                    "isRead": conversation.is_read_message,
-                    "sender": True if conversation.sender == user_id else False,
-                    **UserSerializerOne(
-                        conversation.Receiver
-                        if conversation.Sender.id == user_id
-                        else conversation.Sender
-                    ).data,
-                }
-                for conversation in conversations
-            ]
-        }
+		return Response(serialized_data)
 
-        return Response(serialized_data)
+	def post(self, request, *args, **kwargs):
+		
+		try:
+			userData = Users.objects.get(id=request.data.get("userId"))
+			if userData.email == request._user.email:
+				return Response("Same clients", status=status.HTTP_400_BAD_REQUEST)
+		except:
+			return Response(
+				"ID of receiver not valid", status=status.HTTP_400_BAD_REQUEST
+			)
 
+		conversation = Conversation.objects.filter(
+			Q(Sender=request._user, Receiver=userData) |
+			Q(Sender=userData, Receiver=request._user)
+		).exists()
 
-class SendMessage(APIView):
+		response = Response(status=status.HTTP_200_OK)
 
-    def post(self, request, *args, **kwargs):
-        try:
-            ReceiverData = Users.objects.get(id=request.data.get("receiverID"))
-            if ReceiverData.email == request._user.email:
-                return Response("Same clients", status=status.HTTP_400_BAD_REQUEST)
-        except:
-            return Response(
-                "ID of receiver not valid", status=status.HTTP_400_BAD_REQUEST
-            )
-        newConversation, isNew = Conversation.objects.get_or_create(
-            Sender=request._user, Receiver=ReceiverData
-        )
-        response = Response(status=status.HTTP_200_OK)
+		if not conversation:
+			newConversation = Conversation.objects.create(
+				Sender=request._user, Receiver=userData
+			)
+			resData = {
+				"message": "Conversation  created",
+				"conversationId": str(newConversation.ConversationId),
+				"sender": str(request._user.email),
+			}
+			response.status_code = status.HTTP_201_CREATED
 
-        if not isNew:
-            resData = {
-                "message": "Conversation already created",
-                "ConversationID": str(newConversation.ConversationId),
-                "sender": str(user.email),
-            }
-            response.status_code = status.HTTP_400_BAD_REQUEST
-        else:
-            resData = {
-                "message": "Conversation  created",
-                "ConversationID": str(newConversation.ConversationId),
-                "sender": str(user.email),
-            }
-            response.status_code = status.HTTP_201_CREATED
-        response.data = resData
+		else:
+			conv = Conversation.objects.get(
+				Q(Sender=request._user, Receiver=userData) |
+				Q(Sender=userData, Receiver=request._user)
+			)
+			resData = {
+				"message": "Conversation already created",
+				"conversationId": str(conv.ConversationId),
+				"sender": str(request._user.email),
+			}
+			response.status_code = status.HTTP_200_OK
 
-        return response
+		response.data = resData
+
+		return response
 
 
 class getMessages(APIView):

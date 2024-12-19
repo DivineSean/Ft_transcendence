@@ -4,10 +4,10 @@ const FetchData = new FetchWrapper();
 
 export const getConversations = async (setData, setGlobalMessage, navigate) => {
   try {
-    const res = await FetchData.get("chat/conversations/");
+    const res = await FetchData.get("api/chat/conversations/");
     if (res.ok) {
       const data = await res.json();
-      console.log(data);
+      console.log('data', data);
       setData(data);
     } else if (res.status) {
       const data = await res.json();

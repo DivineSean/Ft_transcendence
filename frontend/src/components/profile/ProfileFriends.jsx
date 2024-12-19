@@ -11,10 +11,13 @@ const Friends = ({ friend }) => {
 	const navigate = useNavigate();
   return (
 		<div
-			onClick={() => navigate('/profile/overview/'+friend.username)}
-			className="flex h-[72px] w-full gap-16 p-8 items-center justify-between secondary-glass-friends cursor-pointer"
+			
+			className="flex h-[72px] w-full gap-16 p-8 items-center justify-between secondary-glass-friends"
 		>
-      <div className="flex gap-16">
+      <div
+				onClick={() => navigate('/profile/overview/'+friend.username)}
+				className="flex gap-16 grow cursor-pointer"
+			>
 				<div className="flex rounded-full min-w-[56px] w-[56px] h-[56px] border-[0.5px] border-stroke-sc overflow-hidden">
 					<img
 						src={
@@ -34,12 +37,12 @@ const Friends = ({ friend }) => {
         </div>
       </div>
       <div className="flex gap-16">
-        <div className="flex items-center justify-center h-[24px] w-[55px] gap-10 px-12 py-4 border rounded-[4px] border-transparent bg-green text-black txt-xs font-medium cursor-pointer">
+        <button className="px-16 p-8 gap-10 transition-all rounded-md bg-green/70 text-black font-semibold hover:bg-green txt-xs">
           invite
-        </div>
-        <div className="flex w-[24px] h-[24px] items-center justify-center cursor-pointer">
+        </button>
+        {/* <div className="flex w-[24px] h-[24px] items-center justify-center cursor-pointer">
           <TiThMenu />
-        </div>
+        </div> */}
       </div>
     </div>
   );
@@ -77,7 +80,7 @@ const FriendRequest = ({ friendRequest }) => {
 					<IoMdCheckmark className="text-lg" />
 				</button>
 				<button
-					// onClick={}
+					onClick={() => contextData.declineRequest(friendRequest.id)}
 					className="hover-secondary text-red p-8 transition-all rounded-md flex justify-center hover:bg-red hover:text-white"
 				>
 					<IoMdClose className="text-lg" />
@@ -111,11 +114,12 @@ const ProfileFriends = ({ username }) => {
 			setShowRightButton(scrollLeft < scrollWidth - clientWidth);
 		}
 	}
+
 	useEffect(() => {
 		userContextData.getFriends(username);
-		if (userContextData.refresh && userContextData.profileInfo && userContextData.profileInfo.me)
+		if (userContextData.profileInfo && userContextData.profileInfo.me)
 			userContextData.getFriendRequest();
-	}, []);
+	}, [userContextData.profileInfo]);
 
 	useEffect(() => {
 		const container = scrollContainer.current;
@@ -126,14 +130,6 @@ const ProfileFriends = ({ username }) => {
 			return () => container.removeEventListener('scroll', handleScroll);
 		}
 	}, [scrollContainer.current]);
-	
-	useEffect(() => {
-		if (userContextData.profileInfo && userContextData.profileInfo.me) {
-			console.log('hana tani 3la had lblan', userContextData.refresh);
-			userContextData.getFriends(username);
-			userContextData.getFriendRequest();
-		}
-	}, [userContextData.refresh])
 
 	if (userContextData.userFriends) {
 		userContextData.userFriends.friends.map((item) => {
