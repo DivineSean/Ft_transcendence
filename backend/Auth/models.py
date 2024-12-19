@@ -27,6 +27,7 @@ def callableDict():
     listofblockedUsers = []
     return listofblockedUsers
 
+
 class Users(AbstractUser):
 
     id = models.UUIDField(

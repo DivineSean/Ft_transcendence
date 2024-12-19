@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chat', '0002_alter_conversation_receiver_and_more'),
+        ("chat", "0002_alter_conversation_receiver_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='message',
-            name='isBlocked',
+            model_name="message",
+            name="isBlocked",
             field=models.BooleanField(default=False),
         ),
     ]

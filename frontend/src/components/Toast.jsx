@@ -3,7 +3,13 @@ import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { VscError } from "react-icons/vsc";
 
-const Toast = ({ duration = 3000, error = true, message, onClose, position='topCenter' }) => {
+const Toast = ({
+  duration = 3000,
+  error = true,
+  message,
+  onClose,
+  position = "topCenter",
+}) => {
   const [isVisible, setIsVisible] = useState(true);
   const [opacity, setOpacity] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -47,12 +53,12 @@ const Toast = ({ duration = 3000, error = true, message, onClose, position='topC
     message && (
       <div
         className={`
-				${position === 'topCenter' && 'top-32 left-1/2 transform -translate-x-1/2'}
-				${position === 'bottomCenter' && 'bottom-32 left-1/2 transform -translate-x-1/2'}
-				${position === 'topRight' && 'top-32 right-32'}
-				${position === 'topLeft' && 'top-32 left-32'}
-				${position === 'bottomLeft' && 'bottom-32 left-32'}
-				${position === 'bottomRight' && 'bottom-32 right-32'}
+				${position === "topCenter" && "top-32 left-1/2 transform -translate-x-1/2"}
+				${position === "bottomCenter" && "bottom-32 left-1/2 transform -translate-x-1/2"}
+				${position === "topRight" && "top-32 right-32"}
+				${position === "topLeft" && "top-32 left-32"}
+				${position === "bottomLeft" && "bottom-32 left-32"}
+				${position === "bottomRight" && "bottom-32 right-32"}
 				justify-between
 				py-8 px-16 fixed z-[10] overflow-hidden backdrop-blur-2xl
 				flex gap-8 items-center rounded-lg

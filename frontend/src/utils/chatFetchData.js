@@ -7,7 +7,7 @@ export const getConversations = async (setData, setGlobalMessage, navigate) => {
     const res = await FetchData.get("api/chat/conversations/");
     if (res.ok) {
       const data = await res.json();
-      console.log('data', data);
+      console.log("data", data);
       setData(data);
     } else if (res.status) {
       const data = await res.json();

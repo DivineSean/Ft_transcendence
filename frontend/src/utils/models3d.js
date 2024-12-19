@@ -4,8 +4,7 @@ import { OrbitControls } from "three/examples/jsm/Addons.js";
 
 const manager = new THREE.LoadingManager(() => {
   const loading = document.getElementById("loading");
-	if (loading)
-  	loading.addEventListener("transtionend", loading.remove());
+  if (loading) loading.addEventListener("transtionend", loading.remove());
 });
 
 export const create3DModel = (canvas, modelFolderName) => {

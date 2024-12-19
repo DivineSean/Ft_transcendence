@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chat', '0003_message_isblocked'),
+        ("chat", "0003_message_isblocked"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='message',
-            name='isBlocked',
+            model_name="message",
+            name="isBlocked",
         ),
         migrations.AddField(
-            model_name='conversation',
-            name='isBlocked',
+            model_name="conversation",
+            name="isBlocked",
             field=models.BooleanField(default=False),
         ),
     ]

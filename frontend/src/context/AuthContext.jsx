@@ -319,28 +319,28 @@ export const AuthProvider = ({ children }) => {
   };
 
   const contextData = {
-		error,
-		globalMessage,
-		displayMenuGl,
-		displayMenuGl,
+    error,
+    globalMessage,
+    displayMenuGl,
+    displayMenuGl,
 
-		register,
-		login,
-		logout,
+    register,
+    login,
+    logout,
 
-		authProvider,
-		authorization2FA,
-		resent2FACode,
-		requestResetPassword,
-		changePassword,
+    authProvider,
+    authorization2FA,
+    resent2FACode,
+    requestResetPassword,
+    changePassword,
 
-		handleBlur,
-		handleChange,
-		handleChangePassLogin,
+    handleBlur,
+    handleChange,
+    handleChangePassLogin,
 
-		setGlobalMessage,
-		setDisplayMenuGl,
-		setUpUsername,
+    setGlobalMessage,
+    setDisplayMenuGl,
+    setUpUsername,
   };
 
   return (

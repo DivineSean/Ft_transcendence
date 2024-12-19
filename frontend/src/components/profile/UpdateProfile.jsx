@@ -106,10 +106,9 @@ const UpdateProfile = ({ setUpdateProfile }) => {
       );
     }
     Object.entries(formData).forEach(([key, value]) => {
-			if (key === 'username')
-				key = key.toLocaleLowerCase();
+      if (key === "username") key = key.toLocaleLowerCase();
       updatedData.append(key, value);
-			console.log(key, value);
+      console.log(key, value);
     });
 
     updatedData.append("isTwoFa", isChecked);
