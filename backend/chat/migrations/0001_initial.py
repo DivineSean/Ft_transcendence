@@ -16,24 +16,68 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Conversation',
+            name="Conversation",
             fields=[
-                ('ConversationId', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False, unique=True)),
-                ('isBlocked', models.BooleanField(default=False)),
-                ('Receiver', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='received_conversations', to=settings.AUTH_USER_MODEL)),
-                ('Sender', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sent_conversations', to=settings.AUTH_USER_MODEL)),
+                (
+                    "ConversationId",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                    ),
+                ),
+                ("isBlocked", models.BooleanField(default=False)),
+                (
+                    "Receiver",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="received_conversations",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "Sender",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sent_conversations",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Message',
+            name="Message",
             fields=[
-                ('MessageId', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False, unique=True)),
-                ('message', models.TextField(blank=True)),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('isRead', models.BooleanField(default=False)),
-                ('isSent', models.BooleanField(default=True)),
-                ('ConversationName', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ConversationName', to='chat.conversation')),
-                ('sender', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sender_user', to=settings.AUTH_USER_MODEL)),
+                (
+                    "MessageId",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                    ),
+                ),
+                ("message", models.TextField(blank=True)),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                ("isRead", models.BooleanField(default=False)),
+                ("isSent", models.BooleanField(default=True)),
+                (
+                    "ConversationName",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="ConversationName",
+                        to="chat.conversation",
+                    ),
+                ),
+                (
+                    "sender",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sender_user",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]
