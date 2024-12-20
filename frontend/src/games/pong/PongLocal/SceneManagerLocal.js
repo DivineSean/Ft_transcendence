@@ -4,8 +4,9 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
 
 export class SceneManager {
-  constructor() {
+  constructor(globalMessage) {
     this.player = 1;
+    this.globalMessage = globalMessage;
     // Camera
     this.camera = new THREE.PerspectiveCamera(
       80,
@@ -327,8 +328,9 @@ export class SceneManager {
       );
     }
     if (P[0] === 6 || P[1] === 6) {
-      if (!ball.BackgroundMusic.isPlaying) {
-        ball.BackgroundMusic.setVolume(0.03);
+      ball.BackgroundMusic.setVolume(0.03);
+      if (!ball.ballMatchPoint.isPlaying)
+      {
         ball.ballMatchPoint.currentTime = 0;
         ball.ballMatchPoint.play();
       }
@@ -378,8 +380,9 @@ export class SceneManager {
       if (P[0] === 7 || P[1] === 7) {
         ball.Victory.currentTime = 0;
         ball.Victory.play();
+        this.globalMessage({message: 'Victory!!!', isError: false});
       }
-      this.renderer.xr.getSession().end();
+      
       return false;
     }
     return true;

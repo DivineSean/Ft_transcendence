@@ -5,7 +5,9 @@ import Net from "../Net";
 import Ball from "./BallLocal";
 import { Clock } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
+import AuthContext from '../../../context/AuthContext';
+import Toast from '../../../components/Toast';
 
 const PongLocal = () => {
   const sm = useRef(null);
@@ -13,13 +15,13 @@ const PongLocal = () => {
   const loaderTRef = useRef(null);
   const loaderBRef = useRef(null);
   const keyboard = useRef({});
+  const authContextData = useContext(AuthContext);
 
   useEffect(() => {
     loaderTRef.current = new GLTFLoader();
     loaderRef.current = new GLTFLoader();
     loaderBRef.current = new GLTFLoader();
-    sm.current = new SceneManager();
-
+    sm.current = new SceneManager(authContextData.setGlobalMessage);
     const table = new Table(sm.current.scene, loaderTRef.current);
     const net = new Net(sm.current.scene, loaderRef.current);
     const ball = new Ball(sm.current.scene, loaderBRef.current);
@@ -159,7 +161,18 @@ const PongLocal = () => {
       window.removeEventListener("resize", onWindowResize);
     };
   }, []);
-  return <canvas id="pong"></canvas>;
+  return (
+  <div className="relative w-full h-screen overflow-hidden">
+        {authContextData.globalMessage.message && (
+      <Toast
+        message={authContextData.globalMessage.message}
+        error={authContextData.globalMessage.isError}
+        onClose={authContextData.setGlobalMessage}
+      />
+    )}
+    <canvas id="pong"></canvas>
+  </div>
+);
 };
 
 export default PongLocal;

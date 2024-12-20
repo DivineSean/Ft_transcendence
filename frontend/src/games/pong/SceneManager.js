@@ -4,9 +4,10 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
 
 export class SceneManager {
-  constructor(player, names) {
+  constructor(player, names, globalMessage) {
     this.player = player;
     this.names = names;
+    this.globalMessage = globalMessage;
     // Camera
     this.camera = new THREE.PerspectiveCamera(
       80,
@@ -219,11 +220,12 @@ export class SceneManager {
       (this.player === -1 && P["1"] === "6") ||
       (this.player === 1 && P["2"] === "6")
     ) {
-      if (!ball.BackgroundMusic.isPlaying) {
         ball.BackgroundMusic.setVolume(0.03);
-        ball.ballMatchPoint.currentTime = 0;
-        ball.ballMatchPoint.play();
-      }
+        if (!ball.ballMatchPoint.isPlaying)
+        {
+          ball.ballMatchPoint.currentTime = 0;
+          ball.ballMatchPoint.play();
+        }
     }
     this.updateTextOnPlane(this.P1ScoreBarre, P["1"], 0, 0, 0.03, 0xffffff);
     this.updateTextOnPlane(this.P2ScoreBarre, P["2"], 0, 0, 0.03, 0xffffff);
@@ -242,11 +244,13 @@ export class SceneManager {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
+            this.globalMessage({message: 'Victory!!!', isError: false});
           }
         } else {
           if (!ball.Defeat.isPlaying) {
             ball.Defeat.currentTime = 0;
             ball.Defeat.play();
+            this.globalMessage({message: 'Defeat!!!', isError: true});
           }
         }
       } else {
@@ -254,11 +258,14 @@ export class SceneManager {
           if (!ball.Defeat.isPlaying) {
             ball.Defeat.currentTime = 0;
             ball.Defeat.play();
+            this.globalMessage({message: 'Defeat!!!', isError: true});
           }
         } else {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
+            this.globalMessage({message: 'Victory!!!', isError: false});
+            
           }
         }
       }

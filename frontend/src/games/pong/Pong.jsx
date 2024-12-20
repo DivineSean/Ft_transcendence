@@ -5,8 +5,9 @@ import Net from "./Net";
 import Ball from "./Ball";
 import { Clock } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { useEffect, useRef, useState } from "react";
-import { div } from "three/src/nodes/TSL.js";
+import { useEffect, useRef, useState, useContext } from "react";
+import AuthContext from '../../context/AuthContext';
+import Toast from '../../components/Toast';
 
 let dt = 1; ////added for debugging purpose
 const Pong = ({ websocket, player, names }) => {
@@ -16,13 +17,13 @@ const Pong = ({ websocket, player, names }) => {
   const loaderBRef = useRef(null);
   const keyboard = useRef({});
   let [ready, setReady] = useState(false);
+  const authContextData = useContext(AuthContext);
 
   useEffect(() => {
     loaderTRef.current = new GLTFLoader();
     loaderRef.current = new GLTFLoader();
     loaderBRef.current = new GLTFLoader();
-    sm.current = new SceneManager(player == 2 ? -1 : 1, names);
-    // let factor = sm.current.camera.aspect / aspect;
+    sm.current = new SceneManager(player == 2 ? -1 : 1, names, authContextData.setGlobalMessage);
     const table = new Table(sm.current.scene, loaderTRef.current);
     const net = new Net(sm.current.scene, loaderRef.current);
     const ball = new Ball(sm.current.scene, loaderBRef.current, player);
@@ -238,6 +239,13 @@ const Pong = ({ websocket, player, names }) => {
 
   return (
     <div id="message" className="relative w-full h-screen overflow-hidden">
+      {authContextData.globalMessage.message && (
+        <Toast
+          message={authContextData.globalMessage.message}
+          error={authContextData.globalMessage.isError}
+          onClose={authContextData.setGlobalMessage}
+        />
+      )}
       <canvas id="pong" className="block w-full h-full"></canvas>
     </div>
   );
