@@ -29,6 +29,8 @@ class Ball {
     this.radius = 0;
     this.scoreboard = [0, 0];
     this.whoscore = 1;
+    this.isServerDemon = true;
+    this.serverWin = 0;
 
     this.x = 42;
     // this.y = 6;
@@ -87,6 +89,7 @@ class Ball {
     this.dx = 0;
     this.dy = 0;
     this.dz = 0;
+    this.isServerDemon = true;
     this.count = 0;
     this.serving = true;
     this.timeout = false;
@@ -128,20 +131,37 @@ class Ball {
     ws.send(JSON.stringify(data));
   }
 
-  update(net, table, player1, ws, dt, player, keyboard) {
+  update(net, table, player1, ws, dt, player, keyboard, globalMessage) {
     if (this.sendLock && this.serving && this.count >= 2) return;
     this.dy -= G;
     let flag = false;
     //serve
     if (this.serving) this.count = 0;
     if (this.y < -50 && this.sendLock === false && this.serving === false) {
-      if (this.lastshooter === 1 && player === 1) {
+      if (this.lastshooter === 1 && player === 1)
+      {
         this.sendLost(ws);
-      } else if (this.lastshooter === -1 && player === 2) {
+        this.sendLock = true;
+        this.serving = true;
+        return;
+      }
+      else if (this.lastshooter === -1 && player === 2)
+      {
         this.sendLost(ws);
+        this.sendLock = true;
+        this.serving = true;
+        return;
       }
       this.sendLock = true;
       this.serving = true;
+      if (this.isServerDemon)
+      {
+        this.serverWin++;
+        const message = ["Good Serve", "Well Done", "ServeDemon Achieved"];
+        globalMessage({message: `${message[this.serverWin - 1]}`, isError: false});
+        if (this.serverWin === 3)
+          this.serverWin = 0;
+      }
       return;
     } else if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
       this.y = table.boundingBoxTable.max.y + 1;

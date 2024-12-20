@@ -30,11 +30,9 @@ const Pong = ({ websocket, player, names }) => {
     const controls = {
       up: "ArrowUp",
       down: "ArrowDown",
-      left: "ArrowLeft", // Move left
-      right: "ArrowRight", // Move right
+      left: "ArrowLeft",
+      right: "ArrowRight",
       space: "Space",
-      // Q: "KeyQ"
-      // E: "KeyE",
     };
 
     const players = [
@@ -65,6 +63,20 @@ const Pong = ({ websocket, player, names }) => {
       const opp = player == 1 ? 2 : 1;
       if (msg.type === "score") {
         const scores = JSON.parse(msg.message.scores);
+        const score1 = Number(scores["1"]);
+        const score2 = Number(scores["2"]);
+        if (Math.abs(score1 - score2) === 4)
+        {
+          if (score1 > score2 && sm.current.RemontadaPlayer === 2)
+            sm.current.RemontadaChance = true;
+          else if (score1 < score2 && sm.current.RemontadaPlayer === 1)
+            sm.current.RemontadaChance = true;
+        }
+        else if (Math.abs(score1 - score2) === 0 && sm.current.RemontadaChance)
+        {
+          authContextData.setGlobalMessage({message: 'Bounceback Boss Achieved', isError: false});
+          sm.current.RemontadaChance = false;
+        }
         ready = sm.current.scoreUpdate(scores, msg.message.role, ball);
         if (msg.message.role === 1) {
           ball.serve(websocket, net, 1);
@@ -117,6 +129,7 @@ const Pong = ({ websocket, player, names }) => {
         ball.count = 0;
         ball.serving = msg.message.ball.serving;
         ball.lastshooter = msg.message.ball.lstshoot;
+        ball.isServerDemon = false;
         ball.updatePos();
       } else if (msg.message.content == "lost") {
         ball.serving = msg.message.ball.serving;
@@ -174,6 +187,7 @@ const Pong = ({ websocket, player, names }) => {
           fixedStep * 1000,
           player,
           keyboard.current,
+          authContextData.setGlobalMessage,
         );
         simulatedTime += fixedStep;
       }
@@ -246,7 +260,7 @@ const Pong = ({ websocket, player, names }) => {
           onClose={authContextData.setGlobalMessage}
         />
       )}
-      <canvas id="pong" className="block w-full h-full"></canvas>
+      <canvas id="pong" className="block"></canvas>
     </div>
   );
 };

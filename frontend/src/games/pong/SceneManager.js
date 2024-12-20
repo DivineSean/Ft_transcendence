@@ -7,7 +7,10 @@ export class SceneManager {
   constructor(player, names, globalMessage) {
     this.player = player;
     this.names = names;
+    this.Marathoner = false;
     this.globalMessage = globalMessage;
+    this.RemontadaPlayer = player;
+    this.RemontadaChance = false;
     // Camera
     this.camera = new THREE.PerspectiveCamera(
       80,
@@ -104,6 +107,11 @@ export class SceneManager {
       (this.lastTime - this.startTime) / 1000,
     );
     const minutes = Math.floor(elapsedTimeInSeconds / 60);
+    if (!this.Marathoner && minutes === 5)
+    {
+      this.globalMessage({message: "The Marathoner Achieved!!", isError: false});
+      this.Marathoner = true;
+    }
     const seconds = elapsedTimeInSeconds % 60;
     const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     this.updateTextOnPlane(
@@ -244,7 +252,10 @@ export class SceneManager {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
-            this.globalMessage({message: 'Victory!!!', isError: false});
+            if (P["2"] === 0)
+              this.globalMessage({message: 'Victory!!! The Dominator Achieved', isError: false});
+            else
+              this.globalMessage({message: 'Victory!!!', isError: false});
           }
         } else {
           if (!ball.Defeat.isPlaying) {
@@ -264,8 +275,10 @@ export class SceneManager {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
-            this.globalMessage({message: 'Victory!!!', isError: false});
-            
+            if (P["1"] === 0)
+              this.globalMessage({message: 'Victory!!! The Dominator Achieved', isError: false});
+            else
+              this.globalMessage({message: 'Victory!!!', isError: false});
           }
         }
       }
