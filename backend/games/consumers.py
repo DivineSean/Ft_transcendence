@@ -1,6 +1,6 @@
 from channels.generic.websocket import WebsocketConsumer, async_to_sync
-from rest_framework.serializers import ValidationError
-from games.serializers import GameRoomSerializer, PlayerSerializer
+from games.serializers import GameRoomSerializer
+from .tasks import sync_game_room_data
 from django.conf import settings
 from .models import GameRoom
 import json
@@ -14,7 +14,6 @@ r = redis.Redis(
     decode_responses=True,
 )
 
-ACCEPT_DEADLINE=1000
 
 class GameConsumer(WebsocketConsumer):
     def connect(self):
@@ -23,7 +22,8 @@ class GameConsumer(WebsocketConsumer):
         self.game_uuid = self.scope["url_route"]["kwargs"]["room_uuid"]
         self.group_name = f"game_room_{self.game_uuid}"
 
-        async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
+        async_to_sync(self.channel_layer.group_add)(
+            self.group_name, self.channel_name)
         self.connect_player()
 
     def disconnect(self, code):
@@ -32,7 +32,8 @@ class GameConsumer(WebsocketConsumer):
         )
 
     def receive(self, text_data):
-        isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
+        isPlayer = any(player["user"]["id"] ==
+                       self.user_id for player in self.players)
         if not isPlayer:
             return
 
@@ -53,8 +54,8 @@ class GameConsumer(WebsocketConsumer):
                     {
                         "type": "whisper",
                         "info": "update",
-                        "sender": self.channel_name,
-                        "message": message,
+                                "sender": self.channel_name,
+                                "message": message,
                     },
                 )
             case "ready":
@@ -67,21 +68,25 @@ class GameConsumer(WebsocketConsumer):
         # WARNING: still have to handle spectators (players not taking part of the game)
         try:
             # WARNING: the data is all manipulated in redis atm, will implement presistent data later
-            game_state = r.hgetall(f"game_room_state:{self.game_uuid}")
-            if not game_state:
+            game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
+            if not game_data:
                 game = GameRoom.objects.get(pk=self.game_uuid)
                 serializer = GameRoomSerializer(game)
-                game_state = serializer.data
-                r.hset(f"game_room_state:{self.game_uuid}", mapping=game_state)
-            print("---------------> ", game_state, flush=True)
-            self.players = game_state["players_details"] = json.loads(game_state["players_details"])
+                game_data = serializer.data
+                r.hset(f"game_room_data:{self.game_uuid}", mapping=game_data)
+            print("---------------> ", game_data, flush=True)
+            self.players = game_data["players_details"] = json.loads(
+                game_data["players_details"])
+            game_data["state"] = json.loads(game_data["state"])
         except Exception as e:
             self.close(code=1006, reason=e)
             return
 
-        print(" game_state ---------------> ", game_state, self.players, flush=True)
+        print(" game_data ---------------> ",
+              game_data, self.players, flush=True)
         self.send(
-            text_data=json.dumps({"type": "game_manager", "message": game_state})
+            text_data=json.dumps(
+                {"type": "game_manager", "message": game_data})
         )
 
     def update_score(self):
@@ -89,7 +94,7 @@ class GameConsumer(WebsocketConsumer):
         # TODO: Update scores on the database
         # FIX: the game state is now in redis hash; this part should be redone
         role = None
-        game = json.loads(r.get(f"game_room_state:{self.game_uuid}"))
+        game = json.loads(r.get(f"game_room_data:{self.game_uuid}"))
         for player in game["players_details"]:
             if str(player["user"]["id"]) == str(self.user_id):
                 player["score"] += 1
@@ -99,21 +104,23 @@ class GameConsumer(WebsocketConsumer):
             player["role"]: str(player["score"]) for player in game["players_details"]
         }
 
-        r.set(f"game_room_state:{self.game_uuid}", json.dumps(game))
+        r.set(f"game_room_data:{self.game_uuid}", json.dumps(game))
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
             {
                 "type": "broadcast",
                 "info": "score",
-                "message": {
-                    "role": role,
-                    "scores": json.dumps(scores),
-                },
+                        "message": {
+                            "role": role,
+                            "scores": json.dumps(scores),
+                        },
             },
         )
 
     def update_readiness(self):
-        self.players = json.loads(r.hget(f"game_room_state:{self.game_uuid}", "players_details"))
+        self.players = json.loads(
+            r.hget(f"game_room_data:{self.game_uuid}", "players_details")
+        )
         for player in self.players:
             if player["user"]["id"] == self.user_id and not player["ready"]:
                 player["ready"] = True
@@ -122,30 +129,40 @@ class GameConsumer(WebsocketConsumer):
                     {
                         "type": "broadcast",
                         "info": "game_manager",
-                        "message": {
-                            "players_details": self.players,
-                        }
+                                "message": {
+                                    "players_details": self.players,
+                                }
                     },
                 )
                 break
         print(self.players, flush=True)
-        r.hset(f"game_room_state:{self.game_uuid}", "players_details", json.dumps(self.players))
+        self.save_game_state("players_details", json.dumps(self.players))
         all_ready = all(player.get("ready", False) for player in self.players)
         print("--------> ready ", all_ready, flush=True)
         if all_ready:
-            r.hset(f"game_room_state:{self.game_uuid}", "status", "ongoing")
-            game_state = r.hgetall(f"game_room_state:{self.game_uuid}")
+            self.save_game_state("status", "ongoing", 0)
+            game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
                 {
                     "type": "broadcast",
                     "info": "game_manager",
-                    "message": game_state
+                            "message": game_data
                 },
             )
-    def save_game_state(self, countdown=60):
+
+    def save_game_state(self, field, new_value, countdown=30):
         # save data to redis
+        r.hset(f"game_room_data:{self.game_uuid}", field, new_value)
         # schedule a task to read from redis and update the db
+        if countdown == 0:
+            sync_game_room_data.delay(self.game_uuid)
+        else:
+            sync_game_room_data.apply_async(
+                args=[self.game_uuid],
+                countdown=countdown
+            )
+
         pass
 
     def whisper(self, event):
@@ -158,5 +175,6 @@ class GameConsumer(WebsocketConsumer):
 
     def broadcast(self, event):
         self.send(
-            text_data=json.dumps({"type": event["info"], "message": event["message"]})
+            text_data=json.dumps(
+                {"type": event["info"], "message": event["message"]})
         )

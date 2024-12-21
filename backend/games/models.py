@@ -39,7 +39,9 @@ class GameRoom(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     game = models.ForeignKey(Game, on_delete=models.PROTECT)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.WAITING)
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.WAITING)
+    state = models.JSONField(default=dict)
     created_at = models.DateTimeField(auto_now_add=True)
 
 

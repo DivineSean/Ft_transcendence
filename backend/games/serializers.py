@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from Auth.serializers import UserSerializer
 from .models import Game, GameRoom, Player, PlayerRating
 import json
 
@@ -11,11 +10,21 @@ class GameSerializer(serializers.ModelSerializer):
 
 
 class PlayerSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = serializers.SerializerMethodField()
 
     class Meta:
         model = Player
-        fields = ["id", "user", "role", "rating_gain", "rating_loss","ready", "score"]
+        fields = ["id", "user", "role", "rating_gain",
+                  "rating_loss", "ready", "score"]
+
+    def get_user(self, obj):
+        from Auth.serializers import UserSerializer
+        user_serializer = UserSerializer(obj.user).data
+        return {
+            "id": user_serializer.get("id"),
+            "username": user_serializer.get("username"),
+            "profile_image": user_serializer.get("profile_image"),
+        }
 
 
 class PlayerRatingSerializer(serializers.ModelSerializer):
@@ -27,17 +36,22 @@ class PlayerRatingSerializer(serializers.ModelSerializer):
 class GameRoomSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(format="hex_verbose", read_only=True)
     game = serializers.PrimaryKeyRelatedField(queryset=Game.objects.all())
-    players = serializers.ListField(child=serializers.DictField(), write_only=True)
-    players_details = PlayerSerializer(many=True, read_only=True, source="player_set")
+    players = serializers.ListField(
+        child=serializers.DictField(), write_only=True)
+    players_details = PlayerSerializer(
+        many=True, read_only=True, source="player_set")
 
     class Meta:
         model = GameRoom
-        fields = ["id", "game", "status", "created_at", "players", "players_details"]
+        fields = ["id", "game", "status", "state",
+                  "created_at", "players", "players_details"]
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         players_data = representation.get("players_details", [])
+        state = representation.get("state", {})
         representation["players_details"] = json.dumps(players_data)
+        representation["state"] = json.dumps(state)
         return representation
 
     def create(self, validated_data):
@@ -53,5 +67,26 @@ class GameRoomSerializer(serializers.ModelSerializer):
                 rating_gain=user["rating_gain"],
                 rating_loss=user["rating_loss"],
             )
-
         return game_room
+
+    def update(self, instance, validated_data):
+        instance.status = validated_data.get("status", instance.status)
+        instance.state = validated_data.get("state", instance.state)
+        instance.save()
+
+        players_details = validated_data.get("players_details", [])
+        for player_data in players_details:
+            player_id = player_data.get("id")
+            if not player_id:
+                continue
+
+            try:
+                player = instance.player_set.get(id=player_id)
+            except Player.DoesNotExist:
+                continue
+
+            player.ready = player_data.get("ready", player.ready)
+            player.score = player_data.get("score", player.score)
+            player.save()
+
+        return instance

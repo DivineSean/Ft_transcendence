@@ -22,7 +22,6 @@ const Counter = ({ createdAt }) => {
 
 const GameOverlay = ({ status, data, send }) => {
   console.log("status: ", status, data);
-  // FIXME: split the switch case into components to avoid React intrnal error
   switch (status) {
     case "waiting":
       return (
