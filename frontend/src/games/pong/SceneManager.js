@@ -4,13 +4,14 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
 
 export class SceneManager {
-  constructor(player, names, globalMessage) {
+  constructor(player, names, globalMessage, setIsWon) {
     this.player = player;
     this.names = names;
     this.Marathoner = false;
     this.globalMessage = globalMessage;
     this.RemontadaPlayer = player;
     this.RemontadaChance = false;
+    this.setIsWon = setIsWon;
     // Camera
     this.camera = new THREE.PerspectiveCamera(
       80,
@@ -253,9 +254,8 @@ export class SceneManager {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
             if (P["2"] === 0)
-              this.globalMessage({message: 'Victory!!! The Dominator Achieved', isError: false});
-            else
-              this.globalMessage({message: 'Victory!!!', isError: false});
+              this.globalMessage({message: 'The Dominator Achieved', isError: false});
+            this.setIsWon(true);
           }
         } else {
           if (!ball.Defeat.isPlaying) {
@@ -276,9 +276,8 @@ export class SceneManager {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
             if (P["1"] === 0)
-              this.globalMessage({message: 'Victory!!! The Dominator Achieved', isError: false});
-            else
-              this.globalMessage({message: 'Victory!!!', isError: false});
+              this.globalMessage({message: 'The Dominator Achieved', isError: false});
+            this.setIsWon(true);
           }
         }
       }
