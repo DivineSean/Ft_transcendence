@@ -4,7 +4,7 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
 
 export class SceneManager {
-  constructor(player, names, globalMessage, setIsWon) {
+  constructor(player, names, globalMessage, setIsWon, setIslost, setReady) {
     this.player = player;
     this.names = names;
     this.Marathoner = false;
@@ -12,6 +12,8 @@ export class SceneManager {
     this.RemontadaPlayer = player;
     this.RemontadaChance = false;
     this.setIsWon = setIsWon;
+    this.setIslost = setIslost;
+    this.setReady = setReady;
     // Camera
     this.camera = new THREE.PerspectiveCamera(
       80,
@@ -238,7 +240,8 @@ export class SceneManager {
     }
     this.updateTextOnPlane(this.P1ScoreBarre, P["1"], 0, 0, 0.03, 0xffffff);
     this.updateTextOnPlane(this.P2ScoreBarre, P["2"], 0, 0, 0.03, 0xffffff);
-    if (P["1"] === "7" || P["2"] === "7") {
+    if (P["1"] === "7" || P["2"] === "7")
+    {
       ball.bounceSound.setVolume(0);
       ball.netHitSound.setVolume(0);
       ball.paddleHitSound.setVolume(0);
@@ -248,7 +251,8 @@ export class SceneManager {
       ball.BackgroundMusic.setVolume(0);
       ball.lostSound.setVolume(0);
       ball.ballMatchPoint.setVolume(0);
-      if (P["1"] === "7") {
+      if (P["1"] === "7")
+      {
         if (this.player === 1) {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
@@ -261,15 +265,17 @@ export class SceneManager {
           if (!ball.Defeat.isPlaying) {
             ball.Defeat.currentTime = 0;
             ball.Defeat.play();
-            this.globalMessage({message: 'Defeat!!!', isError: true});
+            this.setIslost(true);
           }
         }
-      } else {
+      } 
+      else 
+      {
         if (this.player === 1) {
           if (!ball.Defeat.isPlaying) {
             ball.Defeat.currentTime = 0;
             ball.Defeat.play();
-            this.globalMessage({message: 'Defeat!!!', isError: true});
+            this.setIslost(true);
           }
         } else {
           if (!ball.Victory.isPlaying) {
@@ -281,9 +287,8 @@ export class SceneManager {
           }
         }
       }
-      return false;
+      this.setReady(false);
     }
-    return true;
   }
 
   createRoundedPlane(width, height, radius, clor, y, z, flag, PlayerScore) {

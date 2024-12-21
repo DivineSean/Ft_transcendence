@@ -9,22 +9,22 @@ import { useEffect, useRef, useState, useContext } from "react";
 import AuthContext from '../../context/AuthContext';
 import Toast from '../../components/Toast';
 
-let dt = 1; ////added for debugging purpose
 const Pong = ({ websocket, player, names }) => {
   const sm = useRef(null);
   const loaderRef = useRef(null);
   const loaderTRef = useRef(null);
   const loaderBRef = useRef(null);
   const keyboard = useRef({});
-  const [ready, setReady] = useState(false);
   const authContextData = useContext(AuthContext);
+  const [ready, setReady] = useState(false);
   const [isWon, setIsWon] = useState(false);
+  const [islost, setIslost] = useState(false);
 
   useEffect(() => {
     loaderTRef.current = new GLTFLoader();
     loaderRef.current = new GLTFLoader();
     loaderBRef.current = new GLTFLoader();
-    sm.current = new SceneManager(player == 2 ? -1 : 1, names, authContextData.setGlobalMessage, setIsWon);
+    sm.current = new SceneManager(player == 2 ? -1 : 1, names, authContextData.setGlobalMessage, setIsWon, setIslost, setReady);
     const table = new Table(sm.current.scene, loaderTRef.current);
     const net = new Net(sm.current.scene, loaderRef.current);
     const ball = new Ball(sm.current.scene, loaderBRef.current, player);
@@ -56,9 +56,7 @@ const Pong = ({ websocket, player, names }) => {
         ball,
       ),
     ];
-    // override ws onmessage
     websocket.onmessage = (event) => {
-      // console.log(event);
       const msg = JSON.parse(event.data);
       const opp = player == 1 ? 2 : 1;
       if (msg.type === "score") {
@@ -77,7 +75,7 @@ const Pong = ({ websocket, player, names }) => {
           authContextData.setGlobalMessage({message: 'Bounceback Boss Achieved', isError: false});
           sm.current.RemontadaChance = false;
         }
-        setReady(sm.current.scoreUpdate(scores, msg.message.role, ball));
+        sm.current.scoreUpdate(scores, msg.message.role, ball);
         if (msg.message.role === 1) {
           ball.serve(websocket, net, 1);
         } else if (msg.message.role === 2) {
@@ -191,18 +189,20 @@ const Pong = ({ websocket, player, names }) => {
         );
         simulatedTime += fixedStep;
       }
-
-      if (ball.serving && !ball.timeout && !ball.sendLock) {
-        if (
-          (player === 1 && ball.lastshooter === 1) ||
-          (player === 2 && ball.lastshooter === -1)
-        ) {
-          ball.CheckTimer(websocket);
-          ball.labelRenderer.render(sm.current.scene, sm.current.camera);
+      if (ball.scoreboard[0] !== 7 && ball.scoreboard[1] !== 7)
+      {
+        if (ball.serving && !ball.timeout && !ball.sendLock) {
+          if (
+            (player === 1 && ball.lastshooter === 1) ||
+            (player === 2 && ball.lastshooter === -1)
+          ) {
+            ball.CheckTimer(websocket);
+            ball.labelRenderer.render(sm.current.scene, sm.current.camera);
+          }
         }
+        if (Math.floor((Date.now() - sm.current.lastTime) / 1000) > 0)
+          sm.current.TimerCSS();
       }
-      if (Math.floor((Date.now() - sm.current.lastTime) / 1000) > 0)
-        sm.current.TimerCSS();
 
       const alpha = (timeNow - simulatedTime) / fixedStep;
       ball.x += ball.dx * alpha * fixedStep;
@@ -249,61 +249,81 @@ const Pong = ({ websocket, player, names }) => {
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("resize", onWindowResize);
     };
-  }, [ready]);
+  }, [ready, isWon, islost]);
 
+  function handleExitGame() {
+    window.location.href = '/games/pong/online';
+    window.close();
+  }  
+  console.log(ready);
   return (
-    <div id="message" className="relative w-full h-screen overflow-hidden">
-      {authContextData.globalMessage.message && (
-        <Toast
-          message={authContextData.globalMessage.message}
-          error={authContextData.globalMessage.isError}
-          onClose={authContextData.setGlobalMessage}
-        />
-      )}
-      <canvas id="pong" className="block"></canvas>
-      {isWon && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 z-10">
-          <div className="flex flex-col sm:flex-row items-center justify-center text-center text-white text-4xl font-bold p-8 bg-gradient-to-r from-red-500 to-yellow-500 rounded-lg shadow-lg animate-pulse transform scale-110">
-            
-            {/* Victory GIF */}
-            <img 
-              className="w-[250px] h-[250px] mb-8 sm:mb-0 sm:mr-8" 
-              src="/images/eto.gif" 
-              alt="Victory Dance"
-            />
-  
-            {/* Victory Text */}
-            <div className="flex flex-col items-center sm:items-start sm:mt-0 mt-4 animate-[pulse_1s_infinite]">
-              <p className="text-5xl font-bold animate__animated animate__bounceIn animate__delay-2000ms">
-                You Won!!!
-              </p>
-              <p className="text-2xl font-semibold mt-4 animate__animated animate__fadeIn animate__delay-4000ms">
-                Like a Ping Pong Champion!
-              </p>
-            </div>
-  
-            {/* Dark Gold to Dark Red Button */}
-            <button
-              onClick={() => handleExitGame()} // Define your exit action
-              className="
-                mt-6 px-8 py-4 
-                bg-gradient-to-r from-yellow-800 to-yellow-600 
-                text-white text-2xl
-                rounded-full shadow-lg 
-                transition-all duration-300 transform 
-                hover:bg-gradient-to-r hover:from-red-800 hover:to-red-600 
-                active:bg-gradient-to-r active:from-red-900 active:to-red-700
-                focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-offset-2
-                hover:scale-105 active:scale-95
-              "
+  <div id="message" className="relative w-full h-screen overflow-hidden">
+    {authContextData.globalMessage.message && (
+      <Toast
+      message={authContextData.globalMessage.message}
+      error={authContextData.globalMessage.isError}
+      onClose={authContextData.setGlobalMessage}
+      />
+    )}
+    <canvas id="pong" className="block"></canvas>
+    {/* Victory Section */}
+    {isWon && (
+      <div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">
+        <div className="text-center transform scale-110">
+          <img 
+            className="w-[250px] h-[250px] mx-auto transition-all transform hover:scale-110" 
+            src="/images/eto.gif" 
+            alt="Victory Dance"
+          />
+          <div className="mb-6 mt-8">
+            <p className="text-5xl font-extrabold text-white animate__animated animate__bounceIn animate__delay-2000ms">
+              Victory
+            </p>
+            <p className="text-2xl font-semibold mt-4 text-white animate__animated animate__fadeIn animate__delay-4000ms">
+              You Won Like a Ping Pong Champion!
+            </p>
+            <button 
+              className="relative mt-16 inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
+              onClick={handleExitGame}
             >
-              Continue
+              <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
+              <span className="z-10">Continue</span>
             </button>
           </div>
         </div>
-      )}
-    </div>
+      </div>
+    )}
+
+    {/* Defeat Section */}
+    {islost && (
+      <div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">
+        <div className="text-center transform scale-110">
+          <img 
+            className="w-[250px] h-[250px] mx-auto transition-all transform hover:scale-110" 
+            src="/images/bmo.gif" 
+            alt="Defeat"
+          />
+          <div className="mb-6 mt-8">
+            <p className="text-5xl font-extrabold text-white animate__animated animate__bounceIn animate__delay-2000ms">
+              Defeat
+            </p>
+            <p className="text-2xl font-semibold mt-4 text-white animate__animated animate__fadeIn animate__delay-4000ms">
+              Good Luck Next Time Champion!
+            </p>
+            <button 
+              className="relative mt-16 inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
+              onClick={handleExitGame}
+            >
+              <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
+              <span className="z-10">Continue</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
   );
+  
   
   
   
