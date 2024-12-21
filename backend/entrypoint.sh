@@ -10,5 +10,7 @@ python manage.py migrate
 # Populate the Database with available Games
 python manage.py add_games
 
+celery -A backend.celery:app worker --loglevel=debug &
+
 # Run the uvicorn server
 exec $@

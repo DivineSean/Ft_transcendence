@@ -9,16 +9,15 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+    user: root # WARNING: For development only
     volumes:
-      - ./frontend/public/:/home/app/public
-      - ./frontend/src/:/home/app/src
+      - ./frontend/public/:/home/app/public:rw
+      - ./frontend/src/:/home/app/src:rw
 
   backend:
     build: 
       context: ./
       dockerfile: ./backend/Dockerfile
-    # ports:
-    #   - 8000:8000
     container_name: backend
     env_file:
         - .env
@@ -28,8 +27,9 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
+    user: root # WARNING: For development only
     volumes:
-      - ./backend/:/home/app
+      - ./backend/:/home/app:rw
 
   db:
     build:
@@ -41,8 +41,6 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
-    # ports:
-    #   - 5432:5432
     container_name: db
     env_file:
         - .env

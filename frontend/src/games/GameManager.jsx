@@ -1,71 +1,102 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useEffect, memo } from "react";
+import { useParams } from "react-router-dom";
 import Pong from "./pong/Pong";
+import useWebSocket from "../customHooks/useWebsocket";
+
+const Counter = ({ createdAt }) => {
+  const endTime = new Date(createdAt).getTime() + 60 * 1000;
+  const [count, setCount] = useState(endTime - Date.now())
+
+  useEffect(() => {
+    const updateTime = () => {
+      if (endTime > Date.now())
+        setCount(Math.floor((endTime - Date.now()) / 1000));
+    }
+    const intervalId = setInterval(updateTime, 1000)
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  return <div>{count}</div>
+}
+
+const GameOverlay = ({ status, data, send }) => {
+  console.log("status: ", status, data);
+  switch (status) {
+    case "waiting":
+      return (
+        <div className="flex flex-col gap-16 w-full justify-center items-center">
+          <div className="flex gap-16">
+            <span className={`normal-case ${data.players_details[0].ready ? "text-green" : "text-red"}`}>@{data.players_details[0].user.username}</span>
+            <span className="normal-case">vs</span>
+            <span className={`normal-case ${data.players_details[1].ready ? "text-green" : "text-red"}`}>@{data.players_details[1].user.username}</span>
+          </div>
+          <div className="flex gap-32">
+            <span className="normal-case">+{data.players_details[0].rating_gain} -{data.players_details[0].rating_gain}</span>
+            <span className="normal-case">+{data.players_details[0].rating_gain} -{data.players_details[0].rating_gain}</span>
+          </div>
+          <Counter createdAt={data.created_at} />
+          <div className="flex justify-center">
+            <button onClick={() => {
+              send(JSON.stringify({
+                type: "ready",
+                message: {}
+              }))
+            }}>Accept</button>
+          </div>
+        </div>
+      );
+    case "expired":
+      return <div>Game invite expired</div>
+    case "ongoing":
+      return <div>Game starting soon ...</div>
+    default:
+      return <>nn hh</>
+  }
+}
+
+const Game = memo(({ game }) => {
+  switch (game) {
+    case "pong":
+		return <Pong websocket={ws.current} player={playerNumber} />;
+      // return <div>pong</div>
+  }
+})
 
 const GameManager = () => {
   const [playerNumber, setPlayerNumber] = useState(-1);
-  // const [ready, setReady] = useState(false);
-  const ws = useRef(null);
-  const [players, setPlayers] = useState([]);
+  const [ready, setReady] = useState(false);
+  const [status, setStatus] = useState(null);
+  const [data, setData] = useState(null);
+  const { game, uuid } = useParams();
+  const { send, addMessageHandler, removeMessageHandler } = useWebSocket(`wss://${window.location.hostname}:8000/ws/games/${uuid}`, {
+    onMessage: (event) => {
+      const msg = JSON.parse(event.data);
+
+      if (msg.type === "game_manager") {
+        // INFO: check if the objects are the same to avoid unnecessary rerenders
+        if (msg.message.status)
+          setStatus(msg.message.status);
+        console.log(msg);
+        setData({
+          ...data,
+          ...msg.message,
+        })
+      }
+    }
+  })
 
   // TODO: handle match accept
   // TODO: handle reconnect after accepting
-  const location = useLocation();
-  const gameDetails = location.state;
-  console.log("game state: ", gameDetails);
-
-  const connectWebSocket = useCallback(() => {
-    const { id } = gameDetails.game;
-    const role = gameDetails.role;
-    setPlayers(
-      gameDetails.game.players_details.map((player) => player.user.username),
-    );
-    console.log(id, role);
-    ws.current = new WebSocket(
-      `wss://${window.location.hostname}:8000/ws/games/${id}`,
-    );
-
-    ws.current.onopen = () => {
-      console.log("WebSocket connected");
-      ws.current.send(
-        JSON.stringify({
-          type: "ready",
-          message: {},
-        }),
-      );
-      setPlayerNumber(role);
-    };
-
-    ws.current.onclose = () => {
-      console.log("WebSocket closed");
-    };
-
-    ws.current.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
-  }, []);
-
-  const handleJoinGame = () => {
-    if (!ws.current) {
-      connectWebSocket();
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (ws.current) {
-        ws.current.close();
-      }
-    };
-  }, []);
 
   return (
-    <div>
-      {playerNumber === -1 ? (
-        <button onClick={handleJoinGame}>Join Game</button>
-      ) : (
-        <Pong websocket={ws.current} player={playerNumber} names={players} />
-      )}
+    <div className="relative w-full">
+      {/* <Game game={game} /> */}
+      <div className="absolute inset-0 container justify-center items-center">
+        <div className="primary-glass p-32">
+          <GameOverlay status={status} data={data} send={send} />
+        </div>
+      </div>
     </div>
   );
 };

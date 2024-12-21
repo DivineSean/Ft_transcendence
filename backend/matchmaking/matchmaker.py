@@ -1,18 +1,21 @@
 from channels.consumer import database_sync_to_async
+from django.db.models.base import sync_to_async
 from games.models import Game, PlayerRating
 from games.serializers import GameRoomSerializer, GameSerializer
 from channels.layers import get_channel_layer
 from django.conf import settings
+from games.tasks import mark_game_room_as_expired
 import redis
 import time
 import asyncio
 import itertools
 
-r = redis.StrictRedis(
+r = redis.Redis(
     host=settings.REDIS_CONNECTION["host"],
     port=settings.REDIS_CONNECTION["port"],
     password=settings.REDIS_CONNECTION["password"],
     db=settings.REDIS_CONNECTION["db"],
+    decode_responses=True,
 )
 
 QUEUE_KEY = "matchmaking_queue"
@@ -20,6 +23,7 @@ RATING_TOLERANCE_BASELINE = 0
 TOLERANCE_EXPANSION_RATE = 50
 TOLERANCE_EXPANSION_TIME = 20
 TOLERANCE_CAP = 1000
+GAME_EXPIRATION = 60
 
 
 class Matchmaker:
@@ -54,7 +58,8 @@ class Matchmaker:
             raise
 
         r.zadd(f"{game_name}_{QUEUE_KEY}", {player_id: rating})
-        r.hset(f"{game_name}:players_channel_names", mapping={player_id: channel_name})
+        r.hset(f"{game_name}:players_channel_names",
+               mapping={player_id: channel_name})
         await self.start_loop()
 
     async def remove_player(self, player_id, game_name):
@@ -75,10 +80,14 @@ class Matchmaker:
         game_data = {"game": game_id, "players": players}
         serializer = GameRoomSerializer(data=game_data)
         game_room = None
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid():
             game = serializer.create(serializer.validated_data)
             serialized = GameRoomSerializer(game)
             game_room = serialized.data
+            mark_game_room_as_expired.apply_async(
+                args=[game_room['id']],
+                countdown=GAME_EXPIRATION
+            )
         return game_room
 
     def create_batches(self, players, rating_tolerance):
@@ -110,7 +119,7 @@ class Matchmaker:
             match = []
             for player, rating in batch:
                 if len(match) < game["max_players"]:
-                    match.append({"id": player.decode("utf-8"), "rating": rating})
+                    match.append({"id": player, "rating": rating})
 
                 if len(match) == game["max_players"]:
                     matches.append(match)
@@ -160,19 +169,21 @@ class Matchmaker:
             for player in match:
                 player["role"] = role
                 r.zrem(f"{game['name']}_{QUEUE_KEY}", player["id"])
-                channel = r.hget(f"{game['name']}:players_channel_names", player["id"])
-                channels.append(channel.decode("utf-8"))
+                channel = r.hget(
+                    f"{game['name']}:players_channel_names", player["id"])
+                channels.append(channel)
                 role += 1
 
             game_room = await self.create_game(game["id"], match)
             if game_room:
+                r.hset(f"game_room_data:{game_room['id']}", mapping=game_room)
                 # Notify all players
                 for i in range(0, len(channels)):
                     await channel_layer.send(
                         channels[i],
                         {
                             "type": "match",
-                            "message": {"role": match[i]["role"], "game": game_room},
+                            "message": {"room_id": game_room["id"]},
                         },
                     )
 
@@ -182,14 +193,16 @@ class Matchmaker:
         # TODO: Add per-player estimated time
         while len(self.queues):
             for _, game in self.queues.items():
-                print(f"{game['name']} --> {game['rating_tolerance']}", flush=True)
+                print(
+                    f"{game['name']} --> {game['rating_tolerance']}", flush=True)
                 players = r.zrange(
                     f"{game['name']}_{QUEUE_KEY}", 0, -1, withscores=True
                 )
                 if len(players) == 0:
                     del self.queues[game["name"]]
                     break
-                batches = self.create_batches(players, game["rating_tolerance"])
+                batches = self.create_batches(
+                    players, game["rating_tolerance"])
                 matches = self.find_matches(batches, game)
                 await self.create_matches(channel_layer, game, matches)
 
