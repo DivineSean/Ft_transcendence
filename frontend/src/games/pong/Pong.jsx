@@ -255,7 +255,6 @@ const Pong = ({ websocket, player, names }) => {
     window.location.href = '/games/pong/online';
     window.close();
   }  
-  console.log(ready);
   return (
   <div id="message" className="relative w-full h-screen overflow-hidden">
     {authContextData.globalMessage.message && (

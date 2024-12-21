@@ -4,9 +4,10 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
 
 export class SceneManager {
-  constructor(globalMessage) {
+  constructor(globalMessage, setIsOver) {
     this.player = 1;
     this.globalMessage = globalMessage;
+    this.setIsOver = setIsOver;
     // Camera
     this.camera = new THREE.PerspectiveCamera(
       80,
@@ -380,12 +381,9 @@ export class SceneManager {
       if (P[0] === 7 || P[1] === 7) {
         ball.Victory.currentTime = 0;
         ball.Victory.play();
-        this.globalMessage({message: 'Victory!!!', isError: false});
       }
-      
-      return false;
+      this.setIsOver(true);
     }
-    return true;
   }
 
   createRoundedPlane(
