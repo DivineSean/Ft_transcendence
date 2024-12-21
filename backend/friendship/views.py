@@ -17,63 +17,70 @@ from notification.models import Notifications
 
 
 class SendFriendRequest(APIView):
-		def post(self, request):
-				# response = Response(status=200)
-				userId = request.data.get("userId")
-				if userId:
-						try:
+	def post(self, request):
+		# response = Response(status=200)
+		userId = request.data.get("userId")
+		if userId:
+			try:
 
-								receieverData = Users.objects.get(id=userId)
-								if receieverData.email == request._user.email:
-										return Response(
-												"Error : Trying to send friend request to current account",
-												status=400,
-										)
+				receieverData = Users.objects.get(id=userId)
+				if receieverData.email == request._user.email:
+					return Response(
+						"Error : Trying to send friend request to current account",
+						status=400,
+					)
 
-						except:
-								return Response("ID of Receiver not Valid", status=400)
+			except:
+				return Response("ID of Receiver not Valid", status=400)
 
-						try:
+			try:
 
-								friendRequest = FriendshipRequest.objects.get(
-										Q(fromUser=userId) | Q(toUser=request._user.id)
-								)
-								return Response(
-										{
-												"status": "400",
-												"message": "you cannot send the friend request to this user",
-										}
-								)
+				friendRequest = FriendshipRequest.objects.get(
+					fromUser=userId, toUser=request._user.id
+				)
+				return Response(
+					{
+						"status": "400",
+						"message": "you cannot send the friend request to this user",
+					}
+				)
 
-						except FriendshipRequest.DoesNotExist:
+			except FriendshipRequest.DoesNotExist:
 
-								friendRequest, isCreated = FriendshipRequest.objects.get_or_create(
-										fromUser=request._user,
-										toUser=Users.objects.get(email=receieverData),
-										accepted_at=None,
-								)
-								user = Users.objects.get(id=userId)
-								print('user', user, flush=True)
-								Notifications.objects.get_or_create(
-									notifType="FR",
-									userId=user,
-									senderId=request._user,
-									notifMessage=f"You Received a Friend Request from {request._user.username}",
-								)
-								channel_layer = get_channel_layer()
-								group_name = f"notifications_{userId}"
-								print("userID", userId, flush=True)
-								print("group_name", group_name, flush=True)
-								async_to_sync(channel_layer.group_send)(
-									group_name,
-									{
-										"type": "send_friend_request",
-										"sender": str(request._user.id),
-									}
-								)
-								print("user---------ID", userId, flush=True)
+				friendRequest, isCreated = FriendshipRequest.objects.get_or_create(
+					fromUser=request._user,
+					toUser=Users.objects.get(email=receieverData),
+					accepted_at=None,
+				)
+				user = Users.objects.get(id=userId)
+				print('user', user, flush=True)
+				notification, isNew = Notifications.objects.get_or_create(
+					notifType="FR",
+					userId=user,
+					senderId=request._user,
+					notifMessage=f"You Received a Friend Request from {request._user.username}",
+				)
 
-				return Response({"status": "200", "message": "request sent successfully"})
+				print('isNew', isNew, notification.isRead, flush=True)
+				if not isNew and notification.isRead:
+					notification.updateRead()
+
+				channel_layer = get_channel_layer()
+				group_name = f"notifications_{userId}"
+				print("userID", userId, flush=True)
+				print("group_name", group_name, flush=True)
+				async_to_sync(channel_layer.group_send)(
+					group_name,
+					{
+						"type": "send_friend_request",
+						"sender": str(request._user.id),
+					}
+				)
+				print("user---------ID", userId, flush=True)
+			except Exception as e:
+				Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+		return Response({"status": "200", "message": "request sent successfully"})
 
 
 class AcceptFriendRequest(APIView):

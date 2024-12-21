@@ -30,18 +30,19 @@ const Header = ({ ...props }) => {
 		notifContext.getNotfications();
 	}, []);
 
-	const notificationData = [];
-	if (notifContext.notifData) {
-		notifContext.notifData.map(item => {
-			notificationData.push(item.notifMessage);
-		})
-	}
+	// if (notifContext.notifData)
+	// 	console.log('hsfjkghlksfjhgkjgfdhs', notifContext.notifData.notifications)
+
+	// const notificationData = [];
+	// if (notifContext.notifData && notifContext.notifData.notifications) {
+	// 	notifContext.notifData.notifications.map(item => {
+	// 		notificationData.push(item.notifMessage);
+	// 	})
+	// }
+
+	console.log('hello madafucker', notifContext.notifData);
 
   const optionsData = [
-    // {
-    //   name: "settings",
-    //   icon: <IoSettingsOutline />,
-    // },
     {
       name: "logout",
       icon: <TbLogout2 />,
@@ -140,7 +141,7 @@ const Header = ({ ...props }) => {
           )}
           {displayNotification && (
             <OptionsSection
-              data={notificationData}
+            //   data={notificationData}
               reference={optionSectionRef}
               type="notification"
             />
@@ -184,9 +185,10 @@ const Header = ({ ...props }) => {
               <IoNotifications className="text-white text-h-lg-lg" />
             )}
 
-            {/* {!readNotif && notifContext.notifData && notifContext.notifData.length === 0 && (
-              <span className="absolute w-10 h-10 bg-red rounded-full left-4 top-0 overflow-hidden"></span>
-            )} */}
+            {notifContext.notifData && notifContext.notifData.unreadCount !== 0 &&
+              <span className="absolute flex p-4 h-16 min-w-16 flex items-center justify-center font-bold text-txt-xs bg-red rounded-full left-0 top-0 overflow-hidden">
+				{notifContext.notifData.unreadCount <= 4 ? notifContext.notifData.unreadCount : '+4'}</span>
+            }
           </div>
           <div
             ref={(el) => (toggleOptionsRef.current[1] = el)}

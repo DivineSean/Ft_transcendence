@@ -48,6 +48,8 @@ export const NotifProvider = ({ children }) => {
 		ws.current.onmessage = (e) => {
 			const socketData = JSON.parse(e.data);
 			if (socketData) {
+				if (socketData.type === 'friendRequest')
+					getNotfications();
 				console.log('chihaja tbedlat', socketData);
 				console.log('type', socketData.type);
 				console.log('message', socketData.message);
@@ -62,20 +64,20 @@ export const NotifProvider = ({ children }) => {
 			if (res.ok) {
 				const data = await res.json();
 				setNotifData(data);
-				// console.log(data);
 			}
 		} catch (error) {
 			console.log('get notifs', error);
 		}
 	}
 
-	const deleteNotifications = async (userId) => {
+	const deleteNotifications = async (notificationId) => {
 		try {
-			console.log('userID', userId);
-			const res = await FetchData.delete(`api/notification/${userId}/`);
+			console.log('notificationId', notificationId);
+			const res = await FetchData.delete(`api/notification/${notificationId}/`);
 			console.log(res);
 			if (res.ok) {
 				const data = await res.json();
+				getNotfications();
 				console.log(data);
 			}
 		} catch (error) {
