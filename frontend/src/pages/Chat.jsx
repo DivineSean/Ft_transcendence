@@ -10,20 +10,21 @@ import { getConversations } from "../utils/chatFetchData";
 import AuthContext from "../context/AuthContext";
 import ChatFriends from "../components/chat/ChatFriends";
 import LoadingPage from "./LoadingPage";
+import NotifContext from "../context/NotifContext";
 
 const Chat = () => {
-  const ws = useRef(null);
+  // const ws = useRef(null);
   const { uid } = useParams();
   const navigate = useNavigate();
   const { setGlobalMessage } = useContext(AuthContext);
-
+	const notifContextData = useContext(NotifContext);
   // states
   const [typing, setTyping] = useState("");
   const [messages, setMessages] = useState([]);
   const [tempMessages, setTempMessages] = useState([]);
   const [friendsData, setFriendsData] = useState(null);
   const [displayTyping, setDisplayTyping] = useState(null);
-  const [isWsConnected, setIsWsConnected] = useState(false);
+  // const [isWsConnected, setIsWsConnected] = useState(false);
   const [readedMessages, setReadedMessages] = useState(null);
   const [conversationSide, setConversationSide] = useState(true);
   const [updatedConversation, setUpdatedConversation] = useState(null);
@@ -36,35 +37,35 @@ const Chat = () => {
     getConversations(setFriendsData, setGlobalMessage, navigate);
   }, []);
 
-  useEffect(() => {
-    ws.current = new WebSocket(
-      `wss://${window.location.hostname}:8000/ws/chat/`,
-    );
-    // console.log('from chat ws');
-    // console.log('ws: ', ws.current);
+  // useEffect(() => {
+  //   ws.current = new WebSocket(
+  //     `wss://${window.location.hostname}:8000/ws/chat/`,
+  //   );
+  //   // console.log('from chat ws');
+  //   // console.log('ws: ', ws.current);
 
-    ws.current.onopen = () => {
-      // overide the onopen event
-      console.log("Connected");
-      // here we set this state to true to make sure
-      // that the socket is connected successfully when we want to send an event
-      setIsWsConnected(true);
-    };
+  //   ws.current.onopen = () => {
+  //     // overide the onopen event
+  //     console.log("Connected");
+  //     // here we set this state to true to make sure
+  //     // that the socket is connected successfully when we want to send an event
+  //     setIsWsConnected(true);
+  //   };
 
-    ws.current.onclose = () => console.log("Disconnected"); // override the onclose event
+  //   ws.current.onclose = () => console.log("Disconnected"); // override the onclose event
 
-    return () => {
-      if (ws.current) {
-        ws.current.close();
-        ws.current = null;
-      }
-    };
-  }, []);
+  //   return () => {
+  //     if (ws.current) {
+  //       ws.current.close();
+  //       ws.current = null;
+  //     }
+  //   };
+  // }, []);
 
   // check if there is a new message and add it to the message array state
-  useEffect(() => {
-    if (ws.current) {
-      ws.current.onmessage = (e) => {
+  // useEffect(() => {
+    if (notifContextData.ws.current) {
+      notifContextData.ws.current.onmessage = (e) => {
         const messageData = JSON.parse(e.data); // parse the event data
 
         if (messageData) {
@@ -78,7 +79,7 @@ const Chat = () => {
 
               if (!messageData.isSender)
                 // check if the user is the receiver then send to the sender that the message is readed
-                ws.current.send(
+                notifContextData.ws.current.send(
                   JSON.stringify({
                     message: "message is readedf",
                     type: "read",
@@ -97,7 +98,6 @@ const Chat = () => {
           } else if (messageData.type === "read") {
             // if we received the read event
             setReadedMessages(messageData); // set readed message with the message we received from the socket to update all unreaded messages
-            // console.log('is reaaad9999999999999999');
           } else if (messageData.type === "typing")
             // if we received the typing event
             setDisplayTyping(messageData); // increment the display typing state to know that the uer is still typing
@@ -107,7 +107,7 @@ const Chat = () => {
         }
       };
     }
-  }, [ws.current, uid]);
+  // }, [notifContextData.ws.current, uid]);
 
   useEffect(() => {
     // if the updatedConversation is updated thats mean we need to update chat friend component
@@ -176,7 +176,6 @@ const Chat = () => {
                 friendsData={friendsData}
                 displayTyping={displayTyping}
                 uid={uid}
-                ws={ws}
               />
             </div>
 
@@ -187,9 +186,7 @@ const Chat = () => {
                 {conversationSide && (
                   <Conversation
                     uid={uid}
-                    ws={ws}
                     typing={typing}
-                    isWsConnected={isWsConnected}
                     setTyping={setTyping}
                     displayTyping={displayTyping}
                     setTempMessages={setTempMessages}

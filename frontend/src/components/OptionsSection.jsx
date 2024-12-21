@@ -31,11 +31,11 @@ const OptionsSection = ({ data, type, reference, contextData }) => {
 					options-glass p-8 z-[1000] overflow-y-scroll no-scrollbar
 					absolute flex-col gap-16 top-64 max-h-[300px] rounded-md
 					${type === "options" && "lg:flex hidden lg:right-32 w-[250px]"}
-					${type === "notification" && "flex lg:right-[90px] right-56 w-[300px]"}
+					${type === "notification" && "flex lg:right-[90px] right-56 max-w-[340px]"}
 				`}
       >
         {type === "notification" && (
-          <h2 className="font-bold p-8 tracking-wide text-h-dm-md">
+          <h2 className="font-bold p-8 tracking-wide text-h-dm-md text-center">
             Notifications
           </h2>
         )}
@@ -63,30 +63,42 @@ const OptionsSection = ({ data, type, reference, contextData }) => {
             </h2>
           </div>
         )}
-        <ul className="w-full flex flex-col gap-8">
-          {data.map((section, i) => (
-            <li
-              key={i}
-              ref={(el) => (sectionRef.current[i] = el)}
-              onClick={() => handleClick(i)}
-              className={`
-									cursor-pointer p-8 w-full rounded flex gap-16 items-center
-									${type === "options" && "text-txt-sm"}
-									${type === "options" && section.name !== "logout" && "hover:hover-secondary"}
-									${type === "notification" && "text-txt-xs justify-start hover:hover-secondary"}
-									${section.name === "logout" && "hover:bg-logout-bg"}
-								`}
-            >
-              {type === "options" && (
-                <>
-                  {section.icon}
-                  {section.name}
-                </>
-              )}
-              {type === "notification" && section}
-            </li>
-          ))}
-        </ul>
+				{data.length !== 0 && 
+					<ul className="w-full flex flex-col gap-8">
+						{data.map((section, i) => (
+							<li
+								key={i}
+								ref={(el) => (sectionRef.current[i] = el)}
+								onClick={() => handleClick(i)}
+								className={`
+										cursor-pointer p-8 w-full rounded flex gap-16 items-center bg-black/40
+										${type === "options" && "text-txt-sm"}
+										${type === "options" && section.name !== "logout" && "hover:hover-secondary"}
+										${type === "notification" && "text-txt-xs justify-start hover:hover-secondary"}
+										${section.name === "logout" && "hover:bg-logout-bg"}
+									`}
+							>
+								{type === "options" && (
+									<>
+										{section.icon}
+										{section.name}
+									</>
+								)}
+								{type === "notification" &&
+									<div className="flex grow gap-8 items-center">
+										<div className="h-32 min-w-32 max-w-32 rounded-full overflow-hidden flex">
+											<img src="/images/default.jpeg" alt="sender" className="object-cover grow" />
+										</div>
+										<p className="gorw">{section}</p>
+									</div>
+								}
+							</li>
+						))}
+					</ul>
+				}
+				{!data.length &&
+					<p className="text-center text-txt-sm text-stroke-sc">no notifications</p>
+				}
       </div>
     </>
   );

@@ -14,6 +14,7 @@ import Menu from "./Menu";
 import FetchWrapper from "../utils/fetchWrapper";
 import { BACKENDURL } from "../utils/fetchWrapper";
 import UserContext from "../context/UserContext";
+import NotifContext from "../context/NotifContext";
 
 const navLinks = ["home", "profile", "chat", "rankings", "games", "explore"];
 
@@ -23,6 +24,18 @@ const Header = ({ ...props }) => {
   const [displayNotification, setDisplayNotification] = useState(false);
   const [readNotif, setReadNotif] = useState(false);
   const contextData = useContext(UserContext);
+	const notifContext = useContext(NotifContext);
+
+	useEffect(() => {
+		notifContext.getNotfications();
+	}, []);
+
+	const notificationData = [];
+	if (notifContext.notifData) {
+		notifContext.notifData.map(item => {
+			notificationData.push(item.notifMessage);
+		})
+	}
 
   const optionsData = [
     // {
@@ -34,28 +47,7 @@ const Header = ({ ...props }) => {
       icon: <TbLogout2 />,
     },
   ];
-  const notificationData = [
-    "Success! Your changes have been saved.",
-    "Error: Unable to connect to the server. Please try again.",
-    "Reminder: Your session will expire in 5 minutes.",
-    "New Message: You have a new message from [Sender Name].",
-    "Update Available: A new version is now available. Please refresh to update.",
-    "Warning: Your password will expire in 3 days.",
-    "Account Created! Welcome to [App Name].",
-    "Failed Login Attempt: Someone tried to log into your account.",
-    "File Uploaded Successfully! Your file is ready to view.",
-    "Subscription Alert: Your subscription is about to expire in 7 days.",
-    "New Notification: You have 3 unread notifications.",
-    "Action Required: Please complete your profile to access more features.",
-    "Payment Successful: Your payment was processed successfully.",
-    "Item Added to Cart! Continue shopping or proceed to checkout.",
-    "System Maintenance: Scheduled maintenance will start at 12:00 AM.",
-    "Download Ready! Your file is now available for download.",
-    "Profile Updated: Your profile information has been successfully updated.",
-    "Low Battery: Your device battery is below 10%.",
-    "Error: Please check your internet connection and try again.",
-    "Order Shipped! Your order has been shipped and is on the way.",
-  ];
+
   const optionSectionRef = useRef(null);
   const toggleOptionsRef = useRef([]);
 

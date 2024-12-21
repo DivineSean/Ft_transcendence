@@ -26,8 +26,8 @@ function App() {
       <div className="backdrop-blur-sm w-full h-full absolute top-0 right-0 z-[-1]"></div>
       <Router>
         <AuthProvider>
-          <UserProvider>
-            <NotifProvider>
+					<NotifProvider>
+						<UserProvider>
               <Routes>
                 <Route path="forgotpassword/" element={<ForgotPassword />} />
                 <Route
@@ -60,8 +60,8 @@ function App() {
                 <Route path="rankings" element={<Rankings />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </NotifProvider>
-          </UserProvider>
+          	</UserProvider>
+					</NotifProvider>
         </AuthProvider>
       </Router>
     </>

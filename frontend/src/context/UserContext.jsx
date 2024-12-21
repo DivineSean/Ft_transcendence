@@ -2,12 +2,14 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FetchWrapper from "../utils/fetchWrapper";
 import AuthContext from "./AuthContext";
+import NotifContext from "./NotifContext";
 
 const UserContext = createContext();
 
 export default UserContext;
 
 export const UserProvider = ({ children }) => {
+	const notifContextData = useContext(NotifContext);
   const authContextData = useContext(AuthContext);
   const FetchData = new FetchWrapper();
   const navigate = useNavigate();
@@ -113,6 +115,7 @@ export const UserProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         setRefresh(true);
+				notifContextData.setFriendRequest(true);
         authContextData.setGlobalMessage({
           message: data.message,
           isError: data.status !== "200",

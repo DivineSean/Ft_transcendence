@@ -1,11 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { BACKENDURL } from "../../utils/fetchWrapper";
+import { useContext } from "react";
+import NotifContext from "../../context/NotifContext";
 
 const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
   const navigate = useNavigate();
+	const notifContextData = useContext(NotifContext);
   const handleReadMessage = () => {
-    if (ws.current) {
-      ws.current.send(
+    if (notifContextData.ws.current) {
+      notifContextData.ws.current.send(
         JSON.stringify({
           message: "message is readedf",
           type: "read",

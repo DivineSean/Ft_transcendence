@@ -3,9 +3,10 @@ import { IoArrowBackOutline } from "react-icons/io5";
 import { BiSolidSend } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { getChunkedMessages, getMessages } from "../../utils/chatFetchData";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Message from "./Message";
 import { BACKENDURL } from "../../utils/fetchWrapper";
+import NotifContext from "../../context/NotifContext";
 
 const formatedDate = () => {
   const now = new Date();
@@ -20,7 +21,6 @@ const formatedDate = () => {
 };
 
 const Conversation = ({
-  ws,
   uid,
   typing,
   hideSelf,
@@ -30,7 +30,6 @@ const Conversation = ({
   setMessages,
   tempMessages,
   displayTyping,
-  isWsConnected,
   readedMessages,
   displayProfile,
   setTempMessages,
@@ -44,6 +43,8 @@ const Conversation = ({
   const conversation = [];
   const downScrollRef = useRef(null);
   const topScrollRef = useRef(null);
+
+	const notifContextData = useContext(NotifContext);
 
   // fetch messages in the first time we enter to the conversation
   useEffect(() => {
@@ -110,8 +111,8 @@ const Conversation = ({
   const sendMessage = (e) => {
     e.preventDefault();
 
-    if (ws.current && e.target.message.value.trim()) {
-      ws.current.send(
+    if (notifContextData.ws.current && e.target.message.value.trim()) {
+      notifContextData.ws.current.send(
         JSON.stringify({
           message: e.target.message.value,
           type: "message",
@@ -135,17 +136,17 @@ const Conversation = ({
 
   // send typing into a ws
   useEffect(() => {
-    if (!isWsConnected) return;
+    if (!notifContextData.isWsConnected) return;
 
     const sendTyping = setTimeout(() => {
-      if (ws.current && typing.length)
+      if (notifContextData.ws.current && typing.length)
         // send typing because the typing state is not empty
-        ws.current.send(
+        notifContextData.ws.current.send(
           JSON.stringify({ message: "isTyping", type: "typing", convId: uid }),
         );
-      else if (ws.current && !typing.length)
+      else if (notifContextData.ws.current && !typing.length)
         // send stop typing because the typing state is empty
-        ws.current.send(
+        notifContextData.ws.current.send(
           JSON.stringify({
             message: "endTyping",
             type: "stopTyping",
@@ -159,9 +160,9 @@ const Conversation = ({
 
   const handleBlur = () => {
     setTimeout(() => {
-      if (ws.current)
+      if (notifContextData.ws.current)
         // here when we blur the input will send stop typing
-        ws.current.send(
+        notifContextData.ws.current.send(
           JSON.stringify({
             message: "endTyping",
             type: "stopTyping",
@@ -199,8 +200,8 @@ const Conversation = ({
 
   const heandleIsTyping = (e) => {
     if (!typing) {
-      if (ws.current)
-        ws.current.send(
+      if (notifContextData.ws.current)
+        notifContextData.ws.current.send(
           JSON.stringify({
             message: e.target.value,
             type: "typing",

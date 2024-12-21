@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "./AuthContext";
 import FetchWrapper from "../utils/fetchWrapper";
@@ -9,37 +9,74 @@ export default NotifContext;
 
 export const NotifProvider = ({ children }) => {
   const FetchData = new FetchWrapper();
-
   const navigate = useNavigate();
+	const ws = useRef(null);
+	const [friendRequest, setFriendRequest] = useState(false);
+	const [notifData, setNotifData] = useState(null);
 
   const authContextData = useContext(AuthContext);
-  const [friendsData, setFriendsData] = useState(null);
+	const [isWsConnected, setIsWsConnected] = useState(false);
 
-  const getConversations = async () => {
-    try {
-      const res = await FetchData.get("api/chat/conversations/");
-      if (res.ok) {
-        const data = await res.json();
-        console.log("data", data);
-        setFriendsData(data);
-      } else if (res.status) {
-        const data = await res.json();
-        if (res.status === 401) {
-          authContextData.setGlobalMessage({
-            message: "unauthorized user",
-            isError: true,
-          });
-          navigate("/login");
-        }
+	useEffect(() => {
+    ws.current = new WebSocket(
+      `wss://${window.location.hostname}:8000/ws/chat/`,
+    );
+    // console.log('from chat ws');
+    // console.log('ws: ', ws.current);
+
+    ws.current.onopen = () => {
+      // overide the onopen event
+      console.log("Connected");
+      // here we set this state to true to make sure
+      // that the socket is connected successfully when we want to send an event
+      setIsWsConnected(true);
+    };
+
+    ws.current.onclose = () => console.log("Disconnected"); // override the onclose event
+
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+        ws.current = null;
       }
-    } catch (error) {
-      console.error(error);
-      // setGlobalMessage({message: error, isError: true});
-    }
-  };
+    };
+  }, []);
+
+	// 95dd4cde-86ff-40e5-906d-32c412ee543a
+	// 6434d48a-161e-4e0f-af68-f83700a37053
+	if (ws.current) {
+		ws.current.onmessage = (e) => {
+			const socketData = JSON.parse(e.data);
+			if (socketData) {
+				console.log('chihaja tbedlat', socketData);
+				console.log('type', socketData.type);
+				console.log('message', socketData.message);
+			}
+		}
+	}
+
+	const getNotfications = async () => {
+		try {
+			const res = await FetchData.get('api/notification/');
+			console.log(res);
+			if (res.ok) {
+				const data = await res.json();
+				setNotifData(data);
+				// console.log(data);
+			}
+		} catch (error) {
+			console.log('get notifs', error);
+		}
+	}
 
   const contextData = {
-    getConversations,
+		ws,
+		notifData,
+		isWsConnected,
+		setIsWsConnected,
+		setFriendRequest,
+		getNotfications,
+		setNotifData,
   };
 
   return (

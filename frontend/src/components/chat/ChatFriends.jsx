@@ -10,7 +10,7 @@ const ChatFriends = ({ uid, friendsData, ws, displayTyping }) => {
       return friends.push(
         <FriendsChat
           uid={uid}
-          ws={ws}
+          // ws={ws}
           displayTyping={displayTyping}
           friendInfo={friend}
           messages={3}
