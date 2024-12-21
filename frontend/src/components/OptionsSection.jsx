@@ -55,7 +55,7 @@ const OptionsSection = ({ data, type, reference, contextData }) => {
                     : "/images/default.jpeg"
                 }
                 alt="profile pic"
-                className="w-full"
+                className="grow object-cover"
               />
             </div>
             <h2 className="text-h-sm-sm tracking-wide lowercase">

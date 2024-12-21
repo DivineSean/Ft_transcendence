@@ -13,6 +13,7 @@ class Conversation(models.Model):
     Receiver = models.ForeignKey(
         Users, on_delete=models.CASCADE, related_name="received_conversations"
     )
+    isBlocked = models.BooleanField(default=False)
 
 
 class Message(models.Model):

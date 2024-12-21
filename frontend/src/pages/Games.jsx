@@ -124,26 +124,37 @@ const ModeDetails = ({ games }) => {
   const navigate = useNavigate();
   const { game, mode } = useParams();
 
-  const gameObject = games.find((Game) => Game.name === game);
-  if (!gameObject) navigate("/games");
-  else {
-    const modeObject =
-      gameObject.modes && mode in gameObject.modes
-        ? gameObject.modes[mode]
-        : undefined;
-    if (!modeObject) navigate(`/games/${game}`);
-  }
+  useEffect(() => {
+    const gameObject = games.find((Game) => Game.name === game);
+    if (!gameObject) navigate("/games");
+    else {
+      const modeObject =
+        gameObject.modes && mode in gameObject.modes
+          ? gameObject.modes[mode]
+          : undefined;
+      if (!modeObject) navigate(`/games/${game}`);
+    }
+    if (mode === "local") navigate("PongLocal");
+  }, []);
 
-  switch (mode) {
-    case "ai":
-      return <div>ai</div>;
-    case "online":
-      return <OnlineGame game={game} />;
-    case "local":
-      return <div>local</div>;
-    default:
-      return <div>no such mode</div>;
-  }
+  const Modes = () => {
+    switch (mode) {
+      case "ai":
+        return <div>ai</div>;
+      case "online":
+        return <OnlineGame game={game} />;
+      case "local":
+        return (
+          <div className="h-full flex flex-col justify-center items-center p-8">
+            Waiting...
+          </div>
+        );
+      default:
+        return <div>no such mode</div>;
+    }
+  };
+
+  return <>{Modes()}</>;
 };
 
 const BmoScreen = ({ games }) => {

@@ -17,6 +17,8 @@ import Rankings from "./pages/Rankings";
 import GameManager from "./games/GameManager";
 import Header from "./components/Header";
 import { UserProvider } from "./context/UserContext";
+import PongLocal from "./games/pong/PongLocal/PongLocal";
+import { NotifProvider } from "./context/NotifContext";
 
 function App() {
   return (
@@ -25,25 +27,40 @@ function App() {
       <Router>
         <AuthProvider>
           <UserProvider>
-            <Routes>
-              <Route path="forgotpassword/" element={<ForgotPassword />} />
-              <Route path="forgotpassword/:uid" element={<ForgotPassword />} />
-              <Route path="setupusername/:uid" element={<SetUpUsername />} />
-              <Route path="twofa/:uid" element={<TwoFA />} />
-              <Route path="login/" element={<Login />} />
-              <Route path="menu/" element={<Menu />} />
-              <Route path="profile/" element={<Profile />} />
-              <Route path="profile/:section/" element={<Profile />} />
-              <Route path="profile/:section/:username" element={<Profile />} />
-              <Route path="games/:game/:mode/:uuid" element={<GameManager />} />
-              <Route path="games/*" element={<Games />} />
-              <Route path="register/" element={<SignUp />} />
-              <Route path="home/" element={<Home />} />
-              <Route path="chat/" element={<Chat />} />
-              <Route path="chat/:uid" element={<Chat />} />
-              <Route path="rankings" element={<Rankings />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <NotifProvider>
+              <Routes>
+                <Route path="forgotpassword/" element={<ForgotPassword />} />
+                <Route
+                  path="forgotpassword/:uid"
+                  element={<ForgotPassword />}
+                />
+                <Route path="setupusername/:uid" element={<SetUpUsername />} />
+                <Route path="twofa/:uid" element={<TwoFA />} />
+                <Route path="login/" element={<Login />} />
+                <Route path="menu/" element={<Menu />} />
+                <Route path="profile/" element={<Profile />} />
+                <Route path="profile/:section/" element={<Profile />} />
+                <Route
+                  path="profile/:section/:username"
+                  element={<Profile />}
+                />
+                <Route
+                  path="games/:game/:mode/:uuid"
+                  element={<GameManager />}
+                />
+                <Route
+                  path="games/:game/:mode/PongLocal"
+                  element={<PongLocal />}
+                />
+                <Route path="games/*" element={<Games />} />
+                <Route path="register/" element={<SignUp />} />
+                <Route path="home/" element={<Home />} />
+                <Route path="chat/" element={<Chat />} />
+                <Route path="chat/:uid" element={<Chat />} />
+                <Route path="rankings" element={<Rankings />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </NotifProvider>
           </UserProvider>
         </AuthProvider>
       </Router>

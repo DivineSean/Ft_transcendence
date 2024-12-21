@@ -1,13 +1,12 @@
+from channels.auth import UserLazyObject
+from channels.sessions import CookieMiddleware
+from django.contrib.auth.models import AnonymousUser
 from django.http import JsonResponse
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from django.utils.deprecation import MiddlewareMixin
-
 from channels.middleware import BaseMiddleware
 from asgiref.sync import sync_to_async
-from rest_framework import status
-from channels.db import database_sync_to_async
 
 
 class sAuthMiddleWare(MiddlewareMixin):
@@ -91,57 +90,20 @@ class sAuthMiddleWare(MiddlewareMixin):
         return response  # Dima rj3 l9lawi
 
 
-class JWTAuthMiddleWare(BaseMiddleware):
-    async def __call__(self, scope, receive, send):
-        try:
-            if not scope.get("headers"):
-                await send({"type": "websocket.close"})
-                return
+class JwtMiddlware(BaseMiddleware):
+    def populate_scope(self, scope):
+        if "user" not in scope:
+            scope["user"] = UserLazyObject()
 
-            cookies = await self.get_cookies(scope)
-            if not cookies:
-                await send({"type": "websocket.close"})
-                return
+    async def get_user(self, scope):
+        access_token = scope["cookies"].get("accessToken")
+        refresh_token = scope["cookies"].get("refreshToken")
 
-            accessToken = cookies.get("accessToken")
-            refreshToken = cookies.get("refreshToken")
+        user, _ = await self.authenticate(access_token, refresh_token)
+        scope["user"] = user
 
-            if not (accessToken and refreshToken):
-                await send({"type": "websocket.close"})
-                return
-
-            try:
-                user, new_access_token = await self.authenticate(
-                    accessToken, refreshToken
-                )
-                if not user:
-                    await send({"type": "websocket.close"})
-                    return
-
-                scope["user"] = user
-                if new_access_token:
-                    scope["new_access_token"] = new_access_token
-
-                return await super().__call__(scope, receive, send)
-
-            except:
-
-                await send({"type": "websocket.close"})
-                return
-
-        except:
-            await send({"type": "websocket.close"})
-            return
-
-    async def get_cookies(self, scope):
-        try:
-            headers = dict(scope["headers"])
-            if b"cookie" in headers:
-                cookie_header = headers[b"cookie"].decode("utf-8")
-                return self.parse_cookies(cookie_header)
-        except Exception as e:
-            print("dfsfdsfdsfdfdsfds ", str(e), flush=True)
-        return {}
+    async def resolve_scope(self, scope):
+        scope["user"]._wrapped = await self.get_user(scope)
 
     @sync_to_async
     def authenticate(self, access_token, refresh_token):
@@ -158,24 +120,28 @@ class JWTAuthMiddleWare(BaseMiddleware):
                     new_access_token = str(refresh.access_token)
                     user = jwt_auth.get_user(refresh)
                     return user, new_access_token
-                except Exception as e:
-                    print(f"fdsfdsfdsffdsfdsfdsfsfsd {str(e)}", flush=True)
-                    return None, None
-            return None, None
+                except Exception:
+                    return AnonymousUser, None
+            return AnonymousUser, None
 
-        return None, None
+    async def __call__(self, scope, receive, send):
+        scope = dict(scope)
 
-    @staticmethod
-    def parse_cookies(cookie_header):
-        cookies = {}
-        try:
-            if not cookie_header:
-                return cookies
+        self.populate_scope(scope)
+        await self.resolve_scope(scope)
+        if scope["user"] is AnonymousUser:
+            await send({"type": "websocket.accept"})
+            await send(
+                {
+                    "type": "websocket.close",
+                    "code": 4003,
+                    "reason": "User in not authenticated",
+                }
+            )
 
-            for cookie in cookie_header.split("; "):
-                if "=" in cookie:
-                    name, value = cookie.split("=", 1)
-                    cookies[name.strip()] = value.strip()
-        except Exception as e:
-            print("dslfdskfldskfdlkdflkdsldfks ", str(e), flush=True)
-        return cookies
+            return
+        return await super().__call__(scope, receive, send)
+
+
+def JwtAuthMiddlwareStack(inner):
+    return CookieMiddleware(JwtMiddlware(inner))
