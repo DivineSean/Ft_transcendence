@@ -54,7 +54,7 @@ class SendFriendRequest(APIView):
 								)
 								user = Users.objects.get(id=userId)
 								print('user', user, flush=True)
-								Notifications.objects.create(
+								Notifications.objects.get_or_create(
 									notifType="FR",
 									userId=user,
 									senderId=request._user,
@@ -77,37 +77,42 @@ class SendFriendRequest(APIView):
 
 
 class AcceptFriendRequest(APIView):
-		def post(self, request):
-				userId = request.data.get("userId")
-
-				if userId:
-						if userId == request._user.id:
-								return Response(
-										{"error": "invalid user id"}, status=status.HTTP_400_BAD_REQUEST
-								)
-
-						try:
-								friendRequest = FriendshipRequest.objects.get(
-										Q(fromUser=userId) | Q(toUser=request._user.id)
-								)
-
-								friendRequest.accept()
-
-								newFriendShip = Friendship.friends.get_or_create(
-										user1=friendRequest.fromUser,
-										user2=friendRequest.toUser,
-								)
-
-								friendRequest.delete()
-
-						except FriendshipRequest.DoesNotExist:
-								return Response(
-										{"status": "404", "message": "this friend request does not exsits!"}
-								)
-
+	def post(self, request):
+		userId = request.data.get("userId")
+		if userId:
+			if userId == request._user.id:
 				return Response(
-						{"status": "200", "message": "the friend request accepted successfuly"}
+					{"error": "invalid user id"}, status=status.HTTP_400_BAD_REQUEST
 				)
+
+			try:
+				friendRequest = FriendshipRequest.objects.get(
+					fromUser=userId,
+					toUser=request._user.id
+				)
+				friendRequest.accept()
+
+				newFriendShip = Friendship.friends.get_or_create(
+					user1=friendRequest.fromUser,
+					user2=friendRequest.toUser,
+				)
+
+				friendRequest.delete()
+
+			except FriendshipRequest.DoesNotExist:
+				return Response(
+					{"status": "404", "message": "this friend request does not exsits!"}
+				)
+			except Exception as e:
+				print(e, flush=True)
+				return Response(
+					{'error': str(e)},
+					status=status.HTTP_400_BAD_REQUEST
+				)
+
+		return Response(
+				{"status": "200", "message": "the friend request accepted successfuly"}
+		)
 
 
 class DeclineFriendRequest(APIView):
@@ -122,7 +127,8 @@ class DeclineFriendRequest(APIView):
 
 						try:
 								friendRequest = FriendshipRequest.objects.get(
-										Q(fromUser=userId) | Q(toUser=request._user.id)
+									fromUser=userId,
+									toUser=request._user.id
 								)
 
 								friendRequest.reject()

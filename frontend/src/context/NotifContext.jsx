@@ -69,6 +69,20 @@ export const NotifProvider = ({ children }) => {
 		}
 	}
 
+	const deleteNotifications = async (userId) => {
+		try {
+			console.log('userID', userId);
+			const res = await FetchData.delete(`api/notification/${userId}/`);
+			console.log(res);
+			if (res.ok) {
+				const data = await res.json();
+				console.log(data);
+			}
+		} catch (error) {
+			console.log('error deletion notifications', error);
+		}
+	}
+
   const contextData = {
 		ws,
 		notifData,
@@ -77,6 +91,7 @@ export const NotifProvider = ({ children }) => {
 		setFriendRequest,
 		getNotfications,
 		setNotifData,
+		deleteNotifications,
   };
 
   return (

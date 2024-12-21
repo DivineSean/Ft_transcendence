@@ -176,6 +176,10 @@ const Profile = () => {
       navigate("/profile/overview");
       setSelectedMenu("overview");
     }
+    return () => {
+      console.log('hehhehehehehehehee');
+      authContextData.setGlobalMessage({message: '', isError: true});
+    }
   }, []);
 
   useEffect(() => {

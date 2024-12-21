@@ -1,20 +1,65 @@
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { useRef } from "react";
 import { BACKENDURL } from "../utils/fetchWrapper";
+import UserContext from "../context/UserContext";
+import NotifContext from "../context/NotifContext";
 
-const OptionsSection = ({ data, type, reference, contextData }) => {
+const OptionsSection = ({ data, type, reference }) => {
   const sectionRef = useRef([]);
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const contextData = useContext(UserContext);
+  const notifContext = useContext(NotifContext);
+
+  // ("FR", "Friend Request"),
+  // ("IG", "Invite Game"),
+  // ("IT", "Invite Tournament"),
+  // ("ME", "Message"),
+
+  const handleReadNotif = (item) => {
+    if (item.notifType === 'FR') {
+      console.log('had khouna profile');
+      console.log(item.senderId.username);
+      navigate(`/profile/overview/${item.senderId.username}`)
+    } else if (item.notifType === 'IG') {
+      console.log('had khouna invitak tl3eb game am3lm');
+    } else if (item.notifType === 'IT') {
+      console.log('had khouna invitak tl3eb tournaments am3lm');
+    } else if (item.notifType === 'ME') {
+      console.log('had khouna sifet lik message am3lm');
+    }
+	notifContext.deleteNotifications(item.senderId.id);
+  }
+
+//   console.log(notifContext.notifData.length, 'hhhh');
+
 
   const handleClick = (index) => {
     const clickedItem = sectionRef.current[index];
     if (clickedItem.textContent === "logout") {
       logout();
     }
-  };
+  }
+
+  useEffect(() => {
+    if (type === 'notification') {
+      notifContext.getNotfications();
+    }
+	}, []);
+
+//   useEffect(() => {
+//     if (notifContext.notifData) {
+//       notifContext.notifData.map((item) => {
+//         if (item.isRead)
+//           console.log('isread', item);
+//       })
+//     }
+//   }, [notifContext.notifData]);
+
+
+
 
   return (
     <>
@@ -28,10 +73,10 @@ const OptionsSection = ({ data, type, reference, contextData }) => {
       <div
         ref={reference}
         className={`
-					options-glass p-8 z-[1000] overflow-y-scroll no-scrollbar
-					absolute flex-col gap-16 top-64 max-h-[300px] rounded-md
+					options-glass z-[1000] py-8
+					absolute flex-col top-64 rounded-md max-h-[300px]
 					${type === "options" && "lg:flex hidden lg:right-32 w-[250px]"}
-					${type === "notification" && "flex lg:right-[90px] right-56 max-w-[340px]"}
+					${type === "notification" && "flex lg:right-[90px] px-8 right-16 ml-16 min-w-[300px] md:ml-0 max-w-[440px]"}
 				`}
       >
         {type === "notification" && (
@@ -63,42 +108,56 @@ const OptionsSection = ({ data, type, reference, contextData }) => {
             </h2>
           </div>
         )}
-				{data.length !== 0 && 
-					<ul className="w-full flex flex-col gap-8">
-						{data.map((section, i) => (
-							<li
-								key={i}
-								ref={(el) => (sectionRef.current[i] = el)}
-								onClick={() => handleClick(i)}
-								className={`
-										cursor-pointer p-8 w-full rounded flex gap-16 items-center bg-black/40
-										${type === "options" && "text-txt-sm"}
-										${type === "options" && section.name !== "logout" && "hover:hover-secondary"}
-										${type === "notification" && "text-txt-xs justify-start hover:hover-secondary"}
-										${section.name === "logout" && "hover:bg-logout-bg"}
-									`}
-							>
-								{type === "options" && (
-									<>
-										{section.icon}
-										{section.name}
-									</>
-								)}
-								{type === "notification" &&
-									<div className="flex grow gap-8 items-center">
-										<div className="h-32 min-w-32 max-w-32 rounded-full overflow-hidden flex">
-											<img src="/images/default.jpeg" alt="sender" className="object-cover grow" />
-										</div>
-										<p className="gorw">{section}</p>
-									</div>
-								}
-							</li>
-						))}
-					</ul>
-				}
-				{!data.length &&
-					<p className="text-center text-txt-sm text-stroke-sc">no notifications</p>
-				}
+        {type === 'options' &&
+          <ul className="w-full flex flex-col gap-8">
+            {data.map((section, i) => (
+              <li
+                key={i}
+                ref={(el) => (sectionRef.current[i] = el)}
+                onClick={() => handleClick(i)}
+                className={`cursor-pointer p-8 w-full rounded flex gap-16 items-center bg-black/40
+                  text-txt-sm ${section.name !== 'logout' ? 'hover:hover-secondary' : 'hover:bg-logout-bg'}
+                `}
+              >
+                {section.icon}
+                {section.name}
+              </li>
+            ))}
+          </ul>
+        }
+        {type === 'notification' &&
+          <>
+            <ul className="w-full flex flex-col gap-8 h-full overflow-auto custom-scrollbar pr-8">
+              {notifContext.notifData.map((item) => (
+                <li
+                  onClick={() => handleReadNotif(item)}
+                  key={item.notificationId}
+                  className="cursor-pointer p-8 w-full rounded flex gap-16 items-center bg-black/40 text-txt-xs justify-start hover:hover-secondary"
+                >
+                  <div className="flex grow gap-8 items-center">
+                      <div className="h-40 min-w-40 max-w-40 rounded-full overflow-hidden flex border-[0.5px] border-stroke-sc">
+                        <img
+                          src={
+                            item && item.senderId.profile_image
+                              ? `${BACKENDURL}${item.senderId.profile_image}?t=${new Date().getTime()}`
+                              : "/images/default.jpeg"
+                          }
+                        alt="sender"
+                        className="object-cover grow" />
+                      </div>
+                      <div className="flex flex-col gap-4 items-end grow">
+                        <p className={`${!item.isRead ? 'font-bold' : 'font-normal text-stroke-sc'}`}>{item.notifMessage}</p>
+                        <p className="text-stroke-sc">{item.timestamp}</p>
+                      </div>
+                    </div>
+                </li>
+              ))}
+            </ul>
+            {!notifContext.notifData.length &&
+              <p className="text-center text-txt-sm text-stroke-sc">no notifications</p>
+            }
+          </>
+        }
       </div>
     </>
   );

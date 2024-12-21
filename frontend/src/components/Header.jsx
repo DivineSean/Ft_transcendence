@@ -132,7 +132,7 @@ const Header = ({ ...props }) => {
         <div className="relative w-full">
           {displayOptions && (
             <OptionsSection
-              contextData={contextData}
+              // contextData={contextData}
               data={optionsData}
               reference={optionSectionRef}
               type="options"
@@ -184,9 +184,9 @@ const Header = ({ ...props }) => {
               <IoNotifications className="text-white text-h-lg-lg" />
             )}
 
-            {!readNotif && (
+            {/* {!readNotif && notifContext.notifData && notifContext.notifData.length === 0 && (
               <span className="absolute w-10 h-10 bg-red rounded-full left-4 top-0 overflow-hidden"></span>
-            )}
+            )} */}
           </div>
           <div
             ref={(el) => (toggleOptionsRef.current[1] = el)}
