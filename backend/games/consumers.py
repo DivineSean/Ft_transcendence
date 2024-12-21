@@ -62,12 +62,8 @@ class GameConsumer(WebsocketConsumer):
                 self.update_readiness()
 
     def connect_player(self):
-        # INFO:
-        # if one of the players isnt ready, send accept_match event
-        # else if the player is reconnecting send reconneting event
         # WARNING: still have to handle spectators (players not taking part of the game)
         try:
-            # WARNING: the data is all manipulated in redis atm, will implement presistent data later
             game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
             if not game_data:
                 game = GameRoom.objects.get(pk=self.game_uuid)
@@ -135,13 +131,15 @@ class GameConsumer(WebsocketConsumer):
                     },
                 )
                 break
-        print(self.players, flush=True)
+
         self.save_game_state("players_details", json.dumps(self.players))
         all_ready = all(player.get("ready", False) for player in self.players)
-        print("--------> ready ", all_ready, flush=True)
         if all_ready:
             self.save_game_state("status", "ongoing", 0)
             game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
+            game_data["players_details"] = json.loads(
+                game_data["players_details"])
+            game_data["state"] = json.loads(game_data["state"])
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
                 {
@@ -152,9 +150,7 @@ class GameConsumer(WebsocketConsumer):
             )
 
     def save_game_state(self, field, new_value, countdown=30):
-        # save data to redis
         r.hset(f"game_room_data:{self.game_uuid}", field, new_value)
-        # schedule a task to read from redis and update the db
         if countdown == 0:
             sync_game_room_data.delay(self.game_uuid)
         else:
