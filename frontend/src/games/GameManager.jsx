@@ -58,8 +58,8 @@ const GameOverlay = ({ status, data, send }) => {
 const Game = memo(({ game }) => {
   switch (game) {
     case "pong":
-      return <div>pong</div>
-    // return <Pong websocket={ws.current} player={playerNumber} />;
+		return <Pong websocket={ws.current} player={playerNumber} />;
+      // return <div>pong</div>
   }
 })
 
@@ -83,22 +83,6 @@ const GameManager = () => {
           ...msg.message,
         })
       }
-      // switch (data.type) {
-      //   case "accept":
-      //   case "start": {
-      //     setData({
-      //       ...data.message,
-      //       players_details: data.message.players_details,
-      //     })
-      //     break;
-      //   }
-      //   case "player_ready": {
-      //     setData({
-      //       ...data,
-      //       players_details: data.message.players_details,
-      //     })
-      //   }
-      // }
     }
   })
 
@@ -106,14 +90,14 @@ const GameManager = () => {
   // TODO: handle reconnect after accepting
 
   return (
-    <>
-      <div className="container items-center">
+    <div className="relative w-full">
+      {/* <Game game={game} /> */}
+      <div className="absolute inset-0 container justify-center items-center">
         <div className="primary-glass p-32">
           <GameOverlay status={status} data={data} send={send} />
         </div>
       </div>
-      <Game game={game} />
-    </>
+    </div>
   );
 };
 export default GameManager;
