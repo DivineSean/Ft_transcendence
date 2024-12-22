@@ -90,17 +90,20 @@ class GameConsumer(WebsocketConsumer):
         # TODO: Update scores on the database
         # FIX: the game state is now in redis hash; this part should be redone
         role = None
-        game = json.loads(r.get(f"game_room_data:{self.game_uuid}"))
-        for player in game["players_details"]:
+        self.players = json.loads(
+            r.hget(f"game_room_data:{self.game_uuid}", "players_details")
+        )
+        for player in self.players:
             if str(player["user"]["id"]) == str(self.user_id):
                 player["score"] += 1
                 role = player["role"]
                 break
         scores = {
-            player["role"]: str(player["score"]) for player in game["players_details"]
+            player["role"]: str(player["score"]) for player in self.players
         }
 
-        r.set(f"game_room_data:{self.game_uuid}", json.dumps(game))
+        # r.set(f"game_room_data:{self.game_uuid}", json.dumps(game))
+        self.save_game_data("players_details", json.dumps(self.players))
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
             {
@@ -132,10 +135,10 @@ class GameConsumer(WebsocketConsumer):
                 )
                 break
 
-        self.save_game_state("players_details", json.dumps(self.players))
+        self.save_game_data("players_details", json.dumps(self.players))
         all_ready = all(player.get("ready", False) for player in self.players)
         if all_ready:
-            self.save_game_state("status", "ongoing", 0)
+            self.save_game_data("status", "ongoing", 0)
             game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
             game_data["players_details"] = json.loads(
                 game_data["players_details"])
@@ -149,7 +152,7 @@ class GameConsumer(WebsocketConsumer):
                 },
             )
 
-    def save_game_state(self, field, new_value, countdown=30):
+    def save_game_data(self, field, new_value, countdown=30):
         r.hset(f"game_room_data:{self.game_uuid}", field, new_value)
         if countdown == 0:
             sync_game_room_data.delay(self.game_uuid)
