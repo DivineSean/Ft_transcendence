@@ -5,33 +5,33 @@ import NotifContext from "../../context/NotifContext";
 import { useEffect } from "react";
 
 const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
-  const navigate = useNavigate();
-  const notifContextData = useContext(NotifContext);
-  const sendReadMessage = () => {
-    if (notifContextData.ws.current) {
-      notifContextData.ws.current.send(
-        JSON.stringify({
-          message: "message is readedf",
-          type: "read",
-          convId: friendInfo.conversationId,
-        }),
-      );
-    }
-  };
+	const navigate = useNavigate();
+	const notifContextData = useContext(NotifContext);
+	const sendReadMessage = () => {
+		if (notifContextData.ws && notifContextData.ws.current) {
+			notifContextData.ws.current.send(
+				JSON.stringify({
+				message: "message is readedf",
+				type: "read",
+				convId: friendInfo.conversationId,
+				}),
+			);
+		}
+	};
 
-  const handleReadMessage = () => {
-    sendReadMessage();
-    friendInfo.isRead = true;
-    navigate(`/chat/${friendInfo.conversationId}`);
-  };
+	const handleReadMessage = () => {
+		sendReadMessage();
+		friendInfo.isRead = true;
+		navigate(`/chat/${friendInfo.conversationId}`);
+	};
 
-  useEffect(() => {
-    if (uid === friendInfo.conversationId) {
-      console.log("readed bro!!");
-      sendReadMessage();
-      friendInfo.isRead = true;
-    }
-  }, [uid]);
+	useEffect(() => {
+		if (uid === friendInfo.conversationId) {
+			console.log("readed bro!!");
+			sendReadMessage();
+			friendInfo.isRead = true;
+		}
+	}, [uid]);
 
   return (
     <div

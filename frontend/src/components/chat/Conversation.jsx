@@ -22,18 +22,9 @@ const formatedDate = () => {
 
 const Conversation = ({
   uid,
-  typing,
   hideSelf,
-  messages,
-  setTyping,
   friendInfo,
-  setMessages,
-  tempMessages,
-  displayTyping,
-  readedMessages,
   displayProfile,
-  setTempMessages,
-  setReadedMessages,
 }) => {
   const navigate = useNavigate();
   const [offsetMssg, setOffsetMssg] = useState(0);
@@ -51,18 +42,18 @@ const Conversation = ({
     if (uid) {
       setAllMessages(false);
       setChunkedData(0);
-      getMessages(uid, setMessages, setOffsetMssg);
+      getMessages(uid, notifContextData.setMessages, setOffsetMssg);
     }
   }, [uid]);
 
   useEffect(() => {
-    if (readedMessages) {
-      messages.forEach((message) => {
+    if (notifContextData.readedMessages) {
+      notifContextData.messages.forEach((message) => {
         if (!message.isRead) message.isRead = true;
       });
-      setReadedMessages(null);
+      notifContextData.setReadedMessages(null);
     }
-  }, [readedMessages && messages]);
+  }, [notifContextData.readedMessages && notifContextData.messages]);
 
   // check if a new message has been added and scroll down to the last message
   useEffect(() => {
@@ -75,7 +66,7 @@ const Conversation = ({
           inline: "end",
         });
     }
-  }, [messages.length, tempMessages.length, displayTyping]);
+  }, [notifContextData.messages.length, notifContextData.tempMessages.length, notifContextData.displayTyping]);
 
   useEffect(() => {
     const getChunkedData = setTimeout(() => {
@@ -86,7 +77,7 @@ const Conversation = ({
         }
         getChunkedMessages(
           uid,
-          setMessages,
+          notifContextData.setMessages,
           offsetMssg,
           setOffsetMssg,
           setIsChunked,
@@ -128,7 +119,7 @@ const Conversation = ({
         message: e.target.message.value,
         timestamp: formatedDate(),
       };
-      setTempMessages((prevtemp) => [...prevtemp, newMessage]);
+      notifContextData.setTempMessages((prevtemp) => [...prevtemp, newMessage]);
       setAllMessages(false);
     }
     e.target.reset();
@@ -139,12 +130,12 @@ const Conversation = ({
     if (!notifContextData.isWsConnected) return;
 
     const sendTyping = setTimeout(() => {
-      if (notifContextData.ws.current && typing.length)
+      if (notifContextData.ws.current && notifContextData.typing.length)
         // send typing because the typing state is not empty
         notifContextData.ws.current.send(
           JSON.stringify({ message: "isTyping", type: "typing", convId: uid }),
         );
-      else if (notifContextData.ws.current && !typing.length)
+      else if (notifContextData.ws.current && !notifContextData.typing.length)
         // send stop typing because the typing state is empty
         notifContextData.ws.current.send(
           JSON.stringify({
@@ -156,7 +147,7 @@ const Conversation = ({
     }, 500);
 
     return () => clearTimeout(sendTyping);
-  }, [typing && typing.length]);
+  }, [notifContextData.typing && notifContextData.typing.length]);
 
   const handleBlur = () => {
     setTimeout(() => {
@@ -172,8 +163,8 @@ const Conversation = ({
     }, 700);
   };
 
-  if (messages && messages.length) {
-    messages.map((message) => {
+  if (notifContextData.messages && notifContextData.messages.length) {
+    notifContextData.messages.map((message) => {
       conversation.push(<Message message={message} key={message.messageId} />);
     });
   } else {
@@ -187,8 +178,8 @@ const Conversation = ({
     );
   }
 
-  if (tempMessages && tempMessages.length) {
-    tempMessages.map((message) => {
+  if (notifContextData.tempMessages && notifContextData.tempMessages.length) {
+    notifContextData.tempMessages.map((message) => {
       conversation.push(<Message message={message} key={message.messageId} />);
     });
   }
@@ -199,7 +190,7 @@ const Conversation = ({
   };
 
   const heandleIsTyping = (e) => {
-    if (!typing) {
+    if (!notifContextData.typing) {
       if (notifContextData.ws.current)
         notifContextData.ws.current.send(
           JSON.stringify({
@@ -209,7 +200,7 @@ const Conversation = ({
           }),
         );
     }
-    setTyping(e.target.value);
+    notifContextData.setTyping(e.target.value);
   };
 
   return (
@@ -261,8 +252,8 @@ const Conversation = ({
           loading...
         </div>
         {conversation}
-        {displayTyping &&
-          displayTyping.convId === friendInfo.conversationId && (
+        {notifContextData.displayTyping &&
+          notifContextData.displayTyping.convId === friendInfo.conversationId && (
             <div className="flex gap-8 items-end">
               <div className="left-message message-glass py-8 px-12 rounded-[8px] rounded-tl-[2px] max-w-[450px] text-green text-sm tracking-wider flex flex-col gap-4 ml-12 relative break-all">
                 typing...
