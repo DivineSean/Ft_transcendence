@@ -4,9 +4,16 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
 
 export class SceneManager {
-  constructor(player, names) {
+  constructor(player, names, globalMessage, setIsWon, setIslost, setReady) {
     this.player = player;
     this.names = names;
+    this.Marathoner = false;
+    this.globalMessage = globalMessage;
+    this.RemontadaPlayer = player;
+    this.RemontadaChance = false;
+    this.setIsWon = setIsWon;
+    this.setIslost = setIslost;
+    this.setReady = setReady;
     // Camera
     this.camera = new THREE.PerspectiveCamera(
       80,
@@ -103,6 +110,13 @@ export class SceneManager {
       (this.lastTime - this.startTime) / 1000,
     );
     const minutes = Math.floor(elapsedTimeInSeconds / 60);
+    if (!this.Marathoner && minutes === 5) {
+      this.globalMessage({
+        message: "The Marathoner Achieved!!",
+        isError: false,
+      });
+      this.Marathoner = true;
+    }
     const seconds = elapsedTimeInSeconds % 60;
     const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     this.updateTextOnPlane(
@@ -219,8 +233,8 @@ export class SceneManager {
       (this.player === -1 && P["1"] === "6") ||
       (this.player === 1 && P["2"] === "6")
     ) {
-      if (!ball.BackgroundMusic.isPlaying) {
-        ball.BackgroundMusic.setVolume(0.03);
+      ball.BackgroundMusic.setVolume(0.03);
+      if (!ball.ballMatchPoint.isPlaying) {
         ball.ballMatchPoint.currentTime = 0;
         ball.ballMatchPoint.play();
       }
@@ -242,11 +256,18 @@ export class SceneManager {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
+            if (P["2"] === 0)
+              this.globalMessage({
+                message: "The Dominator Achieved",
+                isError: false,
+              });
+            this.setIsWon(true);
           }
         } else {
           if (!ball.Defeat.isPlaying) {
             ball.Defeat.currentTime = 0;
             ball.Defeat.play();
+            this.setIslost(true);
           }
         }
       } else {
@@ -254,17 +275,23 @@ export class SceneManager {
           if (!ball.Defeat.isPlaying) {
             ball.Defeat.currentTime = 0;
             ball.Defeat.play();
+            this.setIslost(true);
           }
         } else {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
+            if (P["1"] === 0)
+              this.globalMessage({
+                message: "The Dominator Achieved",
+                isError: false,
+              });
+            this.setIsWon(true);
           }
         }
       }
-      return false;
+      this.setReady(false);
     }
-    return true;
   }
 
   createRoundedPlane(width, height, radius, clor, y, z, flag, PlayerScore) {

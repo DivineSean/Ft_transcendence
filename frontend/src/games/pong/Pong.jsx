@@ -5,35 +5,42 @@ import Net from "./Net";
 import Ball from "./Ball";
 import { Clock } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { useEffect, useRef, useState } from "react";
-import { div } from "three/src/nodes/TSL.js";
+import { useEffect, useRef, useState, useContext } from "react";
+import AuthContext from "../../context/AuthContext";
+import Toast from "../../components/Toast";
 
-let dt = 1; ////added for debugging purpose
 const Pong = ({ websocket, player, names }) => {
   const sm = useRef(null);
   const loaderRef = useRef(null);
   const loaderTRef = useRef(null);
   const loaderBRef = useRef(null);
   const keyboard = useRef({});
-  let [ready, setReady] = useState(false);
+  const authContextData = useContext(AuthContext);
+  const [ready, setReady] = useState(false);
+  const [isWon, setIsWon] = useState(false);
+  const [islost, setIslost] = useState(false);
 
   useEffect(() => {
     loaderTRef.current = new GLTFLoader();
     loaderRef.current = new GLTFLoader();
     loaderBRef.current = new GLTFLoader();
-    sm.current = new SceneManager(player == 2 ? -1 : 1, names);
-    // let factor = sm.current.camera.aspect / aspect;
+    sm.current = new SceneManager(
+      player == 2 ? -1 : 1,
+      names,
+      authContextData.setGlobalMessage,
+      setIsWon,
+      setIslost,
+      setReady,
+    );
     const table = new Table(sm.current.scene, loaderTRef.current);
     const net = new Net(sm.current.scene, loaderRef.current);
     const ball = new Ball(sm.current.scene, loaderBRef.current, player);
     const controls = {
       up: "ArrowUp",
       down: "ArrowDown",
-      left: "ArrowLeft", // Move left
-      right: "ArrowRight", // Move right
+      left: "ArrowLeft",
+      right: "ArrowRight",
       space: "Space",
-      // Q: "KeyQ"
-      // E: "KeyE",
     };
 
     const players = [
@@ -56,15 +63,29 @@ const Pong = ({ websocket, player, names }) => {
         ball,
       ),
     ];
-    let lastServerBallUpdate = Date.now();
-    // override ws onmessage
     websocket.onmessage = (event) => {
-      // console.log(event);
       const msg = JSON.parse(event.data);
       const opp = player == 1 ? 2 : 1;
       if (msg.type === "score") {
         const scores = JSON.parse(msg.message.scores);
-        ready = sm.current.scoreUpdate(scores, msg.message.role, ball);
+        const score1 = Number(scores["1"]);
+        const score2 = Number(scores["2"]);
+        if (Math.abs(score1 - score2) === 4) {
+          if (score1 > score2 && sm.current.RemontadaPlayer === 2)
+            sm.current.RemontadaChance = true;
+          else if (score1 < score2 && sm.current.RemontadaPlayer === 1)
+            sm.current.RemontadaChance = true;
+        } else if (
+          Math.abs(score1 - score2) === 0 &&
+          sm.current.RemontadaChance
+        ) {
+          authContextData.setGlobalMessage({
+            message: "Bounceback Boss Achieved",
+            isError: false,
+          });
+          sm.current.RemontadaChance = false;
+        }
+        sm.current.scoreUpdate(scores, msg.message.role, ball);
         if (msg.message.role === 1) {
           ball.serve(websocket, net, 1);
         } else if (msg.message.role === 2) {
@@ -116,6 +137,7 @@ const Pong = ({ websocket, player, names }) => {
         ball.count = 0;
         ball.serving = msg.message.ball.serving;
         ball.lastshooter = msg.message.ball.lstshoot;
+        ball.isServerDemon = false;
         ball.updatePos();
       } else if (msg.message.content == "lost") {
         ball.serving = msg.message.ball.serving;
@@ -173,21 +195,23 @@ const Pong = ({ websocket, player, names }) => {
           fixedStep * 1000,
           player,
           keyboard.current,
+          authContextData.setGlobalMessage,
         );
         simulatedTime += fixedStep;
       }
-
-      if (ball.serving && !ball.timeout && !ball.sendLock) {
-        if (
-          (player === 1 && ball.lastshooter === 1) ||
-          (player === 2 && ball.lastshooter === -1)
-        ) {
-          ball.CheckTimer(websocket);
-          ball.labelRenderer.render(sm.current.scene, sm.current.camera);
+      if (ball.scoreboard[0] !== 7 && ball.scoreboard[1] !== 7) {
+        if (ball.serving && !ball.timeout && !ball.sendLock) {
+          if (
+            (player === 1 && ball.lastshooter === 1) ||
+            (player === 2 && ball.lastshooter === -1)
+          ) {
+            ball.CheckTimer(websocket);
+            ball.labelRenderer.render(sm.current.scene, sm.current.camera);
+          }
         }
+        if (Math.floor((Date.now() - sm.current.lastTime) / 1000) > 0)
+          sm.current.TimerCSS();
       }
-      if (Math.floor((Date.now() - sm.current.lastTime) / 1000) > 0)
-        sm.current.TimerCSS();
 
       const alpha = (timeNow - simulatedTime) / fixedStep;
       ball.x += ball.dx * alpha * fixedStep;
@@ -234,11 +258,77 @@ const Pong = ({ websocket, player, names }) => {
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("resize", onWindowResize);
     };
-  }, [ready]);
+  }, [ready, isWon, islost]);
 
+  function handleExitGame() {
+    window.location.href = "/games/pong/online";
+    window.close();
+  }
   return (
     <div id="message" className="relative w-full h-screen overflow-hidden">
-      <canvas id="pong" className="block w-full h-full"></canvas>
+      {authContextData.globalMessage.message && (
+        <Toast
+          message={authContextData.globalMessage.message}
+          error={authContextData.globalMessage.isError}
+          onClose={authContextData.setGlobalMessage}
+        />
+      )}
+      <canvas id="pong" className="block"></canvas>
+      {/* Victory Section */}
+      {isWon && (
+        <div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">
+          <div className="text-center transform scale-110">
+            <img
+              className="w-[250px] h-[250px] mx-auto transition-all transform hover:scale-110"
+              src="/images/eto.gif"
+              alt="Victory Dance"
+            />
+            <div className="mb-6 mt-8">
+              <p className="text-5xl font-extrabold text-white animate__animated animate__bounceIn animate__delay-2000ms">
+                Victory
+              </p>
+              <p className="text-2xl font-semibold mt-4 text-white animate__animated animate__fadeIn animate__delay-4000ms">
+                You Won Like a Ping Pong Champion!
+              </p>
+              <button
+                className="relative mt-16 inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
+                onClick={handleExitGame}
+              >
+                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
+                <span className="z-10">Continue</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Defeat Section */}
+      {islost && (
+        <div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">
+          <div className="text-center transform scale-110">
+            <img
+              className="w-[250px] h-[250px] mx-auto transition-all transform hover:scale-110"
+              src="/images/bmo.gif"
+              alt="Defeat"
+            />
+            <div className="mb-6 mt-8">
+              <p className="text-5xl font-extrabold text-white animate__animated animate__bounceIn animate__delay-2000ms">
+                Defeat
+              </p>
+              <p className="text-2xl font-semibold mt-4 text-white animate__animated animate__fadeIn animate__delay-4000ms">
+                Good Luck Next Time Champion!
+              </p>
+              <button
+                className="relative mt-16 inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
+                onClick={handleExitGame}
+              >
+                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
+                <span className="z-10">Continue</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
