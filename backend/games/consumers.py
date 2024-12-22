@@ -151,6 +151,14 @@ class GameConsumer(WebsocketConsumer):
                             "message": game_data
                 },
             )
+            async_to_sync(self.channel_layer.group_send)(
+                self.group_name,
+                {
+                    "type": "broadcast",
+                    "info": "play",
+                    "message": {}
+                },
+            )
 
     def save_game_data(self, field, new_value, countdown=30):
         r.hset(f"game_room_data:{self.game_uuid}", field, new_value)

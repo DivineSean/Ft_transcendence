@@ -56,7 +56,7 @@ const GameOverlay = ({ status, data, send }) => {
 	}
 }
 
-const Game = memo(({ userInfo, game, status = "", send, addMessageHandler, playersDetails, state }) => {
+const Game = memo(({ userInfo, game, status = "", send, addMessageHandler, removeMessageHandler, playersDetails, state }) => {
 	const [ready, setReady] = useState(status === "ongoing");
 
 	useEffect(() => {
@@ -69,7 +69,7 @@ const Game = memo(({ userInfo, game, status = "", send, addMessageHandler, playe
 
 	switch (game) {
 		case "pong":
-			return <Pong send={send} addMessageHandler={addMessageHandler} ready={ready} player={data.role} names={names} />;
+			return <Pong send={send} ready={ready} setReady={setReady} addMessageHandler={addMessageHandler} removeMessageHandler={removeMessageHandler} player={data.role} names={names} />;
 		// return <div>pong</div>
 	}
 })
@@ -111,7 +111,7 @@ const GameManager = () => {
 		<div className="relative w-full">
 			{
 				contextData.userInfo && playersDetailsRef.current && (
-					<Game userInfo={contextData.userInfo} game={game} status={status} send={send} addMessageHandler={addMessageHandler} playersDetails={playersDetailsRef} />)
+					<Game userInfo={contextData.userInfo} game={game} status={status} send={send} addMessageHandler={addMessageHandler} removeMessageHandler={removeMessageHandler} playersDetails={playersDetailsRef} />)
 			}
 			{status !== "ongoing" && (
 				<div className="absolute inset-0 backdrop-blur-sm container justify-center items-center">

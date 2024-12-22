@@ -9,6 +9,7 @@ env
 
 # Ignore static files
 static/
+media/
 bleach_42/
 # Ignore all .pyc files
 *.pyc
