@@ -6,8 +6,8 @@ import Ball from "./BallLocal";
 import { Clock } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState, useContext } from "react";
-import AuthContext from '../../../context/AuthContext';
-import Toast from '../../../components/Toast';
+import AuthContext from "../../../context/AuthContext";
+import Toast from "../../../components/Toast";
 
 const PongLocal = () => {
   const sm = useRef(null);
@@ -114,8 +114,7 @@ const PongLocal = () => {
         );
         simulatedTime += fixedStep;
       }
-      if (ball.scoreboard[0] !== 7 && ball.scoreboard[1] !== 7)
-      {
+      if (ball.scoreboard[0] !== 7 && ball.scoreboard[1] !== 7) {
         if (Math.floor((Date.now() - sm.current.lastTime) / 1000) > 0)
           sm.current.TimerCSS();
       }
@@ -167,63 +166,63 @@ const PongLocal = () => {
   }, []);
 
   function handleExitGame() {
-    window.location.href = '/games/pong/';
+    window.location.href = "/games/pong/";
     window.close();
   }
 
   function restart() {
-    window.location.href = '/games/pong/local/PongLocal';
+    window.location.href = "/games/pong/local/PongLocal";
     window.close();
   }
 
   return (
-  <div className="relative w-full h-screen overflow-hidden">
-    {authContextData.globalMessage.message && (
-      <Toast
-        message={authContextData.globalMessage.message}
-        error={authContextData.globalMessage.isError}
-        onClose={authContextData.setGlobalMessage}
-      />
-    )}
-    <canvas id="pong"></canvas>
-    {isOver && (
-      <div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">
-        <div className="text-center transform scale-110">
-          <img 
-            className="w-[250px] h-[250px] mx-auto transition-all transform hover:scale-110" 
-            src="/images/eto.gif" 
-            alt="Victory Dance"
-          />
-          <div className="mb-6 mt-8">
-            <p className="text-5xl font-extrabold text-white animate__animated animate__bounceIn animate__delay-2000ms">
-              GameOver
-            </p>
-            <p className="text-2xl font-semibold mt-4 text-white animate__animated animate__fadeIn animate__delay-4000ms">
-              What A Good Game Champions!
-            </p>
+    <div className="relative w-full h-screen overflow-hidden">
+      {authContextData.globalMessage.message && (
+        <Toast
+          message={authContextData.globalMessage.message}
+          error={authContextData.globalMessage.isError}
+          onClose={authContextData.setGlobalMessage}
+        />
+      )}
+      <canvas id="pong"></canvas>
+      {isOver && (
+        <div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">
+          <div className="text-center transform scale-110">
+            <img
+              className="w-[250px] h-[250px] mx-auto transition-all transform hover:scale-110"
+              src="/images/eto.gif"
+              alt="Victory Dance"
+            />
+            <div className="mb-6 mt-8">
+              <p className="text-5xl font-extrabold text-white animate__animated animate__bounceIn animate__delay-2000ms">
+                GameOver
+              </p>
+              <p className="text-2xl font-semibold mt-4 text-white animate__animated animate__fadeIn animate__delay-4000ms">
+                What A Good Game Champions!
+              </p>
 
-            <div className="flex flex-col gap-6 mt-12">
-              <button 
-                className="relative inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
-                onClick={handleExitGame}
-              >
-                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
-                <span className="z-10">Back To Pong</span>
-              </button>
+              <div className="flex flex-col gap-6 mt-12">
+                <button
+                  className="relative inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
+                  onClick={handleExitGame}
+                >
+                  <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
+                  <span className="z-10">Back To Pong</span>
+                </button>
 
-              <button 
-                className="relative inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
-                onClick={restart}
-              >
-                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
-                <span className="z-10">Restart The Game</span>
-              </button>
+                <button
+                  className="relative inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
+                  onClick={restart}
+                >
+                  <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
+                  <span className="z-10">Restart The Game</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    )}
-  </div>
+      )}
+    </div>
   );
 };
 

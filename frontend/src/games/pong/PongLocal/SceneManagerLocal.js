@@ -330,8 +330,7 @@ export class SceneManager {
     }
     if (P[0] === 6 || P[1] === 6) {
       ball.BackgroundMusic.setVolume(0.03);
-      if (!ball.ballMatchPoint.isPlaying)
-      {
+      if (!ball.ballMatchPoint.isPlaying) {
         ball.ballMatchPoint.currentTime = 0;
         ball.ballMatchPoint.play();
       }

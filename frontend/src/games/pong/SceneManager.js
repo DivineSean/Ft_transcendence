@@ -110,9 +110,11 @@ export class SceneManager {
       (this.lastTime - this.startTime) / 1000,
     );
     const minutes = Math.floor(elapsedTimeInSeconds / 60);
-    if (!this.Marathoner && minutes === 5)
-    {
-      this.globalMessage({message: "The Marathoner Achieved!!", isError: false});
+    if (!this.Marathoner && minutes === 5) {
+      this.globalMessage({
+        message: "The Marathoner Achieved!!",
+        isError: false,
+      });
       this.Marathoner = true;
     }
     const seconds = elapsedTimeInSeconds % 60;
@@ -231,17 +233,15 @@ export class SceneManager {
       (this.player === -1 && P["1"] === "6") ||
       (this.player === 1 && P["2"] === "6")
     ) {
-        ball.BackgroundMusic.setVolume(0.03);
-        if (!ball.ballMatchPoint.isPlaying)
-        {
-          ball.ballMatchPoint.currentTime = 0;
-          ball.ballMatchPoint.play();
-        }
+      ball.BackgroundMusic.setVolume(0.03);
+      if (!ball.ballMatchPoint.isPlaying) {
+        ball.ballMatchPoint.currentTime = 0;
+        ball.ballMatchPoint.play();
+      }
     }
     this.updateTextOnPlane(this.P1ScoreBarre, P["1"], 0, 0, 0.03, 0xffffff);
     this.updateTextOnPlane(this.P2ScoreBarre, P["2"], 0, 0, 0.03, 0xffffff);
-    if (P["1"] === "7" || P["2"] === "7")
-    {
+    if (P["1"] === "7" || P["2"] === "7") {
       ball.bounceSound.setVolume(0);
       ball.netHitSound.setVolume(0);
       ball.paddleHitSound.setVolume(0);
@@ -251,14 +251,16 @@ export class SceneManager {
       ball.BackgroundMusic.setVolume(0);
       ball.lostSound.setVolume(0);
       ball.ballMatchPoint.setVolume(0);
-      if (P["1"] === "7")
-      {
+      if (P["1"] === "7") {
         if (this.player === 1) {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
             if (P["2"] === 0)
-              this.globalMessage({message: 'The Dominator Achieved', isError: false});
+              this.globalMessage({
+                message: "The Dominator Achieved",
+                isError: false,
+              });
             this.setIsWon(true);
           }
         } else {
@@ -268,9 +270,7 @@ export class SceneManager {
             this.setIslost(true);
           }
         }
-      } 
-      else 
-      {
+      } else {
         if (this.player === 1) {
           if (!ball.Defeat.isPlaying) {
             ball.Defeat.currentTime = 0;
@@ -282,7 +282,10 @@ export class SceneManager {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
             if (P["1"] === 0)
-              this.globalMessage({message: 'The Dominator Achieved', isError: false});
+              this.globalMessage({
+                message: "The Dominator Achieved",
+                isError: false,
+              });
             this.setIsWon(true);
           }
         }
