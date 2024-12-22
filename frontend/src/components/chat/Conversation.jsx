@@ -44,7 +44,7 @@ const Conversation = ({
   const downScrollRef = useRef(null);
   const topScrollRef = useRef(null);
 
-	const notifContextData = useContext(NotifContext);
+  const notifContextData = useContext(NotifContext);
 
   // fetch messages in the first time we enter to the conversation
   useEffect(() => {

@@ -114,7 +114,9 @@ const FriendManagementButtons = ({ approval, setApproval }) => {
         contextData.profileInfo.isUserBlocked && (
           <>
             <button
-              onClick={() => contextData.unblockUser(contextData.profileInfo.id)}
+              onClick={() =>
+                contextData.unblockUser(contextData.profileInfo.id)
+              }
               className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
             >
               <ImUserMinus />
@@ -175,8 +177,8 @@ const Profile = () => {
       setSelectedMenu("overview");
     }
     return () => {
-      authContextData.setGlobalMessage({message: '', isError: true});
-    }
+      authContextData.setGlobalMessage({ message: "", isError: true });
+    };
   }, []);
 
   useEffect(() => {

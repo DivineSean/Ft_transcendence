@@ -24,11 +24,11 @@ const Header = ({ ...props }) => {
   const [displayNotification, setDisplayNotification] = useState(false);
   const [readNotif, setReadNotif] = useState(false);
   const contextData = useContext(UserContext);
-	const notifContext = useContext(NotifContext);
+  const notifContext = useContext(NotifContext);
 
-	useEffect(() => {
-		notifContext.getNotfications();
-	}, []);
+  useEffect(() => {
+    notifContext.getNotfications();
+  }, []);
 
   const optionsData = [
     {
@@ -129,7 +129,7 @@ const Header = ({ ...props }) => {
           )}
           {displayNotification && (
             <OptionsSection
-            //   data={notificationData}
+              //   data={notificationData}
               reference={optionSectionRef}
               type="notification"
             />
@@ -173,10 +173,14 @@ const Header = ({ ...props }) => {
               <IoNotifications className="text-white text-h-lg-lg" />
             )}
 
-            {notifContext.notifData && notifContext.notifData.unreadCount !== 0 &&
-              <span className="absolute flex p-4 h-16 min-w-16 flex items-center justify-center font-bold text-txt-xs bg-red rounded-full left-0 top-0 overflow-hidden">
-				{notifContext.notifData.unreadCount <= 4 ? notifContext.notifData.unreadCount : '+4'}</span>
-            }
+            {notifContext.notifData &&
+              notifContext.notifData.unreadCount !== 0 && (
+                <span className="absolute flex p-4 h-16 min-w-16 flex items-center justify-center font-bold text-txt-xs bg-red rounded-full left-0 top-0 overflow-hidden">
+                  {notifContext.notifData.unreadCount <= 4
+                    ? notifContext.notifData.unreadCount
+                    : "+4"}
+                </span>
+              )}
           </div>
           <div
             ref={(el) => (toggleOptionsRef.current[1] = el)}
