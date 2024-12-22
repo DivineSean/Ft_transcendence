@@ -102,7 +102,7 @@ class Ball {
 		const Timer = Math.floor((Date.now() - this.startTime) / 1000);
 		this.div.textContent = `10 Seconds To Serve the Ball ${Timer}s`;
 
-		if (Timer === 10) {
+		if (Timer >= 10) {
 			this.sendLost(send);
 			this.sendLock = true;
 			this.timeout = true;
@@ -153,12 +153,13 @@ class Ball {
 			this.serving = true;
 			if (this.isServerDemon) {
 				this.serverWin++;
-				const message = ["Good Serve", "Well Done", "ServeDemon Achieved"];
-				globalMessage({
-					message: `${message[this.serverWin - 1]}`,
-					isError: false,
-				});
-				if (this.serverWin === 3) this.serverWin = 0;
+				if (this.serverWin === 3){
+					globalMessage({
+						message: "Nobody Can handle that kind of power!",
+						title: "The Server Demon Achieved"
+					});
+					this.serverWin = 0;
+				}
 			}
 			return;
 		} else if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {

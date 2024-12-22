@@ -7,7 +7,7 @@ import { Clock } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState, useContext } from "react";
 import AuthContext from "../../context/AuthContext";
-import Toast from "../../components/Toast";
+import GameToast from "../../components/GameToast";
 
 const Pong = ({ send, ready, setReady, addMessageHandler, removeMessageHandler, player, names }) => {
 	const sm = useRef(null);
@@ -66,22 +66,23 @@ const Pong = ({ send, ready, setReady, addMessageHandler, removeMessageHandler, 
 		const messageHandler = (event) => {
 			const msg = JSON.parse(event.data);
 			const opp = player == 1 ? 2 : 1;
-			if (msg.type === "score") {
+			if (msg.type === "score")
+			{
 				const scores = JSON.parse(msg.message.scores);
 				const score1 = Number(scores["1"]);
 				const score2 = Number(scores["2"]);
-				if (Math.abs(score1 - score2) === 4) {
+				if (Math.abs(score1 - score2) === 4)
+				{
 					if (score1 > score2 && sm.current.RemontadaPlayer === 2)
 						sm.current.RemontadaChance = true;
 					else if (score1 < score2 && sm.current.RemontadaPlayer === 1)
 						sm.current.RemontadaChance = true;
-				} else if (
-					Math.abs(score1 - score2) === 0 &&
-					sm.current.RemontadaChance
-				) {
+				}
+				if (Math.abs(score1 - score2) === 0 && sm.current.RemontadaChance)
+				{
 					authContextData.setGlobalMessage({
-						message: "Bounceback Boss Achieved",
-						isError: false,
+						message: "From the brink of defeat to total domination. Truly inspiring!",
+						title: "The Bounceback Boss Achieved"
 					});
 					sm.current.RemontadaChance = false;
 				}
@@ -91,13 +92,6 @@ const Pong = ({ send, ready, setReady, addMessageHandler, removeMessageHandler, 
 				} else if (msg.message.role === 2) {
 					ball.serve(net, -1);
 				}
-			} else if (msg.type == "play") {
-				console.log("hi i am here");
-				// send(JSON.stringify({
-				// 	type: "score",
-				// 	message: {}
-				// }))
-				setReady(true);
 			}
 			else if (msg.message.content == "paddle") {
 				players[opp - 1].rotating = false;
@@ -275,13 +269,13 @@ const Pong = ({ send, ready, setReady, addMessageHandler, removeMessageHandler, 
 		window.location.href = "/games/pong/online";
 		window.close();
 	}
-	console.log("hello i am  down here");
+
 	return (
 		<div id="message" className="relative w-full h-screen overflow-hidden">
-			{authContextData.globalMessage.message && (
-				<Toast
+			{authContextData.globalMessage.message && !isWon && !islost && (
+				<GameToast
 					message={authContextData.globalMessage.message}
-					error={authContextData.globalMessage.isError}
+					title={authContextData.globalMessage.title}
 					onClose={authContextData.setGlobalMessage}
 				/>
 			)}

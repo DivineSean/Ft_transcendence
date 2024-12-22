@@ -112,8 +112,8 @@ export class SceneManager {
     const minutes = Math.floor(elapsedTimeInSeconds / 60);
     if (!this.Marathoner && minutes === 5) {
       this.globalMessage({
-        message: "The Marathoner Achieved!!",
-        isError: false,
+        message: "The game doesnt just need you—it thrives because of you!",
+        title: "The Marathoner Achieved"
       });
       this.Marathoner = true;
     }
@@ -136,8 +136,8 @@ export class SceneManager {
       side: THREE.DoubleSide,
     });
     const wall = new THREE.Mesh(wallGeometry, wallMaterial);
-    if (rotate === true) wall.rotateY(Math.PI / 2); // Rotate to stand vertically
-    wall.position.set(x, y, z); // Adjust position
+    if (rotate === true) wall.rotateY(Math.PI / 2);
+    wall.position.set(x, y, z);
     wall.receiveShadow = true;
     pointLight.target = wall;
     this.scene.add(wall);
@@ -258,8 +258,8 @@ export class SceneManager {
             ball.Victory.play();
             if (P["2"] === 0)
               this.globalMessage({
-                message: "The Dominator Achieved",
-                isError: false,
+                message: "You didnt just win—you sent a message to everyone watching!",
+                title: "The Dominator Achieved"
               });
             this.setIsWon(true);
           }
@@ -283,8 +283,8 @@ export class SceneManager {
             ball.Victory.play();
             if (P["1"] === 0)
               this.globalMessage({
-                message: "The Dominator Achieved",
-                isError: false,
+                message: "You didnt just win—you sent a message to everyone watching!",
+                title: "The Dominator Achieved"
               });
             this.setIsWon(true);
           }
