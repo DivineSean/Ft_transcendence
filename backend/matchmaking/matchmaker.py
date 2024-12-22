@@ -191,6 +191,7 @@ class Matchmaker:
         channel_layer = get_channel_layer()
 
         # TODO: Add per-player estimated time
+        # FIX: need to prevent players that are already involved in a game from queing again
         while len(self.queues):
             for _, game in self.queues.items():
                 print(

@@ -21,9 +21,9 @@ const Counter = ({ createdAt }) => {
 	return <div>{count}</div>
 }
 
-const GameOverlay = ({ status, data, send }) => {
-	console.log("status: ", status, data);
-	switch (status) {
+const GameOverlay = ({ data, send }) => {
+	console.log("data: ", data);
+	switch (data.status) {
 		case "waiting":
 			return (
 				<div className="flex flex-col gap-16 w-full justify-center items-center">
@@ -51,32 +51,35 @@ const GameOverlay = ({ status, data, send }) => {
 			return <div>Game invite expired</div>
 		case "ongoing":
 			return <div>Game starting soon ...</div>
+		case "paused":
+			return <div>Game paused</div>
 		default:
 			return <>nn hh</>
 	}
 }
 
-const Game = memo(({ userInfo, game, status = "", send, addMessageHandler, removeMessageHandler, playersDetails, state }) => {
-	const [ready, setReady] = useState(status === "ongoing");
-
-	useEffect(() => {
-		setReady(status === "ongoing")
-	}, [status])
-
+const Game = memo(({ userInfo, game, ready, setReady, send, addMessageHandler, removeMessageHandler, playersDetails, state }) => {
 	const data = playersDetails.current?.find((player) => player.user.username === userInfo.username)
 	const names = playersDetails.current?.map((player) => player.user.username) || [];
 	console.log("hadi hya data dyali hhhh", userInfo?.username, playersDetails, data);
 
 	switch (game) {
 		case "pong":
-			return <Pong send={send} ready={ready} setReady={setReady} addMessageHandler={addMessageHandler} removeMessageHandler={removeMessageHandler} player={data.role} names={names} />;
+			return <Pong
+				ready={ready}
+				setReady={setReady}
+				names={names}
+				player={data.role}
+				send={send}
+				addMessageHandler={addMessageHandler}
+				removeMessageHandler={removeMessageHandler}
+			/>;
 		// return <div>pong</div>
 	}
 })
 
 const GameManager = () => {
-	// const [playerNumber, setPlayerNumber] = useState(-1);
-	const [status, setStatus] = useState(null);
+	const [ready, setReady] = useState(false);
 	const [data, setData] = useState(null);
 	const { game, uuid } = useParams();
 	const playersDetailsRef = useRef(null);
@@ -87,14 +90,14 @@ const GameManager = () => {
 			if (msg.type === "game_manager") {
 				// INFO: check if the objects are the same to avoid unnecessary rerenders
 				if (msg.message.status)
-					setStatus(msg.message.status);
+					setReady(msg.message.status === "ongoing")
 				console.log(msg);
 				if (msg.message.players_details)
 					playersDetailsRef.current = msg.message.players_details;
-				setData({
-					...data,
+				setData((prevData) => ({
+					...prevData,
 					...msg.message,
-				})
+				}))
 			}
 		}
 	})
@@ -104,19 +107,27 @@ const GameManager = () => {
 		contextData.getUserInfo();
 	}, [])
 
-	// TODO: handle match accept
 	// TODO: handle reconnect after accepting
 
 	return (
 		<div className="relative w-full">
 			{
-				contextData.userInfo && playersDetailsRef.current && (
-					<Game userInfo={contextData.userInfo} game={game} status={status} send={send} addMessageHandler={addMessageHandler} removeMessageHandler={removeMessageHandler} playersDetails={playersDetailsRef} />)
+				contextData.userInfo && playersDetailsRef.current &&
+				(<Game
+					game={game}
+					ready={ready}
+					setReady={setReady}
+					send={send}
+					userInfo={contextData.userInfo}
+					addMessageHandler={addMessageHandler}
+					removeMessageHandler={removeMessageHandler}
+					playersDetails={playersDetailsRef}
+				/>)
 			}
-			{status !== "ongoing" && (
+			{!ready && data && (
 				<div className="absolute inset-0 backdrop-blur-sm container justify-center items-center">
 					<div className="primary-glass p-32">
-						<GameOverlay status={status} data={data} send={send} />
+						<GameOverlay data={data} send={send} />
 					</div>
 				</div>
 			)}
