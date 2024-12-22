@@ -25,11 +25,13 @@ const useWebSocket = (
 
   const addMessageHandler = (handler) => {
     messageHandlers.current.push(handler);
-  }
+  };
 
   const removeMessageHandler = (handler) => {
-    messageHandlers.current = messageHandlers.current.filter((h) => h !== handler)
-  }
+    messageHandlers.current = messageHandlers.current.filter(
+      (h) => h !== handler,
+    );
+  };
 
   const connect = useCallback(() => {
     if (connectedRef.current) return;
@@ -56,7 +58,7 @@ const useWebSocket = (
       debugLog("Message received:", event.data);
 
       onMessage?.(event);
-      messageHandlers.current.forEach((handler) => handler(event))
+      messageHandlers.current.forEach((handler) => handler(event));
     };
 
     ws.onerror = (event) => {

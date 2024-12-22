@@ -58,8 +58,7 @@ class Matchmaker:
             raise
 
         r.zadd(f"{game_name}_{QUEUE_KEY}", {player_id: rating})
-        r.hset(f"{game_name}:players_channel_names",
-               mapping={player_id: channel_name})
+        r.hset(f"{game_name}:players_channel_names", mapping={player_id: channel_name})
         await self.start_loop()
 
     async def remove_player(self, player_id, game_name):
@@ -85,8 +84,7 @@ class Matchmaker:
             serialized = GameRoomSerializer(game)
             game_room = serialized.data
             mark_game_room_as_expired.apply_async(
-                args=[game_room['id']],
-                countdown=GAME_EXPIRATION
+                args=[game_room["id"]], countdown=GAME_EXPIRATION
             )
         return game_room
 
@@ -169,8 +167,7 @@ class Matchmaker:
             for player in match:
                 player["role"] = role
                 r.zrem(f"{game['name']}_{QUEUE_KEY}", player["id"])
-                channel = r.hget(
-                    f"{game['name']}:players_channel_names", player["id"])
+                channel = r.hget(f"{game['name']}:players_channel_names", player["id"])
                 channels.append(channel)
                 role += 1
 
@@ -193,16 +190,14 @@ class Matchmaker:
         # TODO: Add per-player estimated time
         while len(self.queues):
             for _, game in self.queues.items():
-                print(
-                    f"{game['name']} --> {game['rating_tolerance']}", flush=True)
+                print(f"{game['name']} --> {game['rating_tolerance']}", flush=True)
                 players = r.zrange(
                     f"{game['name']}_{QUEUE_KEY}", 0, -1, withscores=True
                 )
                 if len(players) == 0:
                     del self.queues[game["name"]]
                     break
-                batches = self.create_batches(
-                    players, game["rating_tolerance"])
+                batches = self.create_batches(players, game["rating_tolerance"])
                 matches = self.find_matches(batches, game)
                 await self.create_matches(channel_layer, game, matches)
 

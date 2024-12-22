@@ -13,7 +13,7 @@ const GameToast = ({ duration = 3000, title, message, onClose }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setProgress((prev) => Math.min(prev + (100 / (duration / 100)), 100));
+      setProgress((prev) => Math.min(prev + 100 / (duration / 100), 100));
     }, duration / 100);
 
     const timeout = setTimeout(() => {
@@ -47,9 +47,11 @@ const GameToast = ({ duration = 3000, title, message, onClose }) => {
             src="/images/bot.png"
             alt="Bot"
             className="animate-wiggle"
-            style={{ width: '40px', height: '40px' }}
+            style={{ width: "40px", height: "40px" }}
           />
-          <p className="text-white text-mg font-bold text-center tracking-widest" >{title}</p>
+          <p className="text-white text-mg font-bold text-center tracking-widest">
+            {title}
+          </p>
         </legend>
 
         {/* Toast Message */}
