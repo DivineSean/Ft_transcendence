@@ -53,4 +53,5 @@ urlpatterns = [
         name="areFriends",
     ),
     path("api/user/unblock/", views.unblockUser, name="unblockUser"),
+	path("api/users/blocked/", views.getBlockedUsers, name="blocked users"),
 ]

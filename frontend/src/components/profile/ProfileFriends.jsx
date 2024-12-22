@@ -6,6 +6,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import UserContext from "../../context/UserContext";
 import { BACKENDURL } from "../../utils/fetchWrapper";
 import { useNavigate } from "react-router-dom";
+import { FaChevronDown } from "react-icons/fa6";
 
 const Friends = ({ friend }) => {
   const navigate = useNavigate();
@@ -45,44 +46,56 @@ const Friends = ({ friend }) => {
   );
 };
 
-const FriendRequest = ({ friendRequest }) => {
+const FriendRequest = ({ friendRequest, type }) => {
   const contextData = useContext(UserContext);
   const navigate = useNavigate();
   return (
     <div className="w-[150px] secondary flex-shrink-0 border-[0.5px] border-stroke-sc flex flex-col rounded-md overflow-hidden">
-      <div
-        onClick={() => navigate("/profile/overview/" + friendRequest.username)}
-        className="overflow-hidden grow flex border-b-[0.5px] border-stroke-sc relative cursor-pointer"
-      >
-        <div className="absolute bg-black h-[70%] w-full cover-gradient bottom-0"></div>
-        <img
-          src={
-            friendRequest.profile_image
-              ? `${BACKENDURL}${friendRequest.profile_image}?t=${new Date().getTime()}`
-              : "/images/default.jpeg"
-          }
-          alt="request"
-          className="object-cover grow "
-        />
-        <div className="text-txt-xs p-8 pt-16 text-whiter w-full tracking-wide font-semibold absolute bottom-0 cover-gradient">
-          {friendRequest.first_name} {friendRequest.last_name}
-        </div>
-      </div>
-      <div className="p-8 flex gap-8 justify-center items-center">
-        <button
-          // onClick={() => contextData.acceptFriendRequest(contextData.profileInfo.id)}
-          onClick={() => contextData.acceptFriendRequest(friendRequest.id)}
-          className="hover-secondary text-green p-8 transition-all rounded-md grow flex justify-center hover:bg-green hover:text-black"
-        >
-          <IoMdCheckmark className="text-lg" />
-        </button>
-        <button
-          onClick={() => contextData.declineRequest(friendRequest.id)}
-          className="hover-secondary text-red p-8 transition-all rounded-md flex justify-center hover:bg-red hover:text-white"
-        >
-          <IoMdClose className="text-lg" />
-        </button>
-      </div>
+		<div
+			onClick={() => navigate("/profile/overview/" + friendRequest.username)}
+			className="overflow-hidden grow flex border-b-[0.5px] border-stroke-sc relative cursor-pointer"
+		>
+			<div className="absolute bg-black h-[70%] w-full cover-gradient bottom-0"></div>
+				<img
+					src={
+						friendRequest.profile_image
+						? `${BACKENDURL}${friendRequest.profile_image}?t=${new Date().getTime()}`
+						: "/images/default.jpeg"
+					}
+					alt="request"
+					className="object-cover grow "
+				/>
+				<div className="text-txt-xs p-8 pt-16 text-whiter w-full tracking-wide font-semibold absolute bottom-0 cover-gradient">
+				{friendRequest.first_name} {friendRequest.last_name}
+			</div>
+		</div>
+		<div className="p-8 flex gap-8 justify-center items-center">
+			{type === 'friend request' &&
+				<>
+					<button
+						onClick={() => contextData.acceptFriendRequest(friendRequest.id)}
+						className="hover-secondary text-green p-8 transition-all rounded-md grow flex justify-center hover:bg-green hover:text-black"
+					>
+						<IoMdCheckmark className="text-lg" />
+					</button>
+
+					<button
+						onClick={() => contextData.declineRequest(friendRequest.id)}
+						className="hover-secondary text-red p-8 transition-all rounded-md flex justify-center hover:bg-red hover:text-white"
+					>
+						<IoMdClose className="text-lg" />
+					</button>
+				</>
+			}
+			{type === 'blocked users' &&
+				<button
+					onClick={() => contextData.unblockUser(friendRequest.id)}
+					className="hover-secondary text-green p-8 transition-all font-bold rounded-md grow flex justify-center hover:bg-green hover:text-black"
+				>
+					unblock user
+				</button>
+			}
+		</div>
     </div>
   );
 };
@@ -114,8 +127,10 @@ const ProfileFriends = ({ username }) => {
 
   useEffect(() => {
     userContextData.getFriends(username);
-    if (userContextData.profileInfo && userContextData.profileInfo.me)
-      userContextData.getFriendRequest();
+    if (userContextData.profileInfo && userContextData.profileInfo.me) {
+		userContextData.getFriendRequest();
+		userContextData.getBlockedUsers();
+	}
   }, [userContextData.profileInfo]);
 
   useEffect(() => {
@@ -135,72 +150,103 @@ const ProfileFriends = ({ username }) => {
   }
 
   const friendRequest = [];
-  if (
-    userContextData &&
-    userContextData.userInfo &&
-    userContextData.userInfo.username === userContextData.profileInfo.username
-  ) {
-    if (userContextData.userFriendRequest) {
-      userContextData.userFriendRequest.map((item) => {
-        friendRequest.push(
-          <FriendRequest key={item.id} friendRequest={{ ...item }} />,
-        );
-      });
-    }
+
+  const requestOrBlocked = (items, type) => {
+	items.map((item) => {
+		friendRequest.push(
+			<FriendRequest key={item.id} friendRequest={{...item}} type={type} />
+		);
+	});
   }
+  
+  const [selected, setSelected] = useState('friend request');
+  const [displaySelect, setDisplaySelect] = useState(false);
+  const select = ['friend request', 'blocked users'];
+
+  if (userContextData.profileInfo && userContextData.profileInfo.me) {
+	if (selected === 'friend request' && userContextData.userFriendRequest)
+		requestOrBlocked(userContextData.userFriendRequest, selected);
+	else if (selected === 'blocked users' && userContextData.blockedUsers)
+		requestOrBlocked(userContextData.blockedUsers.blockedUsers, selected);
+  }
+
 
   return (
     <>
-      <div className="flex flex-col gap-32 h-full w-full no-scrollbar overflow-y-scroll">
-        {userContextData &&
-          userContextData.userInfo &&
-          userContextData.userInfo.username ===
-            userContextData.profileInfo.username && (
-            <div className="flex flex-col gap-8 relative">
-              <h2 className="font-semibold tracking-wide ">friend requests</h2>
-              {friendRequest.length ? (
-                <div
-                  ref={scrollContainer}
-                  className="min-h-[240px] overflow-x-auto no-scrollbar w-full p-8 flex gap-16 scroll-smooth bg-black/15 rounded-md"
-                >
-                  {friendRequest}
-                  {showRightButton && (
-                    <button
-                      onClick={scrollRight}
-                      className="absolute top-1/2 right-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
-                    >
-                      <FaChevronRight />
-                    </button>
-                  )}
-                  {showLeftButton && (
-                    <button
-                      onClick={scrollLeft}
-                      className="absolute top-1/2 left-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
-                    >
-                      <FaChevronLeft />
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <p className="text-txt-sm flex justify-center text-stroke-sc">
-                  you have no friend request.
-                </p>
-              )}
-            </div>
-          )}
-        <div className="flex flex-col gap-8">
-          <h2 className="font-semibold tracking-wide ">friends</h2>
-          {friends.length ? (
-            <div className="grid gap-16 sm:grid-cols-2 grid-cols-1">
-              {friends}
-            </div>
-          ) : (
-            <p className="text-txt-sm flex justify-center text-stroke-sc">
-              you have no friend yet search for some you want
-            </p>
-          )}
-        </div>
-      </div>
+		<div className="flex flex-col gap-32 h-full w-full no-scrollbar overflow-y-scroll">
+			{userContextData &&
+				userContextData.userInfo &&
+				userContextData.userInfo.username ===
+				userContextData.profileInfo.username && (
+				<div className="flex flex-col gap-8 items-start">
+					{/* add select to switch between blocked users and friend requests */}
+					<div className="flex justify-start relative">
+						<div
+							onClick={() => setDisplaySelect(!displaySelect)}
+							className="flex gap-16 items-center p-8 border-[0.5px] border-stroke-sc rounded-md"
+						>
+							<h2 className="font-semibold tracking-wide cursor-pointer">{selected}</h2>
+							<FaChevronDown className="text-green cursor-pointer" />
+							{displaySelect && 
+								<ul className="absolute top-[44px] z-[1] left-0 text-center w-full flex flex-col bg-green transition-all">
+									{select.map((item) => (
+										<li
+											onClick={() => setSelected(item)}
+											className={`border-b tracking-wider bg-black/20 text-black
+												border-black p-8 hover:bg-black/60 transition-all cursor-pointer
+												${selected === item ? 'font-semibold bg-black/60' : ''}
+											`}
+										>
+											{item}
+										</li>
+									))}
+								</ul>
+							}
+						</div>
+					</div>
+					{friendRequest.length ? (
+					<div
+						ref={scrollContainer}
+						className="min-h-[240px] overflow-x-auto no-scrollbar w-full p-8 flex gap-16 scroll-smooth bg-black/15 rounded-md"
+					>
+						{friendRequest}
+						{showRightButton && (
+						<button
+							onClick={scrollRight}
+							className="absolute top-1/2 right-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
+						>
+							<FaChevronRight />
+						</button>
+						)}
+						{showLeftButton && (
+						<button
+							onClick={scrollLeft}
+							className="absolute top-1/2 left-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
+						>
+							<FaChevronLeft />
+						</button>
+						)}
+					</div>
+					) : (
+					<p className="text-txt-sm flex justify-center text-stroke-sc">
+						you have no friend request.
+					</p>
+					)}
+				</div>
+			)}
+			<div className="flex flex-col gap-8">
+				<h2 className="font-semibold tracking-wide ">friends</h2>
+				{friends.length ? (
+					<div className="grid gap-16 sm:grid-cols-2 grid-cols-1">
+						{friends}
+					</div>
+				) : (
+					<p className="text-txt-sm flex justify-center text-stroke-sc">
+						you have no friend yet search for some you want
+					</p>
+				)}
+			</div>
+		</div>
     </>
   );
 };

@@ -316,3 +316,18 @@ def unblockUser(request):
 				)
 
 		return Response({"status": "200", "message": "ublocked successfully"})
+
+@api_view(['GET'])
+def getBlockedUsers(request):
+	try:
+		blockedUsersId = request._user.blockedUsers or []
+
+		blockedUsers = Users.objects.filter(id__in=blockedUsersId)
+
+		serializer = UserFriendSerializer(blockedUsers, many=True)
+
+		return Response({'blockedUsers': serializer.data})
+		
+	except Exception as e:
+		return Response({'error', e}, status=status.HTTP_400_BAD_REQUEST)
+	return Response({'blocked users': 'hhhhhhh'})

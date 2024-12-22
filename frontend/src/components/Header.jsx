@@ -30,18 +30,6 @@ const Header = ({ ...props }) => {
 		notifContext.getNotfications();
 	}, []);
 
-	// if (notifContext.notifData)
-	// 	console.log('hsfjkghlksfjhgkjgfdhs', notifContext.notifData.notifications)
-
-	// const notificationData = [];
-	// if (notifContext.notifData && notifContext.notifData.notifications) {
-	// 	notifContext.notifData.notifications.map(item => {
-	// 		notificationData.push(item.notifMessage);
-	// 	})
-	// }
-
-	console.log('hello madafucker', notifContext.notifData);
-
   const optionsData = [
     {
       name: "logout",

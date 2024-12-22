@@ -8,80 +8,88 @@ const NotifContext = createContext();
 export default NotifContext;
 
 export const NotifProvider = ({ children }) => {
-  const FetchData = new FetchWrapper();
-  const navigate = useNavigate();
+	const FetchData = new FetchWrapper();
+	const navigate = useNavigate();
 	const ws = useRef(null);
 	const [friendRequest, setFriendRequest] = useState(false);
 	const [notifData, setNotifData] = useState(null);
 
-  const authContextData = useContext(AuthContext);
+	const authContextData = useContext(AuthContext);
 	const [isWsConnected, setIsWsConnected] = useState(false);
 
 	useEffect(() => {
-    ws.current = new WebSocket(
-      `wss://${window.location.hostname}:8000/ws/chat/`,
-    );
-    // console.log('from chat ws');
-    // console.log('ws: ', ws.current);
+	ws.current = new WebSocket(
+		`wss://${window.location.hostname}:8000/ws/chat/`,
+	);
+	// console.log('from chat ws');
+	// console.log('ws: ', ws.current);
 
-    ws.current.onopen = () => {
-      // overide the onopen event
-      console.log("Connected");
-      // here we set this state to true to make sure
-      // that the socket is connected successfully when we want to send an event
-      setIsWsConnected(true);
-    };
+	ws.current.onopen = () => {
+		// overide the onopen event
+		console.log("Connected");
+		// here we set this state to true to make sure
+		// that the socket is connected successfully when we want to send an event
+		setIsWsConnected(true);
+	};
 
-    ws.current.onclose = () => console.log("Disconnected"); // override the onclose event
+	ws.current.onclose = () => console.log("Disconnected"); // override the onclose event
 
-    return () => {
-      if (ws.current) {
-        ws.current.close();
-        ws.current = null;
-      }
-    };
-  }, []);
+	return () => {
+		if (ws.current) {
+		ws.current.close();
+		ws.current = null;
+		}
+	};
+	}, []);
 
 	// 95dd4cde-86ff-40e5-906d-32c412ee543a
 	// 6434d48a-161e-4e0f-af68-f83700a37053
-	if (ws.current) {
-		ws.current.onmessage = (e) => {
-			const socketData = JSON.parse(e.data);
-			if (socketData) {
-				if (socketData.type === 'friendRequest')
-					getNotfications();
-				console.log('chihaja tbedlat', socketData);
-				console.log('type', socketData.type);
-				console.log('message', socketData.message);
-			}
-		}
-	}
+	// if (ws.current) {
+	// 	ws.current.onmessage = (e) => {
+	// 		const socketData = JSON.parse(e.data);
+	// 		if (socketData) {
+	// 			if (socketData.type === 'friendRequest')
+	// 				getNotfications();
+	// 			console.log('chihaja tbedlat', socketData);
+	// 			console.log('type', socketData.type);
+	// 			console.log('message', socketData.message);
+	// 		}
+	// 	}
+	// }
 
 	const getNotfications = async () => {
 		try {
 			const res = await FetchData.get('api/notification/');
-			console.log(res);
+			// console.log(res);
 			if (res.ok) {
 				const data = await res.json();
 				setNotifData(data);
 			}
 		} catch (error) {
-			console.log('get notifs', error);
+			// console.log('get notifs', error);
+			authContextData.setGlobalMessage({
+				message: error.message,
+				isError: true,
+			});
 		}
 	}
 
 	const deleteNotifications = async (notificationId) => {
 		try {
-			console.log('notificationId', notificationId);
+			// console.log('notificationId', notificationId);
 			const res = await FetchData.delete(`api/notification/${notificationId}/`);
-			console.log(res);
+			// console.log(res);
 			if (res.ok) {
 				const data = await res.json();
 				getNotfications();
-				console.log(data);
+				// console.log(data);
 			}
 		} catch (error) {
-			console.log('error deletion notifications', error);
+			// console.log('error deletion notifications', error);
+			authContextData.setGlobalMessage({
+				message: error.message,
+				isError: true,
+			});
 		}
 	}
 

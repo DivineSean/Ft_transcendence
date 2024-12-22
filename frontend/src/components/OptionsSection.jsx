@@ -15,17 +15,16 @@ const OptionsSection = ({ data, type, reference }) => {
 
 	const handleReadNotif = (item) => {
 		if (item.notifType === 'FR') {
-		console.log('had khouna profile');
-		console.log(item.senderId.username);
-		navigate(`/profile/overview/${item.senderId.username}`)
+			// console.log('had khouna profile');
+			navigate(`/profile/overview/${item.senderId.username}`);
+			contextData.setRefresh(true);
 		} else if (item.notifType === 'IG') {
-		console.log('had khouna invitak tl3eb game am3lm');
+			console.log('had khouna invitak tl3eb game am3lm');
 		} else if (item.notifType === 'IT') {
-		console.log('had khouna invitak tl3eb tournaments am3lm');
+			console.log('had khouna invitak tl3eb tournaments am3lm');
 		} else if (item.notifType === 'ME') {
-		console.log('had khouna sifet lik message am3lm');
+			console.log('had khouna sifet lik message am3lm');
 		}
-		console.log(item);
 		notifContext.deleteNotifications(item.notificationId);
 	}
 
@@ -36,14 +35,13 @@ const OptionsSection = ({ data, type, reference }) => {
 		}
 	}
 
-	console.log('notif', notifContext.notifData);
-
 	useEffect(() => {
 		if (type === 'notification') {
-		notifContext.getNotfications();
+			notifContext.getNotfications();
 		}
-		}, []);
+	}, []);
 
+	console.log(notifContext.notifData);
 	return (
 		<>
 		<div
@@ -111,7 +109,7 @@ const OptionsSection = ({ data, type, reference }) => {
 			{type === 'notification' &&
 			<>
 				<ul className="w-full flex flex-col gap-8 h-full overflow-auto custom-scrollbar pr-8">
-				{notifContext.notifData.notifications.map((item) => (
+				{notifContext.notifData && notifContext.notifData.notifications.map((item) => (
 					<li
 					onClick={() => handleReadNotif(item)}
 					key={item.notificationId}
@@ -136,7 +134,7 @@ const OptionsSection = ({ data, type, reference }) => {
 					</li>
 				))}
 				</ul>
-				{!notifContext.notifData.notifications.length &&
+				{notifContext.notifData && !notifContext.notifData.notifications.length &&
 				<p className="text-center text-txt-sm text-stroke-sc">no notifications</p>
 				}
 			</>

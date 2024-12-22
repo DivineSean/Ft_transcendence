@@ -7,7 +7,7 @@ export const getConversations = async (setData, setGlobalMessage, navigate) => {
     const res = await FetchData.get("api/chat/conversations/");
     if (res.ok) {
       const data = await res.json();
-      console.log("data", data);
+      console.log("get conversations", data);
       setData(data);
     } else if (res.status) {
       const data = await res.json();
@@ -35,7 +35,7 @@ export const getMessages = async (convId, setData, setOffsetMssg) => {
         if (data.messages.length === 20) setOffsetMssg(20);
         setData(data.messages);
       } else {
-        console.log(data);
+        // console.log(data);
       }
     } else {
       console.log("internal server error 500");
