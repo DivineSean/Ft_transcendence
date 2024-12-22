@@ -7,10 +7,13 @@ from Auth.models import Users
 from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.decorators import api_view
+from channels.layers import get_channel_layer
 from uuid import UUID
 from django.db.models import Q
 from Auth.serializers import UserFriendSerializer
 from chat.views import Conversation
+from asgiref.sync import async_to_sync
+from notification.models import Notifications
 
 
 class SendFriendRequest(APIView):
@@ -33,7 +36,7 @@ class SendFriendRequest(APIView):
             try:
 
                 friendRequest = FriendshipRequest.objects.get(
-                    Q(fromUser=userId) | Q(toUser=request._user.id)
+                    fromUser=userId, toUser=request._user.id
                 )
                 return Response(
                     {
@@ -49,6 +52,33 @@ class SendFriendRequest(APIView):
                     toUser=Users.objects.get(email=receieverData),
                     accepted_at=None,
                 )
+                user = Users.objects.get(id=userId)
+                print("user", user, flush=True)
+                notification, isNew = Notifications.objects.get_or_create(
+                    notifType="FR",
+                    userId=user,
+                    senderId=request._user,
+                    notifMessage=f"You Received a Friend Request from {request._user.username}",
+                )
+
+                print("isNew", isNew, notification.isRead, flush=True)
+                if not isNew and notification.isRead:
+                    notification.updateRead()
+
+                channel_layer = get_channel_layer()
+                group_name = f"notifications_{userId}"
+                print("userID", userId, flush=True)
+                print("group_name", group_name, flush=True)
+                async_to_sync(channel_layer.group_send)(
+                    group_name,
+                    {
+                        "type": "send_friend_request",
+                        "sender": str(request._user.id),
+                    },
+                )
+                print("user---------ID", userId, flush=True)
+            except Exception as e:
+                Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"status": "200", "message": "request sent successfully"})
 
@@ -56,7 +86,6 @@ class SendFriendRequest(APIView):
 class AcceptFriendRequest(APIView):
     def post(self, request):
         userId = request.data.get("userId")
-
         if userId:
             if userId == request._user.id:
                 return Response(
@@ -65,9 +94,8 @@ class AcceptFriendRequest(APIView):
 
             try:
                 friendRequest = FriendshipRequest.objects.get(
-                    Q(fromUser=userId) | Q(toUser=request._user.id)
+                    fromUser=userId, toUser=request._user.id
                 )
-
                 friendRequest.accept()
 
                 newFriendShip = Friendship.friends.get_or_create(
@@ -81,6 +109,9 @@ class AcceptFriendRequest(APIView):
                 return Response(
                     {"status": "404", "message": "this friend request does not exsits!"}
                 )
+            except Exception as e:
+                print(e, flush=True)
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(
             {"status": "200", "message": "the friend request accepted successfuly"}
@@ -99,7 +130,7 @@ class DeclineFriendRequest(APIView):
 
             try:
                 friendRequest = FriendshipRequest.objects.get(
-                    Q(fromUser=userId) | Q(toUser=request._user.id)
+                    fromUser=userId, toUser=request._user.id
                 )
 
                 friendRequest.reject()
@@ -149,8 +180,10 @@ def cancelFriendRequest(request):
     userId = request.data.get("userId")
     if userId:
         try:
+
             friendRequest = FriendshipRequest.objects.get(
-                Q(fromUser=userId) | Q(toUser=userId)
+                Q(fromUser=userId, toUser=request._user.id)
+                | Q(fromUser=request._user.id, toUser=userId)
             )
             if request._user == friendRequest.fromUser:
                 friendRequest.delete()
@@ -279,3 +312,19 @@ def unblockUser(request):
         )
 
     return Response({"status": "200", "message": "ublocked successfully"})
+
+
+@api_view(["GET"])
+def getBlockedUsers(request):
+    try:
+        blockedUsersId = request._user.blockedUsers or []
+
+        blockedUsers = Users.objects.filter(id__in=blockedUsersId)
+
+        serializer = UserFriendSerializer(blockedUsers, many=True)
+
+        return Response({"blockedUsers": serializer.data})
+
+    except Exception as e:
+        return Response({"error", e}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"blocked users": "hhhhhhh"})

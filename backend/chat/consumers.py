@@ -8,14 +8,17 @@ from django.utils import timezone
 from asgiref.sync import async_to_sync
 from Auth.serializers import UserSerializer
 from rest_framework.serializers import ValidationError
+from notification.models import Notifications
 
 
 class Chat(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]
+
         try:
             serializer = UserSerializer(self.scope["user"])
             self.user = serializer.data
+
         except ValidationError:
             return
 
@@ -29,7 +32,10 @@ class Chat(WebsocketConsumer):
             async_to_sync(self.channel_layer.group_add)(
                 f"conv-{element.ConversationId}", self.channel_name
             )
-
+        self.notif_room_name = f"notifications_{self.user['id']}"
+        async_to_sync(self.channel_layer.group_add)(
+            self.notif_room_name, self.channel_name
+        )
         self.accept()
 
     def disconnect(self, code):
@@ -47,7 +53,6 @@ class Chat(WebsocketConsumer):
             self.convId = f"conv-{text_data_json['convId']}"
             self.convName = text_data_json["convId"]
         except Exception as e:
-            # print("error ------>", e, flush=True)
             self.close()
             return
 
@@ -151,6 +156,17 @@ class Chat(WebsocketConsumer):
                         else event["sender"]["last_name"]
                     ),
                     "timestamp": event["timestamp"],
+                }
+            )
+        )
+
+    def send_friend_request(self, event):
+        self.send(
+            text_data=json.dumps(
+                {
+                    "type": "friendRequest",
+                    "sender": event["sender"],
+                    "message": f"You Received a Friend Request from {self.user['username']}",
                 }
             )
         )

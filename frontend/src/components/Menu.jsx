@@ -90,7 +90,6 @@ const Menu = ({ ...props }) => {
 
   const toggleDisplay = () => {
     setDisplayMenuGl(!displayMenuGl);
-    console.log(props.isDisplayed);
   };
 
   return (

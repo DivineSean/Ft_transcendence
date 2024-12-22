@@ -1,11 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import { BACKENDURL } from "../../utils/fetchWrapper";
+import { useContext } from "react";
+import NotifContext from "../../context/NotifContext";
+import { useEffect } from "react";
 
 const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
   const navigate = useNavigate();
-  const handleReadMessage = () => {
-    if (ws.current) {
-      ws.current.send(
+  const notifContextData = useContext(NotifContext);
+  const sendReadMessage = () => {
+    if (notifContextData.ws.current) {
+      notifContextData.ws.current.send(
         JSON.stringify({
           message: "message is readedf",
           type: "read",
@@ -13,9 +17,21 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
         }),
       );
     }
+  };
+
+  const handleReadMessage = () => {
+    sendReadMessage();
     friendInfo.isRead = true;
     navigate(`/chat/${friendInfo.conversationId}`);
   };
+
+  useEffect(() => {
+    if (uid === friendInfo.conversationId) {
+      console.log("readed bro!!");
+      sendReadMessage();
+      friendInfo.isRead = true;
+    }
+  }, [uid]);
 
   return (
     <div

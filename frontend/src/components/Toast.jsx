@@ -14,6 +14,8 @@ const Toast = ({
   const [opacity, setOpacity] = useState(true);
   const [progress, setProgress] = useState(0);
 
+  //TODO: must to cleanup the toast if the component will unmount
+
   useEffect(() => {
     if (message) {
       setIsVisible(true);
