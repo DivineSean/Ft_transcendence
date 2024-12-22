@@ -1,123 +1,133 @@
 import { useEffect, useRef, useCallback } from "react";
 
 const useWebSocket = (
-  url,
-  {
-    reconnectInterval = 2000,
-    maxReconnectAttempts = 10,
-    onOpen,
-    onMessage,
-    onError,
-    onClose,
-    debug = true,
-  } = {},
+	url,
+	{
+		reconnectInterval = 2000,
+		maxReconnectAttempts = 10,
+		onOpen,
+		onMessage,
+		onError,
+		onClose,
+		debug = true,
+	} = {},
 ) => {
-  const websocketRef = useRef(null);
-  const messageQueue = useRef([]);
-  const connectedRef = useRef(false);
-  const reconnectAttemptsRef = useRef(0);
-  const intentiallyClosedRef = useRef(false);
+	const websocketRef = useRef(null);
+	const messageHandlers = useRef([]);
+	const messageQueue = useRef([]);
+	const connectedRef = useRef(false);
+	const reconnectAttemptsRef = useRef(0);
+	const intentiallyClosedRef = useRef(false);
 
-  const debugLog = (...args) => {
-    if (debug) console.log("[WebSocket Hook]", ...args);
-  };
+	const debugLog = (...args) => {
+		if (debug) console.log("[WebSocket Hook]", ...args);
+	};
 
-  const connect = useCallback(() => {
-    if (connectedRef.current) return;
-    debugLog(`Connecting to WebSocket at ${url}`);
+	const addMessageHandler = (handler) => {
+		messageHandlers.current.push(handler);
+	}
 
-    const ws = new WebSocket(url);
-    websocketRef.current = ws;
+	const removeMessageHandler = (handler) => {
+		messageHandlers.current = messageHandlers.current.filter((h) => h !== handler)
+	}
 
-    ws.onopen = (event) => {
-      debugLog("WebSocket connection established");
-      reconnectAttemptsRef.current = 0;
-      connectedRef.current = true;
+	const connect = useCallback(() => {
+		if (connectedRef.current) return;
+		debugLog(`Connecting to WebSocket at ${url}`);
 
-      if (messageQueue.current.length > 0) {
-        debugLog("Flushing message queue", messageQueue.current);
-        messageQueue.current.forEach((msg) => ws.send(msg));
-        messageQueue.current = [];
-      }
+		const ws = new WebSocket(url);
+		websocketRef.current = ws;
 
-      onOpen?.(event);
-    };
+		ws.onopen = (event) => {
+			debugLog("WebSocket connection established");
+			reconnectAttemptsRef.current = 0;
+			connectedRef.current = true;
 
-    ws.onmessage = (event) => {
-      debugLog("Message received:", event.data);
+			if (messageQueue.current.length > 0) {
+				debugLog("Flushing message queue", messageQueue.current);
+				messageQueue.current.forEach((msg) => ws.send(msg));
+				messageQueue.current = [];
+			}
 
-      onMessage?.(event);
-    };
+			onOpen?.(event);
+		};
 
-    ws.onerror = (event) => {
-      debugLog("WebSocket error:", event);
+		ws.onmessage = (event) => {
+			debugLog("Message received:", event.data);
 
-      onError?.(event);
-    };
+			onMessage?.(event);
+			messageHandlers.current.forEach((handler) => handler(event))
+		};
 
-    ws.onclose = (event) => {
-      debugLog("WebSocket connection closed", event);
+		ws.onerror = (event) => {
+			debugLog("WebSocket error:", event);
 
-      if (
-        !intentiallyClosedRef.current &&
-        !event.wasClean &&
-        reconnectAttemptsRef.current < maxReconnectAttempts
-      ) {
-        debugLog("Attempting to reconnect...");
-        reconnectAttemptsRef.current += 1;
-        setTimeout(connect, reconnectInterval);
-      } else if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
-        debugLog("Max reconnect attempts reached");
-      } else {
-        debugLog(
-          "WebSocket closed cleanly or intentionally, no reconnection will be attempted.",
-        );
-      }
+			onError?.(event);
+		};
 
-      if (intentiallyClosedRef.current) intentiallyClosedRef.current = false;
+		ws.onclose = (event) => {
+			debugLog("WebSocket connection closed", event);
 
-      onClose?.(event);
-    };
-  }, [
-    url,
-    reconnectInterval,
-    maxReconnectAttempts,
-    onOpen,
-    onMessage,
-    onError,
-    onClose,
-    debug,
-  ]);
+			if (
+				!intentiallyClosedRef.current &&
+				!event.wasClean &&
+				reconnectAttemptsRef.current < maxReconnectAttempts
+			) {
+				debugLog("Attempting to reconnect...");
+				reconnectAttemptsRef.current += 1;
+				setTimeout(connect, reconnectInterval);
+			} else if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
+				debugLog("Max reconnect attempts reached");
+			} else {
+				debugLog(
+					"WebSocket closed cleanly or intentionally, no reconnection will be attempted.",
+				);
+			}
 
-  useEffect(() => {
-    connect();
+			if (intentiallyClosedRef.current) intentiallyClosedRef.current = false;
 
-    return () => {
-      debugLog("Cleaning up WebSocket");
-      websocketRef.current?.close();
-    };
-  }, []);
+			onClose?.(event);
+		};
+	}, [
+		url,
+		reconnectInterval,
+		maxReconnectAttempts,
+		onOpen,
+		onMessage,
+		onError,
+		onClose,
+		debug,
+	]);
 
-  const send = useCallback((message) => {
-    if (
-      connectedRef.current &&
-      websocketRef.current?.readyState === WebSocket.OPEN
-    ) {
-      debugLog("Sending message:", message);
-      websocketRef.current.send(message);
-    } else {
-      debugLog("Socket not connected, queuing message:", message);
-      messageQueue.current.push(message);
-    }
-  }, []);
+	useEffect(() => {
+		connect();
 
-  const close = useCallback(() => {
-    debugLog("Closing WebSocket connection");
-    intentiallyClosedRef.current = true;
-    websocketRef.current?.close();
-  }, []);
+		return () => {
+			debugLog("Cleaning up WebSocket");
+			websocketRef.current?.close();
+		};
+	}, []);
 
-  return { send, close };
+	const send = useCallback((message) => {
+		if (
+			connectedRef.current &&
+			websocketRef.current?.readyState === WebSocket.OPEN
+		) {
+			debugLog("Sending message:", message);
+			websocketRef.current.send(message);
+		} else {
+			debugLog("Socket not connected, queuing message:", message);
+			messageQueue.current.push(message);
+		}
+	}, []);
+
+	const close = useCallback(() => {
+		debugLog("Closing WebSocket connection");
+		intentiallyClosedRef.current = true;
+		websocketRef.current?.close();
+	}, []);
+
+	return { send, close, addMessageHandler, removeMessageHandler };
 };
 
 export default useWebSocket;
