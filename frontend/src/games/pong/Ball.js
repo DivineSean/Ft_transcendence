@@ -138,15 +138,12 @@ class Ball {
     //serve
     if (this.serving) this.count = 0;
     if (this.y < -50 && this.sendLock === false && this.serving === false) {
-      if (this.lastshooter === 1 && player === 1)
-      {
+      if (this.lastshooter === 1 && player === 1) {
         this.sendLost(ws);
         this.sendLock = true;
         this.serving = true;
         return;
-      }
-      else if (this.lastshooter === -1 && player === 2)
-      {
+      } else if (this.lastshooter === -1 && player === 2) {
         this.sendLost(ws);
         this.sendLock = true;
         this.serving = true;
@@ -154,13 +151,14 @@ class Ball {
       }
       this.sendLock = true;
       this.serving = true;
-      if (this.isServerDemon)
-      {
+      if (this.isServerDemon) {
         this.serverWin++;
         const message = ["Good Serve", "Well Done", "ServeDemon Achieved"];
-        globalMessage({message: `${message[this.serverWin - 1]}`, isError: false});
-        if (this.serverWin === 3)
-          this.serverWin = 0;
+        globalMessage({
+          message: `${message[this.serverWin - 1]}`,
+          isError: false,
+        });
+        if (this.serverWin === 3) this.serverWin = 0;
       }
       return;
     } else if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
