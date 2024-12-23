@@ -7,16 +7,26 @@ import { Clock } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState, useContext } from "react";
 import AuthContext from "../../context/AuthContext";
+import GameToast from "../../components/GameToast";
 import Toast from "../../components/Toast";
 
-const Pong = ({ websocket, player, names }) => {
+const Pong = ({
+  send,
+  ready,
+  setReady,
+  addMessageHandler,
+  removeMessageHandler,
+  player,
+  names,
+}) => {
   const sm = useRef(null);
   const loaderRef = useRef(null);
   const loaderTRef = useRef(null);
   const loaderBRef = useRef(null);
   const keyboard = useRef({});
   const authContextData = useContext(AuthContext);
-  const [ready, setReady] = useState(false);
+
+  // const [ready, setReady] = useState(false);
   const [isWon, setIsWon] = useState(false);
   const [islost, setIslost] = useState(false);
 
@@ -45,7 +55,7 @@ const Pong = ({ websocket, player, names }) => {
 
     const players = [
       new Paddle(
-        websocket,
+        send,
         sm.current.scene,
         1,
         { x: 43, y: -25.5, z: 12 },
@@ -54,7 +64,7 @@ const Pong = ({ websocket, player, names }) => {
         ball,
       ),
       new Paddle(
-        websocket,
+        send,
         sm.current.scene,
         -1,
         { x: -43, y: -25.5, z: -12 },
@@ -63,7 +73,7 @@ const Pong = ({ websocket, player, names }) => {
         ball,
       ),
     ];
-    websocket.onmessage = (event) => {
+    const messageHandler = (event) => {
       const msg = JSON.parse(event.data);
       const opp = player == 1 ? 2 : 1;
       if (msg.type === "score") {
@@ -71,28 +81,30 @@ const Pong = ({ websocket, player, names }) => {
         const score1 = Number(scores["1"]);
         const score2 = Number(scores["2"]);
         if (Math.abs(score1 - score2) === 4) {
-          if (score1 > score2 && sm.current.RemontadaPlayer === 2)
+          if (score1 > score2 && sm.current.RemontadaPlayer === -1)
             sm.current.RemontadaChance = true;
           else if (score1 < score2 && sm.current.RemontadaPlayer === 1)
             sm.current.RemontadaChance = true;
-        } else if (
-          Math.abs(score1 - score2) === 0 &&
-          sm.current.RemontadaChance
-        ) {
+        }
+        if (Math.abs(score1 - score2) === 0 && sm.current.RemontadaChance) {
+          if (!ball.Achievement.isPlaying) {
+            ball.Achievement.currentTime = 0;
+            ball.Achievement.play();
+          }
           authContextData.setGlobalMessage({
-            message: "Bounceback Boss Achieved",
-            isError: false,
+            message:
+              "From the brink of defeat to total domination. Truly inspiring!",
+            title: "The Bounceback Boss Achieved",
           });
           sm.current.RemontadaChance = false;
         }
         sm.current.scoreUpdate(scores, msg.message.role, ball);
         if (msg.message.role === 1) {
-          ball.serve(websocket, net, 1);
+          ball.serve(net, 1);
         } else if (msg.message.role === 2) {
-          ball.serve(websocket, net, -1);
+          ball.serve(net, -1);
         }
-      } else if (msg.type == "play") setReady(true);
-      else if (msg.message.content == "paddle") {
+      } else if (msg.message.content == "paddle") {
         players[opp - 1].rotating = false;
         players[opp - 1].x = msg.message.paddle.x;
         players[opp - 1].y = msg.message.paddle.y;
@@ -143,9 +155,12 @@ const Pong = ({ websocket, player, names }) => {
         ball.serving = msg.message.ball.serving;
         ball.lastshooter = msg.message.ball.lstshoot;
         ball.sendLock = true;
-        ball.sendScore(websocket);
+        ball.sendScore(send);
       }
     };
+
+    addMessageHandler(messageHandler);
+
     sm.current.render();
     table.render();
     net.render();
@@ -191,7 +206,7 @@ const Pong = ({ websocket, player, names }) => {
           net,
           table,
           players[player - 1],
-          websocket,
+          send,
           fixedStep * 1000,
           player,
           keyboard.current,
@@ -205,12 +220,12 @@ const Pong = ({ websocket, player, names }) => {
             (player === 1 && ball.lastshooter === 1) ||
             (player === 2 && ball.lastshooter === -1)
           ) {
-            ball.CheckTimer(websocket);
+            ball.CheckTimer(send);
             ball.labelRenderer.render(sm.current.scene, sm.current.camera);
           }
         }
         if (Math.floor((Date.now() - sm.current.lastTime) / 1000) > 0)
-          sm.current.TimerCSS();
+          sm.current.TimerCSS(ball);
       }
 
       const alpha = (timeNow - simulatedTime) / fixedStep;
@@ -218,7 +233,7 @@ const Pong = ({ websocket, player, names }) => {
       ball.y += ball.dy * alpha * fixedStep;
       ball.z += ball.dz * alpha * fixedStep;
 
-      players[player - 1].update(keyboard.current, ball, websocket, dt);
+      players[player - 1].update(keyboard.current, ball, send, dt);
       const cameraDirection = sm.current.camera.position;
       sm.current.renderer.render(sm.current.scene, sm.current.camera);
       if (cameraDirection != sm.current.camera.position)
@@ -254,6 +269,7 @@ const Pong = ({ websocket, player, names }) => {
 
     return () => {
       sm.current.cleanUp();
+      removeMessageHandler(messageHandler);
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("resize", onWindowResize);
@@ -264,12 +280,14 @@ const Pong = ({ websocket, player, names }) => {
     window.location.href = "/games/pong/online";
     window.close();
   }
+
   return (
     <div id="message" className="relative w-full h-screen overflow-hidden">
-      {authContextData.globalMessage.message && (
-        <Toast
+      {authContextData.globalMessage.message && !isWon && !islost && (
+        <GameToast
+          duration={4000}
           message={authContextData.globalMessage.message}
-          error={authContextData.globalMessage.isError}
+          title={authContextData.globalMessage.title}
           onClose={authContextData.setGlobalMessage}
         />
       )}
