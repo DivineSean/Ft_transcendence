@@ -73,12 +73,17 @@ const Pong = ({ send, ready, setReady, addMessageHandler, removeMessageHandler, 
         const score1 = Number(scores["1"]);
         const score2 = Number(scores["2"]);
         if (Math.abs(score1 - score2) === 4) {
-          if (score1 > score2 && sm.current.RemontadaPlayer === 2)
+          if (score1 > score2 && sm.current.RemontadaPlayer === -1)
             sm.current.RemontadaChance = true;
           else if (score1 < score2 && sm.current.RemontadaPlayer === 1)
             sm.current.RemontadaChance = true;
         }
         if (Math.abs(score1 - score2) === 0 && sm.current.RemontadaChance) {
+          if (!ball.Achievement.isPlaying)
+          {
+            ball.Achievement.currentTime = 0;
+            ball.Achievement.play();
+          }
           authContextData.setGlobalMessage({
             message:
               "From the brink of defeat to total domination. Truly inspiring!",
@@ -213,7 +218,7 @@ const Pong = ({ send, ready, setReady, addMessageHandler, removeMessageHandler, 
           }
         }
         if (Math.floor((Date.now() - sm.current.lastTime) / 1000) > 0)
-          sm.current.TimerCSS();
+          sm.current.TimerCSS(ball);
       }
 
       const alpha = (timeNow - simulatedTime) / fixedStep;

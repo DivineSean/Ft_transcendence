@@ -24,6 +24,7 @@ class Ball {
     this.GameOver = undefined;
     this.Defeat = undefined;
     this.Victory = undefined;
+    this.Achievement = undefined;
     this.DorV = 0;
     this.player = player;
     this.radius = 0;
@@ -151,9 +152,16 @@ class Ball {
       }
       this.sendLock = true;
       this.serving = true;
-      if (this.isServerDemon) {
+      if (this.isServerDemon)
+      {
         this.serverWin++;
-        if (this.serverWin === 3) {
+        if (this.serverWin === 3)
+        {
+          if (!this.Achievement.isPlaying)
+          {
+            this.Achievement.currentTime = 0;
+            this.Achievement.play();
+          }
           globalMessage({
             message: "Nobody Can handle that kind of power!",
             title: "The Server Demon Achieved",
@@ -337,7 +345,7 @@ class Ball {
         this.BackgroundMusic = new THREE.Audio(sm.listener);
         this.BackgroundMusic.setLoop(true);
         this.BackgroundMusic.setBuffer(buffer);
-        this.BackgroundMusic.setVolume(0.1);
+        this.BackgroundMusic.setVolume(0.05);
       },
     );
 
@@ -383,6 +391,15 @@ class Ball {
         this.Victory = new THREE.Audio(sm.listener);
         this.Victory.setBuffer(buffer);
         this.Victory.setVolume(0.5);
+      },
+    );
+
+    sm.audioLoader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Sounds/AchievementSong.mp3`,
+      (buffer) => {
+        this.Achievement = new THREE.Audio(sm.listener);
+        this.Achievement.setBuffer(buffer);
+        this.Achievement.setVolume(1);
       },
     );
     this.scene.add(this.model);

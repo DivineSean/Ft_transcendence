@@ -104,13 +104,19 @@ export class SceneManager {
     this.listener = new THREE.AudioListener();
   }
 
-  TimerCSS() {
+  TimerCSS(ball) {
     this.lastTime = Date.now();
     const elapsedTimeInSeconds = Math.floor(
       (this.lastTime - this.startTime) / 1000,
     );
     const minutes = Math.floor(elapsedTimeInSeconds / 60);
-    if (!this.Marathoner && minutes === 5) {
+    if (!this.Marathoner && minutes === 5)
+    {
+      if (!ball.Achievement.isPlaying)
+      {
+        ball.Achievement.currentTime = 0;
+        ball.Achievement.play();
+      }
       this.globalMessage({
         message: "The game doesnt just need you—it thrives because of you!",
         title: "The Marathoner Achieved",
@@ -233,7 +239,7 @@ export class SceneManager {
       (this.player === -1 && P["1"] === "6") ||
       (this.player === 1 && P["2"] === "6")
     ) {
-      ball.BackgroundMusic.setVolume(0.03);
+      ball.BackgroundMusic.setVolume(0.01);
       if (!ball.ballMatchPoint.isPlaying) {
         ball.ballMatchPoint.currentTime = 0;
         ball.ballMatchPoint.play();
@@ -257,11 +263,18 @@ export class SceneManager {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
             if (P["2"] === 0)
+            {
+              if (!ball.Achievement.isPlaying)
+              {
+                ball.Achievement.currentTime = 0;
+                ball.Achievement.play();
+              }
               this.globalMessage({
                 message:
                   "You didnt just win—you sent a message to everyone watching!",
                 title: "The Dominator Achieved",
               });
+            }
             this.setIsWon(true);
           }
         } else {
@@ -283,11 +296,18 @@ export class SceneManager {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
             if (P["1"] === 0)
+            {
+              if (!ball.Achievement.isPlaying)
+              {
+                ball.Achievement.currentTime = 0;
+                ball.Achievement.play();
+              }
               this.globalMessage({
                 message:
                   "You didnt just win—you sent a message to everyone watching!",
                 title: "The Dominator Achieved",
               });
+            }
             this.setIsWon(true);
           }
         }
