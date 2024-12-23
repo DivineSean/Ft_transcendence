@@ -113,7 +113,7 @@ export class SceneManager {
     if (!this.Marathoner && minutes === 5) {
       this.globalMessage({
         message: "The game doesnt just need you—it thrives because of you!",
-        title: "The Marathoner Achieved"
+        title: "The Marathoner Achieved",
       });
       this.Marathoner = true;
     }
@@ -258,8 +258,9 @@ export class SceneManager {
             ball.Victory.play();
             if (P["2"] === 0)
               this.globalMessage({
-                message: "You didnt just win—you sent a message to everyone watching!",
-                title: "The Dominator Achieved"
+                message:
+                  "You didnt just win—you sent a message to everyone watching!",
+                title: "The Dominator Achieved",
               });
             this.setIsWon(true);
           }
@@ -283,8 +284,9 @@ export class SceneManager {
             ball.Victory.play();
             if (P["1"] === 0)
               this.globalMessage({
-                message: "You didnt just win—you sent a message to everyone watching!",
-                title: "The Dominator Achieved"
+                message:
+                  "You didnt just win—you sent a message to everyone watching!",
+                title: "The Dominator Achieved",
               });
             this.setIsWon(true);
           }
