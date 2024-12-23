@@ -8,6 +8,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState, useContext } from "react";
 import AuthContext from "../../context/AuthContext";
 import GameToast from "../../components/GameToast";
+import Toast from "../../components/Toast";
 
 const Pong = ({ send, ready, setReady, addMessageHandler, removeMessageHandler, player, names }) => {
 	const sm = useRef(null);
@@ -16,6 +17,7 @@ const Pong = ({ send, ready, setReady, addMessageHandler, removeMessageHandler, 
 	const loaderBRef = useRef(null);
 	const keyboard = useRef({});
 	const authContextData = useContext(AuthContext);
+
 	// const [ready, setReady] = useState(false);
 	const [isWon, setIsWon] = useState(false);
 	const [islost, setIslost] = useState(false);
@@ -274,6 +276,7 @@ const Pong = ({ send, ready, setReady, addMessageHandler, removeMessageHandler, 
 		<div id="message" className="relative w-full h-screen overflow-hidden">
 			{authContextData.globalMessage.message && !isWon && !islost && (
 				<GameToast
+					duration={4000}
 					message={authContextData.globalMessage.message}
 					title={authContextData.globalMessage.title}
 					onClose={authContextData.setGlobalMessage}
