@@ -11,229 +11,223 @@ import EmojiPicker from 'emoji-picker-react';
 import { HiOutlineFaceSmile } from "react-icons/hi2";
 
 const formatedDate = () => {
-  const now = new Date();
-  const options = { month: "short", day: "numeric" };
-  const datePart = now.toLocaleDateString("en-US", options);
-  const timePart = now.toLocaleTimeString("en-Us", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-  return `${datePart}, ${timePart}`;
+	const now = new Date();
+	const options = { month: "short", day: "numeric" };
+	const datePart = now.toLocaleDateString("en-US", options);
+	const timePart = now.toLocaleTimeString("en-Us", {
+		hour: "2-digit",
+		minute: "2-digit",
+		hour12: false,
+	});
+	return `${datePart}, ${timePart}`;
 };
 
 const Conversation = ({
-  uid,
-  hideSelf,
-  friendInfo,
-  displayProfile,
+	uid,
+	hideSelf,
+	friendInfo,
+	displayProfile,
 }) => {
-  const navigate = useNavigate();
-  const [offsetMssg, setOffsetMssg] = useState(0);
-  const [isChunked, setIsChunked] = useState(false);
-  const [allMessages, setAllMessages] = useState(false);
-  const [chunkedData, setChunkedData] = useState(0);
-  const [inputValue, setInputValue] = useState('');
-  const conversation = [];
-  const downScrollRef = useRef(null);
-  const topScrollRef = useRef(null);
+	const navigate = useNavigate();
+	const [offsetMssg, setOffsetMssg] = useState(0);
+	const [isChunked, setIsChunked] = useState(false);
+	const [allMessages, setAllMessages] = useState(false);
+	const [chunkedData, setChunkedData] = useState(0);
+	const [inputValue, setInputValue] = useState('');
+	const conversation = [];
+	const downScrollRef = useRef(null);
+	const topScrollRef = useRef(null);
 
-  const notifContextData = useContext(NotifContext);
+	const notifContextData = useContext(NotifContext);
 
   // fetch messages in the first time we enter to the conversation
-  useEffect(() => {
-    if (uid) {
-      setAllMessages(false);
-      setChunkedData(0);
-      getMessages(uid, notifContextData.setMessages, setOffsetMssg);
-    }
-  }, [uid]);
+	useEffect(() => {
+		if (uid) {
+			setAllMessages(false);
+			setChunkedData(0);
+			getMessages(uid, notifContextData.setMessages, setOffsetMssg, navigate);
+		}
+	}, [uid]);
 
-  useEffect(() => {
-    if (notifContextData.readedMessages) {
-      notifContextData.messages.forEach((message) => {
-        if (!message.isRead) message.isRead = true;
-      });
-      notifContextData.setReadedMessages(null);
-    }
-  }, [notifContextData.readedMessages && notifContextData.messages]);
+	useEffect(() => {
+		if (notifContextData.readedMessages) {
+			notifContextData.messages.forEach((message) => {
+				if (!message.isRead) message.isRead = true;
+			});
+			notifContextData.setReadedMessages(null);
+		}
+	}, [notifContextData.readedMessages && notifContextData.messages]);
 
   // check if a new message has been added and scroll down to the last message
-  useEffect(() => {
-    if (downScrollRef.current) {
-      if (isChunked) setIsChunked(false);
-      else if (!allMessages)
-        downScrollRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-          inline: "end",
-        });
-    }
-  }, [notifContextData.messages.length, notifContextData.tempMessages.length, notifContextData.displayTyping]);
+	useEffect(() => {
+		if (downScrollRef.current) {
+			if (isChunked) setIsChunked(false);
+			else if (!allMessages)
+				downScrollRef.current.scrollIntoView({
+					behavior: "smooth",
+					block: "start",
+					inline: "end",
+				});
+			}
+	}, [notifContextData.messages.length, notifContextData.tempMessages.length, notifContextData.displayTyping]);
 
-  useEffect(() => {
-    const getChunkedData = setTimeout(() => {
-      if (chunkedData !== 0 && offsetMssg !== 0) {
-        if (topScrollRef.current) {
-          if (topScrollRef.current.scrollTop === 0)
-            topScrollRef.current.scrollBy({ top: 15, behavior: "smooth" });
-        }
-        getChunkedMessages(
-          uid,
-          notifContextData.setMessages,
-          offsetMssg,
-          setOffsetMssg,
-          setIsChunked,
-          setAllMessages,
-        );
-        setChunkedData(0);
-      }
-    }, 500);
+	useEffect(() => {
+		const getChunkedData = setTimeout(() => {
+			if (chunkedData !== 0 && offsetMssg !== 0) {
+				if (topScrollRef.current) {
+					if (topScrollRef.current.scrollTop === 0)
+						topScrollRef.current.scrollBy({ top: 15, behavior: "smooth" });
+				}
+				getChunkedMessages(
+					uid,
+					notifContextData.setMessages,
+					offsetMssg,
+					setOffsetMssg,
+					setIsChunked,
+					setAllMessages,
+				);
+				setChunkedData(0);
+			}
+		}, 500);
 
-    return () => clearTimeout(getChunkedData);
-  }, [chunkedData && offsetMssg]);
+		return () => clearTimeout(getChunkedData);
+	}, [chunkedData && offsetMssg]);
 
-  const handleConversationScroll = () => {
-    if (topScrollRef.current) {
-      if (topScrollRef.current.scrollTop === 0 && offsetMssg !== 0) {
-        setChunkedData((prev) => prev + 1);
-      }
-    }
-  };
+	const handleConversationScroll = () => {
+		if (topScrollRef.current) {
+			if (topScrollRef.current.scrollTop === 0 && offsetMssg !== 0) {
+				setChunkedData((prev) => prev + 1);
+			}
+		}
+	};
 
-  // send a message into a ws
-  const sendMessage = (e) => {
-    e.preventDefault();
+	const sendMessage = (e) => {
+		e.preventDefault();
+	
+		if (inputValue.trim()) {
+			notifContextData.wsHook.send(
+				JSON.stringify({
+				message: inputValue,
+				type: "message",
+				convId: uid,
+				}),
+			);
+			const newMessage = {
+				messageId: crypto.randomUUID(),
+				isRead: false,
+				isSent: false,
+				convId: uid,
+				isSender: true,
+				message: inputValue,
+				timestamp: formatedDate(),
+			};
+			notifContextData.setTempMessages((prevtemp) => [...prevtemp, newMessage]);
+			setAllMessages(false);
+		}
+		e.target.reset();
+		setInputValue('');
+	};
 
-    if (notifContextData.ws.current && inputValue.trim()) {
-      notifContextData.ws.current.send(
-        JSON.stringify({
-          message: inputValue,
-          type: "message",
-          convId: uid,
-        }),
-      );
-      const newMessage = {
-        messageId: crypto.randomUUID(),
-        isRead: false,
-        isSent: false,
-        convId: uid,
-        isSender: true,
-        message: inputValue,
-        timestamp: formatedDate(),
-      };
-      notifContextData.setTempMessages((prevtemp) => [...prevtemp, newMessage]);
-      setAllMessages(false);
-    }
-    e.target.reset();
-	setInputValue('');
-  };
+	useEffect(() => {
+		if (!notifContextData.isWsConnected) return;
 
-  // send typing into a ws
-  useEffect(() => {
-    if (!notifContextData.isWsConnected) return;
+		const sendTyping = setTimeout(() => {
+			if (notifContextData.typing.length)
+				// send typing because the typing state is not empty
+				notifContextData.wsHook.send(
+					JSON.stringify({ message: "isTyping", type: "typing", convId: uid }),
+				);
+			else if (!notifContextData.typing.length)
+				// send stop typing because the typing state is empty
+				notifContextData.wsHook.send(
+					JSON.stringify({
+						message: "endTyping", type: "stopTyping", convId: uid
+					}),
+				);
+		}, 500);
 
-    const sendTyping = setTimeout(() => {
-      if (notifContextData.ws.current && notifContextData.typing.length)
-        // send typing because the typing state is not empty
-        notifContextData.ws.current.send(
-          JSON.stringify({ message: "isTyping", type: "typing", convId: uid }),
-        );
-      else if (notifContextData.ws.current && !notifContextData.typing.length)
-        // send stop typing because the typing state is empty
-        notifContextData.ws.current.send(
-          JSON.stringify({
-            message: "endTyping",
-            type: "stopTyping",
-            convId: uid,
-          }),
-        );
-    }, 500);
+		return () => clearTimeout(sendTyping);
+	}, [notifContextData.typing && notifContextData.typing.length]);
 
-    return () => clearTimeout(sendTyping);
-  }, [notifContextData.typing && notifContextData.typing.length]);
+	const handleBlur = () => {
+		setTimeout(() => {
+				// here when we blur the input will send stop typing
+				notifContextData.wsHook.send(
+					JSON.stringify({
+						message: "endTyping",
+						type: "stopTyping",
+						convId: uid,
+					}),
+				);
+		}, 700);
+	};
 
-  const handleBlur = () => {
-    setTimeout(() => {
-      if (notifContextData.ws.current)
-        // here when we blur the input will send stop typing
-        notifContextData.ws.current.send(
-          JSON.stringify({
-            message: "endTyping",
-            type: "stopTyping",
-            convId: uid,
-          }),
-        );
-    }, 700);
-  };
+	if (notifContextData.messages && notifContextData.messages.length) {
+		notifContextData.messages.map((message) => {
+		conversation.push(<Message message={message} key={message.messageId} />);
+		});
+	} else {
+		conversation.push(
+			<div
+			key={0}
+			className="text-stroke-sc font-light tracking-wider text-txt-xs text-center"
+			>
+			so messages yet! say hello!
+		</div>,
+		);
+	}
+	
+	if (notifContextData.tempMessages && notifContextData.tempMessages.length) {
+		notifContextData.tempMessages.map((message) => {
+			conversation.push(<Message message={message} key={message.messageId} />);
+		});
+	}
 
-  if (notifContextData.messages && notifContextData.messages.length) {
-    notifContextData.messages.map((message) => {
-      conversation.push(<Message message={message} key={message.messageId} />);
-    });
-  } else {
-    conversation.push(
-      <div
-        key={0}
-        className="text-stroke-sc font-light tracking-wider text-txt-xs text-center"
-      >
-        so messages yet! say hello!
-      </div>,
-    );
-  }
+	const goToProfileSide = () => {
+		displayProfile(true);
+		hideSelf(false);
+	};
 
-  if (notifContextData.tempMessages && notifContextData.tempMessages.length) {
-    notifContextData.tempMessages.map((message) => {
-      conversation.push(<Message message={message} key={message.messageId} />);
-    });
-  }
+	const heandleIsTyping = (e) => {
+		if (!notifContextData.typing) {
+			notifContextData.wsHook.send(
+				JSON.stringify({
+					message: e.target.value,
+					type: "typing",
+					convId: uid,
+				}),
+			);
+		}
+		setInputValue(e.target.value);
+		// console.log(inputValue);
+		notifContextData.setTyping(e.target.value);
+	};
 
-  const goToProfileSide = () => {
-    displayProfile(true);
-    hideSelf(false);
-  };
+	const [displayEmojiList, setDisplayEmojiList] = useState(false);
 
-  const heandleIsTyping = (e) => {
-    if (!notifContextData.typing) {
-      if (notifContextData.ws.current)
-        notifContextData.ws.current.send(
-          JSON.stringify({
-            message: e.target.value,
-            type: "typing",
-            convId: uid,
-          }),
-        );
-    }
-	setInputValue(e.target.value);
-	console.log(inputValue);
-    notifContextData.setTyping(e.target.value);
-  };
+	const handleEmojiClick = (emojiObject) => {
+		console.log(emojiObject.emoji);
+		setInputValue((prevValue) => prevValue + emojiObject.emoji);
+		console.log(inputValue);
+	}
 
-  const [displayEmojiList, setDisplayEmojiList] = useState(false);
+	const emojiPickerRef = useRef(null);
+	const emojisSwitch = useRef(null);
 
-  const handleEmojiClick = (emojiObject) => {
-	console.log(emojiObject.emoji);
-	setInputValue((prevValue) => prevValue + emojiObject.emoji);
-	console.log(inputValue);
-  }
+	const handleClickOutside = (event) => {
+		if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)
+			&& emojisSwitch.current && !emojisSwitch.current.contains(event.target)) {
+			setDisplayEmojiList(false);
+		}
+	};
 
-  const emojiPickerRef = useRef(null);
-  const emojisSwitch = useRef(null);
-
-  const handleClickOutside = (event) => {
-    if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)
-		&& emojisSwitch.current && !emojisSwitch.current.contains(event.target)) {
+	useEffect(() => {
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => {
+		document.removeEventListener("mousedown", handleClickOutside);
 		setDisplayEmojiList(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-	  setDisplayEmojiList(false);
-    };
-  }, []);
+		};
+	}, []);
 
   return (
     <div className={`grow md:flex flex-col gap-32 ${uid ? "flex" : "hidden"}`}>
@@ -316,10 +310,12 @@ const Conversation = ({
 				</button>
 			</form>
 			{ displayEmojiList &&
-				<div ref={emojiPickerRef} className="absolute transition-all bg-[url('/images/background.png')] bg-cover bg-center rounded-md overflow-hidden bottom-[60px] right-0">
+				<div ref={emojiPickerRef} className="absolute transition-all  bg-[url('/images/background.png')] bg-cover bg-center rounded-md overflow-hidden bottom-[60px] right-0">
 					<div className="absolute h-full w-full backdrop-blur-md"></div>
 					<EmojiPicker
 						emojiStyle='facebook'
+						lazyLoadEmojis={true}
+						searchPlaceholder='find emoji'
 						theme='dark'
 						hiddenEmojis={['1f3f3-fe0f-200d-1f308', '1f1ee-1f1f1']}
 						onEmojiClick={(emojiObject) => handleEmojiClick(emojiObject)}

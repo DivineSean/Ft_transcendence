@@ -74,23 +74,7 @@ class UserFriendSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Users
-        fields = ["first_name", "last_name", "id", "username", "profile_image"]
-        extra_kwargs = {"profile_image": {"required": False}}
-        extra_kwargs = {"password": {"write_only": True}}
-
-
-class UserFriendSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(format="hex_verbose")
-    profile_image = serializers.SerializerMethodField()
-
-    def get_profile_image(self, obj):
-        if obj.profile_image:
-            return f"{settings.MEDIA_URL}{obj.profile_image}"
-        return None
-
-    class Meta:
-        model = Users
-        fields = ["first_name", "last_name", "id", "username", "profile_image"]
+        fields = ["first_name", "last_name", "id", "username", "profile_image", "isOnline"]
         extra_kwargs = {"profile_image": {"required": False}}
         extra_kwargs = {"password": {"write_only": True}}
 

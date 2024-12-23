@@ -215,8 +215,10 @@ const Profile = () => {
   useEffect(() => {
     // update the profile info after hit any profile button
     if (contextData.refresh) {
-      contextData.getProfile(contextData.profileInfo.username);
-      contextData.setRefresh(false);
+		if (username) {
+			contextData.getProfile(username);
+			contextData.setRefresh(false);
+		}
     }
   }, [contextData.refresh]);
 

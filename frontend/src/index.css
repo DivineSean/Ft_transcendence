@@ -10,7 +10,7 @@
 }
 
 body {
-  @apply min-h-screen capitalize bg-[url('/images/background.png')] bg-cover bg-fixed text-white flex flex-col relative;
+  @apply min-h-screen capitalize bg-[url('/images/background.png')] bg-cover bg-center bg-fixed text-white flex flex-col relative;
 }
 #root {
   display: flex;
