@@ -7,6 +7,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import Message from "./Message";
 import { BACKENDURL } from "../../utils/fetchWrapper";
 import NotifContext from "../../context/NotifContext";
+import EmojiPicker from 'emoji-picker-react';
 
 const formatedDate = () => {
   const now = new Date();
@@ -31,6 +32,7 @@ const Conversation = ({
   const [isChunked, setIsChunked] = useState(false);
   const [allMessages, setAllMessages] = useState(false);
   const [chunkedData, setChunkedData] = useState(0);
+  const [inputValue, setInputValue] = useState('');
   const conversation = [];
   const downScrollRef = useRef(null);
   const topScrollRef = useRef(null);
@@ -102,10 +104,10 @@ const Conversation = ({
   const sendMessage = (e) => {
     e.preventDefault();
 
-    if (notifContextData.ws.current && e.target.message.value.trim()) {
+    if (notifContextData.ws.current && inputValue.trim()) {
       notifContextData.ws.current.send(
         JSON.stringify({
-          message: e.target.message.value,
+          message: inputValue,
           type: "message",
           convId: uid,
         }),
@@ -116,13 +118,14 @@ const Conversation = ({
         isSent: false,
         convId: uid,
         isSender: true,
-        message: e.target.message.value,
+        message: inputValue,
         timestamp: formatedDate(),
       };
       notifContextData.setTempMessages((prevtemp) => [...prevtemp, newMessage]);
       setAllMessages(false);
     }
     e.target.reset();
+	setInputValue('');
   };
 
   // send typing into a ws
@@ -200,8 +203,33 @@ const Conversation = ({
           }),
         );
     }
+	setInputValue(e.target.value);
+	console.log(inputValue);
     notifContextData.setTyping(e.target.value);
   };
+
+  const [displayEmojiList, setDisplayEmojiList] = useState(false);
+
+  const handleEmojiClick = (emojiObject) => {
+	console.log(emojiObject.emoji);
+	setInputValue((prevValue) => prevValue + emojiObject.emoji);
+	console.log(inputValue);
+  }
+
+  const emojiPickerRef = useRef(null);
+
+  const handleClickOutside = (event) => {
+    if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
+		setDisplayEmojiList(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.addEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className={`grow md:flex flex-col gap-32 ${uid ? "flex" : "hidden"}`}>
@@ -263,24 +291,35 @@ const Conversation = ({
         <div ref={downScrollRef}></div>
       </div>
       {!friendInfo.isBlocked && (
-        <form className="flex items-center relative" onSubmit={sendMessage}>
-          <input
-            onChange={heandleIsTyping}
-            onBlur={handleBlur}
-            autoFocus
-            type="text"
-            autoComplete="off"
-            placeholder="Aa..."
-            name="message"
-            className="send-glass text-txt-md px-16 pr-56 py-12 outline-none text-white w-full grow"
-          />
-          <button
-            type="submit"
-            className="text-gray absolute right-16 text-txt-3xl cursor-pointer hover:text-green"
-          >
-            <BiSolidSend />
-          </button>
-        </form>
+		<div className="flex md:gap-16 gap-8 items-center relative">
+			<form className="flex items-center grow relative" onSubmit={sendMessage}>
+				<input
+					onChange={heandleIsTyping}
+					onBlur={handleBlur}
+					value={inputValue}
+					autoFocus
+					type="text"
+					autoComplete="off"
+					placeholder="Aa..."
+					name="message"
+					className="send-glass text-txt-md px-16 pr-56 py-12 outline-none text-white w-full grow"
+				/>
+				<button
+					type="submit"
+					className="text-gray absolute right-16 text-txt-3xl cursor-pointer hover:text-green"
+				>
+					<BiSolidSend />
+				</button>
+			</form>
+			{ displayEmojiList &&
+				<div ref={emojiPickerRef} className="absolute transition-all bottom-[60px] right-0">
+					<EmojiPicker theme='dark' onEmojiClick={(emojiObject) => handleEmojiClick(emojiObject)} />
+				</div>
+			}
+			<div onClick={() => setDisplayEmojiList(!displayEmojiList)} className="cursor-pointer text-h-lg-lg h-full flex items-center">
+				🙂
+			</div>
+		</div>
       )}
       {friendInfo.isBlocked && (
         <div className="cursor-not-allowed text-txt-sm text-center p-16 text-stroke-sc lowercase bg-black/20 rounded-md">
