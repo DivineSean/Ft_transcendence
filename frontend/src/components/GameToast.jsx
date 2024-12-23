@@ -13,9 +13,8 @@ const GameToast = ({ duration = 3000, title, message, onClose }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setProgress((prev) => Math.min(prev + 100 / (duration / 100), 100));
+      setProgress((prev) => (prev < 100 ? prev + 1 : 100));
     }, duration / 100);
-
     const timeout = setTimeout(() => {
       setIsVisible(false);
       if (onClose) onClose({ message: "", title: "" });
@@ -33,41 +32,33 @@ const GameToast = ({ duration = 3000, title, message, onClose }) => {
       <fieldset
         className={`
           fixed top-1/3 left-1/2 transform -translate-x-1/2
-          p-6 flex flex-col gap-4
-          rounded-3xl shadow-2xl border-4 border-pink-500
-          bg-gradient-to-br from-green-300 to-blue-500
-          z-50 opacity-100
-          animate-pulse
-          
+          flex flex-col z-10 p-16 rounded-md shadow-2xl
+          border-[0.5px] border-green animate-pulse
         `}
       >
         {/* Bot Image in Legend */}
-        <legend className="px-2 text-left">
+        <legend className="px-8 text-left flex gap-4 items-center">
           <img
             src="/images/bot.png"
             alt="Bot"
-            className="animate-wiggle"
-            style={{ width: "40px", height: "40px" }}
+            className="animate-wiggle w-[40px] h-[40px]"
           />
-          <p className="text-white text-mg font-bold text-center tracking-widest">
-            {title}
-          </p>
+          <p className="text-white text-md font-bold text-center tracking-wide" >{title}</p>
         </legend>
 
-        {/* Toast Message */}
-        <p className="text-white text-lg font-bold text-center tracking-widest">
-          {message}
-        </p>
+        <div className="flex flex-col gap-16">
+         {/* Toast Message */}
+          <p className="text-gray text-lg normal-case text-center tracking-wide">
+            {message}
+          </p>
 
-        {/* Progress Bar */}
-        <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-pink-500 transition-all"
-            style={{
-              width: `${progress}%`,
-              transitionDuration: `${duration}ms`,
-            }}
-          ></div>
+          {/* Progress Bar */}
+          <div className="w-full h-4 bg-gray-700 rounded-full overflow-hidden bg-black/70">
+            <div
+              className="h-full bg-green transition-all"
+              style={{ width: `${progress}%` }}
+            ></div>
+        </div>
         </div>
       </fieldset>
     )
