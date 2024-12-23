@@ -110,10 +110,8 @@ export class SceneManager {
       (this.lastTime - this.startTime) / 1000,
     );
     const minutes = Math.floor(elapsedTimeInSeconds / 60);
-    if (!this.Marathoner && minutes === 5)
-    {
-      if (!ball.Achievement.isPlaying)
-      {
+    if (!this.Marathoner && minutes === 5) {
+      if (!ball.Achievement.isPlaying) {
         ball.Achievement.currentTime = 0;
         ball.Achievement.play();
       }
@@ -262,10 +260,8 @@ export class SceneManager {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
-            if (P["2"] === 0)
-            {
-              if (!ball.Achievement.isPlaying)
-              {
+            if (P["2"] === 0) {
+              if (!ball.Achievement.isPlaying) {
                 ball.Achievement.currentTime = 0;
                 ball.Achievement.play();
               }
@@ -295,10 +291,8 @@ export class SceneManager {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
-            if (P["1"] === 0)
-            {
-              if (!ball.Achievement.isPlaying)
-              {
+            if (P["1"] === 0) {
+              if (!ball.Achievement.isPlaying) {
                 ball.Achievement.currentTime = 0;
                 ball.Achievement.play();
               }

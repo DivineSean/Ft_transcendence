@@ -152,13 +152,10 @@ class Ball {
       }
       this.sendLock = true;
       this.serving = true;
-      if (this.isServerDemon)
-      {
+      if (this.isServerDemon) {
         this.serverWin++;
-        if (this.serverWin === 3)
-        {
-          if (!this.Achievement.isPlaying)
-          {
+        if (this.serverWin === 3) {
+          if (!this.Achievement.isPlaying) {
             this.Achievement.currentTime = 0;
             this.Achievement.play();
           }

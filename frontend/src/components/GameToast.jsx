@@ -43,11 +43,13 @@ const GameToast = ({ duration = 3000, title, message, onClose }) => {
             alt="Bot"
             className="animate-wiggle w-[40px] h-[40px]"
           />
-          <p className="text-white text-md font-bold text-center tracking-wide" >{title}</p>
+          <p className="text-white text-md font-bold text-center tracking-wide">
+            {title}
+          </p>
         </legend>
 
         <div className="flex flex-col gap-16">
-         {/* Toast Message */}
+          {/* Toast Message */}
           <p className="text-gray text-lg normal-case text-center tracking-wide">
             {message}
           </p>
@@ -58,7 +60,7 @@ const GameToast = ({ duration = 3000, title, message, onClose }) => {
               className="h-full bg-green transition-all"
               style={{ width: `${progress}%` }}
             ></div>
-        </div>
+          </div>
         </div>
       </fieldset>
     )

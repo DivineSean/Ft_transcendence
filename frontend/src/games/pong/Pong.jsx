@@ -10,17 +10,25 @@ import AuthContext from "../../context/AuthContext";
 import GameToast from "../../components/GameToast";
 import Toast from "../../components/Toast";
 
-const Pong = ({ send, ready, setReady, addMessageHandler, removeMessageHandler, player, names }) => {
-	const sm = useRef(null);
-	const loaderRef = useRef(null);
-	const loaderTRef = useRef(null);
-	const loaderBRef = useRef(null);
-	const keyboard = useRef({});
-	const authContextData = useContext(AuthContext);
+const Pong = ({
+  send,
+  ready,
+  setReady,
+  addMessageHandler,
+  removeMessageHandler,
+  player,
+  names,
+}) => {
+  const sm = useRef(null);
+  const loaderRef = useRef(null);
+  const loaderTRef = useRef(null);
+  const loaderBRef = useRef(null);
+  const keyboard = useRef({});
+  const authContextData = useContext(AuthContext);
 
-	// const [ready, setReady] = useState(false);
-	const [isWon, setIsWon] = useState(false);
-	const [islost, setIslost] = useState(false);
+  // const [ready, setReady] = useState(false);
+  const [isWon, setIsWon] = useState(false);
+  const [islost, setIslost] = useState(false);
 
   useEffect(() => {
     loaderTRef.current = new GLTFLoader();
@@ -79,8 +87,7 @@ const Pong = ({ send, ready, setReady, addMessageHandler, removeMessageHandler, 
             sm.current.RemontadaChance = true;
         }
         if (Math.abs(score1 - score2) === 0 && sm.current.RemontadaChance) {
-          if (!ball.Achievement.isPlaying)
-          {
+          if (!ball.Achievement.isPlaying) {
             ball.Achievement.currentTime = 0;
             ball.Achievement.play();
           }
@@ -274,44 +281,44 @@ const Pong = ({ send, ready, setReady, addMessageHandler, removeMessageHandler, 
     window.close();
   }
 
-	return (
-		<div id="message" className="relative w-full h-screen overflow-hidden">
-			{authContextData.globalMessage.message && !isWon && !islost && (
-				<GameToast
-					duration={4000}
-					message={authContextData.globalMessage.message}
-					title={authContextData.globalMessage.title}
-					onClose={authContextData.setGlobalMessage}
-				/>
-			)}
-			<canvas id="pong" className="block"></canvas>
-			{/* Victory Section */}
-			{isWon && (
-				<div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">
-					<div className="text-center transform scale-110">
-						<img
-							className="w-[250px] h-[250px] mx-auto transition-all transform hover:scale-110"
-							src="/images/eto.gif"
-							alt="Victory Dance"
-						/>
-						<div className="mb-6 mt-8">
-							<p className="text-5xl font-extrabold text-white animate__animated animate__bounceIn animate__delay-2000ms">
-								Victory
-							</p>
-							<p className="text-2xl font-semibold mt-4 text-white animate__animated animate__fadeIn animate__delay-4000ms">
-								You Won Like a Ping Pong Champion!
-							</p>
-							<button
-								className="relative mt-16 inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
-								onClick={handleExitGame}
-							>
-								<span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
-								<span className="z-10">Continue</span>
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
+  return (
+    <div id="message" className="relative w-full h-screen overflow-hidden">
+      {authContextData.globalMessage.message && !isWon && !islost && (
+        <GameToast
+          duration={4000}
+          message={authContextData.globalMessage.message}
+          title={authContextData.globalMessage.title}
+          onClose={authContextData.setGlobalMessage}
+        />
+      )}
+      <canvas id="pong" className="block"></canvas>
+      {/* Victory Section */}
+      {isWon && (
+        <div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">
+          <div className="text-center transform scale-110">
+            <img
+              className="w-[250px] h-[250px] mx-auto transition-all transform hover:scale-110"
+              src="/images/eto.gif"
+              alt="Victory Dance"
+            />
+            <div className="mb-6 mt-8">
+              <p className="text-5xl font-extrabold text-white animate__animated animate__bounceIn animate__delay-2000ms">
+                Victory
+              </p>
+              <p className="text-2xl font-semibold mt-4 text-white animate__animated animate__fadeIn animate__delay-4000ms">
+                You Won Like a Ping Pong Champion!
+              </p>
+              <button
+                className="relative mt-16 inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
+                onClick={handleExitGame}
+              >
+                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
+                <span className="z-10">Continue</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Defeat Section */}
       {islost && (
