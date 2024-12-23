@@ -8,6 +8,7 @@ import Message from "./Message";
 import { BACKENDURL } from "../../utils/fetchWrapper";
 import NotifContext from "../../context/NotifContext";
 import EmojiPicker from 'emoji-picker-react';
+import { HiOutlineFaceSmile } from "react-icons/hi2";
 
 const formatedDate = () => {
   const now = new Date();
@@ -217,9 +218,11 @@ const Conversation = ({
   }
 
   const emojiPickerRef = useRef(null);
+  const emojisSwitch = useRef(null);
 
   const handleClickOutside = (event) => {
-    if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
+    if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)
+		&& emojisSwitch.current && !emojisSwitch.current.contains(event.target)) {
 		setDisplayEmojiList(false);
     }
   };
@@ -227,7 +230,8 @@ const Conversation = ({
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
+	  setDisplayEmojiList(false);
     };
   }, []);
 
@@ -312,12 +316,18 @@ const Conversation = ({
 				</button>
 			</form>
 			{ displayEmojiList &&
-				<div ref={emojiPickerRef} className="absolute transition-all bottom-[60px] right-0">
-					<EmojiPicker theme='dark' onEmojiClick={(emojiObject) => handleEmojiClick(emojiObject)} />
+				<div ref={emojiPickerRef} className="absolute transition-all bg-[url('/images/background.png')] bg-cover bg-center rounded-md overflow-hidden bottom-[60px] right-0">
+					<div className="absolute h-full w-full backdrop-blur-md"></div>
+					<EmojiPicker
+						emojiStyle='facebook'
+						theme='dark'
+						hiddenEmojis={['1f3f3-fe0f-200d-1f308', '1f1ee-1f1f1']}
+						onEmojiClick={(emojiObject) => handleEmojiClick(emojiObject)}
+					/>
 				</div>
 			}
-			<div onClick={() => setDisplayEmojiList(!displayEmojiList)} className="cursor-pointer text-h-lg-lg h-full flex items-center">
-				🙂
+			<div ref={emojisSwitch} onClick={() => setDisplayEmojiList(!displayEmojiList)} className="cursor-pointer text-h-lg-lg h-full flex items-center hover:text-green">
+				<HiOutlineFaceSmile />
 			</div>
 		</div>
       )}
