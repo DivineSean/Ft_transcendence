@@ -190,12 +190,12 @@ const ProfileFriends = ({ username }) => {
                   <FaChevronDown className="text-green cursor-pointer" />
                   {displaySelect && (
                     <ul className="absolute top-[44px] z-[1] left-0 border border-stroke-sc rounded-md overflow-hidden text-center w-full flex flex-col bg-[url('/images/background.png')] bg-cover bg-bottom transition-all">
-						<div className="absolute w-full h-full backdrop-blur-sm z-[-1] rounded-md"></div>
+                      <div className="absolute w-full h-full backdrop-blur-sm z-[-1] rounded-md"></div>
                       {select.map((item, i) => (
                         <li
-							key={i}
-							onClick={() => setSelected(item)}
-							className={`border-b tracking-wider bg-black/20 hover:bg-green/10
+                          key={i}
+                          onClick={() => setSelected(item)}
+                          className={`border-b tracking-wider bg-black/20 hover:bg-green/10
 								border-stroke-sc shadow p-8 transition-all cursor-pointer
 								${selected === item ? "bg-green/20" : ""}
 							`}

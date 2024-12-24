@@ -20,7 +20,6 @@ import { UserProvider } from "./context/UserContext";
 import PongLocal from "./games/pong/PongLocal/PongLocal";
 import { NotifProvider } from "./context/NotifContext";
 
-
 function App() {
   return (
     <>

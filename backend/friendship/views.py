@@ -59,7 +59,7 @@ class SendFriendRequest(APIView):
                     userId=user,
                     senderId=request._user,
                     senderUsername=request._user.username,
-					targetId=str(request._user.id),
+                    targetId=str(request._user.id),
                 )
 
                 print("isNew", isNew, notification.isRead, flush=True)

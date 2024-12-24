@@ -14,7 +14,7 @@ const OptionsSection = ({ data, type, reference }) => {
   const notifContext = useContext(NotifContext);
 
   const handleReadNotif = (item) => {
-	console.log(item);
+    console.log(item);
     if (item.notifType === "FR") {
       navigate(`/profile/overview/${item.senderId.username}`);
       contextData.setRefresh(true);
@@ -24,8 +24,7 @@ const OptionsSection = ({ data, type, reference }) => {
       console.log("had khouna invitak tl3eb tournaments am3lm");
     else if (item.notifType === "ME")
       console.log("had khouna sifet lik message am3lm");
-    else if (item.notifType === "CC")
-		navigate(`/chat/${item.targetId}`);
+    else if (item.notifType === "CC") navigate(`/chat/${item.targetId}`);
     notifContext.readNotification(item.notificationId);
   };
 
@@ -134,7 +133,11 @@ const OptionsSection = ({ data, type, reference }) => {
                           className={`${!item.isRead ? "font-semibold" : "font-normal text-stroke-sc"} flex gap-4 w-full`}
                         >
                           {item.notifMessage}
-						  <span className={`font-semibold ${!item.isRead ? 'text-red' : 'text-stroke-sc'}`}>{item.senderUsername}</span>
+                          <span
+                            className={`font-semibold ${!item.isRead ? "text-red" : "text-stroke-sc"}`}
+                          >
+                            {item.senderUsername}
+                          </span>
                         </p>
                         <p
                           className={`${!item.isRead ? "text-green" : "text-stroke-sc"}`}

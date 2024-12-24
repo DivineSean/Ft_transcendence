@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notification', '0004_alter_notifications_notiftype'),
+        ("notification", "0004_alter_notifications_notiftype"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='notifications',
-            name='senderUsername',
+            model_name="notifications",
+            name="senderUsername",
             field=models.CharField(blank=True, max_length=255),
         ),
     ]
