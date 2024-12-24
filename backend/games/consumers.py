@@ -24,7 +24,8 @@ class GameConsumer(WebsocketConsumer):
         self.game_uuid = self.scope["url_route"]["kwargs"]["room_uuid"]
         self.group_name = f"game_room_{self.game_uuid}"
 
-        async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
+        async_to_sync(self.channel_layer.group_add)(
+            self.group_name, self.channel_name)
         self.connect_player()
 
     def disconnect(self, code):
@@ -34,7 +35,8 @@ class GameConsumer(WebsocketConsumer):
         self.handle_timeout()
 
     def receive(self, text_data):
-        isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
+        isPlayer = any(player["user"]["id"] ==
+                       self.user_id for player in self.players)
         if not isPlayer:
             return
 
@@ -55,12 +57,14 @@ class GameConsumer(WebsocketConsumer):
                     {
                         "type": "whisper",
                         "info": "update",
-                        "sender": self.channel_name,
-                        "message": message,
+                                "sender": self.channel_name,
+                                "message": message,
                     },
                 )
             case "ready":
                 self.update_readiness()
+            case "result":
+                self.update_result(message)
 
     def connect_player(self):
         # WARNING: still have to handle spectators (players not taking part of the game)
@@ -98,6 +102,30 @@ class GameConsumer(WebsocketConsumer):
                 {"type": "game_manager", "message": game_data})
         )
 
+    def update_result(self, message):
+        # update the game status to 'completed'
+        # update the result field on the player
+        # notify players
+        self.players = json.loads(
+            r.hget(f"game_room_data:{self.game_uuid}", "players_details")
+        )
+        for player in self.players:
+            if player["user"]["id"] == self.user_id:
+                player["result"] = message
+                break
+        self.save_game_data(players_details=json.dumps(
+            self.players), status="completed")
+        async_to_sync(self.channel_layer.group_send)(
+            self.group_name,
+            {
+                "type": "broadcast",
+                "info": "game_manager",
+                        "message": {
+                            "status": "completed",
+                        },
+            },
+        )
+
     def update_score(self):
         role = None
         self.players = json.loads(
@@ -108,7 +136,8 @@ class GameConsumer(WebsocketConsumer):
                 player["score"] += 1
                 role = player["role"]
                 break
-        scores = {player["role"]: str(player["score"]) for player in self.players}
+        scores = {player["role"]: str(player["score"])
+                  for player in self.players}
 
         self.save_game_data(players_details=json.dumps(self.players))
         async_to_sync(self.channel_layer.group_send)(
@@ -116,10 +145,10 @@ class GameConsumer(WebsocketConsumer):
             {
                 "type": "broadcast",
                 "info": "score",
-                "message": {
-                    "role": role,
-                    "scores": json.dumps(scores),
-                },
+                        "message": {
+                            "role": role,
+                            "scores": json.dumps(scores),
+                        },
             },
         )
 
@@ -135,9 +164,9 @@ class GameConsumer(WebsocketConsumer):
                     {
                         "type": "broadcast",
                         "info": "game_manager",
-                        "message": {
-                            "players_details": self.players,
-                        },
+                                "message": {
+                                    "players_details": self.players,
+                                },
                     },
                 )
                 break
@@ -147,7 +176,8 @@ class GameConsumer(WebsocketConsumer):
         if all_ready:
             self.save_game_data(status="ongoing", countdown=0)
             game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
-            game_data["players_details"] = json.loads(game_data["players_details"])
+            game_data["players_details"] = json.loads(
+                game_data["players_details"])
             game_data["state"] = json.loads(game_data["state"])
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
@@ -168,8 +198,8 @@ class GameConsumer(WebsocketConsumer):
                 {
                     "type": "whisper",
                     "info": "game_manager",
-                            "sender": self.channel_name,
-                            "message": game_data
+                    "sender": self.channel_name,
+                    "message": game_data
                 },
             )
             self.save_game_data(
@@ -199,9 +229,9 @@ class GameConsumer(WebsocketConsumer):
                 {
                     "type": "broadcast",
                     "info": "game_manager",
-                            "message": {
-                                "status": "paused",
-                            },
+                    "message": {
+                            "status": "paused",
+                    },
                 },
             )
 
@@ -210,7 +240,8 @@ class GameConsumer(WebsocketConsumer):
         if countdown == 0:
             sync_game_room_data.delay(self.game_uuid)
         else:
-            sync_game_room_data.apply_async(args=[self.game_uuid], countdown=countdown)
+            sync_game_room_data.apply_async(
+                args=[self.game_uuid], countdown=countdown)
 
     def whisper(self, event):
         if event["sender"] != self.channel_name:
@@ -222,5 +253,6 @@ class GameConsumer(WebsocketConsumer):
 
     def broadcast(self, event):
         self.send(
-            text_data=json.dumps({"type": event["info"], "message": event["message"]})
+            text_data=json.dumps(
+                {"type": event["info"], "message": event["message"]})
         )

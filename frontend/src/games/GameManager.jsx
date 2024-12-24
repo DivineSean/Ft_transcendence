@@ -5,20 +5,20 @@ import useWebSocket from "../customHooks/useWebsocket";
 import UserContext from "../context/UserContext.jsx";
 
 const Counter = ({ createdAt }) => {
-  const endTime = new Date(createdAt).getTime() + 60 * 1000;
-  const [count, setCount] = useState(endTime - Date.now());
+	const endTime = new Date(createdAt).getTime() + 60 * 1000;
+	const [count, setCount] = useState(endTime - Date.now());
 
-  useEffect(() => {
-    const updateTime = () => {
-      if (endTime > Date.now())
-        setCount(Math.floor((endTime - Date.now()) / 1000));
-    };
-    const intervalId = setInterval(updateTime, 1000);
+	useEffect(() => {
+		const updateTime = () => {
+			if (endTime > Date.now())
+				setCount(Math.floor((endTime - Date.now()) / 1000));
+		};
+		const intervalId = setInterval(updateTime, 1000);
 
-    return () => clearInterval(intervalId);
-  }, []);
+		return () => clearInterval(intervalId);
+	}, []);
 
-  return <div>{count}</div>;
+	return <div>{count}</div>;
 };
 
 const GameOverlay = ({ data, send }) => {
@@ -53,6 +53,8 @@ const GameOverlay = ({ data, send }) => {
 			return <div>Game starting soon ...</div>
 		case "paused":
 			return <div>Game paused</div>
+		case "completed":
+			return <div>Game concluded</div>
 		default:
 			return <>nn hh</>
 	}

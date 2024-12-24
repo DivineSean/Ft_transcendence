@@ -286,16 +286,6 @@ const Games = () => {
         local: true,
       },
     },
-    {
-      id: 1,
-      name: "fleabag vs mutt",
-      image: "url('https://www.gimori.com/images/cat-vs-dog.jpg')",
-      modes: {
-        ai: true,
-        online: true,
-        local: true,
-      },
-    },
   ];
 
   return (
