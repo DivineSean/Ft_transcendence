@@ -106,13 +106,13 @@ SIMPLE_JWT = {
 CSRF_TRUSTED_ORIGINS = [
     "https://localhost:3000",
     "https://localhost:8000",
-    "https://10.11.2.13:3000",
-    "https://10.11.2.13:8000",
+    "https://10.11.3.13:3000",
+    "https://10.11.3.13:8000",
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "https://localhost:3000",
-    "https://10.11.2.13:3000",
+    "https://10.11.3.13:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -171,8 +171,8 @@ CHANNEL_LAYERS = {
 }
 
 CELERY_BROKER_URL = f"redis://:{REDIS_CONNECTION['password']}@{REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/{REDIS_CONNECTION['db']}"
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_BACKEND = f"redis://:{REDIS_CONNECTION['password']}@{REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/{REDIS_CONNECTION['db']}"
 
 # Database

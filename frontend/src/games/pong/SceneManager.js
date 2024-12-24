@@ -104,16 +104,20 @@ export class SceneManager {
     this.listener = new THREE.AudioListener();
   }
 
-  TimerCSS() {
+  TimerCSS(ball) {
     this.lastTime = Date.now();
     const elapsedTimeInSeconds = Math.floor(
       (this.lastTime - this.startTime) / 1000,
     );
     const minutes = Math.floor(elapsedTimeInSeconds / 60);
     if (!this.Marathoner && minutes === 5) {
+      if (!ball.Achievement.isPlaying) {
+        ball.Achievement.currentTime = 0;
+        ball.Achievement.play();
+      }
       this.globalMessage({
-        message: "The Marathoner Achieved!!",
-        isError: false,
+        message: "The game doesnt just need you—it thrives because of you!",
+        title: "The Marathoner Achieved",
       });
       this.Marathoner = true;
     }
@@ -136,8 +140,8 @@ export class SceneManager {
       side: THREE.DoubleSide,
     });
     const wall = new THREE.Mesh(wallGeometry, wallMaterial);
-    if (rotate === true) wall.rotateY(Math.PI / 2); // Rotate to stand vertically
-    wall.position.set(x, y, z); // Adjust position
+    if (rotate === true) wall.rotateY(Math.PI / 2);
+    wall.position.set(x, y, z);
     wall.receiveShadow = true;
     pointLight.target = wall;
     this.scene.add(wall);
@@ -233,7 +237,7 @@ export class SceneManager {
       (this.player === -1 && P["1"] === "6") ||
       (this.player === 1 && P["2"] === "6")
     ) {
-      ball.BackgroundMusic.setVolume(0.03);
+      ball.BackgroundMusic.setVolume(0.01);
       if (!ball.ballMatchPoint.isPlaying) {
         ball.ballMatchPoint.currentTime = 0;
         ball.ballMatchPoint.play();
@@ -256,11 +260,17 @@ export class SceneManager {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
-            if (P["2"] === 0)
+            if (P["2"] === 0) {
+              if (!ball.Achievement.isPlaying) {
+                ball.Achievement.currentTime = 0;
+                ball.Achievement.play();
+              }
               this.globalMessage({
-                message: "The Dominator Achieved",
-                isError: false,
+                message:
+                  "You didnt just win—you sent a message to everyone watching!",
+                title: "The Dominator Achieved",
               });
+            }
             this.setIsWon(true);
           }
         } else {
@@ -281,11 +291,17 @@ export class SceneManager {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
-            if (P["1"] === 0)
+            if (P["1"] === 0) {
+              if (!ball.Achievement.isPlaying) {
+                ball.Achievement.currentTime = 0;
+                ball.Achievement.play();
+              }
               this.globalMessage({
-                message: "The Dominator Achieved",
-                isError: false,
+                message:
+                  "You didnt just win—you sent a message to everyone watching!",
+                title: "The Dominator Achieved",
               });
+            }
             this.setIsWon(true);
           }
         }

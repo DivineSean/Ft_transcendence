@@ -6,17 +6,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('games', '0001_initial'),
+        ("games", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='game',
-            name='description',
+            model_name="game",
+            name="description",
         ),
         migrations.AddField(
-            model_name='gameroom',
-            name='status',
-            field=models.CharField(choices=[('waiting', 'Waiting for Players'), ('accepting', 'Accepting Players'), ('ongoing', 'Game Ongoing'), ('paused', 'Game Paused'), ('completed', 'Game Completed'), ('expired', 'Game Expired'), ('cancelled', 'Game Cancelled')], default='waiting', max_length=20),
+            model_name="gameroom",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("waiting", "Waiting for Players"),
+                    ("accepting", "Accepting Players"),
+                    ("ongoing", "Game Ongoing"),
+                    ("paused", "Game Paused"),
+                    ("completed", "Game Completed"),
+                    ("expired", "Game Expired"),
+                    ("cancelled", "Game Cancelled"),
+                ],
+                default="waiting",
+                max_length=20,
+            ),
         ),
     ]

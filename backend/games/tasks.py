@@ -30,9 +30,9 @@ def mark_game_room_as_expired(game_room_id):
                 {
                     "type": "broadcast",
                     "info": "game_manager",
-                            "message": {
-                                "status": "expired",
-                            },
+                    "message": {
+                        "status": "expired",
+                    },
                 },
             )
             return f"GameRoom {game_room_id} marked as expired."
@@ -52,8 +52,7 @@ def sync_game_room_data(game_room_id):
     except GameRoom.DoesNotExist:
         return f"GameRoom {game_room_id} does not exist."
 
-    serializer = GameRoomSerializer(
-        game_room, data=game_room_state, partial=True)
+    serializer = GameRoomSerializer(game_room, data=game_room_state, partial=True)
     if serializer.is_valid():
         serializer.save()
         return f"GameRoom {game_room_id} synched successfully"
