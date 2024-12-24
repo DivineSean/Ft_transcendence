@@ -62,6 +62,12 @@ const Game = memo(({ userInfo, game, ready, setReady, send, addMessageHandler, r
 	const data = playersDetails.current?.find((player) => player.user.username === userInfo.username)
 	const names = playersDetails.current?.map((player) => player.user.username) || [];
 	console.log("hadi hya data dyali hhhh", userInfo?.username, playersDetails, data);
+	// TODO: Pause game time if ready is set to false
+	// TODO: Ignore input if ready is set to false
+
+	useEffect(() => {
+		console.log("Game component renered");
+	}, [])
 
 	switch (game) {
 		case "pong":
@@ -101,6 +107,11 @@ const GameManager = () => {
 			}
 		}
 	})
+
+	useEffect(() => {
+		console.log("this nigga's readiness: ", ready);
+
+	}, [ready])
 
 	const contextData = useContext(UserContext);
 	useEffect(() => {

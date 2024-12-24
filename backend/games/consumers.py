@@ -57,8 +57,8 @@ class GameConsumer(WebsocketConsumer):
                     {
                         "type": "whisper",
                         "info": "update",
-                        "sender": self.channel_name,
-                        "message": message,
+                                "sender": self.channel_name,
+                                "message": message,
                     },
                 )
             case "ready":
@@ -119,10 +119,10 @@ class GameConsumer(WebsocketConsumer):
             {
                 "type": "broadcast",
                 "info": "score",
-                "message": {
-                        "role": role,
-                        "scores": json.dumps(scores),
-                },
+                        "message": {
+                            "role": role,
+                            "scores": json.dumps(scores),
+                        },
             },
         )
 
@@ -138,9 +138,9 @@ class GameConsumer(WebsocketConsumer):
                     {
                         "type": "broadcast",
                         "info": "game_manager",
-                        "message": {
-                                "players_details": self.players,
-                        }
+                                "message": {
+                                    "players_details": self.players,
+                                }
                     },
                 )
                 break
@@ -158,7 +158,7 @@ class GameConsumer(WebsocketConsumer):
                 {
                     "type": "broadcast",
                     "info": "game_manager",
-                    "message": game_data
+                            "message": game_data
                 },
             )
 
@@ -166,14 +166,17 @@ class GameConsumer(WebsocketConsumer):
         # remove the current player since they are reconnecting
         game_data["state"].pop(self.user_id, None)
 
+        # TODO: handle players leaving for more than allowed (forfeit)
+
         # check if all players have reconnected, and resume the game
         if not game_data["state"]:
             game_data["status"] = "ongoing"
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
                 {
-                    "type": "broadcast",
+                    "type": "whisper",
                     "info": "game_manager",
+                            "sender": self.channel_name,
                             "message": game_data
                 },
             )
@@ -186,9 +189,13 @@ class GameConsumer(WebsocketConsumer):
         game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
         if game_data["status"] in ("ongoing", "paused"):
             leavers = json.loads(game_data["state"])
-            # TODO: handle game forfeit if the user has not more timeouts
-            # TODO: make sure the self.timeouts dont go below 0
-            leavers[self.user_id] = self.timeouts - 1
+            if self.timeouts > 0:
+                leavers[self.user_id] = self.timeouts - 1
+            else:
+                # TODO: handle game forfeit if the user has not more timeouts
+                print(
+                    f"player -----------------> {self.user_id} has no more timeouts", flush=True)
+                pass
             print("leavers ----------------->", leavers, flush=True)
             self.save_game_data(
                 status="paused",
@@ -200,9 +207,9 @@ class GameConsumer(WebsocketConsumer):
                 {
                     "type": "broadcast",
                     "info": "game_manager",
-                    "message": {
-                            "status": "paused",
-                    },
+                            "message": {
+                                "status": "paused",
+                            },
                 },
             )
 
