@@ -16,7 +16,14 @@ import { BACKENDURL } from "../utils/fetchWrapper";
 import UserContext from "../context/UserContext";
 import NotifContext from "../context/NotifContext";
 
-const navLinks = ["home", "profile", "chat", "rankings", "games", "tournaments"];
+const navLinks = [
+  "home",
+  "profile",
+  "chat",
+  "rankings",
+  "games",
+  "tournaments",
+];
 
 const Header = ({ ...props }) => {
   const { displayMenuGl, setDisplayMenuGl } = useContext(AuthContext);
