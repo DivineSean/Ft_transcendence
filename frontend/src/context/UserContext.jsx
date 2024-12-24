@@ -277,7 +277,7 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const sendMessage = async () => {
+  const createConversation = async () => {
     try {
       const res = await FetchData.post("api/chat/conversations/", {
         userId: profileInfo.id,
@@ -343,7 +343,7 @@ export const UserProvider = ({ children }) => {
     blockFriend,
     unfriend,
     unblockUser,
-    sendMessage,
+    createConversation,
     getBlockedUsers,
   };
 

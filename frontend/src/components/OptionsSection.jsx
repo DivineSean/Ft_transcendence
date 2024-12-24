@@ -14,18 +14,18 @@ const OptionsSection = ({ data, type, reference }) => {
   const notifContext = useContext(NotifContext);
 
   const handleReadNotif = (item) => {
+    console.log(item);
     if (item.notifType === "FR") {
-      // console.log('had khouna profile');
       navigate(`/profile/overview/${item.senderId.username}`);
       contextData.setRefresh(true);
-    } else if (item.notifType === "IG") {
+    } else if (item.notifType === "IG")
       console.log("had khouna invitak tl3eb game am3lm");
-    } else if (item.notifType === "IT") {
+    else if (item.notifType === "IT")
       console.log("had khouna invitak tl3eb tournaments am3lm");
-    } else if (item.notifType === "ME") {
+    else if (item.notifType === "ME")
       console.log("had khouna sifet lik message am3lm");
-    }
-    notifContext.deleteNotifications(item.notificationId);
+    else if (item.notifType === "CC") navigate(`/chat/${item.targetId}`);
+    notifContext.readNotification(item.notificationId);
   };
 
   const handleClick = (index) => {
@@ -128,11 +128,16 @@ const OptionsSection = ({ data, type, reference }) => {
                           className="object-cover grow"
                         />
                       </div>
-                      <div className="flex flex-col gap-4 items-end grow">
+                      <div className="flex flex-col gap-4 items-end grow tracking-wider">
                         <p
-                          className={`${!item.isRead ? "font-bold" : "font-normal text-stroke-sc"}`}
+                          className={`${!item.isRead ? "font-semibold" : "font-normal text-stroke-sc"} flex gap-4 w-full`}
                         >
                           {item.notifMessage}
+                          <span
+                            className={`font-semibold ${!item.isRead ? "text-red" : "text-stroke-sc"}`}
+                          >
+                            {item.senderUsername}
+                          </span>
                         </p>
                         <p
                           className={`${!item.isRead ? "text-green" : "text-stroke-sc"}`}

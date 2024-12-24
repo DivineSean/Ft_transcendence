@@ -46,7 +46,7 @@ class Users(AbstractUser):
         upload_to="profile_images/", blank=True, null=True
     )
 
-    blockedUsers = models.JSONField(default=callableDict, null=True)
+    blockedUsers = models.JSONField(default=callableDict, null=True, blank=True)
 
     last_update = models.DateTimeField(auto_now=True)
 

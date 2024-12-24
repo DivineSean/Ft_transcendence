@@ -189,14 +189,16 @@ const ProfileFriends = ({ username }) => {
                   </h2>
                   <FaChevronDown className="text-green cursor-pointer" />
                   {displaySelect && (
-                    <ul className="absolute top-[44px] z-[1] left-0 text-center w-full flex flex-col bg-green transition-all">
-                      {select.map((item) => (
+                    <ul className="absolute top-[44px] z-[1] left-0 border border-stroke-sc rounded-md overflow-hidden text-center w-full flex flex-col bg-[url('/images/background.png')] bg-cover bg-bottom transition-all">
+                      <div className="absolute w-full h-full backdrop-blur-sm z-[-1] rounded-md"></div>
+                      {select.map((item, i) => (
                         <li
+                          key={i}
                           onClick={() => setSelected(item)}
-                          className={`border-b tracking-wider bg-black/20 text-black
-												border-black p-8 hover:bg-black/60 transition-all cursor-pointer
-												${selected === item ? "font-semibold bg-black/60" : ""}
-											`}
+                          className={`border-b tracking-wider bg-black/20 hover:bg-green/10
+								border-stroke-sc shadow p-8 transition-all cursor-pointer
+								${selected === item ? "bg-green/20" : ""}
+							`}
                         >
                           {item}
                         </li>
@@ -229,8 +231,8 @@ const ProfileFriends = ({ username }) => {
                   )}
                 </div>
               ) : (
-                <p className="text-txt-sm flex justify-center text-stroke-sc">
-                  you have no friend request.
+                <p className="text-txt-sm flex justify-center text-stroke-sc lowercase">
+                  you have no {selected}.
                 </p>
               )}
             </div>
@@ -242,7 +244,7 @@ const ProfileFriends = ({ username }) => {
               {friends}
             </div>
           ) : (
-            <p className="text-txt-sm flex justify-center text-stroke-sc">
+            <p className="text-txt-sm flex justify-center text-stroke-sc lowercase">
               you have no friend yet search for some you want
             </p>
           )}

@@ -1,7 +1,9 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import AuthContext from "./AuthContext";
 import FetchWrapper from "../utils/fetchWrapper";
+import useWebsocket from "../customHooks/useWebsocket";
+import { useLocation } from "react-router-dom";
+import { getConversations } from "../utils/chatFetchData";
 
 const NotifContext = createContext();
 
@@ -9,53 +11,51 @@ export default NotifContext;
 
 export const NotifProvider = ({ children }) => {
   const FetchData = new FetchWrapper();
-  const navigate = useNavigate();
-  const ws = useRef(null);
   const [friendRequest, setFriendRequest] = useState(false);
   const [notifData, setNotifData] = useState(null);
 
   const authContextData = useContext(AuthContext);
   const [isWsConnected, setIsWsConnected] = useState(false);
+  const [updatedConversation, setUpdatedConversation] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [tempMessages, setTempMessages] = useState([]);
+  const [typing, setTyping] = useState("");
+  const [displayTyping, setDisplayTyping] = useState(null);
+  const [readedMessages, setReadedMessages] = useState(null);
+  const location = useLocation();
 
-  useEffect(() => {
-    ws.current = new WebSocket(
-      `wss://${window.location.hostname}:8000/ws/chat/`,
-    );
-    // console.log('from chat ws');
-    // console.log('ws: ', ws.current);
+  const wsHook = useWebsocket(
+    `wss://${window.location.hostname}:8000/ws/chat/`,
+    {
+      onOpen: () => {
+        setIsWsConnected(true);
+      },
+      onMessage: (e) => {
+        const messageData = JSON.parse(e.data); // parse the event data
 
-    ws.current.onopen = () => {
-      // overide the onopen event
-      console.log("Connected");
-      // here we set this state to true to make sure
-      // that the socket is connected successfully when we want to send an event
-      setIsWsConnected(true);
-    };
-
-    ws.current.onclose = () => console.log("Disconnected"); // override the onclose event
-
-    return () => {
-      if (ws.current) {
-        ws.current.close();
-        ws.current = null;
-      }
-    };
-  }, []);
-
-  // 95dd4cde-86ff-40e5-906d-32c412ee543a
-  // 6434d48a-161e-4e0f-af68-f83700a37053
-  // if (ws.current) {
-  // 	ws.current.onmessage = (e) => {
-  // 		const socketData = JSON.parse(e.data);
-  // 		if (socketData) {
-  // 			if (socketData.type === 'friendRequest')
-  // 				getNotfications();
-  // 			console.log('chihaja tbedlat', socketData);
-  // 			console.log('type', socketData.type);
-  // 			console.log('message', socketData.message);
-  // 		}
-  // 	}
-  // }
+        if (messageData) {
+          console.log("l3aazi messageData", messageData);
+          if (messageData.type === "read") {
+            // if we received the read event
+            console.log("readed");
+            setReadedMessages(messageData); // set readed message with the message we received from the socket to update all unreaded messages
+          } else if (messageData.type === "typing")
+            // if we received the typing event
+            setDisplayTyping(messageData); // increment the display typing state to know that the uer is still typing
+          else if (messageData.type === "stopTyping")
+            // if we received the stop typing event
+            setDisplayTyping(null); // reset display typing, to remove the typing message from the conversation
+          else if (messageData.type === "friendRequest") {
+            console.log("hello al3ezi get notifs");
+            getNotfications();
+          } else if (messageData.type === "createConv") {
+            console.log("noooooootiiiif");
+            if (location.pathname.search("chat") === -1) getNotfications();
+          }
+        }
+      },
+    },
+  );
 
   const getNotfications = async () => {
     try {
@@ -74,7 +74,7 @@ export const NotifProvider = ({ children }) => {
     }
   };
 
-  const deleteNotifications = async (notificationId) => {
+  const readNotification = async (notificationId) => {
     try {
       // console.log('notificationId', notificationId);
       const res = await FetchData.delete(`api/notification/${notificationId}/`);
@@ -94,14 +94,28 @@ export const NotifProvider = ({ children }) => {
   };
 
   const contextData = {
-    ws,
+    updatedConversation,
+    tempMessages,
+    messages,
+    typing,
+    displayTyping,
+    readedMessages,
+
+    wsHook,
     notifData,
     isWsConnected,
     setIsWsConnected,
     setFriendRequest,
     getNotfications,
     setNotifData,
-    deleteNotifications,
+    readNotification,
+
+    setMessages,
+    setTempMessages,
+    setTyping,
+    setDisplayTyping,
+    setReadedMessages,
+    setUpdatedConversation,
   };
 
   return (

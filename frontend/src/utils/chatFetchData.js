@@ -22,7 +22,7 @@ export const getConversations = async (setData, setGlobalMessage, navigate) => {
   }
 };
 
-export const getMessages = async (convId, setData, setOffsetMssg) => {
+export const getMessages = async (convId, setData, setOffsetMssg, navigate) => {
   try {
     const res = await FetchData.post("chat/getMessages/", {
       convID: convId,
@@ -35,6 +35,7 @@ export const getMessages = async (convId, setData, setOffsetMssg) => {
         if (data.messages.length === 20) setOffsetMssg(20);
         setData(data.messages);
       } else {
+        navigate("/chat");
         // console.log(data);
       }
     } else {

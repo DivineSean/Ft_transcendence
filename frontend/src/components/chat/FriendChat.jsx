@@ -4,14 +4,15 @@ import { useContext } from "react";
 import NotifContext from "../../context/NotifContext";
 import { useEffect } from "react";
 
-const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
+const FriendsChat = ({ uid, friendInfo }) => {
   const navigate = useNavigate();
   const notifContextData = useContext(NotifContext);
-  const sendReadMessage = () => {
-    if (notifContextData.ws.current) {
-      notifContextData.ws.current.send(
+
+  const sendReadMessage = (friendInfo) => {
+    if (notifContextData.wsHook) {
+      notifContextData.wsHook.send(
         JSON.stringify({
-          message: "message is readedf",
+          message: "message is readed",
           type: "read",
           convId: friendInfo.conversationId,
         }),
@@ -20,16 +21,14 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
   };
 
   const handleReadMessage = () => {
-    sendReadMessage();
+    sendReadMessage(friendInfo);
     friendInfo.isRead = true;
     navigate(`/chat/${friendInfo.conversationId}`);
   };
 
   useEffect(() => {
     if (uid === friendInfo.conversationId) {
-      console.log("readed bro!!");
-      sendReadMessage();
-      friendInfo.isRead = true;
+      sendReadMessage(friendInfo);
     }
   }, [uid]);
 
@@ -37,7 +36,7 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
     <div
       onClick={handleReadMessage}
       className={`text-white flex gap-16 p-8 rounded-[8px] hover:hover-secondary
-				cursor-pointer ${friendInfo.conversationId === uid && "hover-secondary"}`}
+					cursor-pointer ${friendInfo.conversationId === uid && "hover-secondary"}`}
     >
       {friendInfo.isOnline && (
         <div className="relative">
@@ -105,24 +104,26 @@ const FriendsChat = ({ uid, friendInfo, displayTyping, ws }) => {
                 : `${friendInfo.first_name} ${friendInfo.last_name}`}
           </div>
 
-          {(!displayTyping ||
-            (displayTyping &&
-              displayTyping.convId !== friendInfo.conversationId)) && (
+          {(!notifContextData.displayTyping ||
+            (notifContextData.displayTyping &&
+              notifContextData.displayTyping.convId !==
+                friendInfo.conversationId)) && (
             <div
               className={`text-txt-xs ${!friendInfo.isRead && !friendInfo.sender && "font-bold"}`}
             >
-              {friendInfo.lastMessage && friendInfo.lastMessage.length > 15 ? (
-                friendInfo.lastMessage.substring(0, 15) + "..."
+              {friendInfo.lastMessage && friendInfo.lastMessage.length > 16 ? (
+                friendInfo.lastMessage.substring(0, 16) + "..."
               ) : !friendInfo.lastMessage ? (
-                <p className="text-stroke-sc font-normal">Say Hello !</p>
+                <p className="text-stroke-sc font-normal">new conversation</p>
               ) : (
                 friendInfo.lastMessage
               )}
             </div>
           )}
 
-          {displayTyping &&
-            displayTyping.convId === friendInfo.conversationId && (
+          {notifContextData.displayTyping &&
+            notifContextData.displayTyping.convId ===
+              friendInfo.conversationId && (
               <div className="text-txt-xs font-bold text-green">typing...</div>
             )}
         </div>

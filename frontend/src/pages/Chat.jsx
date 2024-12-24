@@ -1,6 +1,6 @@
 import ProfileOptions from "../components/chat/ProfileOptions";
 import Conversation from "../components/chat/Conversation";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useContext, useEffect, useRef, useState } from "react";
 import Header from "../components/Header";
 import { IoSearchOutline } from "react-icons/io5";
@@ -13,21 +13,15 @@ import LoadingPage from "./LoadingPage";
 import NotifContext from "../context/NotifContext";
 
 const Chat = () => {
-  // const ws = useRef(null);
   const { uid } = useParams();
   const navigate = useNavigate();
   const { setGlobalMessage } = useContext(AuthContext);
   const notifContextData = useContext(NotifContext);
+  const location = useLocation();
+
   // states
-  const [typing, setTyping] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [tempMessages, setTempMessages] = useState([]);
   const [friendsData, setFriendsData] = useState(null);
-  const [displayTyping, setDisplayTyping] = useState(null);
-  // const [isWsConnected, setIsWsConnected] = useState(false);
-  const [readedMessages, setReadedMessages] = useState(null);
   const [conversationSide, setConversationSide] = useState(true);
-  const [updatedConversation, setUpdatedConversation] = useState(null);
   const [profileSide, setProfileSide] = useState(
     window.innerWidth <= 768 ? false : true,
   );
@@ -37,89 +31,66 @@ const Chat = () => {
     getConversations(setFriendsData, setGlobalMessage, navigate);
   }, []);
 
-  // check if there is a new message and add it to the message array state
-  if (notifContextData.ws.current) {
-    notifContextData.ws.current.onmessage = (e) => {
+  useEffect(() => {
+    const handleMessageReceived = (e) => {
       const messageData = JSON.parse(e.data); // parse the event data
 
       if (messageData) {
         // check if the event data is not empty then do the whole work
         if (messageData.type === "message") {
           // if we received the message event
-          setUpdatedConversation(messageData); // set the updated data for the left side (friend chat)
+          notifContextData.setUpdatedConversation(messageData); // set the updated data for the left side (friend chat)
           // console.log(messageData);
+          console.log("messssssaaaage", messageData);
 
+          console.log("message wsslni abro", uid);
           if (uid && messageData.convId === uid) {
             // check if the user is entered to the conversation that received the message
 
-            if (!messageData.isSender)
+            if (!messageData.isSender) {
               // check if the user is the receiver then send to the sender that the message is readed
-              notifContextData.ws.current.send(
+              notifContextData.wsHook.send(
                 JSON.stringify({
                   message: "message is readed",
                   type: "read",
                   convId: uid,
                 }),
               );
+              console.log("dkhel lhad l9lawi");
+            }
 
             // append the new message to the previous ones to display them
-            setMessages((preveMessage) => [...preveMessage, messageData]);
+            notifContextData.setMessages((preveMessage) => [
+              ...preveMessage,
+              messageData,
+            ]);
 
             // reset the temp message that we dsiplay them to the user before the socket receive the events
-            setTempMessages([]);
+            notifContextData.setTempMessages([]);
+            console.log("raha tsetitat blekhwa temp message");
 
             // reset is typing to notif the receiver that the user no longer is typing
-            setTyping("");
+            notifContextData.setTyping("");
 
             // reset the display typing to make the front don't display is typing message to the user
-            setDisplayTyping(null);
+            notifContextData.setDisplayTyping(null);
           }
-        } else if (messageData.type === "read") {
-          // if we received the read event
-          setReadedMessages(messageData); // set readed message with the message we received from the socket to update all unreaded messages
-        } else if (messageData.type === "typing")
-          // if we received the typing event
-          setDisplayTyping(messageData); // increment the display typing state to know that the uer is still typing
-        else if (messageData.type === "stopTyping")
-          // if we received the stop typing event
-          setDisplayTyping(null); // reset display typing, to remove the typing message from the conversation
+        } else if (messageData.type === "createConv") {
+          console.log("chaaaaaaaaat");
+          if (location.pathname.search("chat") !== -1) {
+            getConversations(setFriendsData, setGlobalMessage, navigate);
+            notifContextData.readNotification(messageData.notifId);
+          }
+        }
       }
     };
-  }
 
-  useEffect(() => {
-    // if the updatedConversation is updated thats mean we need to update chat friend component
-    if (updatedConversation) {
-      // find the conversation that we are already entered into it
-      const findConv = friendsData.users.filter(
-        (user) => user.conversationId === updatedConversation.convId,
-      )[0];
+    notifContextData.wsHook.addMessageHandler(handleMessageReceived);
 
-      // then update the values inside that conversation
-      if (findConv) {
-        findConv.lastMessage = updatedConversation.message;
-        findConv.messageDate = updatedConversation.timestamp;
-        findConv.isRead = updatedConversation.isRead;
-        findConv.sender = updatedConversation.isSender;
-
-        if (uid && findConv.conversationId === uid) findConv.isRead = true;
-      }
-
-      // get all other conversation
-      const newFriendsData = friendsData.users.filter(
-        (user) => user.conversationId !== updatedConversation.convId,
-      );
-
-      // then resort them to make the updated conversation the first one
-      // console.log(updatedConversation);
-      setFriendsData({
-        ...friendsData,
-        users: [findConv, ...newFriendsData],
-      });
-    }
-  }, [updatedConversation]);
-
-  // console.log('friendsData++++++', friendsData);
+    return () => {
+      notifContextData.wsHook.removeMessageHandler(handleMessageReceived);
+    };
+  });
 
   let friendInfo = []; // get the conversation that have the same uid that we have in the url
   if (friendsData && friendsData.users && friendsData.users.length) {
@@ -132,6 +103,40 @@ const Chat = () => {
     if (window.innerWidth < 768) setProfileSide(false);
     if (window.innerWidth >= 768) setProfileSide(true);
   });
+
+  useEffect(() => {
+    // if the updatedConversation is updated thats mean we need to update chat friend component
+    if (notifContextData.updatedConversation && friendsData) {
+      // find the conversation that we are already entered into it
+      const findConv = friendsData.users.filter(
+        (user) =>
+          user.conversationId === notifContextData.updatedConversation.convId,
+      )[0];
+
+      // then update the values inside that conversation
+      if (findConv) {
+        findConv.lastMessage = notifContextData.updatedConversation.message;
+        findConv.messageDate = notifContextData.updatedConversation.timestamp;
+        findConv.isRead = notifContextData.updatedConversation.isRead;
+        findConv.sender = notifContextData.updatedConversation.isSender;
+
+        if (uid && findConv.conversationId === uid) findConv.isRead = true;
+      }
+
+      // get all other conversation
+      const newFriendsData = friendsData.users.filter(
+        (user) =>
+          user.conversationId !== notifContextData.updatedConversation.convId,
+      );
+
+      // then resort them to make the updated conversation the first one
+      // console.log(updatedConversation);
+      setFriendsData({
+        ...friendsData,
+        users: [findConv, ...newFriendsData],
+      });
+    }
+  }, [notifContextData.updatedConversation]);
 
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
@@ -151,11 +156,7 @@ const Chat = () => {
                 />
                 <IoSearchOutline className="text-gray absolute left-8 text-txt-md" />
               </div>
-              <ChatFriends
-                friendsData={friendsData}
-                displayTyping={displayTyping}
-                uid={uid}
-              />
+              <ChatFriends friendsData={friendsData} uid={uid} />
             </div>
 
             <div className="w-[0.5px] bg-stroke-sc md:block hidden"></div>
@@ -165,15 +166,6 @@ const Chat = () => {
                 {conversationSide && (
                   <Conversation
                     uid={uid}
-                    typing={typing}
-                    setTyping={setTyping}
-                    displayTyping={displayTyping}
-                    setTempMessages={setTempMessages}
-                    tempMessages={tempMessages}
-                    setReadedMessages={setReadedMessages}
-                    readedMessages={readedMessages}
-                    setMessages={setMessages}
-                    messages={messages}
                     friendInfo={friendInfo}
                     displayProfile={setProfileSide}
                     hideSelf={setConversationSide}

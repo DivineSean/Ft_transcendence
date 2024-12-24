@@ -11,6 +11,7 @@ class Notifications(models.Model):
         ("IG", "Invite Game"),
         ("IT", "Invite Tournament"),
         ("ME", "Message"),
+        ("CC", "Create Conversation"),
     ]
     notificationId = models.UUIDField(
         default=uuid.uuid4, unique=True, null=False, primary_key=True
@@ -21,10 +22,12 @@ class Notifications(models.Model):
     senderId = models.ForeignKey(
         Users, on_delete=models.CASCADE, related_name="sender"
     )  # Sender
+    senderUsername = models.CharField(max_length=255, blank=True)
     notifType = models.CharField(max_length=2, choices=TYPES)
     notifMessage = models.CharField(max_length=255, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     isRead = models.BooleanField(default=False)
+    targetId = models.CharField(max_length=255, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.notifMessage:
@@ -38,8 +41,9 @@ class Notifications(models.Model):
 
     def get_default_message(self):
         return {
-            "FR": "You Received a Friend Request",
-            "IG": "You've been invited to a game",
-            "IT": "You've been invited to a Tournament",
-            "ME": "You received a Message",
+            "FR": "You Received a Friend Request from: ",
+            "IG": "You've been invited to a game from: ",
+            "IT": "You've been invited to a Tournament from: ",
+            "ME": "You received a Message from: ",
+            "CC": "Conversation created by: ",
         }.get(self.notifType, "finahowa l message d notif al 3yan")
