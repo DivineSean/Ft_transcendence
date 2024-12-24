@@ -1,9 +1,11 @@
 import { BACKENDURL } from "../../utils/fetchWrapper";
-
+import { useNavigate } from 'react-router-dom';
 
 const SideOnlineFriends = ({ ...props }) => {
+	const navigate = useNavigate();
+	
 	return (
-		<div className="relative p-4 text-gray" key={props.key}>
+		<div onClick={() => navigate(`/profile/overview/${props.friend.username}`)} className="relative p-4 text-gray cursor-pointer" key={props.key}>
 				<div className={`w-56 h-56 rounded-full flex overflow-hidden border-2 ${props.friend.isOnline ? 'border-green' : 'border-gray'} `}>
 					<img
 						src={
@@ -12,7 +14,7 @@ const SideOnlineFriends = ({ ...props }) => {
 								: "/images/default.jpeg"
 						} 
 						alt="profile"
-						className="object-cover grow"
+						className="object-cover grow pointer-events-none"
 					/>
 				</div>
 				{props.isSend && (

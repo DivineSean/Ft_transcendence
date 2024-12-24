@@ -2,8 +2,11 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import AuthContext from "./AuthContext";
 import FetchWrapper from "../utils/fetchWrapper";
 import useWebsocket from '../customHooks/useWebsocket'
+import { useLocation } from 'react-router-dom';
+import { getConversations } from '../utils/chatFetchData';
 
 const NotifContext = createContext();
+
 
 
 export default NotifContext;
@@ -21,6 +24,7 @@ export const NotifProvider = ({ children }) => {
 	const [typing, setTyping] = useState("");
 	const [displayTyping, setDisplayTyping] = useState(null);
 	const [readedMessages, setReadedMessages] = useState(null);
+	const location = useLocation();
 
 	const wsHook = useWebsocket(`wss://${window.location.hostname}:8000/ws/chat/`, {
 		onOpen: () => { setIsWsConnected(true); },
@@ -28,6 +32,7 @@ export const NotifProvider = ({ children }) => {
 			const messageData = JSON.parse(e.data); // parse the event data
 
 			if (messageData) {
+				console.log('l3aazi messageData', messageData);
 				if (messageData.type === "read") {
 					// if we received the read event
 					console.log('readed');
@@ -38,8 +43,14 @@ export const NotifProvider = ({ children }) => {
 				else if (messageData.type === "stopTyping")
 					// if we received the stop typing event
 					setDisplayTyping(null); // reset display typing, to remove the typing message from the conversation
-				else if (messageData.type === 'friendRequest')
+				else if (messageData.type === 'friendRequest') {
+					console.log('hello al3ezi get notifs');
 					getNotfications();
+				} else if (messageData.type === 'createConv') {
+					console.log('noooooootiiiif');
+					if (location.pathname.search('chat') === -1)
+						getNotfications();
+				}
 			}
 		}
 	});
@@ -61,7 +72,7 @@ export const NotifProvider = ({ children }) => {
 		}
 	};
 
-	const deleteNotifications = async (notificationId) => {
+	const readNotification = async (notificationId) => {
 		try {
 			// console.log('notificationId', notificationId);
 			const res = await FetchData.delete(`api/notification/${notificationId}/`);
@@ -95,7 +106,7 @@ export const NotifProvider = ({ children }) => {
 		setFriendRequest,
 		getNotfications,
 		setNotifData,
-		deleteNotifications,
+		readNotification,
 
 		setMessages,
 		setTempMessages,

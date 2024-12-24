@@ -39,7 +39,9 @@ const Home = () => {
 												userContextData.userInfo &&
 												userContextData.userInfo.first_name
 											}
-											description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+											description={`
+												Welcome to Advanture Time! As a new member, you have joined a community of passionate individuals. Let's inspire and support each other.
+											`}
 											isModel={false}
 											isMainButton={true}
 											buttonContent="play now"
@@ -51,7 +53,7 @@ const Home = () => {
 											description="Here you can explore our world to meet more friends to play or talk with"
 											isModel={true}
 											isMainButton={false}
-											buttonContent="explore"
+											buttonContent="coming soon..."
 											imgSrc="images/bmo.png"
 											/>
 										</div>
@@ -65,7 +67,7 @@ const Home = () => {
 										<>
 											<div className="min-w-[83px] lg:flex hidden"></div>
 											<article className="fixed side-online-friends-container py-16 primary-glass min-w-[83px] lg:flex hidden flex-col gap-16 items-center ">
-												<div className="px-8 custom-scrollbar overflow-y-scroll">
+												<div className="px-8 custom-scrollbar overflow-y-auto">
 													{friends}
 												</div>
 											</article>

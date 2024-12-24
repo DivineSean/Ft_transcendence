@@ -9,11 +9,11 @@ const FriendsChat = ({ uid, friendInfo }) => {
 	const notifContextData = useContext(NotifContext);
 
 
-	const sendReadMessage = () => {
+	const sendReadMessage = (friendInfo) => {
 		if (notifContextData.wsHook) {
 			notifContextData.wsHook.send(
 				JSON.stringify({
-				message: "message is readedf",
+				message: "message is readed",
 				type: "read",
 				convId: friendInfo.conversationId,
 				}),
@@ -22,16 +22,14 @@ const FriendsChat = ({ uid, friendInfo }) => {
 	};
 
 	const handleReadMessage = () => {
-		sendReadMessage();
+		sendReadMessage(friendInfo);
 		friendInfo.isRead = true;
 		navigate(`/chat/${friendInfo.conversationId}`);
 	};
 
 	useEffect(() => {
 		if (uid === friendInfo.conversationId) {
-			console.log("readed bro!!");
-			sendReadMessage();
-			friendInfo.isRead = true;
+			sendReadMessage(friendInfo);
 		}
 	}, [uid]);
 
@@ -114,10 +112,10 @@ const FriendsChat = ({ uid, friendInfo }) => {
 						<div
 							className={`text-txt-xs ${!friendInfo.isRead && !friendInfo.sender && "font-bold"}`}
 						>
-							{friendInfo.lastMessage && friendInfo.lastMessage.length > 15 ? (
-								friendInfo.lastMessage.substring(0, 15) + "..."
+							{friendInfo.lastMessage && friendInfo.lastMessage.length > 16 ? (
+								friendInfo.lastMessage.substring(0, 16) + "..."
 							) : !friendInfo.lastMessage ? (
-								<p className="text-stroke-sc font-normal">Say Hello !</p>
+								<p className="text-stroke-sc font-normal">new conversation</p>
 							) : (
 								friendInfo.lastMessage
 							)}

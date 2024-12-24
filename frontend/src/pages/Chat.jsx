@@ -1,6 +1,6 @@
 import ProfileOptions from "../components/chat/ProfileOptions";
 import Conversation from "../components/chat/Conversation";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useContext, useEffect, useRef, useState } from "react";
 import Header from "../components/Header";
 import { IoSearchOutline } from "react-icons/io5";
@@ -14,22 +14,23 @@ import NotifContext from "../context/NotifContext";
 
 const Chat = () => {
 
-  const { uid } = useParams();
-  const navigate = useNavigate();
-  const { setGlobalMessage } = useContext(AuthContext);
-  const notifContextData = useContext(NotifContext);
+	const { uid } = useParams();
+	const navigate = useNavigate();
+	const { setGlobalMessage } = useContext(AuthContext);
+	const notifContextData = useContext(NotifContext);
+	const location = useLocation();
 
-  // states
-  const [friendsData, setFriendsData] = useState(null);
-  const [conversationSide, setConversationSide] = useState(true);
-  const [profileSide, setProfileSide] = useState(
-	window.innerWidth <= 768 ? false : true,
-  );
+	// states
+	const [friendsData, setFriendsData] = useState(null);
+	const [conversationSide, setConversationSide] = useState(true);
+	const [profileSide, setProfileSide] = useState(
+		window.innerWidth <= 768 ? false : true,
+	);
 
-  useEffect(() => {
-	// first time fetch conversation message from the database to render them to the user
-	getConversations(setFriendsData, setGlobalMessage, navigate);
-  }, []);
+	useEffect(() => {
+		// first time fetch conversation message from the database to render them to the user
+		getConversations(setFriendsData, setGlobalMessage, navigate);
+	}, []);
 
 
   	useEffect(() => {
@@ -42,6 +43,7 @@ const Chat = () => {
 					// if we received the message event
 					notifContextData.setUpdatedConversation(messageData); // set the updated data for the left side (friend chat)
 					// console.log(messageData);
+					console.log('messssssaaaage', messageData);
 				
 					console.log('message wsslni abro', uid);
 					if (uid && messageData.convId === uid) {
@@ -72,6 +74,12 @@ const Chat = () => {
 						// reset the display typing to make the front don't display is typing message to the user
 						notifContextData.setDisplayTyping(null);
 					}
+				} else if (messageData.type === 'createConv') {
+					console.log('chaaaaaaaaat');
+					if (location.pathname.search('chat') !== -1) {
+						getConversations(setFriendsData, setGlobalMessage, navigate);
+						notifContextData.readNotification(messageData.notifId);
+					}
 				}
 			}
 		}
@@ -95,7 +103,37 @@ const Chat = () => {
 		if (window.innerWidth >= 768) setProfileSide(true);
 	});
 
-
+	useEffect(() => {
+		// if the updatedConversation is updated thats mean we need to update chat friend component
+		if (notifContextData.updatedConversation && friendsData) {
+			// find the conversation that we are already entered into it
+			const findConv = friendsData.users.filter(
+				(user) => user.conversationId === notifContextData.updatedConversation.convId,
+			)[0];
+		
+			// then update the values inside that conversation
+			if (findConv) {
+				findConv.lastMessage = notifContextData.updatedConversation.message;
+				findConv.messageDate = notifContextData.updatedConversation.timestamp;
+				findConv.isRead = notifContextData.updatedConversation.isRead;
+				findConv.sender = notifContextData.updatedConversation.isSender;
+		
+				if (uid && findConv.conversationId === uid) findConv.isRead = true;
+			}
+		
+			// get all other conversation
+			const newFriendsData = friendsData.users.filter(
+				(user) => user.conversationId !== notifContextData.updatedConversation.convId,
+			);
+		
+			// then resort them to make the updated conversation the first one
+			// console.log(updatedConversation);
+			setFriendsData({
+				...friendsData,
+				users: [findConv, ...newFriendsData],
+			});
+		}
+	}, [notifContextData.updatedConversation]);
 
 	return (
 		<div className="flex flex-col grow lg:gap-32 gap-16">

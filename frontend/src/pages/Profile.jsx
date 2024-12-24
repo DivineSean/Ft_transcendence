@@ -47,7 +47,7 @@ const FriendManagementButtons = ({ approval, setApproval }) => {
         !contextData.profileInfo.isUserBlocked &&
         contextData.profileInfo.isFriend && (
           <button
-            onClick={contextData.sendMessage}
+            onClick={contextData.createConversation}
             className="secondary-glass grow lg:w-full p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
           >
             <IoChatbubbleEllipsesOutline />
@@ -217,6 +217,9 @@ const Profile = () => {
     if (contextData.refresh) {
 		if (username) {
 			contextData.getProfile(username);
+			contextData.setRefresh(false);
+		} else {
+			contextData.getProfile();
 			contextData.setRefresh(false);
 		}
     }

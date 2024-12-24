@@ -199,16 +199,13 @@ const Conversation = ({
 			);
 		}
 		setInputValue(e.target.value);
-		// console.log(inputValue);
 		notifContextData.setTyping(e.target.value);
 	};
 
 	const [displayEmojiList, setDisplayEmojiList] = useState(false);
 
 	const handleEmojiClick = (emojiObject) => {
-		console.log(emojiObject.emoji);
 		setInputValue((prevValue) => prevValue + emojiObject.emoji);
-		console.log(inputValue);
 	}
 
 	const emojiPickerRef = useRef(null);
@@ -322,7 +319,7 @@ const Conversation = ({
 					/>
 				</div>
 			}
-			<div ref={emojisSwitch} onClick={() => setDisplayEmojiList(!displayEmojiList)} className="cursor-pointer text-h-lg-lg h-full flex items-center hover:text-green">
+			<div ref={emojisSwitch} onClick={() => setDisplayEmojiList(!displayEmojiList)} className="secondary-glass px-8 cursor-pointer text-h-lg-lg h-full flex items-center justify-center hover:text-green">
 				<HiOutlineFaceSmile />
 			</div>
 		</div>

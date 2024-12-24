@@ -7,10 +7,10 @@ const ChatFriends = ({ uid, friendsData }) => {
 		friendsData.users.map((friend) => {
 			return friends.push(
 				<FriendsChat
-				uid={uid}
-				friendInfo={friend}
-				messages={3}
-				key={friend.conversationId}
+					uid={uid}
+					friendInfo={friend}
+					messages={3}
+					key={friend.conversationId}
 				/>,
 			);
 		});

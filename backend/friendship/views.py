@@ -58,7 +58,8 @@ class SendFriendRequest(APIView):
                     notifType="FR",
                     userId=user,
                     senderId=request._user,
-                    notifMessage=f"You Received a Friend Request from {request._user.username}",
+                    senderUsername=request._user.username,
+					targetId=str(request._user.id),
                 )
 
                 print("isNew", isNew, notification.isRead, flush=True)

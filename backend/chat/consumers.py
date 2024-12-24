@@ -25,10 +25,10 @@ class Chat(WebsocketConsumer):
 		conversations = Conversation.objects.filter(
 			Q(Sender=self.user["id"]) | Q(Receiver=self.user["id"])
 		)
-		self.room_group_name = []
+		self.room_group_name = set()
 		for element in conversations:
 
-			self.room_group_name.append(f"conv-{element.ConversationId}")
+			self.room_group_name.add(f"conv-{element.ConversationId}")
 			async_to_sync(self.channel_layer.group_add)(
 				f"conv-{element.ConversationId}", self.channel_name
 			)
@@ -168,6 +168,22 @@ class Chat(WebsocketConsumer):
 					"type": "friendRequest",
 					"sender": event["sender"],
 					"message": f"You Received a Friend Request from {self.user['username']}",
+				}
+			)
+		)
+	
+	def create_conversation_room(self, event):
+		self.room_group_name.add(f"conv-{event['convId']}")
+		async_to_sync(self.channel_layer.group_add)(
+			f"conv-{event['convId']}", self.channel_name
+		)
+
+		self.send(
+			text_data=json.dumps(
+				{
+					"type": "createConv",
+					"sender": event["sender"],
+					"notifId": event["notifId"],
 				}
 			)
 		)
