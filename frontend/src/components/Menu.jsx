@@ -14,6 +14,7 @@ import { GoHome } from "react-icons/go";
 import { useContext } from "react";
 import UserContext from "../context/UserContext";
 import { BACKENDURL } from "../utils/fetchWrapper";
+import { TbTournament } from "react-icons/tb";
 
 const navLinks = [
   {
@@ -36,9 +37,13 @@ const navLinks = [
     name: "games",
     icon: <RiGamepadLine />,
   },
+  //   {
+  //     name: "explore",
+  //     icon: <MdOutlineExplore />,
+  //   },
   {
-    name: "explore",
-    icon: <MdOutlineExplore />,
+    name: "tournaments",
+    icon: <TbTournament />,
   },
   {
     name: "settings",
