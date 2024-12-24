@@ -14,36 +14,41 @@ import { GoHome } from "react-icons/go";
 import { useContext } from "react";
 import UserContext from "../context/UserContext";
 import { BACKENDURL } from "../utils/fetchWrapper";
+import { TbTournament } from "react-icons/tb";
 
 const navLinks = [
-  {
-    name: "home",
-    icon: <GoHome />,
-  },
-  {
-    name: "profile",
-    icon: <FaRegUser />,
-  },
-  {
-    name: "chat",
-    icon: <IoChatbubbleEllipsesOutline />,
-  },
-  {
-    name: "rankings",
-    icon: <PiRanking />,
-  },
-  {
-    name: "games",
-    icon: <RiGamepadLine />,
-  },
-  {
-    name: "explore",
-    icon: <MdOutlineExplore />,
-  },
-  {
-    name: "settings",
-    icon: <IoSettingsOutline />,
-  },
+	{
+		name: "home",
+		icon: <GoHome />,
+	},
+	{
+		name: "profile",
+		icon: <FaRegUser />,
+	},
+	{
+		name: "chat",
+		icon: <IoChatbubbleEllipsesOutline />,
+	},
+	{
+		name: "rankings",
+		icon: <PiRanking />,
+	},
+	{
+		name: "games",
+		icon: <RiGamepadLine />,
+	},
+	//   {
+	//     name: "explore",
+	//     icon: <MdOutlineExplore />,
+	//   },
+	{
+		name: "tournaments",
+		icon: <TbTournament />,
+	},
+	{
+		name: "settings",
+		icon: <IoSettingsOutline />,
+	},
 ];
 
 const Menu = ({ ...props }) => {

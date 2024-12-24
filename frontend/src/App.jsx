@@ -19,6 +19,7 @@ import Header from "./components/Header";
 import { UserProvider } from "./context/UserContext";
 import PongLocal from "./games/pong/PongLocal/PongLocal";
 import { NotifProvider } from "./context/NotifContext";
+import Tournaments from "./pages/Tournaments";
 
 function App() {
   return (
@@ -58,6 +59,7 @@ function App() {
                 <Route path="chat/" element={<Chat />} />
                 <Route path="chat/:uid" element={<Chat />} />
                 <Route path="rankings" element={<Rankings />} />
+				<Route path="tournaments/" element={<Tournaments />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </UserProvider>
