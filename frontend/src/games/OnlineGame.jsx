@@ -14,7 +14,7 @@ const OnlineGame = ({ game = "" }) => {
         console.log(data);
         if (data.type == "update") setPlayerCount(data.message);
         else if (data.type == "match_found") {
-          navigate(`${data.message.game.id}`, { state: data.message });
+          navigate(`${data.message.room_id}`);
         }
       },
     },

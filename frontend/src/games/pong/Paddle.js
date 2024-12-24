@@ -1,14 +1,14 @@
 import * as THREE from "three";
 
 class Paddle {
-  constructor(ws, scene, player, position, controls, loader, ball) {
+  constructor(send, scene, player, position, controls, loader, ball) {
     this.scene = scene;
     this.player = player;
     this.controls = controls;
     this.loader = loader;
     this.ball = ball;
     this.power = 0.0;
-    this.ws = ws;
+    // this.send = send;
     this.model = undefined;
     this.shadow = undefined;
     this.boundingBox = undefined;
@@ -34,7 +34,7 @@ class Paddle {
     this.rotating = false;
   }
 
-  update(keyboard, ball, ws, dt) {
+  update(keyboard, ball, send, dt) {
     if (!this.model) return;
     this.ball = ball;
     this.dx *= 0.8;
@@ -114,7 +114,7 @@ class Paddle {
           },
         },
       };
-      ws.send(JSON.stringify(data));
+      send(JSON.stringify(data));
     } else if (this.x !== x || this.z !== z) {
       const data = {
         type: "update",
@@ -133,7 +133,7 @@ class Paddle {
           },
         },
       };
-      ws.send(JSON.stringify(data));
+      send(JSON.stringify(data));
     }
     this.model.position.set(this.x, this.y, this.z);
     this.model.rotation.set(this.rotationX, this.rotationY, this.rotationZ);
@@ -142,16 +142,16 @@ class Paddle {
     this.boundingBox.getCenter(s);
   }
 
-  send(ws, info, content) {
-    const data = {
-      type: "update",
-      message: {
-        info: info,
-        content: content,
-      },
-    };
-    ws.send(JSON.stringify(data));
-  }
+  // send(send, info, content) {
+  // 	const data = {
+  // 		type: "update",
+  // 		message: {
+  // 			info: info,
+  // 			content: content,
+  // 		},
+  // 	};
+  // 	send(JSON.stringify(data));
+  // }
 
   checkCollision() {
     const paddlePosition = new THREE.Vector3(this.x, this.y, this.z);
@@ -348,7 +348,7 @@ class Paddle {
     } else ball.dz = (Math.abs(this.z - 24) / 10000) * this.player;
   }
 
-  netshoot(ball, net, ws, player) {
+  netshoot(ball, net, send, player) {
     ball.dx = Math.min(Math.abs(ball.dx) + 0.05, 0.01);
     if (
       ball.x < net.boundingBox.min.x + ball.radius &&
@@ -365,7 +365,7 @@ class Paddle {
     }
   }
 
-  hit(ball, ws) {
+  hit(ball, send) {
     // ball.lastshooter = this.player;
     if (this.player === 1) {
       ball.x = this.boundingBox.min.x - ball.radius;

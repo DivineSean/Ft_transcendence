@@ -12,6 +12,7 @@ const useWebSocket = (
 		debug = true,
 	} = {},
 ) => {
+
 	const websocketRef = useRef(null);
 	const messageHandlers = useRef([]);
 	const messageQueue = useRef([]);

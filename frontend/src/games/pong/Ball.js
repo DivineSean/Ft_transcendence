@@ -24,6 +24,7 @@ class Ball {
     this.GameOver = undefined;
     this.Defeat = undefined;
     this.Victory = undefined;
+    this.Achievement = undefined;
     this.DorV = 0;
     this.player = player;
     this.radius = 0;
@@ -64,7 +65,7 @@ class Ball {
     this.timeout = false;
   }
 
-  serve(ws, net, sign) {
+  serve(net, sign) {
     this.scene.remove(this.label);
     if (
       (this.player === 1 && sign === 1) ||
@@ -98,23 +99,23 @@ class Ball {
     this.startTime = Date.now();
   }
 
-  CheckTimer(ws) {
+  CheckTimer(send) {
     const Timer = Math.floor((Date.now() - this.startTime) / 1000);
     this.div.textContent = `10 Seconds To Serve the Ball ${Timer}s`;
 
-    if (Timer === 10) {
-      this.sendLost(ws);
+    if (Timer >= 10) {
+      this.sendLost(send);
       this.sendLock = true;
       this.timeout = true;
     }
   }
 
-  sendScore(ws) {
+  sendScore(send) {
     const data = { type: "score", message: {} };
-    ws.send(JSON.stringify(data));
+    send(JSON.stringify(data));
   }
 
-  sendLost(ws) {
+  sendLost(send) {
     this.count = 0;
     this.sendLock = true;
     this.serving = true;
@@ -128,10 +129,10 @@ class Ball {
         },
       },
     };
-    ws.send(JSON.stringify(data));
+    send(JSON.stringify(data));
   }
 
-  update(net, table, player1, ws, dt, player, keyboard, globalMessage) {
+  update(net, table, player1, send, dt, player, keyboard, globalMessage) {
     if (this.sendLock && this.serving && this.count >= 2) return;
     this.dy -= G;
     let flag = false;
@@ -139,12 +140,12 @@ class Ball {
     if (this.serving) this.count = 0;
     if (this.y < -50 && this.sendLock === false && this.serving === false) {
       if (this.lastshooter === 1 && player === 1) {
-        this.sendLost(ws);
+        this.sendLost(send);
         this.sendLock = true;
         this.serving = true;
         return;
       } else if (this.lastshooter === -1 && player === 2) {
-        this.sendLost(ws);
+        this.sendLost(send);
         this.sendLock = true;
         this.serving = true;
         return;
@@ -153,12 +154,17 @@ class Ball {
       this.serving = true;
       if (this.isServerDemon) {
         this.serverWin++;
-        const message = ["Good Serve", "Well Done", "ServeDemon Achieved"];
-        globalMessage({
-          message: `${message[this.serverWin - 1]}`,
-          isError: false,
-        });
-        if (this.serverWin === 3) this.serverWin = 0;
+        if (this.serverWin === 3) {
+          if (!this.Achievement.isPlaying) {
+            this.Achievement.currentTime = 0;
+            this.Achievement.play();
+          }
+          globalMessage({
+            message: "Nobody Can handle that kind of power!",
+            title: "The Server Demon Achieved",
+          });
+          this.serverWin = 0;
+        }
       }
       return;
     } else if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
@@ -174,9 +180,9 @@ class Ball {
         else this.lastshooter = 1;
         if (this.count === 2) {
           if (this.lastshooter === -1 && player === 2) {
-            this.sendLost(ws);
+            this.sendLost(send);
           } else if (this.lastshooter === 1 && player === 1) {
-            this.sendLost(ws);
+            this.sendLost(send);
           }
           return;
         }
@@ -188,7 +194,7 @@ class Ball {
         this.netHitSound.currentTime = 0.5;
         this.netHitSound.play();
       }
-      player1.netshoot(this, net, ws, player);
+      player1.netshoot(this, net, send, player);
       this.count = 0;
       flag = true;
     }
@@ -220,7 +226,7 @@ class Ball {
         this.onlyHit.play();
       }
       status = "hit";
-      player1.hit(this, ws);
+      player1.hit(this, send);
       this.scene.remove(this.label);
       this.serving = false;
       this.count = 0;
@@ -255,7 +261,7 @@ class Ball {
           },
         },
       };
-      ws.send(JSON.stringify(data));
+      send(JSON.stringify(data));
     }
 
     this.model.position.set(this.x, this.y, this.z);
@@ -336,7 +342,7 @@ class Ball {
         this.BackgroundMusic = new THREE.Audio(sm.listener);
         this.BackgroundMusic.setLoop(true);
         this.BackgroundMusic.setBuffer(buffer);
-        this.BackgroundMusic.setVolume(0.1);
+        this.BackgroundMusic.setVolume(0.05);
       },
     );
 
@@ -382,6 +388,15 @@ class Ball {
         this.Victory = new THREE.Audio(sm.listener);
         this.Victory.setBuffer(buffer);
         this.Victory.setVolume(0.5);
+      },
+    );
+
+    sm.audioLoader.load(
+      `https://${window.location.hostname}:3000/src/games/pong/Sounds/AchievementSong.mp3`,
+      (buffer) => {
+        this.Achievement = new THREE.Audio(sm.listener);
+        this.Achievement.setBuffer(buffer);
+        this.Achievement.setVolume(1);
       },
     );
     this.scene.add(this.model);

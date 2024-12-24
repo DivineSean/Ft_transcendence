@@ -12,7 +12,6 @@ class Command(BaseCommand):
                 "name": "pong",
                 "min_players": 2,
                 "max_players": 2,
-                "description": "Ping-pong game",
             },
         ]
 
@@ -23,7 +22,6 @@ class Command(BaseCommand):
                     defaults={
                         "min_players": game_data["min_players"],
                         "max_players": game_data["max_players"],
-                        "description": game_data["description"],
                     },
                 )
                 if created:
