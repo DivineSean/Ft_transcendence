@@ -47,6 +47,11 @@ class GameRoom(models.Model):
 
 
 class Player(models.Model):
+    class Result(models.TextChoices):
+        WIN = "win", "Win"
+        LOSS = "loss", "Loss"
+        DRAW = "draw", "Draw"
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     game_room = models.ForeignKey(GameRoom, on_delete=models.CASCADE)
     rating_gain = models.PositiveSmallIntegerField()
@@ -54,6 +59,9 @@ class Player(models.Model):
     role = models.PositiveSmallIntegerField()
     ready = models.BooleanField(default=False)
     score = models.PositiveIntegerField(default=0)
+    result = models.CharField(
+        max_length=10, choices=Result.choices, blank=True, null=True
+    )
 
 
 class PlayerRating(models.Model):
