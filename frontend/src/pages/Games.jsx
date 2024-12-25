@@ -134,7 +134,7 @@ const ModeDetails = ({ games }) => {
           : undefined;
       if (!modeObject) navigate(`/games/${game}`);
     }
-    if (mode === "local") navigate("PongLocal");
+    // if (mode === "local") navigate("PongLocal");
   }, []);
 
   const Modes = () => {

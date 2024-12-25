@@ -6,10 +6,12 @@ import Ball from "./BallLocal";
 import { Clock } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import AuthContext from "../../../context/AuthContext";
 import Toast from "../../../components/Toast";
 
 const PongLocal = () => {
+  const navigate = useNavigate();
   const sm = useRef(null);
   const loaderRef = useRef(null);
   const loaderTRef = useRef(null);
@@ -94,10 +96,6 @@ const PongLocal = () => {
         !ball.Victory
       )
         return;
-      if (!ball.BackgroundMusic.isPlaying) {
-        ball.BackgroundMusic.currentTime = 0;
-        ball.BackgroundMusic.play();
-      }
       const timeNow = performance.now() / 1000;
       let dt = clock.getDelta() * 1000;
 
@@ -157,23 +155,24 @@ const PongLocal = () => {
     window.addEventListener("resize", onWindowResize, false);
 
     return () => {
-      sm.current.cleanup();
+			console.log("cleaned pong local");
       players[0].cleanup();
       players[1].cleanup();
       net.cleanup();
-      ball.cleanup();
       table.cleanup();
-      sm.current.renderer.setAnimationLoop(null);
+      ball.cleanup();
+      sm.current.cleanup();
+	    sm.current.renderer.setAnimationLoop(null);
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("resize", onWindowResize);
     };
   }, []);
 
-  function handleExitGame() {
-    window.location.href = "/games/pong/";
-    window.close();
-  }
+  // function handleExitGame() {
+  //   window.location.href = "/games/pong/";
+  //   window.close();
+  // }
 
   function restart() {
     window.location.href = "/games/pong/local/PongLocal";
@@ -209,7 +208,7 @@ const PongLocal = () => {
               <div className="flex flex-col gap-6 mt-12">
                 <button
                   className="relative inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
-                  onClick={handleExitGame}
+                  onClick={() => navigate("/games/pong")}
                 >
                   <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
                   <span className="z-10">Back To Pong</span>

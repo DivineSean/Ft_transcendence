@@ -204,7 +204,7 @@ class Ball {
 			sound = null;
 		}
 	}
-  
+
   cleanup() {
 		this.RemoveMaterial(this.model);
 		this.removeAudio(this.bounceSound);
@@ -290,6 +290,7 @@ class Ball {
         this.BackgroundMusic.setLoop(true);
         this.BackgroundMusic.setBuffer(buffer);
         this.BackgroundMusic.setVolume(0.1);
+        this.BackgroundMusic.play();
       },
     );
 

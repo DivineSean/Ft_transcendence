@@ -45,12 +45,12 @@ function App() {
                   element={<Profile />}
                 />
                 <Route
-                  path="games/:game/:mode/:uuid"
-                  element={<GameManager />}
+                  path="games/:game/local"
+                  element={<PongLocal />}
                 />
                 <Route
-                  path="games/:game/:mode/PongLocal"
-                  element={<PongLocal />}
+                  path="games/:game/:mode/:uuid"
+                  element={<GameManager />}
                 />
                 <Route path="games/*" element={<Games />} />
                 <Route path="register/" element={<SignUp />} />
