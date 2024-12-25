@@ -101,7 +101,6 @@ const PongLocal = () => {
       const timeNow = performance.now() / 1000;
       let dt = clock.getDelta() * 1000;
 
-      table.update();
       while (timeNow > simulatedTime + fixedStep) {
         ball.update(
           sm.current,
@@ -158,7 +157,13 @@ const PongLocal = () => {
     window.addEventListener("resize", onWindowResize, false);
 
     return () => {
-      sm.current.cleanUp();
+      sm.current.cleanup();
+      players[0].cleanup();
+      players[1].cleanup();
+      net.cleanup();
+      ball.cleanup();
+      table.cleanup();
+      sm.current.renderer.setAnimationLoop(null);
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("resize", onWindowResize);

@@ -30,5 +30,30 @@ export class Net {
     const max = new THREE.Vector3(0.5, -23.5, 27);
     this.boundingBox = new THREE.Box3(min, max);
   }
+
+  RemoveChild(plane) {
+		if (!plane) return;
+		for (let i = plane.children.length - 1; i >= 0; i--) {
+			const child = plane.children[i];
+			plane.remove(child);
+			if (child.geometry) child.geometry.dispose();
+			if (child.material) child.material.dispose();
+		}
+	}
+
+	RemoveMaterial(plane) {
+		if (plane) {
+			this.RemoveChild(plane);
+			this.scene.remove(plane);
+			if (plane.geometry) plane.geometry.dispose();
+			if (plane.material) plane.material.dispose();
+			plane = null;
+		}
+	}
+
+	cleanup() {
+		this.RemoveMaterial(this.model);
+	}  
+
 }
 export default Net;

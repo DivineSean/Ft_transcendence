@@ -59,7 +59,6 @@ const Pong = ({
 
 		playersRef.current = [
 			new Paddle(
-				send,
 				sm.current.scene,
 				1,
 				{ x: 43, y: -25.5, z: 12 },
@@ -68,7 +67,6 @@ const Pong = ({
 				ballRef.current,
 			),
 			new Paddle(
-				send,
 				sm.current.scene,
 				-1,
 				{ x: -43, y: -25.5, z: -12 },
@@ -77,52 +75,13 @@ const Pong = ({
 				ballRef.current,
 			),
 		];
-
-		// const clearThree = (obj) => {
-		// 	while (obj.children.length > 0) {
-		// 		clearThree(obj.children[0]);
-		// 		obj.remove(obj.children[0]);
-		// 	}
-		// 	if (obj.geometry) obj.geometry.dispose();
-		//
-		// 	if (obj.material) {
-		// 		//in case of map, bumpMap, normalMap, envMap ...
-		// 		Object.keys(obj.material).forEach(prop => {
-		// 			if (!obj.material[prop])
-		// 				return;
-		// 			if (obj.material[prop] !== null && typeof obj.material[prop].dispose === 'function')
-		// 				obj.material[prop].dispose();
-		// 		})
-		// 		obj.material.dispose();
-		// 	}
-		// }
-
-
-		return () => {
-			// console.log("before cleanup: ", sm.current.renderer.info, sm.current.scene.children);
-			// // ballRef.current.cleanup();
-			// // sm.current.renderer.render(sm.current.scene, sm.current.camera);
-			// // console.log("cleanit", sm.current.scene.children);
-			// // while (sm.current.scene.children.length) {
-			// // 	sm.current.scene.remove(sm.current.scene.children[0])
-			// // }
-			// sm.current.renderer.setAnimationLoop(null);
-			// clearThree(sm.current.scene);
-			// sm.current.renderer.dispose();
-			// // sm.current.renderer.forceContextLoss();
-			// // sm.current.renderer = null;
-			// console.log("after cleanup: ", sm.current.renderer.info, sm.current.scene.children);
-		}
-	}, [])
-
-	useEffect(() => {
-		if (!tableRef.current || !netRef.current || !ballRef.current || !playersRef.current || !sm.current)
-			return;
-
-		const table = tableRef.current;
-		const net = netRef.current;
-		const ball = ballRef.current;
-		const players = playersRef.current;
+		
+		sm.current.render();
+		tableRef.current.render();
+		netRef.current.render();
+		ballRef.current.render(sm.current);
+		playersRef.current[0].render();
+		playersRef.current[1].render();
 
 		const messageHandler = (event) => {
 			const msg = JSON.parse(event.data);
@@ -138,9 +97,9 @@ const Pong = ({
 						sm.current.RemontadaChance = true;
 				}
 				if (Math.abs(score1 - score2) === 0 && sm.current.RemontadaChance) {
-					if (!ball.Achievement.isPlaying) {
-						ball.Achievement.currentTime = 0;
-						ball.Achievement.play();
+					if (!ballRef.current.Achievement.isPlaying) {
+						ballRef.current.Achievement.currentTime = 0;
+						ballRef.current.Achievement.play();
 					}
 					authContextData.setGlobalMessage({
 						message:
@@ -149,75 +108,117 @@ const Pong = ({
 					});
 					sm.current.RemontadaChance = false;
 				}
-				sm.current.scoreUpdate(send, scores, msg.message.role, ball);
+				sm.current.scoreUpdate(send, scores, msg.message.role, ballRef.current);
 				if (msg.message.role === 1) {
-					ball.serve(net, 1);
+					ballRef.current.serve(netRef.current, 1);
 				} else if (msg.message.role === 2) {
-					ball.serve(net, -1);
+					ballRef.current.serve(netRef.current, -1);
 				}
 			} else if (msg.message.content == "paddle") {
-				players[opp - 1].rotating = false;
-				players[opp - 1].x = msg.message.paddle.x;
-				players[opp - 1].y = msg.message.paddle.y;
-				players[opp - 1].z = msg.message.paddle.z;
+				playersRef.current[opp - 1].rotating = false;
+				playersRef.current[opp - 1].x = msg.message.paddle.x;
+				playersRef.current[opp - 1].y = msg.message.paddle.y;
+				playersRef.current[opp - 1].z = msg.message.paddle.z;
 
-				players[opp - 1].dx = msg.message.paddle.dx;
-				players[opp - 1].dy = msg.message.paddle.dy;
-				players[opp - 1].dz = msg.message.paddle.dz;
+				playersRef.current[opp - 1].dx = msg.message.paddle.dx;
+				playersRef.current[opp - 1].dy = msg.message.paddle.dy;
+				playersRef.current[opp - 1].dz = msg.message.paddle.dz;
 
-				players[opp - 1].rotationX = msg.message.paddle.rotX;
-				players[opp - 1].rotationY = msg.message.paddle.rotY;
-				players[opp - 1].rotationZ = msg.message.paddle.rotZ;
-				players[opp - 1].updatePos();
+				playersRef.current[opp - 1].rotationX = msg.message.paddle.rotX;
+				playersRef.current[opp - 1].rotationY = msg.message.paddle.rotY;
+				playersRef.current[opp - 1].rotationZ = msg.message.paddle.rotZ;
+				playersRef.current[opp - 1].updatePos();
 			} else if (msg.message.content == "rotating") {
-				if (!ball.swing.isPlaying) {
-					ball.swing.currentTime = 0;
-					ball.swing.play();
+				if (!ballRef.current.swing.isPlaying) {
+					ballRef.current.swing.currentTime = 0;
+					ballRef.current.swing.play();
 				}
-				players[opp - 1].rotating = true;
-				players[opp - 1].rotationX = msg.message.paddle.rotX;
-				players[opp - 1].rotationY = msg.message.paddle.rotY;
-				players[opp - 1].rotationZ = msg.message.paddle.rotZ;
-				players[opp - 1].updatePos();
+				playersRef.current[opp - 1].rotating = true;
+				playersRef.current[opp - 1].rotationX = msg.message.paddle.rotX;
+				playersRef.current[opp - 1].rotationY = msg.message.paddle.rotY;
+				playersRef.current[opp - 1].rotationZ = msg.message.paddle.rotZ;
+				playersRef.current[opp - 1].updatePos();
 			} else if (msg.message.content == "ball") {
 				if (msg.message.ball.stats === "shoot") {
-					if (!ball.paddleHitSound.isPlaying) {
-						ball.paddleHitSound.currentTime = 0;
-						ball.paddleHitSound.play();
+					if (!ballRef.current.paddleHitSound.isPlaying) {
+						ballRef.current.paddleHitSound.currentTime = 0;
+						ballRef.current.paddleHitSound.play();
 					}
 				} else if (msg.message.ball.stats === "hit") {
-					if (!ball.onlyHit.isPlaying) {
-						ball.onlyHit.currentTime = 0;
-						ball.onlyHit.play();
+					if (!ballRef.current.onlyHit.isPlaying) {
+						ballRef.current.onlyHit.currentTime = 0;
+						ballRef.current.onlyHit.play();
 					}
 				}
-				ball.x = msg.message.ball.x;
-				ball.y = msg.message.ball.y;
-				ball.z = msg.message.ball.z;
-				ball.dx = msg.message.ball.dx;
-				ball.dy = msg.message.ball.dy;
-				ball.dz = msg.message.ball.dz;
-				ball.count = 0;
-				ball.serving = msg.message.ball.serving;
-				ball.lastshooter = msg.message.ball.lstshoot;
-				ball.isServerDemon = false;
-				ball.updatePos();
+				ballRef.current.x = msg.message.ball.x;
+				ballRef.current.y = msg.message.ball.y;
+				ballRef.current.z = msg.message.ball.z;
+				ballRef.current.dx = msg.message.ball.dx;
+				ballRef.current.dy = msg.message.ball.dy;
+				ballRef.current.dz = msg.message.ball.dz;
+				ballRef.current.count = 0;
+				ballRef.current.serving = msg.message.ball.serving;
+				ballRef.current.lastshooter = msg.message.ball.lstshoot;
+				ballRef.current.isServerDemon = false;
+				ballRef.current.updatePos();
 			} else if (msg.message.content == "lost") {
-				ball.serving = msg.message.ball.serving;
-				ball.lastshooter = msg.message.ball.lstshoot;
-				ball.sendLock = true;
-				ball.sendScore(send);
+				ballRef.current.serving = msg.message.ball.serving;
+				ballRef.current.lastshooter = msg.message.ball.lstshoot;
+				ballRef.current.sendLock = true;
+				ballRef.current.sendScore(send);
 			}
 		};
 
 		addMessageHandler(messageHandler);
 
-		sm.current.render();
-		table.render();
-		net.render();
-		ball.render(sm.current);
-		players[0].render();
-		players[1].render();
+		const handleKeyDown = (event) => {
+			if (playersRef.current[player - 1].rotating) return;
+			keyboard.current[event.code] = true;
+		};
+
+		const handleKeyUp = (event) => {
+			keyboard.current[event.code] = false;
+		};
+
+		const onWindowResize = () => {
+			sm.current.camera.aspect = window.innerWidth / window.innerHeight;
+			sm.current.camera.updateProjectionMatrix();
+
+			sm.current.renderer.setSize(window.innerWidth, window.innerHeight);
+			ballRef.current.labelRenderer.setSize(window.innerWidth, window.innerHeight);
+			sm.current.ScalePlan();
+			sm.current.scoreRender(ballRef.current.scoreboard, ballRef.current.whoscore);
+			sm.current.addMatchPoint(ballRef.current.scoreboard);
+			sm.current.TimeRender(false);
+			sm.current.TimerCSS();
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		window.addEventListener("keyup", handleKeyUp);
+		window.addEventListener("resize", onWindowResize, false);
+
+		return () => {
+			sm.current.cleanup();
+			ballRef.current.cleanup();
+			tableRef.current.cleanup();
+			netRef.current.cleanup();
+			playersRef.current[0].cleanup();
+			playersRef.current[1].cleanup();
+			removeMessageHandler(messageHandler);
+			window.removeEventListener("keydown", handleKeyDown);
+			window.removeEventListener("keyup", handleKeyUp);
+			window.removeEventListener("resize", onWindowResize);
+		};
+	}, [])
+
+	useEffect(() => {
+		if (!tableRef.current || !netRef.current || !ballRef.current || !playersRef.current || !sm.current)
+			return;
+
+		const table = tableRef.current;
+		const net = netRef.current;
+		const ball = ballRef.current;
+		const players = playersRef.current;
 
 		let simulatedTime = performance.now() / 1000;
 		const fixedStep = 0.015;
@@ -251,7 +252,6 @@ const Pong = ({
 			const timeNow = performance.now() / 1000;
 			let dt = clock.getDelta() * 1000;
 
-			table.update();
 			while (timeNow > simulatedTime + fixedStep) {
 				ball.update(
 					net,
@@ -292,39 +292,8 @@ const Pong = ({
 		};
 
 		sm.current.renderer.setAnimationLoop(animate);
-		const handleKeyDown = (event) => {
-			if (players[player - 1].rotating) return;
-			keyboard.current[event.code] = true;
-		};
-
-		const handleKeyUp = (event) => {
-			keyboard.current[event.code] = false;
-		};
-
-		const onWindowResize = () => {
-			sm.current.camera.aspect = window.innerWidth / window.innerHeight;
-			sm.current.camera.updateProjectionMatrix();
-
-			sm.current.renderer.setSize(window.innerWidth, window.innerHeight);
-			ball.labelRenderer.setSize(window.innerWidth, window.innerHeight);
-			sm.current.ScalePlan();
-			sm.current.scoreRender(ball.scoreboard, ball.whoscore);
-			sm.current.addMatchPoint(ball.scoreboard);
-			sm.current.TimeRender(false);
-			sm.current.TimerCSS();
-		};
-
-		window.addEventListener("keydown", handleKeyDown);
-		window.addEventListener("keyup", handleKeyUp);
-		window.addEventListener("resize", onWindowResize, false);
-
-		return () => {
-			sm.current.cleanup();
-			removeMessageHandler(messageHandler);
-			window.removeEventListener("keydown", handleKeyDown);
-			window.removeEventListener("keyup", handleKeyUp);
-			window.removeEventListener("resize", onWindowResize);
-		};
+		
+		return () => sm.current.renderer.setAnimationLoop(null);
 	}, [ready, isWon, islost]);
 
 	function handleExitGame() {

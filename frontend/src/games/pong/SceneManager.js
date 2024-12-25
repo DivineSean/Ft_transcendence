@@ -54,42 +54,14 @@ export class SceneManager {
 		// Scene
 		this.scene = new THREE.Scene();
 
-		// Lighting (Directional Lights)
+		this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+		this.FixLight(this.directionalLight, -80, 20, -45);
 
-		const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-		directionalLight.position.set(-80, 20, -45); // Position it above the room
-		directionalLight.target.position.set(0, -25.5, 0); // P
-		directionalLight.castShadow = true;
-		directionalLight.shadow.mapSize.width = 2048; // Shadow map width (increase for higher resolution)
-		directionalLight.shadow.mapSize.height = 2048;
-		directionalLight.shadow.camera.near = 0.5;
-		directionalLight.shadow.camera.far = 200;
-		directionalLight.shadow.camera.left = -200;
-		directionalLight.shadow.camera.right = 200;
-		directionalLight.shadow.camera.top = 200;
-		directionalLight.shadow.camera.bottom = -200;
-		directionalLight.shadow.radius = 0.5;
-		directionalLight.shadow.blurSamples = 3;
-		this.scene.add(directionalLight);
+		this.directionalLight1 = new THREE.DirectionalLight(0xffffff, 1);
+		this.FixLight(this.directionalLight1, 80, 20, 45);
 
-		const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1);
-		directionalLight1.position.set(80, 20, 45); // Position it above the room
-		directionalLight1.target.position.set(0, -25.5, 0); // P
-		directionalLight1.castShadow = true;
-		directionalLight1.shadow.mapSize.width = 2048; // Shadow map width (increase for higher resolution)
-		directionalLight1.shadow.mapSize.height = 2048;
-		directionalLight1.shadow.camera.near = 0.5;
-		directionalLight1.shadow.camera.far = 200;
-		directionalLight1.shadow.camera.left = -200;
-		directionalLight1.shadow.camera.right = 200;
-		directionalLight1.shadow.camera.top = 200;
-		directionalLight1.shadow.camera.bottom = -200;
-		directionalLight1.shadow.radius = 0.5;
-		directionalLight1.shadow.blurSamples = 3;
-		this.scene.add(directionalLight1);
-
-		const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-		this.scene.add(ambientLight);
+		this.ambientLight = new THREE.AmbientLight(0xffffff, 1);
+		this.scene.add(this.ambientLight);
 
 		this.P1Score = undefined;
 		this.P2Score = undefined;
@@ -99,9 +71,37 @@ export class SceneManager {
 		this.P2red = undefined;
 		this.P1MatchPoint = undefined;
 		this.P2MatchPoint = undefined;
+		this.wall1 = undefined;
+		this.wall2 = undefined;
+		this.wall3 = undefined;
+		this.wall4 = undefined;
+		this.wall5 = undefined;
+		this.wall6 = undefined;
+		this.pointLight = undefined;
+		this.timerDiv = undefined;
+
 
 		this.audioLoader = new THREE.AudioLoader();
 		this.listener = new THREE.AudioListener();
+	}
+
+
+	FixLight(light, x, y, z)
+	{
+		light.position.set(x, y, z); // Position it above the room
+		light.target.position.set(0, -25.5, 0); // P
+		light.castShadow = true;
+		light.shadow.mapSize.width = 2048; // Shadow map width (increase for higher resolution)
+		light.shadow.mapSize.height = 2048;
+		light.shadow.camera.near = 0.5;
+		light.shadow.camera.far = 200;
+		light.shadow.camera.left = -200;
+		light.shadow.camera.right = 200;
+		light.shadow.camera.top = 200;
+		light.shadow.camera.bottom = -200;
+		light.shadow.radius = 0.5;
+		light.shadow.blurSamples = 3;
+		this.scene.add(light);
 	}
 
 	TimerCSS(ball) {
@@ -145,6 +145,7 @@ export class SceneManager {
 		wall.receiveShadow = true;
 		pointLight.target = wall;
 		this.scene.add(wall);
+		return wall;
 	}
 
 	createWall_(x, y, z, width, height, pointLight) {
@@ -159,6 +160,7 @@ export class SceneManager {
 		wall.receiveShadow = true;
 		pointLight.target = wall;
 		this.scene.add(wall);
+		return wall;
 	}
 
 	updateTextOnPlane(plane, text, x, y, z, color) {
@@ -196,7 +198,7 @@ export class SceneManager {
 		if (whoScore === 1) this.scene.add(this.P1red);
 		else if (whoScore === 2) this.scene.add(this.P2red);
 		if (P["1"] === "6") {
-			this.RemovePlaneText(this.P1MatchPoint);
+			this.RemoveMaterial(this.P1MatchPoint);
 			this.P1MatchPoint = this.createRoundedPlane(
 				0.6,
 				0.19,
@@ -215,7 +217,7 @@ export class SceneManager {
 			this.addTextToPlane(this.P1MatchPoint, "Match Point", -0.25, 0, 0xffffff);
 		}
 		if (P["2"] === "6") {
-			this.RemovePlaneText(this.P2MatchPoint);
+			this.RemoveMaterial(this.P2MatchPoint);
 			this.P2MatchPoint = this.createRoundedPlane(
 				0.6,
 				0.19,
@@ -579,15 +581,15 @@ export class SceneManager {
 
 	render() {
 		// Optional: Adding a point light for more localized highlights or for lighting specific areas (like the center of the room)
-		const pointLight = new THREE.PointLight(0xffffff, 100000, 500); // Low intensity, limited range
-		pointLight.position.set(0, -150, 0); // Placing in the center of the room
-		this.createWall(100, 0, 0, 200, 110, true, pointLight);
-		this.createWall(-100, 0, 0, 200, 110, true, pointLight);
-		this.createWall(0, 0, 100, 200, 110, false, pointLight);
-		this.createWall(0, 0, -100, 200, 110, false, pointLight);
-		this.createWall_(0, 55, 0, 200, 200, pointLight);
-		this.createWall_(0, -55, 0, 200, 200, pointLight);
-		this.scene.add(pointLight);
+		this.pointLight = new THREE.PointLight(0xffffff, 100000, 500); // Low intensity, limited range
+		this.pointLight.position.set(0, -150, 0); // Placing in the center of the room
+		this.wall1 = this.createWall(100, 0, 0, 200, 110, true, this.pointLight);
+		this.wall2 = this.createWall(-100, 0, 0, 200, 110, true, this.pointLight);
+		this.wall3 = this.createWall(0, 0, 100, 200, 110, false, this.pointLight);
+		this.wall4 = this.createWall(0, 0, -100, 200, 110, false, this.pointLight);
+		this.wall5 = this.createWall_(0, 55, 0, 200, 200, this.pointLight);
+		this.wall6 = this.createWall_(0, -55, 0, 200, 200, this.pointLight);
+		this.scene.add(this.pointLight);
 
 		//score
 		this.scoreRender(undefined, 1);
@@ -606,7 +608,7 @@ export class SceneManager {
 		this.scene.remove(this.P2red);
 	}
 
-	RemoveText(plane) {
+	RemoveChild(plane) {
 		if (!plane) return;
 		for (let i = plane.children.length - 1; i >= 0; i--) {
 			const child = plane.children[i];
@@ -616,9 +618,9 @@ export class SceneManager {
 		}
 	}
 
-	RemovePlaneText(plane) {
+	RemoveMaterial(plane) {
 		if (plane) {
-			this.RemoveText(plane);
+			this.RemoveChild(plane);
 			this.scene.remove(plane);
 			if (plane.geometry) plane.geometry.dispose();
 			if (plane.material) plane.material.dispose();
@@ -628,7 +630,7 @@ export class SceneManager {
 
 	addMatchPoint(Score) {
 		if (Score[0] === 6) {
-			this.RemovePlaneText(this.P1MatchPoint);
+			this.RemoveMaterial(this.P1MatchPoint);
 			this.P1MatchPoint = this.createRoundedPlane(
 				0.6,
 				0.19,
@@ -647,7 +649,7 @@ export class SceneManager {
 			this.addTextToPlane(this.P1MatchPoint, "Match Point", -0.25, 0, 0xffffff);
 		}
 		if (Score[1] === 6) {
-			this.RemovePlaneText(this.P2MatchPoint);
+			this.RemoveMaterial(this.P2MatchPoint);
 			this.P2MatchPoint = this.createRoundedPlane(
 				0.6,
 				0.19,
@@ -667,7 +669,27 @@ export class SceneManager {
 		}
 	}
 
-	cleanup() { }
+	cleanup() {
+		this.RemoveMaterial(this.ambientLight);
+		this.RemoveMaterial(this.directionalLight);
+		this.RemoveMaterial(this.directionalLight1);
+		this.RemoveMaterial(this.P1Score);
+		this.RemoveMaterial(this.P2Score);
+		this.RemoveMaterial(this.P1ScoreBarre);
+		this.RemoveMaterial(this.P2ScoreBarre);
+		this.RemoveMaterial(this.P1red);
+		this.RemoveMaterial(this.P2red);
+		this.RemoveMaterial(this.P1MatchPoint);
+		this.RemoveMaterial(this.P2MatchPoint);
+		this.RemoveMaterial(this.wall1);
+		this.RemoveMaterial(this.wall2);
+		this.RemoveMaterial(this.wall3);
+		this.RemoveMaterial(this.wall4);
+		this.RemoveMaterial(this.wall5);
+		this.RemoveMaterial(this.wall6);
+		this.RemoveMaterial(this.pointLight);
+		this.RemoveMaterial(this.timerDiv);
+	}
 }
 
 export default SceneManager;
