@@ -42,6 +42,7 @@ const Pong = ({
 		);
 	
 		if (!isMobile) return;
+		if(!ready) return;
 
 		const MobileEventListener = (event) => {
 			if (event.x > 0.5)
@@ -118,7 +119,7 @@ const Pong = ({
 			screen.orientation.unlock();
 			}
 		};
-	}, []);
+	}, [ready]);
 
 	useEffect(() => {
 		loaderTRef.current = new GLTFLoader();
