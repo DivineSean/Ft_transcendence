@@ -28,7 +28,6 @@ const Pong = ({
 	const [isPortrait, setIsPortrait] = useState(false);
 	const [isWon, setIsWon] = useState(false);
 	const [islost, setIslost] = useState(false);
-	const [joystick, isJoystick] = useState(false);
 
 
 	const tableRef = useRef(null);
@@ -78,7 +77,7 @@ const Pong = ({
 			}
 		}
 
-		isJoystick(new JoystickController(  {
+		const joystick = new JoystickController(  {
 			maxRange: 70,
 			level: 10,
 			radius: 50,
@@ -94,7 +93,7 @@ const Pong = ({
 			y: "25%",
 			mouseClickButton: "ALL",
 			hideContextMenu: false,
-		}, (data) => { MobileEventListener(data) }));
+		}, (data) => { MobileEventListener(data) });
 
 		const handleOrientation = () => {
 			const isPortraitMode = window.innerHeight > window.innerWidth;
@@ -111,7 +110,7 @@ const Pong = ({
 		window.addEventListener('orientationchange', handleOrientation);
 	
 		return () => {
-			if (isMobile)
+			if (isMobile && joystick)
 				joystick.destroy();
 			window.removeEventListener('resize', handleOrientation);
 			window.removeEventListener('orientationchange', handleOrientation);
