@@ -37,6 +37,7 @@ class Ball {
     this.serving = true;
     this.lastshooter = 1;
     this.startTime = Date.now();
+
   }
 
   serve(net, sign) {
@@ -194,15 +195,17 @@ class Ball {
 	}
 
 	removeAudio(sound) {
-		if (sound && sound.isPlaying) {
-			sound.stop();
+		if (!sound)
+      return ;
+    sound.setLoop(false);
+    if (sound.isPlaying){
+      sound.stop();
+			sound.disconnect();
 		}
-		if (sound && sound.buffer) {
-			sound.buffer = null;
+		if (sound.buffer) {
+			sound.setBuffer(null);
 		}
-		if (sound) {
-			sound = null;
-		}
+		sound = null;
 	}
 
   cleanup() {
@@ -222,6 +225,7 @@ class Ball {
 	}
 
   async render(sm) {
+
     this.model = await this.loader
       .loadAsync(
         `https://${window.location.hostname}:3000/src/games/pong/ball.glb`,

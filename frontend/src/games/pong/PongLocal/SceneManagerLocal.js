@@ -103,8 +103,9 @@ export class SceneManager {
 		this.wall5 = undefined;
 		this.wall6 = undefined;
 
-    this.audioLoader = new THREE.AudioLoader();
     this.listener = new THREE.AudioListener();
+    this.camera.add(this.listener);
+    this.audioLoader = new THREE.AudioLoader();
   }
 
 	FixLight(light, x, y, z)
@@ -748,11 +749,9 @@ export class SceneManager {
     this.renderer.clear(true, true, true);
     this.renderer.setViewport(0, 0, (width - 5) / 2, height);
     this.renderer.setScissor(0, 0, (width - 5) / 2, height);
-    this.listener.setMasterVolume(1);
     this.renderer.render(this.scene, this.camera);
     this.renderer.setViewport((width + 5) / 2, 0, width / 2, height);
     this.renderer.setScissor((width + 5) / 2, 0, width / 2, height);
-    this.listener.setMasterVolume(0);
     this.renderer.render(this.scene, this.camera2);
     this.renderer.setScissorTest(false);
   }
@@ -945,6 +944,7 @@ export class SceneManager {
     this.startTime = Date.now();
     this.lastTime = Date.now();
     this.TimeRender(true);
+
   }
 
   ScalePlan() {
