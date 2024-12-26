@@ -41,6 +41,21 @@ const Pong = ({
 		);
 	
 		if (!isMobile) return;
+		const handleOrientation = () => {
+			const isPortraitMode = window.innerHeight > window.innerWidth;
+			setIsPortrait(isPortraitMode);
+			
+			if (screen.orientation?.lock) {
+			screen.orientation.lock('landscape').catch(() => {
+				// im doing that to force browser to landscape mode if it doesnt require user permission, if does im silencing it using empty catch 
+			});
+			}
+		};
+	
+		handleOrientation();
+		window.addEventListener('resize', handleOrientation);
+		window.addEventListener('orientationchange', handleOrientation);
+
 		if(!ready) return;
 
 		const MobileEventListener = (event) => {
@@ -95,19 +110,6 @@ const Pong = ({
 			hideContextMenu: false,
 		}, (data) => { MobileEventListener(data) });
 
-		const handleOrientation = () => {
-			const isPortraitMode = window.innerHeight > window.innerWidth;
-			setIsPortrait(isPortraitMode);
-			
-			if (screen.orientation?.lock) {
-			screen.orientation.lock('landscape').catch(() => {
-				// im doing that to force browser to landscape mode if it doesnt require user permission, if does im silencing it using empty catch 
-			});
-			}
-		};
-	
-		window.addEventListener('resize', handleOrientation);
-		window.addEventListener('orientationchange', handleOrientation);
 	
 		return () => {
 			if (isMobile && joystick)
