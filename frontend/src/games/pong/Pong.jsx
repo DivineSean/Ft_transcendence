@@ -8,6 +8,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState, useContext } from "react";
 import AuthContext from "../../context/AuthContext";
 import GameToast from "../../components/GameToast";
+import JoystickController from "joystick-controller";
 
 const Pong = ({
 	send,
@@ -24,15 +25,100 @@ const Pong = ({
 	const loaderBRef = useRef(null);
 	const keyboard = useRef({});
 	const authContextData = useContext(AuthContext);
-
+	const [isPortrait, setIsPortrait] = useState(false);
 	const [isWon, setIsWon] = useState(false);
 	const [islost, setIslost] = useState(false);
+	const [joystick, isJoystick] = useState(false);
 
 
 	const tableRef = useRef(null);
 	const netRef = useRef(null);
 	const ballRef = useRef(null);
 	const playersRef = useRef(null);
+
+	useEffect(() => {
+		const isMobile = /android|iphone|ipad|ipod/i.test(
+			navigator.userAgent || navigator.vendor || window.opera
+		);
+	
+		if (!isMobile) return;
+
+		const MobileEventListener = (event) => {
+			if (event.x > 0.5)
+			{
+				keyboard.current["ArrowRight"] = true;
+				keyboard.current["ArrowLeft"] = false;
+
+			}
+			else if (event.x < -0.5)
+			{
+				keyboard.current["ArrowLeft"] = true;
+				keyboard.current["ArrowRight"] = false;
+			}
+			else
+			{
+				keyboard.current["ArrowRight"] = false;
+				keyboard.current["ArrowLeft"] = false;
+			}
+			if (event.y > 0.5)
+			{
+				keyboard.current["ArrowUp"] = true;
+				keyboard.current["ArrowDown"] = false;
+			}
+			else if (event.y < -0.5)
+			{
+				keyboard.current["ArrowDown"] = true;
+				keyboard.current["ArrowUp"] = false;
+			}
+			else
+			{
+				keyboard.current["ArrowUp"] = false;
+				keyboard.current["ArrowDown"] = false;
+			}
+		}
+
+		isJoystick(new JoystickController(  {
+			maxRange: 70,
+			level: 10,
+			radius: 50,
+			joystickRadius: 30,
+			opacity: 0.5,
+			leftToRight: false,
+			bottomToUp: true,
+			containerClass: "joystick-container",
+			controllerClass: "joystick-controller",
+			joystickClass: "joystick",
+			distortion: true,
+			x: "15%",
+			y: "25%",
+			mouseClickButton: "ALL",
+			hideContextMenu: false,
+		}, (data) => { MobileEventListener(data) }));
+
+		const handleOrientation = () => {
+			const isPortraitMode = window.innerHeight > window.innerWidth;
+			setIsPortrait(isPortraitMode);
+			
+			if (screen.orientation?.lock) {
+			screen.orientation.lock('landscape').catch(() => {
+				// im doing that to force browser to landscape mode if it doesnt require user permission, if does im silencing it using empty catch 
+			});
+			}
+		};
+	
+		window.addEventListener('resize', handleOrientation);
+		window.addEventListener('orientationchange', handleOrientation);
+	
+		return () => {
+			if (isMobile)
+				joystick.destroy();
+			window.removeEventListener('resize', handleOrientation);
+			window.removeEventListener('orientationchange', handleOrientation);
+			if (screen.orientation?.unlock) {
+			screen.orientation.unlock();
+			}
+		};
+	}, []);
 
 	useEffect(() => {
 		loaderTRef.current = new GLTFLoader();
@@ -49,6 +135,7 @@ const Pong = ({
 		tableRef.current = new Table(sm.current.scene, loaderTRef.current);
 		netRef.current = new Net(sm.current.scene, loaderRef.current);
 		ballRef.current = new Ball(sm.current.scene, loaderBRef.current, player);
+
 		const controls = {
 			up: "ArrowUp",
 			down: "ArrowDown",
@@ -75,7 +162,7 @@ const Pong = ({
 				ballRef.current,
 			),
 		];
-		
+
 		sm.current.render();
 		tableRef.current.render();
 		netRef.current.render();
@@ -170,7 +257,6 @@ const Pong = ({
 		};
 
 		addMessageHandler(messageHandler);
-
 		const handleKeyDown = (event) => {
 			if (playersRef.current[player - 1].rotating) return;
 			keyboard.current[event.code] = true;
@@ -192,7 +278,6 @@ const Pong = ({
 			sm.current.TimeRender(false);
 			sm.current.TimerCSS();
 		};
-
 		window.addEventListener("keydown", handleKeyDown);
 		window.addEventListener("keyup", handleKeyUp);
 		window.addEventListener("resize", onWindowResize, false);
@@ -311,6 +396,21 @@ const Pong = ({
 					onClose={authContextData.setGlobalMessage}
 				/>
 			)}
+			{isPortrait && (
+				<div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
+					<div className="text-center p-6">
+					<div className="animate-bounce mb-4">
+						<svg className="w-16 h-16 mx-auto text-white transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+						</svg>
+					</div>
+					<h2 className="text-white text-2xl font-bold mb-2">Please Rotate Your Device</h2>
+					<p className="text-white text-lg">
+						For the best Pong experience, play in landscape mode
+					</p>
+					</div>
+				</div>
+				)}
 			<canvas id="pong" className="block"></canvas>
 			{/* Victory Section */}
 			{isWon && (
