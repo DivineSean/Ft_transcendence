@@ -28,13 +28,13 @@ const GameOverlay = ({ data, send }) => {
 			return (
 				<div className="flex flex-col gap-16 w-full justify-center items-center">
 					<div className="flex gap-16">
-						<span className={`normal-case ${data.players_details[0].ready ? "text-green" : "text-red"}`}>@{data.players_details[0].user.username}</span>
+						<span className={`normal-case ${data.players[0].ready ? "text-green" : "text-red"}`}>@{data.players[0].user.username}</span>
 						<span className="normal-case">vs</span>
-						<span className={`normal-case ${data.players_details[1].ready ? "text-green" : "text-red"}`}>@{data.players_details[1].user.username}</span>
+						<span className={`normal-case ${data.players[1].ready ? "text-green" : "text-red"}`}>@{data.players[1].user.username}</span>
 					</div>
 					<div className="flex gap-32">
-						<span className="normal-case">+{data.players_details[0].rating_gain} -{data.players_details[0].rating_gain}</span>
-						<span className="normal-case">+{data.players_details[0].rating_gain} -{data.players_details[0].rating_gain}</span>
+						<span className="normal-case">+{data.players[0].rating_gain} -{data.players[0].rating_gain}</span>
+						<span className="normal-case">+{data.players[0].rating_gain} -{data.players[0].rating_gain}</span>
 					</div>
 					<Counter createdAt={data.created_at} />
 					<div className="flex justify-center">
@@ -60,10 +60,10 @@ const GameOverlay = ({ data, send }) => {
 	}
 }
 
-const Game = memo(({ userInfo, game, ready, setReady, send, addMessageHandler, removeMessageHandler, playersDetails, state }) => {
-	const data = playersDetails.current?.find((player) => player.user.username === userInfo.username)
-	const names = playersDetails.current?.map((player) => player.user.username) || [];
-	console.log("hadi hya data dyali hhhh", userInfo?.username, playersDetails, data);
+const Game = memo(({ userInfo, game, ready, setReady, send, addMessageHandler, removeMessageHandler, players, state }) => {
+	const data = players.current?.find((player) => player.user.username === userInfo.username)
+	const names = players.current?.map((player) => player.user.username) || [];
+	console.log("hadi hya data dyali hhhh", userInfo?.username, players, data);
 	// TODO: Pause game time if ready is set to false
 	// TODO: Ignore input if ready is set to false
 
@@ -90,7 +90,7 @@ const GameManager = () => {
 	const [ready, setReady] = useState(false);
 	const [data, setData] = useState(null);
 	const { game, uuid } = useParams();
-	const playersDetailsRef = useRef(null);
+	const playersRef = useRef(null);
 	const { send, addMessageHandler, removeMessageHandler } = useWebSocket(`wss://${window.location.hostname}:8000/ws/games/${uuid}`, {
 		onMessage: (event) => {
 			const msg = JSON.parse(event.data);
@@ -100,8 +100,8 @@ const GameManager = () => {
 				if (msg.message.status)
 					setReady(msg.message.status === "ongoing")
 				console.log(msg);
-				if (msg.message.players_details)
-					playersDetailsRef.current = msg.message.players_details;
+				if (msg.message.players)
+					playersRef.current = msg.message.players;
 				setData((prevData) => ({
 					...prevData,
 					...msg.message,
@@ -125,7 +125,7 @@ const GameManager = () => {
 	return (
 		<div className="relative w-full">
 			{
-				contextData.userInfo && playersDetailsRef.current &&
+				contextData.userInfo && playersRef.current &&
 				(<Game
 					game={game}
 					ready={ready}
@@ -134,7 +134,7 @@ const GameManager = () => {
 					userInfo={contextData.userInfo}
 					addMessageHandler={addMessageHandler}
 					removeMessageHandler={removeMessageHandler}
-					playersDetails={playersDetailsRef}
+					players={playersRef}
 				/>)
 			}
 			{!ready && data && (

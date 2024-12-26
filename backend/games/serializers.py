@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Game, GameRoom, Player, PlayerRating
+from Auth.models import Users as User
 import json
 
 
@@ -15,7 +16,7 @@ class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ["id", "user", "role", "rating_gain",
-                  "rating_loss", "ready", "score", "result"]
+                  "rating_loss", "ready", "score", "result", "timeouts"]
 
     def get_user(self, obj):
         from Auth.serializers import UserSerializer
@@ -38,9 +39,7 @@ class GameRoomSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(format="hex_verbose", read_only=True)
     game = serializers.PrimaryKeyRelatedField(queryset=Game.objects.all())
     players = serializers.ListField(
-        child=serializers.DictField(), write_only=True)
-    players_details = PlayerSerializer(
-        many=True, read_only=True, source="player_set")
+        child=serializers.DictField(), required=False)
 
     class Meta:
         model = GameRoom
@@ -51,29 +50,36 @@ class GameRoomSerializer(serializers.ModelSerializer):
             "state",
             "created_at",
             "players",
-            "players_details",
         ]
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        players_data = representation.get("players_details", [])
         state = representation.get("state", {})
-        representation["players_details"] = json.dumps(players_data)
+        players_data = PlayerSerializer(instance.player_set, many=True).data
+        representation["players"] = json.dumps(players_data)
         representation["state"] = json.dumps(state)
         return representation
 
+    def validate_players(self, value):
+        for player_data in value:
+            if "user" not in player_data or "role" not in player_data:
+                raise serializers.ValidationError(
+                    "Each player must include a 'user' and 'role' field."
+                )
+        return value
+
     def create(self, validated_data):
-        users = validated_data.pop("players")
+        users = validated_data.pop("players", [])
 
         game_room = GameRoom.objects.create(**validated_data)
 
         for user in users:
             Player.objects.create(
-                user_id=user["id"],
+                user_id=user["user"],
                 game_room=game_room,
                 role=user["role"],
-                rating_gain=user["rating_gain"],
-                rating_loss=user["rating_loss"],
+                rating_gain=user.get("rating_gain", 0),
+                rating_loss=user.get("rating_loss", 0),
             )
         return game_room
 
@@ -82,19 +88,36 @@ class GameRoomSerializer(serializers.ModelSerializer):
         instance.state = validated_data.get("state", instance.state)
         instance.save()
 
-        players_details = validated_data.get("players_details", [])
-        for player_data in players_details:
+        print("cho data kidayra", validated_data, flush=True)
+        players_data = validated_data.get("players", [])
+        for player_data in players_data:
+            # Fetch player_id from the data
             player_id = player_data.get("id")
             if not player_id:
-                continue
+                continue  # Skip if player_id is missing
 
             try:
+                # Fetch and update existing player by player_id
                 player = instance.player_set.get(id=player_id)
+                for field, value in player_data.items():
+                    if field not in ["id", "user"]:  # Skip non-updateable fields
+                        setattr(player, field, value)
+                player.save()
             except Player.DoesNotExist:
-                continue
-
-            player.ready = player_data.get("ready", player.ready)
-            player.score = player_data.get("score", player.score)
-            player.save()
+                # Ensure the user exists in Auth_users before creating a new player
+                user_id = player_data.get("user", {}).get(
+                    "id")  # Get user_id from nested user data
+                if not user_id or not User.objects.filter(id=user_id).exists():
+                    raise serializers.ValidationError(
+                        f"User with id {user_id} does not exist."
+                    )
+                # Create a new player
+                Player.objects.create(
+                    user_id=user_id,  # Assign the user_id from the player_data
+                    game_room=instance,
+                    role=player_data.get("role", "default"),
+                    rating_gain=player_data.get("rating_gain", 0),
+                    rating_loss=player_data.get("rating_loss", 0),
+                )
 
         return instance

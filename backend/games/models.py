@@ -60,6 +60,7 @@ class Player(models.Model):
     role = models.PositiveSmallIntegerField()
     ready = models.BooleanField(default=False)
     score = models.PositiveIntegerField(default=0)
+    timeouts = models.PositiveSmallIntegerField(default=3)
     result = models.CharField(
         max_length=10, choices=Result.choices, blank=True, null=True
     )
