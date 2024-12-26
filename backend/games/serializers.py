@@ -88,32 +88,27 @@ class GameRoomSerializer(serializers.ModelSerializer):
         instance.state = validated_data.get("state", instance.state)
         instance.save()
 
-        print("cho data kidayra", validated_data, flush=True)
         players_data = validated_data.get("players", [])
         for player_data in players_data:
-            # Fetch player_id from the data
             player_id = player_data.get("id")
             if not player_id:
-                continue  # Skip if player_id is missing
+                continue
 
             try:
-                # Fetch and update existing player by player_id
                 player = instance.player_set.get(id=player_id)
                 for field, value in player_data.items():
-                    if field not in ["id", "user"]:  # Skip non-updateable fields
+                    if field not in ["id", "user"]:
                         setattr(player, field, value)
                 player.save()
             except Player.DoesNotExist:
-                # Ensure the user exists in Auth_users before creating a new player
                 user_id = player_data.get("user", {}).get(
-                    "id")  # Get user_id from nested user data
+                    "id")
                 if not user_id or not User.objects.filter(id=user_id).exists():
                     raise serializers.ValidationError(
                         f"User with id {user_id} does not exist."
                     )
-                # Create a new player
                 Player.objects.create(
-                    user_id=user_id,  # Assign the user_id from the player_data
+                    user_id=user_id,
                     game_room=instance,
                     role=player_data.get("role", "default"),
                     rating_gain=player_data.get("rating_gain", 0),

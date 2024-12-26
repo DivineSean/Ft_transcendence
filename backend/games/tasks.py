@@ -23,14 +23,13 @@ def mark_game_abandoned(game_room_id, user_id):
             'player_set').get(id=game_room_id)
 
         serialized_game_room = GameRoomSerializer(game_room)
-        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
-              serialized_game_room.data, flush=True)
-        players_details = json.loads(
-            serialized_game_room.data['players_details'])
+        players = json.loads(
+            serialized_game_room.data['players'])
 
         # Find the leaving player
         leaving_player = next(
-            (player for player in players_details if player['user']["id"] == user_id), None
+            (player for player in players if player['user']
+             ["id"] == user_id), None
         )
         if not leaving_player:
             return f"Player {user_id} does not exist."
@@ -42,7 +41,7 @@ def mark_game_abandoned(game_room_id, user_id):
 
         # Determine outcomes for remaining players
         remaining_players = [
-            player for player in players_details if player['user']["id"] != user_id
+            player for player in players if player['user']["id"] != user_id
         ]
 
         if len(remaining_players) == 1:
@@ -70,7 +69,7 @@ def mark_game_abandoned(game_room_id, user_id):
                 "type": "broadcast",
                 "info": "game_manager",
                 "message": {
-                        "players_details": [leaving_player] + remaining_players,
+                        "players": [leaving_player] + remaining_players,
                         "status": "completed",
                 },
             },
