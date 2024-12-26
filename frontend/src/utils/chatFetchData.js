@@ -7,7 +7,6 @@ export const getConversations = async (setData, setGlobalMessage, navigate) => {
     const res = await FetchData.get("api/chat/conversations/");
     if (res.ok) {
       const data = await res.json();
-      console.log("get conversations", data);
       setData(data);
     } else if (res.status) {
       const data = await res.json();
@@ -17,8 +16,10 @@ export const getConversations = async (setData, setGlobalMessage, navigate) => {
       }
     }
   } catch (error) {
-    console.error(error);
-    // setGlobalMessage({message: error, isError: true});
+    // authContextData.setGlobalMessage({
+    // 	message: error,
+    // 	isError: true,
+    // })
   }
 };
 
@@ -36,13 +37,15 @@ export const getMessages = async (convId, setData, setOffsetMssg, navigate) => {
         setData(data.messages);
       } else {
         navigate("/chat");
-        // console.log(data);
       }
     } else {
       console.log("internal server error 500");
     }
   } catch (error) {
-    console.log("error: ", error);
+    // authContextData.setGlobalMessage({
+    // 	message: error,
+    // 	isError: true,
+    // })
   }
 };
 
@@ -59,7 +62,7 @@ export const getChunkedMessages = async (
       convID: convId,
       offset: offsetMssg,
     });
-    console.log(res);
+
     if (res.status !== 500) {
       const data = await res.json();
       if (res.status === 200) {
@@ -76,6 +79,9 @@ export const getChunkedMessages = async (
       console.log("internal server error 500");
     }
   } catch (error) {
-    console.log("error: ", error);
+    // authContextData.setGlobalMessage({
+    // 	message: error,
+    // 	isError: true,
+    // })
   }
 };

@@ -6,6 +6,7 @@ import Header from "../components/Header";
 import { useContext, useEffect } from "react";
 import UserContext from "../context/UserContext";
 import LoadingPage from "./LoadingPage";
+import Toast from "../components/Toast";
 
 const Home = () => {
   const authContextData = useContext(AuthContext);
@@ -13,6 +14,9 @@ const Home = () => {
   const friends = [];
   useEffect(() => {
     userContextData.getFriends();
+
+    return () =>
+      authContextData.setGlobalMessage({ message: "", isError: false });
   }, []);
 
   if (userContextData.userFriends && userContextData.userFriends.friends) {
@@ -24,6 +28,7 @@ const Home = () => {
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="home" />
+      {authContextData.globalMessage.message && <Toast position="topCenter" />}
       {userContextData.generalLoading && <LoadingPage />}
       {!userContextData.generalLoading && (
         <>

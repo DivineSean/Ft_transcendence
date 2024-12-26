@@ -39,16 +39,6 @@ const Rankings = () => {
       {!displayMenuGl && (
         <div className="container md:px-16 px-0">
           <div className="primary-glass grow flex flex-col md:p-32 p-16 gap-32 get-height">
-            {/* <div className="flex justify-center">
-						<div className="secondary-glass flex gap-16 px-16 py-4 items-center md:w-[368px] w-full">
-						<IoSearchOutline className='text-gray text-txt-md' />
-						<input
-						type="text"
-						placeholder="find ranked user"
-						className="outline-none bg-transparent text-txt-md grow"
-						/>
-						</div>
-						</div> */}
             <div className="flex flex-col overflow-hidden">
               <div className="grid grid-cols-3 md:gap-32 gap-16 items-end justify-center lg:px-64 md:px-16 px-8">
                 <div className="flex flex-col gap-16">
@@ -59,8 +49,9 @@ const Rankings = () => {
                     />
                     <h2 className="text-txt-xs">simohammed</h2>
                   </div>
-                  <div className="h-[120px] flex justify-center items-center hover-secondary rounded-t-lg">
-                    <p className="text-h-lg-2xl font-bold">2</p>
+                  <div className="h-[120px] bg-[url('/images/background.png')] bg-top bg-cover norepeat overflow-hidden relative flex justify-center items-center rounded-t-lg">
+                    <div className="absolute hover-secondary backdrop-blur-2xl w-full h-full"></div>
+                    <p className="text-h-lg-2xl font-bold z-10">2</p>
                   </div>
                 </div>
                 <div className="flex flex-col gap-16">
@@ -71,8 +62,9 @@ const Rankings = () => {
                     />
                     <h2 className="md:text-txt-md text-txt-xs">simohammed</h2>
                   </div>
-                  <div className="h-[160px] flex justify-center items-center hover-secondary rounded-t-lg">
-                    <p className="text-h-lg-4xl text-green font-bold">1</p>
+                  <div className="h-[160px] bg-[url('/images/background.png')] bg-top bg-cover norepeat overflow-hidden relative flex justify-center items-center rounded-t-lg">
+                    <div className="absolute hover-secondary backdrop-blur-2xl w-full h-full"></div>
+                    <p className="text-h-lg-4xl text-green font-bold z-10">1</p>
                   </div>
                 </div>
                 <div className="flex flex-col gap-16">
@@ -83,20 +75,22 @@ const Rankings = () => {
                     />
                     <h2 className="text-txt-xs">simohammed</h2>
                   </div>
-                  <div className="h-[80px] flex justify-center items-center hover-secondary rounded-t-lg">
-                    <p className="text-h-lg-xl font-bold">3</p>
+                  <div className="h-[80px] bg-[url('/images/background.png')] bg-center bg-cover norepeat overflow-hidden relative flex justify-center items-center rounded-t-lg">
+                    <div className="absolute hover-secondary backdrop-blur-2xl w-full h-full"></div>
+                    <p className="text-h-lg-xl font-bold z-10">3</p>
                   </div>
                 </div>
               </div>
-              <div className="secondary-glass flex flex-col p-32 gap-16 overflow-hidden">
-                <div className="grid grid-cols-5 gap-32 hover-secondary rounded-lg text-center py-8">
+              <div className="bg-[url('/images/background.png')] norepeat relative flex flex-col p-32 gap-16 overflow-hidden rounded-md bg-cover bg-center bg-fixed">
+                <div className="absolute w-full h-full secondary-glass top-0 left-0"></div>
+                <div className="grid grid-cols-5 gap-32 hover-secondary rounded-lg text-center py-8 z-10">
                   <p>22</p>
                   <p className="font-bold">you</p>
                   <p>426</p>
                   <p>20%</p>
                   <p className="text-green">Online</p>
                 </div>
-                <div className="flex flex-col gap-8 mt-16">
+                <div className="flex flex-col gap-8 mt-16 z-10">
                   <div className="h-[0.5px] bg-stroke-sc"></div>
                   <div className="grid grid-cols-5 gap-32 text-center font-bold py-8">
                     <p>rank</p>
@@ -107,7 +101,7 @@ const Rankings = () => {
                   </div>
                   <div className="h-[0.5px] bg-stroke-sc"></div>
                 </div>
-                <div className="flex flex-col gap-16 overflow-y-scroll no-scrollbar">
+                <div className="flex flex-col gap-16 overflow-y-scroll no-scrollbar z-10">
                   {rankedUsers}
                 </div>
               </div>

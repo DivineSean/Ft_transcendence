@@ -9,6 +9,7 @@ import { BACKENDURL } from "../../utils/fetchWrapper";
 import NotifContext from "../../context/NotifContext";
 import EmojiPicker from "emoji-picker-react";
 import { HiOutlineFaceSmile } from "react-icons/hi2";
+import UserContext from "../../context/UserContext";
 
 const formatedDate = () => {
   const now = new Date();
@@ -32,8 +33,10 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
   const conversation = [];
   const downScrollRef = useRef(null);
   const topScrollRef = useRef(null);
+  const [oldInputValue, setOldInputValue] = useState(inputValue);
 
   const notifContextData = useContext(NotifContext);
+  const userContextData = useContext(UserContext);
 
   // fetch messages in the first time we enter to the conversation
   useEffect(() => {
@@ -77,6 +80,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
           if (topScrollRef.current.scrollTop === 0)
             topScrollRef.current.scrollBy({ top: 15, behavior: "smooth" });
         }
+
         getChunkedMessages(
           uid,
           notifContextData.setMessages,
@@ -109,6 +113,9 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
           message: inputValue,
           type: "message",
           convId: uid,
+          userId: friendInfo.id,
+          senderId: userContextData.userInfo.id,
+          senderUsername: userContextData.userInfo.username,
         }),
       );
       const newMessage = {
@@ -123,6 +130,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
       notifContextData.setTempMessages((prevtemp) => [...prevtemp, newMessage]);
       setAllMessages(false);
     }
+
     e.target.reset();
     setInputValue("");
   };
@@ -131,6 +139,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
     if (!notifContextData.isWsConnected) return;
 
     const sendTyping = setTimeout(() => {
+      console.log("ljkshdfgjkhgfdjhdsf");
       if (notifContextData.typing.length)
         // send typing because the typing state is not empty
         notifContextData.wsHook.send(
@@ -147,8 +156,29 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
         );
     }, 500);
 
-    return () => clearTimeout(sendTyping);
+    return () => {
+      clearTimeout(sendTyping);
+    };
   }, [notifContextData.typing && notifContextData.typing.length]);
+
+  useEffect(() => {
+    const sendStopTyping = setTimeout(() => {
+      if (oldInputValue === inputValue) {
+        notifContextData.wsHook.send(
+          JSON.stringify({
+            message: "endTyping",
+            type: "stopTyping",
+            convId: uid,
+          }),
+        );
+      }
+      setOldInputValue(inputValue);
+    }, 1000);
+
+    return () => {
+      clearTimeout(sendStopTyping);
+    };
+  });
 
   const handleBlur = () => {
     setTimeout(() => {
@@ -225,6 +255,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       setDisplayEmojiList(false);
@@ -240,7 +271,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
             className="md:hidden block text-txt-xl cursor-pointer"
           />
           <div
-            className={`md:w-56 md:h-56 h-48 w-48 rounded-full flex border overflow-hidden ${friendInfo.isOnline ? "border-green" : "border-stroke-sc"}`}
+            className={`md:w-56 md:h-56 h-48 w-48 rounded-full flex border overflow-hidden ${friendInfo.isOnline && !friendInfo.isBlocked ? "border-green" : "border-stroke-sc"}`}
           >
             <img
               src={
@@ -254,10 +285,10 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
           </div>
           <div className="flex flex-col justify-between h-full">
             <h2 className="md:text-h-sm-md text-h-sm-sm font-bold">{`${friendInfo.first_name} ${friendInfo.last_name}`}</h2>
-            {friendInfo.isOnline && (
+            {friendInfo.isOnline && !friendInfo.isBlocked && (
               <p className="md:text-txt-md text-txt-xs text-green">online</p>
             )}
-            {!friendInfo.isOnline && (
+            {!friendInfo.isOnline && !friendInfo.isBlocked && (
               <p className="text-txt-xs text-stroke-sc lowercase">
                 last seen {friendInfo.last_login}
               </p>

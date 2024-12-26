@@ -14,17 +14,19 @@ const OptionsSection = ({ data, type, reference }) => {
   const notifContext = useContext(NotifContext);
 
   const handleReadNotif = (item) => {
-    console.log(item);
     if (item.notifType === "FR") {
       navigate(`/profile/overview/${item.senderId.username}`);
       contextData.setRefresh(true);
-    } else if (item.notifType === "IG")
+    } else if (item.notifType === "IG") {
       console.log("had khouna invitak tl3eb game am3lm");
-    else if (item.notifType === "IT")
+    } else if (item.notifType === "IT") {
       console.log("had khouna invitak tl3eb tournaments am3lm");
-    else if (item.notifType === "ME")
+    } else if (item.notifType === "ME") {
       console.log("had khouna sifet lik message am3lm");
-    else if (item.notifType === "CC") navigate(`/chat/${item.targetId}`);
+    } else if (item.notifType === "CC") {
+      navigate(`/chat/${item.targetId}`);
+    }
+
     notifContext.readNotification(item.notificationId);
   };
 
@@ -41,24 +43,23 @@ const OptionsSection = ({ data, type, reference }) => {
     }
   }, []);
 
-  console.log(notifContext.notifData);
   return (
     <>
       <div
         className={`
-				h-10 w-4 rounded-full bg-stroke-sc absolute top-[59px]
-				${type === "options" && "lg:block hidden lg:right-[46px]"}
-				${type === "notification" && "lg:right-[109px] right-[75px]"}
-			`}
+					h-10 w-4 rounded-full bg-stroke-sc absolute top-[59px]
+					${type === "options" && "lg:block hidden lg:right-[46px]"}
+					${type === "notification" && "lg:right-[109px] right-[75px]"}
+				`}
       ></div>
       <div
         ref={reference}
         className={`
-				options-glass z-[1000] py-8
-				absolute flex-col top-64 rounded-md max-h-[300px]
-				${type === "options" && "lg:flex hidden lg:right-32 p-8 gap-16 w-[250px]"}
-				${type === "notification" && "flex lg:right-[90px] px-8 right-16 ml-16 min-w-[300px] md:ml-0 max-w-[440px]"}
-			`}
+					options-glass z-[1000] py-8
+					absolute flex-col top-64 rounded-md max-h-[300px]
+					${type === "options" && "lg:flex hidden lg:right-32 p-8 gap-16 w-[250px]"}
+					${type === "notification" && "flex lg:right-[90px] px-8 right-16 ml-16 min-w-[300px] md:ml-0 max-w-[440px]"}
+				`}
       >
         {type === "notification" && (
           <h2 className="font-bold p-8 tracking-wide text-h-dm-md text-center">
@@ -97,8 +98,8 @@ const OptionsSection = ({ data, type, reference }) => {
                 ref={(el) => (sectionRef.current[i] = el)}
                 onClick={() => handleClick(i)}
                 className={`cursor-pointer p-8 w-full rounded flex gap-16 items-center bg-black/40
-					text-txt-sm ${section.name !== "logout" ? "hover:hover-secondary" : "hover:bg-logout-bg"}
-					`}
+								text-txt-sm ${section.name !== "logout" ? "hover:hover-secondary" : "hover:bg-logout-bg"}
+							`}
               >
                 {section.icon}
                 {section.name}

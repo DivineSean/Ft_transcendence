@@ -30,25 +30,21 @@ const navLinks = [
     icon: <IoChatbubbleEllipsesOutline />,
   },
   {
-    name: "rankings",
-    icon: <PiRanking />,
-  },
-  {
     name: "games",
     icon: <RiGamepadLine />,
   },
-  //   {
-  //     name: "explore",
-  //     icon: <MdOutlineExplore />,
-  //   },
   {
     name: "tournaments",
     icon: <TbTournament />,
   },
   {
-    name: "settings",
-    icon: <IoSettingsOutline />,
+    name: "rankings",
+    icon: <PiRanking />,
   },
+  //   {
+  //     name: "explore",
+  //     icon: <MdOutlineExplore />,
+  //   },
 ];
 
 const Menu = ({ ...props }) => {
@@ -60,7 +56,7 @@ const Menu = ({ ...props }) => {
     if (props.link === link.name) {
       links.push(
         <Link
-          to={`/${link.name}`}
+          to={`/${link.name === "profile" ? "profile/overview" : link.name}`}
           key={link.name}
           className="font-semibold hover-secondary rounded-md"
         >
@@ -98,10 +94,11 @@ const Menu = ({ ...props }) => {
   };
 
   return (
-    <div className="fixed primary-glass-no-rounded max-h-screen p-16 text-white gap-32 overflow-y-scroll no-scrollbar lg:hidden flex flex-col absolute z-[100] right-0 left-0 bottom-0 top-0">
+    <div className="fixed bg-[url('/images/background.png')] bg-cover bg-center max-h-screen p-16 text-white gap-32 overflow-y-scroll no-scrollbar lg:hidden flex flex-col absolute z-[100] right-0 left-0 bottom-0 top-0">
+      <div className="absolute primary-glass-no-rounded w-full h-full top-0 left-0 z-[-1]"></div>
       <div className="flex px-16 py-8 justify-between secondary-glass items-center ">
         <div className="flex gap-16 overflow-hidden">
-          <div className="w-64 h-64 bg-gray flex rounded-full overflow-hidden">
+          <div className="w-64 h-64 bg-gray flex rounded-full overflow-hidden border-[0.5px] border-stroke-sc">
             <img
               src={
                 userContextData.userInfo.profile_image
@@ -109,7 +106,7 @@ const Menu = ({ ...props }) => {
                   : "/images/default.jpeg"
               }
               alt="profile"
-              className="grow border-[0.5px] border-stroke-sc object-cover"
+              className="grow object-cover"
             />
           </div>
           <div className="flex flex-col justify-center">

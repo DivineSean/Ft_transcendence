@@ -30,7 +30,6 @@ const Login = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        console.log(data);
 
         if (data.requires_2fa) navigate(`/twofa/${data.uid}`);
         else {

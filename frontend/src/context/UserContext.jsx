@@ -40,7 +40,6 @@ export const UserProvider = ({ children }) => {
         }
       }
     } catch (error) {
-      // console.log("error:", error);
       authContextData.setGlobalMessage({
         message: error.message,
         isError: true,
@@ -49,7 +48,9 @@ export const UserProvider = ({ children }) => {
   };
 
   const getProfile = async (username) => {
-    let url; // i did this to make the username None (not undefined) cause the backend trigger it as invalid username
+    // i did this to make the username None (not undefined)
+    // cause the backend trigger it as invalid username
+    let url;
     if (username) url = `api/profile/${username}`;
     else url = `api/profile/`;
 
@@ -57,23 +58,23 @@ export const UserProvider = ({ children }) => {
       const res = await FetchData.get(url);
       if (res.ok) {
         const data = await res.json();
-        // console.log("getProfile", data);
-
-        if (data.isBlockedByUser) {
-          // console.log("rak mblocki fin ghadi");
+        if (!data.found) {
           authContextData.setGlobalMessage({
-            message: "the user you request is blocked you!!",
+            message: "user not found!!",
             isError: true,
           });
           navigate("/profile/overview");
-        } else setProfileInfo(data);
-      } else {
-        // console.log("hello");
-        if (res.status === 404) navigate("/profile/overview");
-        if (res.status === 401) navigate("/login");
+        }
+        setProfileInfo(data);
+      } else if (res.status === 400) {
+        const data = await res.json();
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
+        navigate("/profile/overview");
       }
     } catch (error) {
-      // console.log("error", error);
       authContextData.setGlobalMessage({
         message: error.message,
         isError: true,
@@ -98,7 +99,6 @@ export const UserProvider = ({ children }) => {
         setUserFriends(data);
       }
     } catch (error) {
-      // console.log("chihaja mahiyach fhad get frinds", error);
       authContextData.setGlobalMessage({
         message: error.message,
         isError: true,
@@ -112,10 +112,8 @@ export const UserProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         setUserFriendRequest(data);
-        // console.log("friend request", data);
       }
     } catch (error) {
-      // console.log("chihaja mahiyach fhad get friends", error);
       authContextData.setGlobalMessage({
         message: error.message,
         isError: true,
@@ -132,13 +130,22 @@ export const UserProvider = ({ children }) => {
         const data = await res.json();
         setRefresh(true);
         notifContextData.setFriendRequest(true);
+
         authContextData.setGlobalMessage({
           message: data.message,
-          isError: data.status !== "200",
+          isError: false,
+        });
+      } else if (res.status === 400) {
+        const data = await res.json();
+        setRefresh(true);
+        notifContextData.setFriendRequest(true);
+
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
         });
       }
     } catch (error) {
-      // console.log("error in send friend request: ", error);
       authContextData.setGlobalMessage({
         message: error.message,
         isError: true,
@@ -156,11 +163,17 @@ export const UserProvider = ({ children }) => {
         setRefresh(true);
         authContextData.setGlobalMessage({
           message: data.message,
-          isError: data.status !== "200",
+          isError: false,
+        });
+      } else if (res.status === 400) {
+        const data = await res.json();
+        setRefresh(true);
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
         });
       }
     } catch (error) {
-      // console.log("error cancel", error);
       authContextData.setGlobalMessage({
         message: error.message,
         isError: true,
@@ -176,13 +189,21 @@ export const UserProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         setRefresh(true);
+
         authContextData.setGlobalMessage({
           message: data.message,
-          isError: data.status !== "200",
+          isError: false,
+        });
+      } else if (res.status === 400) {
+        const data = await res.json();
+        setRefresh(true);
+
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
         });
       }
     } catch (error) {
-      // console.log("accept error:", error);
       authContextData.setGlobalMessage({
         message: error.message,
         isError: true,
@@ -195,15 +216,20 @@ export const UserProvider = ({ children }) => {
       const res = await FetchData.post("api/friendrequest/decline/", {
         userId: userId,
       });
-      // console.log(res);
       if (res.ok) {
         const data = await res.json();
         setRefresh(true);
         authContextData.setGlobalMessage({
           message: data.message,
-          isError: data.status !== "200",
+          isError: false,
         });
-        // console.log("rejected", data);
+      } else if (res.status === 400) {
+        const data = await res.json();
+        setRefresh(true);
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
       }
     } catch (error) {
       authContextData.setGlobalMessage({
@@ -218,15 +244,20 @@ export const UserProvider = ({ children }) => {
       const res = await FetchData.post("api/friend/unfriend/", {
         userId: profileInfo.id,
       });
-      // console.log(res);
       if (res.ok) {
         const data = await res.json();
         setRefresh(true);
         authContextData.setGlobalMessage({
           message: data.message,
-          isError: data.status !== "200",
+          isError: false,
         });
-        // console.log(data);
+      } else if (res.status === 400) {
+        const data = await res.json();
+        setRefresh(true);
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
       }
     } catch (error) {
       authContextData.setGlobalMessage({
@@ -241,11 +272,20 @@ export const UserProvider = ({ children }) => {
       const res = await FetchData.post("api/friend/block/", {
         userId: profileInfo.id,
       });
-      // console.log(res);
       if (res.ok) {
         const data = await res.json();
         setRefresh(true);
-        // console.log("block", data);
+        authContextData.setGlobalMessage({
+          message: data.message,
+          isError: false,
+        });
+      } else if (res.status === 400) {
+        const data = await res.json();
+        setRefresh(true);
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
       }
     } catch (error) {
       authContextData.setGlobalMessage({
@@ -260,13 +300,19 @@ export const UserProvider = ({ children }) => {
       const res = await FetchData.post("api/user/unblock/", {
         userId: userId,
       });
-      // console.log(res);
       if (res.ok) {
         const data = await res.json();
         setRefresh(true);
         authContextData.setGlobalMessage({
           message: data.message,
-          isError: data.status !== "200",
+          isError: false,
+        });
+      } else if (res.status === 400) {
+        const data = await res.json();
+        setRefresh(true);
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
         });
       }
     } catch (error) {
@@ -282,14 +328,11 @@ export const UserProvider = ({ children }) => {
       const res = await FetchData.post("api/chat/conversations/", {
         userId: profileInfo.id,
       });
-      // console.log(res);
       if (res.ok) {
         const data = await res.json();
         navigate(`/chat/${data.conversationId}`);
-        // console.log(data);
       } else if (res.status === 400) {
         const data = await res.json();
-        // console.log(data);
       }
     } catch (error) {
       authContextData.setGlobalMessage({
@@ -302,14 +345,11 @@ export const UserProvider = ({ children }) => {
   const getBlockedUsers = async () => {
     try {
       const res = await FetchData.get("api/users/blocked/");
-      // console.log(res);
       if (res.ok) {
         const data = await res.json();
         setBlockedUsers(data);
-        // console.log(data);
       }
     } catch (error) {
-      // console.log('error get blocked users', error);
       authContextData.setGlobalMessage({
         message: error.message,
         isError: true,

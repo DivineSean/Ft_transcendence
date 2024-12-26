@@ -20,9 +20,9 @@ const navLinks = [
   "home",
   "profile",
   "chat",
-  "rankings",
   "games",
   "tournaments",
+  "rankings",
 ];
 
 const Header = ({ ...props }) => {
@@ -53,7 +53,6 @@ const Header = ({ ...props }) => {
 
   const toggleNotification = () => {
     if (displayOptions) setDisplayOptions(false);
-    ``;
     setReadNotif(true);
     setDisplayNotification(!displayNotification);
   };
@@ -128,18 +127,13 @@ const Header = ({ ...props }) => {
         <div className="relative w-full">
           {displayOptions && (
             <OptionsSection
-              // contextData={contextData}
               data={optionsData}
               reference={optionSectionRef}
               type="options"
             />
           )}
           {displayNotification && (
-            <OptionsSection
-              //   data={notificationData}
-              reference={optionSectionRef}
-              type="notification"
-            />
+            <OptionsSection reference={optionSectionRef} type="notification" />
           )}
         </div>
       </div>

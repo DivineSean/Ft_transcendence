@@ -16,6 +16,7 @@ class Chat(WebsocketConsumer):
         self.room_name = self.scope["url_route"]["kwargs"]
 
         try:
+
             serializer = UserSerializer(self.scope["user"])
             self.user = serializer.data
 
@@ -25,6 +26,7 @@ class Chat(WebsocketConsumer):
         conversations = Conversation.objects.filter(
             Q(Sender=self.user["id"]) | Q(Receiver=self.user["id"])
         )
+
         self.room_group_name = set()
         for element in conversations:
 
@@ -32,6 +34,7 @@ class Chat(WebsocketConsumer):
             async_to_sync(self.channel_layer.group_add)(
                 f"conv-{element.ConversationId}", self.channel_name
             )
+
         self.notif_room_name = f"notifications_{self.user['id']}"
         async_to_sync(self.channel_layer.group_add)(
             self.notif_room_name, self.channel_name
@@ -39,21 +42,45 @@ class Chat(WebsocketConsumer):
         self.accept()
 
     def disconnect(self, code):
+        async_to_sync(self.channel_layer.group_discard)(
+            self.notif_room_name, self.channel_name
+        )
         for element in self.room_group_name:
             async_to_sync(self.channel_layer.group_discard)(element, self.channel_name)
 
     def receive(self, text_data):
 
-        # once i get the message
-        # Store it in the Message Model
-
         try:
+
             text_data_json = json.loads(text_data)
             message = text_data_json["message"]
             self.convId = f"conv-{text_data_json['convId']}"
             self.convName = text_data_json["convId"]
+
         except Exception as e:
             self.close()
+            return
+
+        conversation = self.get_room(self.convName)
+        if text_data_json["type"] == "message":
+            if not conversation.isBlocked:
+                roomName = f"notifications_{text_data_json['userId']}"
+                type = "messageNotif"
+            else:
+                roomName = f"notifications_{self.user['id']}"
+                type = "convBlocked"
+
+            async_to_sync(self.channel_layer.group_send)(
+                roomName,
+                {
+                    "type": type,
+                    "senderUsername": text_data_json["senderUsername"],
+                    "message": text_data_json["message"],
+                },
+            )
+
+        # if the conversation blocked do nothing
+        if conversation.isBlocked:
             return
 
         for element in self.room_group_name:
@@ -64,19 +91,22 @@ class Chat(WebsocketConsumer):
                 if text_data_json["type"] == "message":
 
                     msg = self.create_message(message)
-                    async_to_sync(self.channel_layer.group_send)(
-                        element,
-                        {
-                            "type": "chat_message",
-                            "convId": str(self.convName),
-                            "message": msg.message,
-                            "isRead": msg.isRead,
-                            "isSent": True,
-                            "messageId": str(msg.MessageId),
-                            "sender": self.user,
-                            "timestamp": str(msg.timestamp.strftime("%b %d, %H:%M")),
-                        },
-                    )
+                    if msg:
+                        async_to_sync(self.channel_layer.group_send)(
+                            element,
+                            {
+                                "type": "chat_message",
+                                "convId": str(self.convName),
+                                "message": msg.message,
+                                "isRead": msg.isRead,
+                                "isSent": True,
+                                "messageId": str(msg.MessageId),
+                                "sender": self.user,
+                                "timestamp": str(
+                                    msg.timestamp.strftime("%b %d, %H:%M")
+                                ),
+                            },
+                        )
                 # here for the readed message event get all unread messages
                 # of the sender and make them as readed
                 elif text_data_json["type"] == "read":
@@ -135,7 +165,6 @@ class Chat(WebsocketConsumer):
             self.send(text_data=json.dumps({"type": "read", "convId": event["convId"]}))
 
     def chat_message(self, event):
-        # print(event["isRead"], flush=True)
         self.send(
             text_data=json.dumps(
                 {
@@ -188,6 +217,27 @@ class Chat(WebsocketConsumer):
             )
         )
 
+    def messageNotif(self, event):
+        self.send(
+            text_data=json.dumps(
+                {
+                    "type": "messageNotif",
+                    "message": event["message"],
+                    "username": event["senderUsername"],
+                }
+            )
+        )
+
+    def convBlocked(self, event):
+        self.send(
+            text_data=json.dumps(
+                {
+                    "type": "convBlocked",
+                    "message": "this conversation has been blocked by the other friend",
+                }
+            )
+        )
+
     def get_user(self):
         return Users.objects.get()  # should be modifed
 
@@ -195,8 +245,11 @@ class Chat(WebsocketConsumer):
         return Conversation.objects.get(ConversationId=convID)  # Get object or 404
 
     def create_message(self, message):
+        conversation = self.get_room(self.convName)
+        if conversation.isBlocked:
+            return None
         return Message.objects.create(
-            ConversationName=self.get_room(self.convName),
+            ConversationName=conversation,
             sender=Users.objects.get(email=self.user["email"]),
             message=message,
         )

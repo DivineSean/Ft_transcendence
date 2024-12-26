@@ -168,9 +168,6 @@ const Profile = () => {
   );
   const contextData = useContext(UserContext);
 
-  if (!section) {
-    navigate("/profile/overview");
-  }
   useEffect(() => {
     if (!profileMenu.includes(section)) {
       navigate("/profile/overview");
@@ -228,6 +225,7 @@ const Profile = () => {
   return (
     <div className="flex flex-col w-full grow lg:gap-32 gap-16 relative">
       <Header link="profile" />
+      {authContextData.globalMessage.message && <Toast position="topCenter" />}
       {!contextData.profileInfo && <LoadingPage />}
       {!authContextData.displayMenuGl && contextData.profileInfo !== null && (
         <div className="container">
@@ -447,14 +445,6 @@ const Profile = () => {
             <Approval approval={approval} setApproval={setApproval} />
           )}
         </div>
-      )}
-      {authContextData.globalMessage.message && (
-        <Toast
-          message={authContextData.globalMessage.message}
-          error={authContextData.globalMessage.isError}
-          onClose={authContextData.setGlobalMessage}
-          position="topCenter"
-        />
       )}
     </div>
   );

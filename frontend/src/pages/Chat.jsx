@@ -11,11 +11,12 @@ import AuthContext from "../context/AuthContext";
 import ChatFriends from "../components/chat/ChatFriends";
 import LoadingPage from "./LoadingPage";
 import NotifContext from "../context/NotifContext";
+import Toast from "../components/Toast";
 
 const Chat = () => {
   const { uid } = useParams();
   const navigate = useNavigate();
-  const { setGlobalMessage } = useContext(AuthContext);
+  const authContextData = useContext(AuthContext);
   const notifContextData = useContext(NotifContext);
   const location = useLocation();
 
@@ -28,8 +29,34 @@ const Chat = () => {
 
   useEffect(() => {
     // first time fetch conversation message from the database to render them to the user
-    getConversations(setFriendsData, setGlobalMessage, navigate);
+    getConversations(
+      setFriendsData,
+      authContextData.setGlobalMessage,
+      navigate,
+    );
   }, []);
+
+  useEffect(() => {
+    if (!uid) {
+      getConversations(
+        setFriendsData,
+        authContextData.setGlobalMessage,
+        navigate,
+      );
+    }
+  }, [uid]);
+
+  useEffect(() => {
+    if (notifContextData.refresh) {
+      console.log("hello");
+      getConversations(
+        setFriendsData,
+        authContextData.setGlobalMessage,
+        navigate,
+      );
+      notifContextData.setRefresh(false);
+    }
+  }, [notifContextData.refresh]);
 
   useEffect(() => {
     const handleMessageReceived = (e) => {
@@ -40,10 +67,7 @@ const Chat = () => {
         if (messageData.type === "message") {
           // if we received the message event
           notifContextData.setUpdatedConversation(messageData); // set the updated data for the left side (friend chat)
-          // console.log(messageData);
-          console.log("messssssaaaage", messageData);
 
-          console.log("message wsslni abro", uid);
           if (uid && messageData.convId === uid) {
             // check if the user is entered to the conversation that received the message
 
@@ -56,7 +80,6 @@ const Chat = () => {
                   convId: uid,
                 }),
               );
-              console.log("dkhel lhad l9lawi");
             }
 
             // append the new message to the previous ones to display them
@@ -67,7 +90,6 @@ const Chat = () => {
 
             // reset the temp message that we dsiplay them to the user before the socket receive the events
             notifContextData.setTempMessages([]);
-            console.log("raha tsetitat blekhwa temp message");
 
             // reset is typing to notif the receiver that the user no longer is typing
             notifContextData.setTyping("");
@@ -75,12 +97,16 @@ const Chat = () => {
             // reset the display typing to make the front don't display is typing message to the user
             notifContextData.setDisplayTyping(null);
           }
-        } else if (messageData.type === "createConv") {
-          console.log("chaaaaaaaaat");
-          if (location.pathname.search("chat") !== -1) {
-            getConversations(setFriendsData, setGlobalMessage, navigate);
-            notifContextData.readNotification(messageData.notifId);
-          }
+        } else if (
+          messageData.type === "createConv" &&
+          window.location.pathname.search("chat") !== -1
+        ) {
+          getConversations(
+            setFriendsData,
+            authContextData.setGlobalMessage,
+            navigate,
+          );
+          notifContextData.readNotification(messageData.notifId);
         }
       }
     };
@@ -130,7 +156,6 @@ const Chat = () => {
       );
 
       // then resort them to make the updated conversation the first one
-      // console.log(updatedConversation);
       setFriendsData({
         ...friendsData,
         users: [findConv, ...newFriendsData],
@@ -141,6 +166,7 @@ const Chat = () => {
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="chat" />
+      {authContextData.globalMessage.message && <Toast position="topCenter" />}
       {!friendsData && <LoadingPage />}
       {friendsData && (
         <div className="container md:px-16 px-0">
