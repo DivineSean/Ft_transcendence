@@ -78,7 +78,6 @@ class GameConsumer(WebsocketConsumer):
                 serializer = GameRoomSerializer(game)
                 game_data = serializer.data
                 r.hset(f"game_room_data:{self.game_uuid}", mapping=game_data)
-            print("---------------> ", game_data, flush=True)
             self.players = game_data["players"] = json.loads(
                 game_data["players"]
             )
@@ -87,16 +86,9 @@ class GameConsumer(WebsocketConsumer):
             self.close(code=1006, reason=e)
             return
 
-        # if self.user_id in game_data["state"]:
-        # print("<------------ game leaver detected ----------------------------->",
-        # self.timeouts, flush=True)
+        if game_data["status"] == "paused":
+            self.handle_reconnect(game_data)
 
-        print(" game_data ---------------> ",
-              game_data, self.players, flush=True)
-        # if game_data["status"] == "paused":
-        #     self.handle_reconnect(game_data)
-        #     print("---------------------------------------------------------------------------------------> gamme is ",
-        #           game_data["status"], flush=True)
         self.send(
             text_data=json.dumps(
                 {"type": "game_manager", "message": game_data})
@@ -192,11 +184,8 @@ class GameConsumer(WebsocketConsumer):
         # remove the current player since they are reconnecting
         leaver = game_data["state"].pop(self.user_id, None)
         if leaver:
-            print("leaver tzb rje3 hh", leaver, flush=True)
             task = AsyncResult(leaver["task_id"])
             task.revoke(terminate=True)
-
-        # TODO: handle players leaving for more than allowed (forfeit)
 
         # check if all players have reconnected, and resume the game
         if not game_data["state"]:
@@ -239,13 +228,9 @@ class GameConsumer(WebsocketConsumer):
                             countdown=0
                         )
                     else:
-                        # TODO: handle game forfeit if the user has not more timeouts
                         task = mark_game_abandoned.delay(
                             self.game_uuid, self.user_id)
-                        print(
-                            f"player -----------------> {self.user_id} has no more timeouts", flush=True)
                     break
-            print("leavers ----------------->", leavers, flush=True)
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
                 {

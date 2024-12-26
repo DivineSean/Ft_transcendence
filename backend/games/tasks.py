@@ -18,66 +18,42 @@ r = redis.Redis(
 
 @shared_task
 def mark_game_abandoned(game_room_id, user_id):
+    game_room_data = r.hgetall(f"game_room_data:{game_room_id}")
+    if not game_room_data:
+        return f"GameRoom {game_room_id} state not found."
+
     try:
-        game_room = GameRoom.objects.prefetch_related(
-            'player_set').get(id=game_room_id)
+        game_room = GameRoom.objects.get(id=game_room_id)
+    except GameRoom.DoesNotExist:
+        return f"GameRoom {game_room_id} does not exist."
 
-        serialized_game_room = GameRoomSerializer(game_room)
-        players = json.loads(
-            serialized_game_room.data['players'])
+    game_room_data["state"] = json.loads(game_room_data["state"])
+    game_room_data["players"] = json.loads(game_room_data["players"])
 
-        # Find the leaving player
-        leaving_player = next(
-            (player for player in players if player['user']
-             ["id"] == user_id), None
-        )
-        if not leaving_player:
-            return f"Player {user_id} does not exist."
-
-        # Mark leaving player as lost
-        leaving_player["result"] = Player.Result.LOSS
-        Player.objects.filter(id=leaving_player['id']).update(
-            result=Player.Result.LOSS)
-
-        # Determine outcomes for remaining players
-        remaining_players = [
-            player for player in players if player['user']["id"] != user_id
-        ]
-
-        if len(remaining_players) == 1:
-            # Single remaining player wins
-            remaining_players[0]["result"] = Player.Result.WIN
-            Player.objects.filter(id=remaining_players[0]['id']).update(
-                result=Player.Result.WIN)
+    for player in game_room_data["players"]:
+        if player["user"]["id"] == user_id:
+            player["result"] = Player.Result.LOSS
         else:
-            # Multiple remaining players, assign draw
-            Player.objects.filter(
-                id__in=[player['id'] for player in remaining_players]
-            ).update(result=Player.Result.DRAW)
-            for player in remaining_players:
-                player['result'] = Player.Result.DRAW
+            player["result"] = Player.Result.WIN
 
-        # Update game room status
-        game_room.status = GameRoom.Status.COMPLETED
-        # r.delete(f"game_room_data:{game_room_id}")
-        game_room.save()
-
+    game_room_data["status"] = GameRoom.Status.COMPLETED
+    serializer = GameRoomSerializer(
+        game_room, data=game_room_data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        r.hset(f"game_room_data:{game_room_id}", mapping=serializer.data)
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             f"game_room_{game_room_id}",
             {
                 "type": "broadcast",
                 "info": "game_manager",
-                "message": {
-                        "players": [leaving_player] + remaining_players,
-                        "status": "completed",
-                },
+                "message": game_room_data,
             },
         )
-
-        return f"GameRoom {game_room_id} marked as {game_room.status}."
-    except GameRoom.DoesNotExist:
-        return f"GameRoom {game_room_id} does not exist."
+        return f"GameRoom {game_room_id} marked as abandoned"
+    else:
+        return f"GameRoom {game_room_id} synching failed: {serializer.errors}"
 
 
 @shared_task
@@ -108,8 +84,8 @@ def mark_game_room_as_expired(game_room_id):
 @shared_task
 def sync_game_room_data(game_room_id):
     # INFO : gets game room state from redis, then updates the state field in the database accordingly
-    game_room_state = r.hgetall(f"game_room_data:{game_room_id}")
-    if not game_room_state:
+    game_room_data = r.hgetall(f"game_room_data:{game_room_id}")
+    if not game_room_data:
         return f"GameRoom {game_room_id} state not found."
 
     try:
@@ -117,10 +93,10 @@ def sync_game_room_data(game_room_id):
     except GameRoom.DoesNotExist:
         return f"GameRoom {game_room_id} does not exist."
 
-    game_room_state["state"] = json.loads(game_room_state["state"])
-    game_room_state["players"] = json.loads(game_room_state["players"])
+    game_room_data["state"] = json.loads(game_room_data["state"])
+    game_room_data["players"] = json.loads(game_room_data["players"])
     serializer = GameRoomSerializer(
-        game_room, data=game_room_state, partial=True)
+        game_room, data=game_room_data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return f"GameRoom {game_room_id} synched successfully"
