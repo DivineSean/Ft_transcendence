@@ -33,7 +33,7 @@ const Tournaments = () => {
   return (
     <div className="flex flex-col grow">
       <div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
-      <Header link="profile" />
+      <Header link="tournaments" />
       <div className="container">
         <div className="flex flex-col primary-glass p-16relative overflow-hidden get-height">
           <div className="absolute top-0 left-0 w-full lg:h-[232px] h-[216px] bg-[url('/images/pongCover.png')] bg-cover bg-bottom">

@@ -20,7 +20,6 @@ class sAuthMiddleWare(MiddlewareMixin):
             "/api/register/",
             "/api/setupusername/",
             "/api/intra/",
-            "/api/user/",
             "/api/requestreset/",
             "/api/changepassword/",
         ]
