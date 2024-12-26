@@ -225,7 +225,7 @@ const Profile = () => {
   return (
     <div className="flex flex-col w-full grow lg:gap-32 gap-16 relative">
       <Header link="profile" />
-	  {authContextData.globalMessage.message && ( <Toast position="topCenter" /> )}
+      {authContextData.globalMessage.message && <Toast position="topCenter" />}
       {!contextData.profileInfo && <LoadingPage />}
       {!authContextData.displayMenuGl && contextData.profileInfo !== null && (
         <div className="container">

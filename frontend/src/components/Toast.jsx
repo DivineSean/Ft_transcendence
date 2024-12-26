@@ -4,11 +4,7 @@ import { IoMdClose } from "react-icons/io";
 import { VscError } from "react-icons/vsc";
 import AuthContext from "../context/AuthContext";
 
-const Toast = ({
-  duration = 3000,
-  error = true,
-  position = "topCenter",
-}) => {
+const Toast = ({ duration = 3000, error = true, position = "topCenter" }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [opacity, setOpacity] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -68,47 +64,47 @@ const Toast = ({
 				duration-800 ${opacity ? "opacity-100" : "opacity-0"}
 			`}
       >
-		{!authContextData.globalMessage.icon ?
-			<div
-				className={`${authContextData.globalMessage.isError ? "bg-red" : "bg-green"} h-[2px] absolute bottom-0 left-0 z-[-1]`}
-				style={{ width: `${progress}%` }}
-			></div>
-			:
-			<div
-				className={`bg-green h-[2px] absolute bottom-0 left-0 z-[-1]`}
-				style={{ width: `${progress}%` }}
-			></div>
-		}
-		{!authContextData.globalMessage.icon ?
-			<div className="flex gap-8 items-center">
-				{authContextData.globalMessage.isError && (
-					<div className="min-w-16 max-w-16">
-						<VscError className="text-red text-txt-md" />
-					</div>
-				)}
-				{!authContextData.globalMessage.isError && (
-					<div className="min-w-16 max-w-16">
-					<GrStatusGood className="text-green text-txt-md" />
-					</div>
-				)}
-				<p className="font-light tracking-wide text-txt-sm text-gray normal-case">
-					<span className="font-bold tracking-wide text-white">
-						{authContextData.globalMessage.isError ? "error: " : "success: "}
-					</span>
-					{authContextData.globalMessage.message}
-				</p>
-			</div>
-
-			:
-
-			<div className="flex gap-8 items-center normal-case">
-				{authContextData.globalMessage.icon}
-				<span className="font-bold tracking-wide text-white">
-					{authContextData.globalMessage.username}
-				</span>
-				{authContextData.globalMessage.message.slice(0, 20)}
-			</div>
-		}
+        {!authContextData.globalMessage.icon ? (
+          <div
+            className={`${authContextData.globalMessage.isError ? "bg-red" : "bg-green"} h-[2px] absolute bottom-0 left-0 z-[-1]`}
+            style={{ width: `${progress}%` }}
+          ></div>
+        ) : (
+          <div
+            className={`bg-green h-[2px] absolute bottom-0 left-0 z-[-1]`}
+            style={{ width: `${progress}%` }}
+          ></div>
+        )}
+        {!authContextData.globalMessage.icon ? (
+          <div className="flex gap-8 items-center">
+            {authContextData.globalMessage.isError && (
+              <div className="min-w-16 max-w-16">
+                <VscError className="text-red text-txt-md" />
+              </div>
+            )}
+            {!authContextData.globalMessage.isError && (
+              <div className="min-w-16 max-w-16">
+                <GrStatusGood className="text-green text-txt-md" />
+              </div>
+            )}
+            <p className="font-light tracking-wide text-txt-sm text-gray normal-case">
+              <span className="font-bold tracking-wide text-white">
+                {authContextData.globalMessage.isError
+                  ? "error: "
+                  : "success: "}
+              </span>
+              {authContextData.globalMessage.message}
+            </p>
+          </div>
+        ) : (
+          <div className="flex gap-8 items-center normal-case">
+            {authContextData.globalMessage.icon}
+            <span className="font-bold tracking-wide text-white">
+              {authContextData.globalMessage.username}
+            </span>
+            {authContextData.globalMessage.message.slice(0, 20)}
+          </div>
+        )}
         <IoMdClose
           onClick={removeToast}
           className="cursor-pointer text-txt-xl min-w-16"

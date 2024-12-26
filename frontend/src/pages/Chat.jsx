@@ -11,7 +11,7 @@ import AuthContext from "../context/AuthContext";
 import ChatFriends from "../components/chat/ChatFriends";
 import LoadingPage from "./LoadingPage";
 import NotifContext from "../context/NotifContext";
-import Toast from '../components/Toast';
+import Toast from "../components/Toast";
 
 const Chat = () => {
   const { uid } = useParams();
@@ -27,24 +27,36 @@ const Chat = () => {
     window.innerWidth <= 768 ? false : true,
   );
 
-	useEffect(() => {
-		// first time fetch conversation message from the database to render them to the user
-		getConversations(setFriendsData, authContextData.setGlobalMessage, navigate);
-	}, []);
+  useEffect(() => {
+    // first time fetch conversation message from the database to render them to the user
+    getConversations(
+      setFriendsData,
+      authContextData.setGlobalMessage,
+      navigate,
+    );
+  }, []);
 
-	useEffect(() => {
-		if (!uid) {
-			getConversations(setFriendsData, authContextData.setGlobalMessage, navigate);
-		}
-	}, [uid]);
+  useEffect(() => {
+    if (!uid) {
+      getConversations(
+        setFriendsData,
+        authContextData.setGlobalMessage,
+        navigate,
+      );
+    }
+  }, [uid]);
 
-	useEffect(() => {
-		if (notifContextData.refresh) {
-			console.log('hello');
-			getConversations(setFriendsData, authContextData.setGlobalMessage, navigate);
-			notifContextData.setRefresh(false);
-		}
-	}, [notifContextData.refresh]);
+  useEffect(() => {
+    if (notifContextData.refresh) {
+      console.log("hello");
+      getConversations(
+        setFriendsData,
+        authContextData.setGlobalMessage,
+        navigate,
+      );
+      notifContextData.setRefresh(false);
+    }
+  }, [notifContextData.refresh]);
 
   useEffect(() => {
     const handleMessageReceived = (e) => {
@@ -85,11 +97,16 @@ const Chat = () => {
             // reset the display typing to make the front don't display is typing message to the user
             notifContextData.setDisplayTyping(null);
           }
-        } else if (messageData.type === "createConv" && window.location.pathname.search('chat') !== -1) {
-
-            getConversations(setFriendsData, authContextData.setGlobalMessage, navigate);
-            notifContextData.readNotification(messageData.notifId);
-
+        } else if (
+          messageData.type === "createConv" &&
+          window.location.pathname.search("chat") !== -1
+        ) {
+          getConversations(
+            setFriendsData,
+            authContextData.setGlobalMessage,
+            navigate,
+          );
+          notifContextData.readNotification(messageData.notifId);
         }
       }
     };
@@ -149,7 +166,7 @@ const Chat = () => {
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="chat" />
-	  {authContextData.globalMessage.message && ( <Toast position="topCenter" /> )}
+      {authContextData.globalMessage.message && <Toast position="topCenter" />}
       {!friendsData && <LoadingPage />}
       {friendsData && (
         <div className="container md:px-16 px-0">

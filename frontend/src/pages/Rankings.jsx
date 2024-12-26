@@ -50,7 +50,7 @@ const Rankings = () => {
                     <h2 className="text-txt-xs">simohammed</h2>
                   </div>
                   <div className="h-[120px] bg-[url('/images/background.png')] bg-top bg-cover norepeat overflow-hidden relative flex justify-center items-center rounded-t-lg">
-				  	<div className="absolute hover-secondary backdrop-blur-2xl w-full h-full"></div>
+                    <div className="absolute hover-secondary backdrop-blur-2xl w-full h-full"></div>
                     <p className="text-h-lg-2xl font-bold z-10">2</p>
                   </div>
                 </div>
@@ -63,7 +63,7 @@ const Rankings = () => {
                     <h2 className="md:text-txt-md text-txt-xs">simohammed</h2>
                   </div>
                   <div className="h-[160px] bg-[url('/images/background.png')] bg-top bg-cover norepeat overflow-hidden relative flex justify-center items-center rounded-t-lg">
-				  	<div className="absolute hover-secondary backdrop-blur-2xl w-full h-full"></div>
+                    <div className="absolute hover-secondary backdrop-blur-2xl w-full h-full"></div>
                     <p className="text-h-lg-4xl text-green font-bold z-10">1</p>
                   </div>
                 </div>
@@ -76,14 +76,14 @@ const Rankings = () => {
                     <h2 className="text-txt-xs">simohammed</h2>
                   </div>
                   <div className="h-[80px] bg-[url('/images/background.png')] bg-center bg-cover norepeat overflow-hidden relative flex justify-center items-center rounded-t-lg">
-				  	<div className="absolute hover-secondary backdrop-blur-2xl w-full h-full"></div>
+                    <div className="absolute hover-secondary backdrop-blur-2xl w-full h-full"></div>
                     <p className="text-h-lg-xl font-bold z-10">3</p>
                   </div>
                 </div>
               </div>
               <div className="bg-[url('/images/background.png')] norepeat relative flex flex-col p-32 gap-16 overflow-hidden rounded-md bg-cover bg-center bg-fixed">
                 <div className="absolute w-full h-full secondary-glass top-0 left-0"></div>
-				<div className="grid grid-cols-5 gap-32 hover-secondary rounded-lg text-center py-8 z-10">
+                <div className="grid grid-cols-5 gap-32 hover-secondary rounded-lg text-center py-8 z-10">
                   <p>22</p>
                   <p className="font-bold">you</p>
                   <p>426</p>

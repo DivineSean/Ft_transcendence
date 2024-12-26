@@ -15,7 +15,8 @@ const Home = () => {
   useEffect(() => {
     userContextData.getFriends();
 
-	return () => authContextData.setGlobalMessage({message: '', isError: false});
+    return () =>
+      authContextData.setGlobalMessage({ message: "", isError: false });
   }, []);
 
   if (userContextData.userFriends && userContextData.userFriends.friends) {
@@ -27,7 +28,7 @@ const Home = () => {
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="home" />
-	  {authContextData.globalMessage.message && ( <Toast position="topCenter" /> )}
+      {authContextData.globalMessage.message && <Toast position="topCenter" />}
       {userContextData.generalLoading && <LoadingPage />}
       {!userContextData.generalLoading && (
         <>
