@@ -62,10 +62,7 @@ const GameOverlay = ({ data, send }) => {
 
 const Game = memo(({ userInfo, game, ready, setReady, send, addMessageHandler, removeMessageHandler, players, state }) => {
 	const data = players.current?.find((player) => player.user.username === userInfo.username)
-	const names = players.current?.map((player) => player.user.username) || [];
 	console.log("hadi hya data dyali hhhh", userInfo?.username, players, data);
-	// TODO: Pause game time if ready is set to false
-	// TODO: Ignore input if ready is set to false
 
 	useEffect(() => {
 		console.log("Game component renered");
@@ -76,13 +73,12 @@ const Game = memo(({ userInfo, game, ready, setReady, send, addMessageHandler, r
 			return <Pong
 				ready={ready}
 				setReady={setReady}
-				names={names}
+				playersData={players.current}
 				player={data.role}
 				send={send}
 				addMessageHandler={addMessageHandler}
 				removeMessageHandler={removeMessageHandler}
 			/>;
-		// return <div>pong</div>
 	}
 })
 
@@ -119,8 +115,6 @@ const GameManager = () => {
 	useEffect(() => {
 		contextData.getUserInfo();
 	}, [])
-
-	// TODO: handle reconnect after accepting
 
 	return (
 		<div className="relative w-full">

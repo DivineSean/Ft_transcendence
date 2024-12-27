@@ -448,7 +448,7 @@ class Ball {
 			sound = null;
 		}
 	}
-	
+
 	cleanup() {
 		this.container.removeChild(this.labelRenderer.domElement);
 		this.div.remove();

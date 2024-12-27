@@ -4,7 +4,7 @@ from .tasks import sync_game_room_data, mark_game_abandoned
 from celery.result import AsyncResult
 from django.conf import settings
 from .models import GameRoom
-from datetime import datetime, timezone
+from datetime import datetime
 import json
 import redis
 
@@ -20,6 +20,9 @@ MAX_ALLOWED_TIMEOUTS = 2
 TIMEOUT_DURATION = 30
 
 
+# TODO: update player rating when the game ends
+# TODO: update user status to 'in-game' and revert back to 'online' when the game concludes
+# TODO: achievements
 class GameConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()

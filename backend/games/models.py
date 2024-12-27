@@ -80,6 +80,7 @@ class Achievement(models.Model):
     description = models.TextField(blank=True)
 
     LEVELS = {
+        "iron": 1,
         "bronze": 3,
         "silver": 10,
         "gold": 25,

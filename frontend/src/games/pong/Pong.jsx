@@ -16,7 +16,7 @@ const Pong = ({
 	addMessageHandler,
 	removeMessageHandler,
 	player,
-	names,
+	playersData,
 }) => {
 	const sm = useRef(null);
 	const loaderRef = useRef(null);
@@ -40,7 +40,7 @@ const Pong = ({
 		loaderBRef.current = new GLTFLoader();
 		sm.current = new SceneManager(
 			player == 2 ? -1 : 1,
-			names,
+			playersData,
 			authContextData.setGlobalMessage,
 			setIsWon,
 			setIslost,
@@ -75,7 +75,7 @@ const Pong = ({
 				ballRef.current,
 			),
 		];
-		
+
 		sm.current.render();
 		tableRef.current.render();
 		netRef.current.render();
@@ -292,7 +292,7 @@ const Pong = ({
 		};
 
 		sm.current.renderer.setAnimationLoop(animate);
-		
+
 		return () => sm.current.renderer.setAnimationLoop(null);
 	}, [ready, isWon, islost]);
 
