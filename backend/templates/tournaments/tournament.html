@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tournament</title>
+    <style>
+        .tournament-container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .tournament-bracket { display: flex; flex-direction: column; gap: 20px; }
+        .round { display: flex; flex-direction: column; gap: 10px; }
+        .match { border: 1px solid #ccc; padding: 10px; margin: 5px; border-radius: 4px; }
+        .player { padding: 5px; margin: 2px; background-color: #f0f0f0; cursor: pointer; }
+        .winner { background-color: #90EE90; }
+        .eliminated { background-color: #ffcccb; text-decoration: line-through; }
+        .buttons { margin: 20px 0; }
+        button { padding: 10px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <div class="tournament-container">
+        <h2>Available Tournaments</h2>
+        <div id="tournamentList"></div>
+        <div id="tournamentBracket" class="tournament-bracket"></div>
+    </div>
+
+    <script>
+        async function fetchTournaments() {
+            try {
+                const response = await fetch('/api/tournament/list/');
+                const tournaments = await response.json();
+                const tournamentList = document.getElementById('tournamentList');
+                tournamentList.innerHTML = '';
+
+                tournaments.forEach(tournament => {
+                    const tournamentDiv = document.createElement('div');
+                    tournamentDiv.innerHTML = `
+                        <h3>Tournament ID: ${tournament.lobbyID} (Max Players: ${tournament.maxPlayers})</h3>
+                        <button onclick="joinTournament('${tournament.lobbyID}')">Join</button>
+                    `;
+                    tournamentList.appendChild(tournamentDiv);
+                });
+            } catch (error) {
+                console.error('Error fetching tournaments:', error);
+            }
+        }
+
+        async function joinTournament(lobbyID) {
+            try {
+                const response = await fetch('/api/tournament/addPlayer/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lobbyID })
+                });
+                const data = await response.json();
+
+                if (data.matches) {
+                    renderTournamentBracket(data.matches);
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error('Error joining tournament:', error);
+            }
+        }
+
+        function renderTournamentBracket(matches) {
+            const bracket = document.getElementById('tournamentBracket');
+            bracket.innerHTML = '';
+
+            const roundsMap = new Map();
+            matches.forEach(match => {
+                if (!roundsMap.has(match.tnRound)) {
+                    roundsMap.set(match.tnRound, []);
+                }
+                roundsMap.get(match.tnRound).push(match);
+            });
+
+            roundsMap.forEach((roundMatches, roundNum) => {
+                const roundDiv = document.createElement('div');
+                roundDiv.className = 'round';
+                roundDiv.innerHTML = `<h3>Round ${roundNum}</h3>`;
+
+                roundMatches.forEach(match => {
+                    const matchDiv = document.createElement('div');
+                    matchDiv.className = 'match';
+                    matchDiv.innerHTML = `
+                        <div class="player ${match.winner?.id === match.player1.id ? 'winner' : ''} 
+                                         ${match.player1.isEliminated ? 'eliminated' : ''}">
+                            ${match.player1.username}
+                        </div>
+                        ${match.player2 ? `
+                        <div class="player ${match.winner?.id === match.player2.id ? 'winner' : ''}
+                                         ${match.player2.isEliminated ? 'eliminated' : ''}">
+                            ${match.player2.username}
+                        </div>
+                        ` : '<div class="player">BYE</div>'}
+                    `;
+                    roundDiv.appendChild(matchDiv);
+                });
+
+                bracket.appendChild(roundDiv);
+            });
+        }
+
+        window.onload = fetchTournaments;
+    </script>
+</body>
+</html>
