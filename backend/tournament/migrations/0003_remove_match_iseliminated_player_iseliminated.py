@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tournament', '0002_rename_roomid_lobby_lobbyid_lobby_iscompleted_and_more'),
+        ("tournament", "0002_rename_roomid_lobby_lobbyid_lobby_iscompleted_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='match',
-            name='isEliminated',
+            model_name="match",
+            name="isEliminated",
         ),
         migrations.AddField(
-            model_name='player',
-            name='isEliminated',
+            model_name="player",
+            name="isEliminated",
             field=models.BooleanField(default=False),
         ),
     ]

@@ -16,14 +16,14 @@ class Game(models.Model):
     )
     max_players = models.PositiveSmallIntegerField(
         default=2,
-        blank=False, 
+        blank=False,
         null=False,
         help_text="Maximum players allowed in the game",
     )
     description = models.TextField(null=True, blank=True)
 
     def clean(self):
-        if self.min_players >  self.max_players:
+        if self.min_players > self.max_players:
             return ValidationError("Max players cannot be less than min players.")
 
     def __str__(self):

@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Lobby , Player, Match
+from .models import Lobby, Player, Match
+
 admin.site.register(Lobby)
 admin.site.register(Player)
 admin.site.register(Match)
