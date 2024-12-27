@@ -80,9 +80,7 @@ class GameConsumer(WebsocketConsumer):
                 serializer = GameRoomSerializer(game)
                 game_data = serializer.data
                 r.hset(f"game_room_data:{self.game_uuid}", mapping=game_data)
-            self.players = game_data["players"] = json.loads(
-                game_data["players"]
-            )
+            self.players = game_data["players"] = json.loads(game_data["players"])
             game_data["state"] = json.loads(game_data["state"])
         except Exception as e:
             self.close(code=1006, reason=e)
@@ -91,24 +89,18 @@ class GameConsumer(WebsocketConsumer):
         if game_data["status"] == "paused":
             self.handle_reconnect(game_data)
 
-        self.send(
-            text_data=json.dumps(
-                {"type": "game_manager", "message": game_data})
-        )
+        self.send(text_data=json.dumps({"type": "game_manager", "message": game_data}))
 
     def update_result(self, message):
         # update the game status to 'completed'
         # update the result field on the player
         # notify players
-        self.players = json.loads(
-            r.hget(f"game_room_data:{self.game_uuid}", "players")
-        )
+        self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
         for player in self.players:
             if player["user"]["id"] == self.user_id:
                 player["result"] = message
                 break
-        self.save_game_data(players=json.dumps(
-            self.players), status="completed")
+        self.save_game_data(players=json.dumps(self.players), status="completed")
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
             {
@@ -122,9 +114,7 @@ class GameConsumer(WebsocketConsumer):
 
     def update_score(self):
         role = None
-        self.players = json.loads(
-            r.hget(f"game_room_data:{self.game_uuid}", "players")
-        )
+        self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
         for player in self.players:
             if str(player["user"]["id"]) == str(self.user_id):
                 player["score"] += 1
@@ -146,9 +136,7 @@ class GameConsumer(WebsocketConsumer):
         )
 
     def update_readiness(self):
-        self.players = json.loads(
-            r.hget(f"game_room_data:{self.game_uuid}", "players")
-        )
+        self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
         for player in self.players:
             if player["user"]["id"] == self.user_id and not player["ready"]:
                 player["ready"] = True
@@ -157,9 +145,9 @@ class GameConsumer(WebsocketConsumer):
                     {
                         "type": "broadcast",
                         "info": "game_manager",
-                                "message": {
-                                    "players": self.players,
-                                },
+                        "message": {
+                            "players": self.players,
+                        },
                     },
                 )
                 break
@@ -168,23 +156,21 @@ class GameConsumer(WebsocketConsumer):
         all_ready = all(player.get("ready", False) for player in self.players)
         if all_ready:
             start_time = int(time.time() * 1000)
-            self.save_game_data(
-                status="ongoing", started_at=start_time, countdown=0)
-            async_to_sync(self.channel_layer.group_send)(
-                self.group_name,
-                {"type": "broadcast", "info": "game_manager", "message": {
-                    "status": "ongoing",
-                    "players": self.players,
-                }
-                },
-            )
+            self.save_game_data(status="ongoing", started_at=start_time, countdown=0)
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
                 {
                     "type": "broadcast",
-                    "info": "time",
-                    "message": start_time
+                    "info": "game_manager",
+                    "message": {
+                        "status": "ongoing",
+                        "players": self.players,
+                    },
                 },
+            )
+            async_to_sync(self.channel_layer.group_send)(
+                self.group_name,
+                {"type": "broadcast", "info": "time", "message": start_time},
             )
 
     def handle_reconnect(self, game_data):
@@ -199,14 +185,15 @@ class GameConsumer(WebsocketConsumer):
             game_data["status"] = "ongoing"
             start_time = int(game_data["started_at"])
             game_data["started_at"] = (
-                int(time.time() * 1000) - int(game_data["paused_at"])) + start_time
+                int(time.time() * 1000) - int(game_data["paused_at"])
+            ) + start_time
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
                 {
                     "type": "whisper",
                     "info": "game_manager",
-                            "sender": self.channel_name,
-                            "message": game_data
+                    "sender": self.channel_name,
+                    "message": game_data,
                 },
             )
             async_to_sync(self.channel_layer.group_send)(
@@ -214,11 +201,15 @@ class GameConsumer(WebsocketConsumer):
                 {
                     "type": "broadcast",
                     "info": "time",
-					"message": game_data["started_at"]
+                    "message": game_data["started_at"],
                 },
             )
             self.save_game_data(
-                state=json.dumps(game_data["state"]), status="ongoing", started_at=game_data["started_at"], countdown=0)
+                state=json.dumps(game_data["state"]),
+                status="ongoing",
+                started_at=game_data["started_at"],
+                countdown=0,
+            )
         else:
             self.save_game_data(state=json.dumps(game_data["state"]))
 
@@ -245,11 +236,10 @@ class GameConsumer(WebsocketConsumer):
                             paused_at=paused_at,
                             state=json.dumps(leavers),
                             players=json.dumps(self.players),
-                            countdown=0
+                            countdown=0,
                         )
                     else:
-                        task = mark_game_abandoned.delay(
-                            self.game_uuid, self.user_id)
+                        task = mark_game_abandoned.delay(self.game_uuid, self.user_id)
                     break
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
@@ -257,8 +247,8 @@ class GameConsumer(WebsocketConsumer):
                     "type": "broadcast",
                     "info": "game_manager",
                     "message": {
-                            "status": "paused",
-                            "players": self.players,
+                        "status": "paused",
+                        "players": self.players,
                     },
                 },
             )

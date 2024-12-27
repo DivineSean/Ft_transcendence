@@ -15,8 +15,17 @@ class PlayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ["id", "user", "role", "rating_gain",
-                  "rating_loss", "ready", "score", "result", "timeouts"]
+        fields = [
+            "id",
+            "user",
+            "role",
+            "rating_gain",
+            "rating_loss",
+            "ready",
+            "score",
+            "result",
+            "timeouts",
+        ]
 
     def get_user(self, obj):
         from Auth.serializers import UserSerializer
@@ -38,8 +47,7 @@ class PlayerRatingSerializer(serializers.ModelSerializer):
 class GameRoomSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(format="hex_verbose", read_only=True)
     game = serializers.PrimaryKeyRelatedField(queryset=Game.objects.all())
-    players = serializers.ListField(
-        child=serializers.DictField(), required=False)
+    players = serializers.ListField(child=serializers.DictField(), required=False)
 
     class Meta:
         model = GameRoom
@@ -103,8 +111,7 @@ class GameRoomSerializer(serializers.ModelSerializer):
                         setattr(player, field, value)
                 player.save()
             except Player.DoesNotExist:
-                user_id = player_data.get("user", {}).get(
-                    "id")
+                user_id = player_data.get("user", {}).get("id")
                 if not user_id or not User.objects.filter(id=user_id).exists():
                     raise serializers.ValidationError(
                         f"User with id {user_id} does not exist."

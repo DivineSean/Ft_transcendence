@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('games', '0007_achievement_playerachievement'),
+        ("games", "0007_achievement_playerachievement"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='player',
-            name='timeouts',
+            model_name="player",
+            name="timeouts",
             field=models.PositiveSmallIntegerField(default=3),
         ),
     ]

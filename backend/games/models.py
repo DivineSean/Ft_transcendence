@@ -46,8 +46,7 @@ class GameRoom(models.Model):
     )
     state = models.JSONField(default=dict)
     turn = models.PositiveSmallIntegerField(default=1)
-    started_at = models.BigIntegerField(
-        default=int(time.time()*1000))
+    started_at = models.BigIntegerField(default=int(time.time() * 1000))
     paused_at = models.BigIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
