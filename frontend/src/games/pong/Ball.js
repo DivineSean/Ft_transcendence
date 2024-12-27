@@ -426,6 +426,23 @@ class Ball {
         this.Achievement.setVolume(1);
       },
     );
+
+    if (sm.changeServe !== 1) {
+      this.x = 42 * -1;
+      this.y = -23.5;
+      this.z = -20 * -1;
+
+      this.dx = 0;
+      this.dy = 0;
+      this.dz = 0;
+      this.isServerDemon = true;
+      this.count = 0;
+      this.serving = true;
+      this.timeout = false;
+      this.lastshooter = -1;
+      this.sendLock = false;
+    }
+
     this.scene.add(this.model);
 
     const box = new THREE.Box3().setFromObject(this.model);

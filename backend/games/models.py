@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.utils.timezone import now
 from Auth.models import Users as User
 import uuid
+import time
 
 
 class Game(models.Model):
@@ -44,6 +45,9 @@ class GameRoom(models.Model):
         max_length=20, choices=Status.choices, default=Status.WAITING
     )
     state = models.JSONField(default=dict)
+    turn = models.PositiveSmallIntegerField(default=1)
+    started_at = models.BigIntegerField(default=int(time.time() * 1000))
+    paused_at = models.BigIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
@@ -60,6 +64,7 @@ class Player(models.Model):
     role = models.PositiveSmallIntegerField()
     ready = models.BooleanField(default=False)
     score = models.PositiveIntegerField(default=0)
+    timeouts = models.PositiveSmallIntegerField(default=3)
     result = models.CharField(
         max_length=10, choices=Result.choices, blank=True, null=True
     )
@@ -80,6 +85,7 @@ class Achievement(models.Model):
     description = models.TextField(blank=True)
 
     LEVELS = {
+        "iron": 1,
         "bronze": 3,
         "silver": 10,
         "gold": 25,

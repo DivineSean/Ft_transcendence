@@ -4,9 +4,17 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
 
 export class SceneManager {
-  constructor(player, names, globalMessage, setIsWon, setIslost, setReady) {
+  constructor(
+    player,
+    turn,
+    playersData,
+    globalMessage,
+    setIsWon,
+    setIslost,
+    setReady,
+  ) {
     this.player = player;
-    this.names = names;
+    this.playersData = playersData;
     this.Marathoner = false;
     this.globalMessage = globalMessage;
     this.RemontadaPlayer = player;
@@ -14,6 +22,8 @@ export class SceneManager {
     this.setIsWon = setIsWon;
     this.setIslost = setIslost;
     this.setReady = setReady;
+    this.changeServe = Number(turn);
+    console.log("turn: ", turn);
     // Camera
     this.camera = new THREE.PerspectiveCamera(
       80,
@@ -421,7 +431,13 @@ export class SceneManager {
       this.P1Score.position.y - 0.5,
       this.P1Score.position.z,
     );
-    this.addTextToPlane(this.P1Score, this.names[0], -0.4, 0, 0x000000);
+    this.addTextToPlane(
+      this.P1Score,
+      this.playersData[0].user.username,
+      -0.4,
+      0,
+      0x000000,
+    );
 
     if (this.player === -1) {
       this.P2Score = this.createRoundedPlane(
@@ -451,7 +467,13 @@ export class SceneManager {
       this.P2Score.position.y - 0.5,
       this.P2Score.position.z,
     );
-    this.addTextToPlane(this.P2Score, this.names[1], -0.4, 0, 0x000000);
+    this.addTextToPlane(
+      this.P2Score,
+      this.playersData[1].user.username,
+      -0.4,
+      0,
+      0x000000,
+    );
 
     // ScoreBarre
     this.P1ScoreBarre = this.createRoundedPlane(
@@ -597,7 +619,10 @@ export class SceneManager {
     this.scene.add(this.pointLight);
 
     //score
-    this.scoreRender(undefined, 1);
+    const scores = this.playersData.map((playerData) =>
+      playerData.score.toString(),
+    );
+    this.scoreRender(scores, this.changeServe);
     this.startTime = Date.now();
     this.lastTime = Date.now();
     this.TimeRender(true);

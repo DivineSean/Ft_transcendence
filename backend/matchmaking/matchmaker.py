@@ -117,7 +117,7 @@ class Matchmaker:
             match = []
             for player, rating in batch:
                 if len(match) < game["max_players"]:
-                    match.append({"id": player, "rating": rating})
+                    match.append({"user": player, "rating": rating})
 
                 if len(match) == game["max_players"]:
                     matches.append(match)
@@ -157,7 +157,7 @@ class Matchmaker:
                     players[i]["rating_loss"] = -c
                 changes[i][x] = c
                 j += 1 / n
-            r.hmset(f"{players[i]['id']}:players_rating_changes", changes[i])
+            r.hmset(f"{players[i]['user']}:players_rating_changes", changes[i])
 
     async def create_matches(self, channel_layer, game, matches):
         for match in matches:
@@ -166,8 +166,10 @@ class Matchmaker:
             self.calculate_rating_changes(match)
             for player in match:
                 player["role"] = role
-                r.zrem(f"{game['name']}_{QUEUE_KEY}", player["id"])
-                channel = r.hget(f"{game['name']}:players_channel_names", player["id"])
+                r.zrem(f"{game['name']}_{QUEUE_KEY}", player["user"])
+                channel = r.hget(
+                    f"{game['name']}:players_channel_names", player["user"]
+                )
                 channels.append(channel)
                 role += 1
 
