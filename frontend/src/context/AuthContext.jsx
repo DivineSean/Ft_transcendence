@@ -9,6 +9,11 @@ export default AuthContext;
 export const AuthProvider = ({ children }) => {
   const FetchData = new FetchWrapper();
   const [displayMenuGl, setDisplayMenuGl] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const [btnLoading, setBtnLoading] = useState(false);
+  const [providerBtnLoading, setProviderBtnLoading] = useState(false);
+  const [profileReturn, setProfileReturn] = useState(false);
 
   const navigate = useNavigate();
   const validationErrors = {};
@@ -80,10 +85,12 @@ export const AuthProvider = ({ children }) => {
     let url;
     if (provider === "intra") url = "api/intra/";
     else url = "api/google/";
+	setProviderBtnLoading(true);
     try {
       const res = await FetchData.get(url);
-      const data = await res.json();
+	  setProviderBtnLoading(false);
       if (res.ok) {
+		  const data = await res.json();
         window.location.href = data.url;
       } else setGlobalMessage({ message: data.error, isError: true });
     } catch (error) {
@@ -110,6 +117,7 @@ export const AuthProvider = ({ children }) => {
     setError(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
+		setBtnLoading(true);
       try {
         const res = await FetchData.post("api/register/", {
           first_name: e.target.firstName.value,
@@ -117,6 +125,7 @@ export const AuthProvider = ({ children }) => {
           email: e.target.email.value,
           password: e.target.password.value,
         });
+		setBtnLoading(false);
         if (res.status === 200) {
           navigate("/login");
         } else {
@@ -140,21 +149,23 @@ export const AuthProvider = ({ children }) => {
   const login = async (e) => {
     e.preventDefault();
     for (const data in formData) {
-      if (data === "email" && !emailRegex.test(formData[data]))
-        validationErrors[data] = `invalid ${data}!`;
-      if (data === "email" && !formData[data].trim())
-        validationErrors[data] = `${data} is required!`;
-      if (data === "password" && !formData[data].trim())
-        validationErrors[data] = `${data} is required!`;
-    }
+		if (data === "email" && !emailRegex.test(formData[data]))
+			validationErrors[data] = `invalid ${data}!`;
+		if (data === "email" && !formData[data].trim())
+			validationErrors[data] = `${data} is required!`;
+		if (data === "password" && !formData[data].trim())
+			validationErrors[data] = `${data} is required!`;
+	}
     setError(validationErrors);
-
+	
     if (Object.keys(validationErrors).length === 0) {
+		setLoginBtnLoading(true);
       try {
         const res = await FetchData.post("api/token/", {
           email: e.target.email.value,
           password: e.target.password.value,
         });
+		setLoginBtnLoading(false);
         if (res.ok) {
           const data = await res.json();
           if (data.requires_2fa) navigate(`/twofa/${data.uid}`);
@@ -184,11 +195,12 @@ export const AuthProvider = ({ children }) => {
   const authorization2FA = async (e, userId, values2FA) => {
     e.preventDefault();
     try {
+		setBtnLoading(true);
       const res = await FetchData.post("api/token/", {
         id: userId,
         "2fa_code": values2FA.join(""),
       });
-
+	  setBtnLoading(false);
       const data = await res.json();
       if (res.ok) {
         if (data.username === null) navigate(`setupusername/${data.uid}`);
@@ -223,13 +235,20 @@ export const AuthProvider = ({ children }) => {
     setError(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
+		setBtnLoading(true);
       try {
         const res = await FetchData.post("api/requestreset/", {
           email: e.target.email.value,
         });
-        const data = await res.json();
-        if (res.ok) navigate(`/forgotpassword/${data.uid}`);
-        else setGlobalMessage({ message: data.error, isError: true });
+		setBtnLoading(false);
+        if (res.ok) {
+
+			const data = await res.json();
+			navigate(`/forgotpassword/${data.uid}`);
+
+		} else {
+			setGlobalMessage({ message: data.error, isError: true });
+		}
       } catch (error) {
         setGlobalMessage({ message: `error: ${error}`, isError: true });
       }
@@ -255,13 +274,20 @@ export const AuthProvider = ({ children }) => {
     setError(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
+		setBtnLoading(true);
       try {
         const res = await FetchData.post("api/changepassword/", {
           id: userId,
           newPassword: e.target.password.value,
           code: values2FA.join(""),
         });
-        if (res.ok) navigate("/login");
+		setBtnLoading(false);
+        if (res.ok) {
+			if (profileReturn)
+				navigate('/profile/overview')
+			else
+				navigate("/login");
+		} 
         else {
           const data = await res.json();
           setGlobalMessage({ message: data.error, isError: true });
@@ -304,11 +330,13 @@ export const AuthProvider = ({ children }) => {
     setError(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
+		setBtnLoading(true);
       try {
         const res = await FetchData.post("api/setupusername/", {
           id: userId,
           username: e.target.username.value,
         });
+		setBtnLoading(false);
         const data = await res.json();
         if (res.ok) navigate("/home");
         else setGlobalMessage({ message: data.error, isError: true });
@@ -318,7 +346,37 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  	// this function to check the user is authenticated to redirect him to the home page
+  const checkIsUserAuthenticated = async (uid) => {
+	try {
+		const res = await FetchData.get('api/auth/check/');
+		if (res.ok) {
+			if (window.location.pathname.search('forgotpassword') !== -1 && !uid) 
+				navigate('/home');
+			else if (window.location.pathname.search('forgotpassword') !== -1 && uid) {
+
+				setLoading(false);
+				setProfileReturn(true);
+				console.log('rye7 hna akhouna hhh');
+
+			} else if (window.location.pathname.search('forgotpassword') === -1)
+				navigate('/home');
+		}
+		else
+			setLoading(false);
+	} catch (error) {
+		setGlobalMessage({
+			message: error.message,
+			isError: true,
+		})
+	}
+  }
+
   const contextData = {
+	providerBtnLoading,
+	btnLoading,
+	loading,
+	formData,
     error,
     globalMessage,
     displayMenuGl,
@@ -341,6 +399,8 @@ export const AuthProvider = ({ children }) => {
     setGlobalMessage,
     setDisplayMenuGl,
     setUpUsername,
+	checkIsUserAuthenticated,
+	setLoading,
   };
 
   return (

@@ -14,16 +14,16 @@ const InputUpdateProfile = ({ ...props }) => {
               name={props.name}
               type={props.type}
               className="
-								peer outline-none bg-transparent grow border border-stroke-sc
-								rounded-sm text-txt-sm font-light p-8 focus:border-gray transition-all
-							"
+					peer outline-none bg-transparent grow border border-stroke-sc
+					rounded-sm text-txt-sm font-light p-8 focus:border-gray transition-all
+				"
             />
             <label
-              className={`
-								absolute top-1/2 -translate-y-1/2
-								${props.formData ? "top-[-8px] left-0 text-txt-xs" : "left-8 text-txt-sm"} text-gray
-								transition-all peer-focus:left-0 peer-focus:text-txt-xs peer-focus:top-[-8px]
-							`}
+				className={`
+					absolute top-1/2 -translate-y-1/2
+					${props.formData ? "top-[-8px] left-0 text-txt-xs" : "left-8 text-txt-sm"} text-gray
+					transition-all peer-focus:left-0 peer-focus:text-txt-xs peer-focus:top-[-8px]
+				`}
             >
               {" "}
               {props.title}{" "}

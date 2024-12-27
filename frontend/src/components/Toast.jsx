@@ -51,18 +51,18 @@ const Toast = ({ duration = 3000, error = true, position = "topCenter" }) => {
     authContextData.globalMessage.message && (
       <div
         className={`
-				${position === "topCenter" && "top-32 left-1/2 transform -translate-x-1/2"}
-				${position === "bottomCenter" && "bottom-32 left-1/2 transform -translate-x-1/2"}
-				${position === "topRight" && "top-32 right-32"}
-				${position === "topLeft" && "top-32 left-32"}
-				${position === "bottomLeft" && "bottom-32 left-32"}
-				${position === "bottomRight" && "bottom-32 right-32"}
-				justify-between
-				py-8 px-16 fixed z-[100] overflow-hidden backdrop-blur-2xl
-				flex gap-8 items-center rounded-lg
-				border-[0.5px] border-stroke-sc max-w-[400px] min-w-[10px] transition-opacity
-				duration-800 ${opacity ? "opacity-100" : "opacity-0"}
-			`}
+			${position === "topCenter" && "top-32 left-1/2 transform -translate-x-1/2"}
+			${position === "bottomCenter" && "bottom-32 left-1/2 transform -translate-x-1/2"}
+			${position === "topRight" && "top-32 right-32"}
+			${position === "topLeft" && "top-32 left-32"}
+			${position === "bottomLeft" && "bottom-32 left-32"}
+			${position === "bottomRight" && "bottom-32 right-32"}
+			justify-between
+			py-8 px-16 fixed z-[100] overflow-hidden backdrop-blur-2xl
+			flex gap-8 items-center rounded-lg
+			border-[0.5px] border-stroke-sc max-w-[400px] min-w-[10px] transition-opacity
+			duration-800 ${opacity ? "opacity-100" : "opacity-0"}
+		`}
       >
         {!authContextData.globalMessage.icon ? (
           <div
@@ -78,7 +78,7 @@ const Toast = ({ duration = 3000, error = true, position = "topCenter" }) => {
         {!authContextData.globalMessage.icon ? (
           <div className="flex gap-8 items-center">
             {authContextData.globalMessage.isError && (
-              <div className="min-w-16 max-w-16">
+              <div className="min-w-16 max-w-16 flex items-center">
                 <VscError className="text-red text-txt-md" />
               </div>
             )}
@@ -87,8 +87,8 @@ const Toast = ({ duration = 3000, error = true, position = "topCenter" }) => {
                 <GrStatusGood className="text-green text-txt-md" />
               </div>
             )}
-            <p className="font-light tracking-wide text-txt-sm text-gray normal-case">
-              <span className="font-bold tracking-wide text-white">
+            <p className="tracking-wide text-txt-sm text-white normal-case flex gap-16 items-center">
+              <span className={`font-bold tracking-wide ${authContextData.globalMessage.isError ? 'text-red' : 'text-green'}`}>
                 {authContextData.globalMessage.isError
                   ? "error: "
                   : "success: "}
@@ -97,8 +97,10 @@ const Toast = ({ duration = 3000, error = true, position = "topCenter" }) => {
             </p>
           </div>
         ) : (
-          <div className="flex gap-8 items-center normal-case">
-            {authContextData.globalMessage.icon}
+          <div className="flex gap-8 items-center normal-case flex gap-16 items-center">
+			<div className="min-w-16 max-w-16 flex items-center">
+            	{authContextData.globalMessage.icon}
+            </div>
             <span className="font-bold tracking-wide text-white">
               {authContextData.globalMessage.username}
             </span>

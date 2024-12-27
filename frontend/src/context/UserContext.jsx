@@ -333,6 +333,11 @@ export const UserProvider = ({ children }) => {
         navigate(`/chat/${data.conversationId}`);
       } else if (res.status === 400) {
         const data = await res.json();
+		setRefresh(true);
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
       }
     } catch (error) {
       authContextData.setGlobalMessage({
