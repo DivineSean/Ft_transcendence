@@ -37,7 +37,6 @@ class Ball {
     this.serving = true;
     this.lastshooter = 1;
     this.startTime = Date.now();
-
   }
 
   serve(net, sign) {
@@ -174,58 +173,56 @@ class Ball {
     this.boundingSphere = new THREE.Sphere(center, this.radius - 0.5);
   }
 
-	RemoveChild(plane) {
-		if (!plane) return;
-		for (let i = plane.children.length - 1; i >= 0; i--) {
-			const child = plane.children[i];
-			plane.remove(child);
-			if (child.geometry) child.geometry.dispose();
-			if (child.material) child.material.dispose();
-		}
-	}
+  RemoveChild(plane) {
+    if (!plane) return;
+    for (let i = plane.children.length - 1; i >= 0; i--) {
+      const child = plane.children[i];
+      plane.remove(child);
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) child.material.dispose();
+    }
+  }
 
-	RemoveMaterial(plane) {
-		if (plane) {
-			this.RemoveChild(plane);
-			this.scene.remove(plane);
-			if (plane.geometry) plane.geometry.dispose();
-			if (plane.material) plane.material.dispose();
-			plane = null;
-		}
-	}
+  RemoveMaterial(plane) {
+    if (plane) {
+      this.RemoveChild(plane);
+      this.scene.remove(plane);
+      if (plane.geometry) plane.geometry.dispose();
+      if (plane.material) plane.material.dispose();
+      plane = null;
+    }
+  }
 
-	removeAudio(sound) {
-		if (!sound)
-      return ;
+  removeAudio(sound) {
+    if (!sound) return;
     sound.setLoop(false);
-    if (sound.isPlaying){
+    if (sound.isPlaying) {
       sound.stop();
-			sound.disconnect();
-		}
-		if (sound.buffer) {
-			sound.setBuffer(null);
-		}
-		sound = null;
-	}
+      sound.disconnect();
+    }
+    if (sound.buffer) {
+      sound.setBuffer(null);
+    }
+    sound = null;
+  }
 
   cleanup() {
-		this.RemoveMaterial(this.model);
-		this.removeAudio(this.bounceSound);
-		this.removeAudio(this.netHitSound);
-		this.removeAudio(this.paddleHitSound);
-		this.removeAudio(this.onlyHit);
-		this.removeAudio(this.BackgroundMusic);
-		this.removeAudio(this.scoreSound);
-		this.removeAudio(this.lostSound);
-		this.removeAudio(this.swing);
-		this.removeAudio(this.ballMatchPoint);
-		this.removeAudio(this.Defeat);
-		this.removeAudio(this.Victory);
-		this.removeAudio(this.Achievement);
-	}
+    this.RemoveMaterial(this.model);
+    this.removeAudio(this.bounceSound);
+    this.removeAudio(this.netHitSound);
+    this.removeAudio(this.paddleHitSound);
+    this.removeAudio(this.onlyHit);
+    this.removeAudio(this.BackgroundMusic);
+    this.removeAudio(this.scoreSound);
+    this.removeAudio(this.lostSound);
+    this.removeAudio(this.swing);
+    this.removeAudio(this.ballMatchPoint);
+    this.removeAudio(this.Defeat);
+    this.removeAudio(this.Victory);
+    this.removeAudio(this.Achievement);
+  }
 
   async render(sm) {
-
     this.model = await this.loader
       .loadAsync(
         `https://${window.location.hostname}:3000/src/games/pong/ball.glb`,

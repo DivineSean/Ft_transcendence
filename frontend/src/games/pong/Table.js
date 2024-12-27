@@ -13,31 +13,30 @@ export class Table {
   }
 
   RemoveChild(plane) {
-		if (!plane) return;
-		for (let i = plane.children.length - 1; i >= 0; i--) {
-			const child = plane.children[i];
-			plane.remove(child);
-			if (child.geometry) child.geometry.dispose();
-			if (child.material) child.material.dispose();
-		}
-	}
+    if (!plane) return;
+    for (let i = plane.children.length - 1; i >= 0; i--) {
+      const child = plane.children[i];
+      plane.remove(child);
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) child.material.dispose();
+    }
+  }
 
-	RemoveMaterial(plane) {
-		if (plane) {
-			this.RemoveChild(plane);
-			this.scene.remove(plane);
-			if (plane.geometry) plane.geometry.dispose();
-			if (plane.material) plane.material.dispose();
-			plane = null;
-		}
-	}
+  RemoveMaterial(plane) {
+    if (plane) {
+      this.RemoveChild(plane);
+      this.scene.remove(plane);
+      if (plane.geometry) plane.geometry.dispose();
+      if (plane.material) plane.material.dispose();
+      plane = null;
+    }
+  }
 
-	cleanup() {
-		this.RemoveMaterial(this.table);
+  cleanup() {
+    this.RemoveMaterial(this.table);
     this.RemoveMaterial(this.midtable);
     this.RemoveMaterial(this.endtable);
-	}  
-
+  }
 
   async render() {
     this.table = await this.loader

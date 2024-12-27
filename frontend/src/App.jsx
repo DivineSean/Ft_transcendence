@@ -45,10 +45,7 @@ function App() {
                   path="profile/:section/:username"
                   element={<Profile />}
                 />
-                <Route
-                  path="games/:game/local"
-                  element={<PongLocal />}
-                />
+                <Route path="games/:game/local" element={<PongLocal />} />
                 <Route
                   path="games/:game/:mode/:uuid"
                   element={<GameManager />}

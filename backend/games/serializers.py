@@ -14,8 +14,16 @@ class PlayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ["id", "user", "role", "rating_gain",
-                  "rating_loss", "ready", "score", "result"]
+        fields = [
+            "id",
+            "user",
+            "role",
+            "rating_gain",
+            "rating_loss",
+            "ready",
+            "score",
+            "result",
+        ]
 
     def get_user(self, obj):
         from Auth.serializers import UserSerializer
@@ -37,10 +45,8 @@ class PlayerRatingSerializer(serializers.ModelSerializer):
 class GameRoomSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(format="hex_verbose", read_only=True)
     game = serializers.PrimaryKeyRelatedField(queryset=Game.objects.all())
-    players = serializers.ListField(
-        child=serializers.DictField(), write_only=True)
-    players_details = PlayerSerializer(
-        many=True, read_only=True, source="player_set")
+    players = serializers.ListField(child=serializers.DictField(), write_only=True)
+    players_details = PlayerSerializer(many=True, read_only=True, source="player_set")
 
     class Meta:
         model = GameRoom

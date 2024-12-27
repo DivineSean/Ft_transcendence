@@ -21,9 +21,9 @@ const PongLocal = () => {
   const [isOver, setIsOver] = useState(false);
 
   const tableRef = useRef(null);
-	const netRef = useRef(null);
-	const ballRef = useRef(null);
-	const playersRef = useRef(null);
+  const netRef = useRef(null);
+  const ballRef = useRef(null);
+  const playersRef = useRef(null);
 
   useEffect(() => {
     loaderTRef.current = new GLTFLoader();
@@ -92,8 +92,11 @@ const PongLocal = () => {
 
       sm.current.renderer.setSize(window.innerWidth, window.innerHeight);
       sm.current.ScalePlan();
-			sm.current.scoreRender(ballRef.current.scoreboard, ballRef.current.whoscore);
-			sm.current.addMatchPoint(ballRef.current.scoreboard);
+      sm.current.scoreRender(
+        ballRef.current.scoreboard,
+        ballRef.current.whoscore,
+      );
+      sm.current.addMatchPoint(ballRef.current.scoreboard);
       sm.current.TimeRender(false);
       sm.current.TimerCSS();
     };
@@ -119,13 +122,19 @@ const PongLocal = () => {
   }, []);
 
   useEffect(() => {
-    if (!tableRef.current || !netRef.current || !ballRef.current || !playersRef.current || !sm.current)
-			return;
+    if (
+      !tableRef.current ||
+      !netRef.current ||
+      !ballRef.current ||
+      !playersRef.current ||
+      !sm.current
+    )
+      return;
 
-		const table = tableRef.current;
-		const net = netRef.current;
-		const ball = ballRef.current;
-		const players = playersRef.current;
+    const table = tableRef.current;
+    const net = netRef.current;
+    const ball = ballRef.current;
+    const players = playersRef.current;
 
     let simulatedTime = performance.now() / 1000;
     const fixedStep = 0.015;
@@ -150,8 +159,7 @@ const PongLocal = () => {
         !ball.ballMatchPoint ||
         !ball.Defeat ||
         !ball.Victory
-      )
-      {
+      ) {
         return;
       }
       const timeNow = performance.now() / 1000;
@@ -184,12 +192,11 @@ const PongLocal = () => {
       sm.current.r();
     };
     sm.current.renderer.setAnimationLoop(animate);
-    
+
     return () => {
-        sm.current.renderer.setAnimationLoop(null);
+      sm.current.renderer.setAnimationLoop(null);
     };
   }, [isOver]);
-
 
   function restart() {
     window.location.href = "/games/pong/local/PongLocal";
