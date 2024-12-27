@@ -60,7 +60,7 @@ const GameOverlay = ({ data, send }) => {
 	}
 }
 
-const Game = memo(({ userInfo, game, ready, setReady, send, addMessageHandler, removeMessageHandler, players, state }) => {
+const Game = memo(({ userInfo, game, ready, setReady, send, addMessageHandler, removeMessageHandler, players, turn }) => {
 	const data = players.current?.find((player) => player.user.username === userInfo.username)
 	console.log("hadi hya data dyali hhhh", userInfo?.username, players, data);
 
@@ -74,6 +74,7 @@ const Game = memo(({ userInfo, game, ready, setReady, send, addMessageHandler, r
 				ready={ready}
 				setReady={setReady}
 				playersData={players.current}
+				turn={turn}
 				player={data.role}
 				send={send}
 				addMessageHandler={addMessageHandler}
@@ -129,6 +130,7 @@ const GameManager = () => {
 					addMessageHandler={addMessageHandler}
 					removeMessageHandler={removeMessageHandler}
 					players={playersRef}
+					turn={data.turn}
 				/>)
 			}
 			{!ready && data && (

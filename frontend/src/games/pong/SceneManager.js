@@ -4,7 +4,7 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
 
 export class SceneManager {
-	constructor(player, playersData, globalMessage, setIsWon, setIslost, setReady) {
+	constructor(player, turn, playersData, globalMessage, setIsWon, setIslost, setReady) {
 		this.player = player;
 		this.playersData = playersData;
 		this.Marathoner = false;
@@ -14,6 +14,8 @@ export class SceneManager {
 		this.setIsWon = setIsWon;
 		this.setIslost = setIslost;
 		this.setReady = setReady;
+		this.changeServe = Number(turn);
+		console.log("turn: ", turn)
 		// Camera
 		this.camera = new THREE.PerspectiveCamera(
 			80,
@@ -592,7 +594,7 @@ export class SceneManager {
 
 		//score
 		const scores = this.playersData.map(playerData => playerData.score.toString())
-		this.scoreRender(scores, 1);
+		this.scoreRender(scores, this.changeServe);
 		this.startTime = Date.now();
 		this.lastTime = Date.now();
 		this.TimeRender(true);

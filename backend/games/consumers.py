@@ -7,6 +7,7 @@ from .models import GameRoom
 from datetime import datetime
 import json
 import redis
+import time
 
 r = redis.Redis(
     host=settings.REDIS_CONNECTION["host"],
@@ -134,7 +135,7 @@ class GameConsumer(WebsocketConsumer):
         scores = {player["role"]: str(player["score"])
                   for player in self.players}
 
-        self.save_game_data(players=json.dumps(self.players))
+        self.save_game_data(turn=role, players=json.dumps(self.players))
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
             {
@@ -169,17 +170,23 @@ class GameConsumer(WebsocketConsumer):
         self.save_game_data(players=json.dumps(self.players))
         all_ready = all(player.get("ready", False) for player in self.players)
         if all_ready:
-            self.save_game_data(status="ongoing", countdown=0)
-            # game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
-            # game_data["players"] = json.loads(
-            #     game_data["players"])
-            # game_data["state"] = json.loads(game_data["state"])
+            start_time = int(time.time() * 1000)
+            self.save_game_data(
+                status="ongoing", started_at=start_time, countdown=0)
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
                 {"type": "broadcast", "info": "game_manager", "message": {
                     "status": "ongoing",
                     "players": self.players,
                 }
+                },
+            )
+            async_to_sync(self.channel_layer.group_send)(
+                self.group_name,
+                {
+                    "type": "broadcast",
+                    "info": "time",
+                    "message": start_time
                 },
             )
 
@@ -193,17 +200,28 @@ class GameConsumer(WebsocketConsumer):
         # check if all players have reconnected, and resume the game
         if not game_data["state"]:
             game_data["status"] = "ongoing"
+            start_time = int(game_data["started_at"])
+            game_data["started_at"] = (
+                int(time.time() * 1000) - int(game_data["paused_at"])) + start_time
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
                 {
                     "type": "whisper",
                     "info": "game_manager",
-                    "sender": self.channel_name,
-                    "message": game_data
+                            "sender": self.channel_name,
+                            "message": game_data
+                },
+            )
+            async_to_sync(self.channel_layer.group_send)(
+                self.group_name,
+                {
+                    "type": "broadcast",
+                    "info": "time",
+					"message": game_data["started_at"]
                 },
             )
             self.save_game_data(
-                state=json.dumps(game_data["state"]), status="ongoing", countdown=0)
+                state=json.dumps(game_data["state"]), status="ongoing", started_at=game_data["started_at"], countdown=0)
         else:
             self.save_game_data(state=json.dumps(game_data["state"]))
 
@@ -224,8 +242,10 @@ class GameConsumer(WebsocketConsumer):
                             "disconnect_at": datetime.now().isoformat(),
                         }
                         player["timeouts"] -= 1
+                        paused_at = int(time.time() * 1000)
                         self.save_game_data(
                             status="paused",
+                            paused_at=paused_at,
                             state=json.dumps(leavers),
                             players=json.dumps(self.players),
                             countdown=0
@@ -240,8 +260,8 @@ class GameConsumer(WebsocketConsumer):
                     "type": "broadcast",
                     "info": "game_manager",
                     "message": {
-                        "status": "paused",
-                        "players": self.players,
+                            "status": "paused",
+                            "players": self.players,
                     },
                 },
             )

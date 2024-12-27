@@ -16,6 +16,7 @@ const Pong = ({
 	addMessageHandler,
 	removeMessageHandler,
 	player,
+	turn,
 	playersData,
 }) => {
 	const sm = useRef(null);
@@ -40,6 +41,7 @@ const Pong = ({
 		loaderBRef.current = new GLTFLoader();
 		sm.current = new SceneManager(
 			player == 2 ? -1 : 1,
+			turn,
 			playersData,
 			authContextData.setGlobalMessage,
 			setIsWon,
@@ -114,58 +116,62 @@ const Pong = ({
 				} else if (msg.message.role === 2) {
 					ballRef.current.serve(netRef.current, -1);
 				}
-			} else if (msg.message.content == "paddle") {
-				playersRef.current[opp - 1].rotating = false;
-				playersRef.current[opp - 1].x = msg.message.paddle.x;
-				playersRef.current[opp - 1].y = msg.message.paddle.y;
-				playersRef.current[opp - 1].z = msg.message.paddle.z;
+			} else if (msg.type === "update") {
+				if (msg.message.content == "paddle") {
+					playersRef.current[opp - 1].rotating = false;
+					playersRef.current[opp - 1].x = msg.message.paddle.x;
+					playersRef.current[opp - 1].y = msg.message.paddle.y;
+					playersRef.current[opp - 1].z = msg.message.paddle.z;
 
-				playersRef.current[opp - 1].dx = msg.message.paddle.dx;
-				playersRef.current[opp - 1].dy = msg.message.paddle.dy;
-				playersRef.current[opp - 1].dz = msg.message.paddle.dz;
+					playersRef.current[opp - 1].dx = msg.message.paddle.dx;
+					playersRef.current[opp - 1].dy = msg.message.paddle.dy;
+					playersRef.current[opp - 1].dz = msg.message.paddle.dz;
 
-				playersRef.current[opp - 1].rotationX = msg.message.paddle.rotX;
-				playersRef.current[opp - 1].rotationY = msg.message.paddle.rotY;
-				playersRef.current[opp - 1].rotationZ = msg.message.paddle.rotZ;
-				playersRef.current[opp - 1].updatePos();
-			} else if (msg.message.content == "rotating") {
-				if (!ballRef.current.swing.isPlaying) {
-					ballRef.current.swing.currentTime = 0;
-					ballRef.current.swing.play();
-				}
-				playersRef.current[opp - 1].rotating = true;
-				playersRef.current[opp - 1].rotationX = msg.message.paddle.rotX;
-				playersRef.current[opp - 1].rotationY = msg.message.paddle.rotY;
-				playersRef.current[opp - 1].rotationZ = msg.message.paddle.rotZ;
-				playersRef.current[opp - 1].updatePos();
-			} else if (msg.message.content == "ball") {
-				if (msg.message.ball.stats === "shoot") {
-					if (!ballRef.current.paddleHitSound.isPlaying) {
-						ballRef.current.paddleHitSound.currentTime = 0;
-						ballRef.current.paddleHitSound.play();
+					playersRef.current[opp - 1].rotationX = msg.message.paddle.rotX;
+					playersRef.current[opp - 1].rotationY = msg.message.paddle.rotY;
+					playersRef.current[opp - 1].rotationZ = msg.message.paddle.rotZ;
+					playersRef.current[opp - 1].updatePos();
+				} else if (msg.message.content == "rotating") {
+					if (!ballRef.current.swing.isPlaying) {
+						ballRef.current.swing.currentTime = 0;
+						ballRef.current.swing.play();
 					}
-				} else if (msg.message.ball.stats === "hit") {
-					if (!ballRef.current.onlyHit.isPlaying) {
-						ballRef.current.onlyHit.currentTime = 0;
-						ballRef.current.onlyHit.play();
+					playersRef.current[opp - 1].rotating = true;
+					playersRef.current[opp - 1].rotationX = msg.message.paddle.rotX;
+					playersRef.current[opp - 1].rotationY = msg.message.paddle.rotY;
+					playersRef.current[opp - 1].rotationZ = msg.message.paddle.rotZ;
+					playersRef.current[opp - 1].updatePos();
+				} else if (msg.message.content == "ball") {
+					if (msg.message.ball.stats === "shoot") {
+						if (!ballRef.current.paddleHitSound.isPlaying) {
+							ballRef.current.paddleHitSound.currentTime = 0;
+							ballRef.current.paddleHitSound.play();
+						}
+					} else if (msg.message.ball.stats === "hit") {
+						if (!ballRef.current.onlyHit.isPlaying) {
+							ballRef.current.onlyHit.currentTime = 0;
+							ballRef.current.onlyHit.play();
+						}
 					}
+					ballRef.current.x = msg.message.ball.x;
+					ballRef.current.y = msg.message.ball.y;
+					ballRef.current.z = msg.message.ball.z;
+					ballRef.current.dx = msg.message.ball.dx;
+					ballRef.current.dy = msg.message.ball.dy;
+					ballRef.current.dz = msg.message.ball.dz;
+					ballRef.current.count = 0;
+					ballRef.current.serving = msg.message.ball.serving;
+					ballRef.current.lastshooter = msg.message.ball.lstshoot;
+					ballRef.current.isServerDemon = false;
+					ballRef.current.updatePos();
+				} else if (msg.message.content == "lost") {
+					ballRef.current.serving = msg.message.ball.serving;
+					ballRef.current.lastshooter = msg.message.ball.lstshoot;
+					ballRef.current.sendLock = true;
+					ballRef.current.sendScore(send);
 				}
-				ballRef.current.x = msg.message.ball.x;
-				ballRef.current.y = msg.message.ball.y;
-				ballRef.current.z = msg.message.ball.z;
-				ballRef.current.dx = msg.message.ball.dx;
-				ballRef.current.dy = msg.message.ball.dy;
-				ballRef.current.dz = msg.message.ball.dz;
-				ballRef.current.count = 0;
-				ballRef.current.serving = msg.message.ball.serving;
-				ballRef.current.lastshooter = msg.message.ball.lstshoot;
-				ballRef.current.isServerDemon = false;
-				ballRef.current.updatePos();
-			} else if (msg.message.content == "lost") {
-				ballRef.current.serving = msg.message.ball.serving;
-				ballRef.current.lastshooter = msg.message.ball.lstshoot;
-				ballRef.current.sendLock = true;
-				ballRef.current.sendScore(send);
+			} else if (msg.type === "time") {
+				sm.current.startTime = msg.message;
 			}
 		};
 
@@ -243,8 +249,11 @@ const Pong = ({
 				!ball.ballMatchPoint ||
 				!ball.Defeat ||
 				!ball.Victory
-			)
+			) {
+
+				ball.startTime = Date.now();
 				return;
+			}
 			if (!ball.BackgroundMusic.isPlaying) {
 				ball.BackgroundMusic.currentTime = 0;
 				ball.BackgroundMusic.play();

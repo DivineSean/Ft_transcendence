@@ -48,8 +48,10 @@ class GameRoomSerializer(serializers.ModelSerializer):
             "game",
             "status",
             "state",
-            "created_at",
+            "turn",
             "players",
+            "started_at",
+            "created_at",
         ]
 
     def to_representation(self, instance):
