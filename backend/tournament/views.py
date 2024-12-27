@@ -48,7 +48,7 @@ def addPlayerToLobby(request):
     except:
         return Response("No Lobby with this lobbyID", status=400)
     
-    
+    managerObj = TournamentManager(lobby).startGame()
 
     playerObj = lobby.addPlayer(request.user)   
     
@@ -57,7 +57,7 @@ def addPlayerToLobby(request):
         createBracket(lobby)
         # matches = Match.objects.filter(lobby=lobby).select_related('player1', 'player2', 'winner') i try this mn b3d
         # matches = Match.objects.filter(lobby=lobby)
-        managerObj = TournamentManager(lobby)
+        managerObj = TournamentManager(lobby).startGame()
         # return Response({
         #     "message": f'{playerObj[0]}',
         #     "matches": [{

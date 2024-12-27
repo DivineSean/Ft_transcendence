@@ -42,7 +42,7 @@ class Match(models.Model):
     player2 = models.ForeignKey(Player, related_name="matches_p2", on_delete=models.CASCADE, null=True)  # ma3rftch wach ghaykoun 3ndna byes situations
     winner = models.ForeignKey(Player, related_name="matches_won", on_delete=models.CASCADE, null=True, blank=True)
     tnRound = models.PositiveIntegerField()
-    maxRounds = models.PositiveIntegerField()
+    # maxRounds = models.PositiveIntegerField()
     completed = models.BooleanField(default=False)
 
 
