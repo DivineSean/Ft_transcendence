@@ -10,7 +10,7 @@
 }
 
 body {
-  @apply min-h-screen capitalize bg-[url('/images/background.png')] bg-cover bg-fixed text-white flex flex-col relative;
+  @apply min-h-screen capitalize bg-[url('/images/background.png')] bg-cover bg-center bg-fixed text-white flex flex-col relative;
 }
 #root {
   display: flex;
@@ -300,4 +300,35 @@ body {
 .two-fa-radio:checked + span:after {
   opacity: 1;
   transform: scale(1, 1);
+}
+
+.EmojiPickerReact.epr-dark-theme {
+  background: linear-gradient(
+    90deg,
+    rgba(36, 36, 36, 0.3),
+    rgba(36, 36, 36, 0.2)
+  );
+  border-radius: 8px;
+}
+
+.EmojiPickerReact .epr-emoji-category-label {
+  backdrop-filter: blur(40px);
+  background: transparent;
+}
+
+.EmojiPickerReact input[type="text"] {
+  background: rgb(4, 4, 37);
+}
+
+.EmojiPickerReact .epr-body::-webkit-scrollbar {
+  width: 3px;
+}
+.EmojiPickerReact .epr-body::-webkit-scrollbar-track {
+  @apply primary-glass;
+}
+.EmojiPickerReact .epr-body::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-stroke-sc;
+}
+.EmojiPickerReact .epr-body::-webkit-scrollbar-thumb:hover {
+  @apply bg-stroke-sc cursor-all-scroll;
 }

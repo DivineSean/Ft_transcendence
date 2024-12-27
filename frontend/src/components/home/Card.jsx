@@ -13,12 +13,12 @@ const Card = ({ ...props }) => {
         </p>
         <div className="flex items-end">
           {props.isMainButton && (
-            <button className="px-32 py-8 bg-green text-black font-semibold text-h-lg-md rounded">
+            <button className="px-32 py-8 bg-green text-black font-semibold text-h-lg-sm rounded">
               {props.buttonContent}
             </button>
           )}
           {!props.isMainButton && (
-            <button className="px-32 py-8 text-white font-semibold text-h-lg-md rounded border-2 border-white">
+            <button className="px-32 py-8 text-white font-semibold text-h-lg-sm rounded border-2 border-white">
               {props.buttonContent}
             </button>
           )}

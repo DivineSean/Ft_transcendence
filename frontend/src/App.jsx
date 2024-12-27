@@ -19,6 +19,7 @@ import Header from "./components/Header";
 import { UserProvider } from "./context/UserContext";
 import PongLocal from "./games/pong/PongLocal/PongLocal";
 import { NotifProvider } from "./context/NotifContext";
+import Tournaments from "./pages/Tournaments";
 
 function App() {
   return (
@@ -26,8 +27,8 @@ function App() {
       <div className="backdrop-blur-sm w-full h-full absolute top-0 right-0 z-[-1]"></div>
       <Router>
         <AuthProvider>
-          <UserProvider>
-            <NotifProvider>
+          <NotifProvider>
+            <UserProvider>
               <Routes>
                 <Route path="forgotpassword/" element={<ForgotPassword />} />
                 <Route
@@ -58,10 +59,11 @@ function App() {
                 <Route path="chat/" element={<Chat />} />
                 <Route path="chat/:uid" element={<Chat />} />
                 <Route path="rankings" element={<Rankings />} />
+                <Route path="tournaments/" element={<Tournaments />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </NotifProvider>
-          </UserProvider>
+            </UserProvider>
+          </NotifProvider>
         </AuthProvider>
       </Router>
     </>

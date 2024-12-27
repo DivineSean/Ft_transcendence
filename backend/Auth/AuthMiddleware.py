@@ -20,7 +20,6 @@ class sAuthMiddleWare(MiddlewareMixin):
             "/api/register/",
             "/api/setupusername/",
             "/api/intra/",
-            "/api/user/",
             "/api/requestreset/",
             "/api/changepassword/",
         ]
@@ -47,7 +46,7 @@ class sAuthMiddleWare(MiddlewareMixin):
                 validatedAccessToken = AccessToken(accessToken)
                 user = jwtObj.get_user(validatedAccessToken)
                 request._user = user
-                print("------------------>", request._user, flush=True)
+                # print("------------------>", request._user, flush=True)
                 return None
 
             except:

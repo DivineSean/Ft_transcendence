@@ -105,10 +105,10 @@ const UpdateProfile = ({ setUpdateProfile }) => {
         `${contextData.userInfo.id}_profile.jpeg`,
       );
     }
+
     Object.entries(formData).forEach(([key, value]) => {
       if (key === "username") key = key.toLocaleLowerCase();
       updatedData.append(key, value);
-      console.log(key, value);
     });
 
     updatedData.append("isTwoFa", isChecked);
@@ -118,8 +118,10 @@ const UpdateProfile = ({ setUpdateProfile }) => {
         "api/profile/update/",
         updatedData,
       );
+
       setLoading(false);
       setPasswordLoading(false);
+
       if (res.ok) {
         const data = await res.json();
         const updatedImageUrl = `${data.profile_image}?t=${new Date().getTime()}`;
@@ -138,17 +140,21 @@ const UpdateProfile = ({ setUpdateProfile }) => {
         });
       }
     } catch (error) {
-      console.log("ata ach katrawan asahbi", error);
+      authContextData.setGlobalMessage({
+        message: error,
+        isError: true,
+      });
     }
   };
 
   // if the user want to change it's password then must to reset it with already made endpoint
   const handleChangePassword = async (e) => {
     e.preventDefault();
+
     if (!loading) {
-      console.log("ach hadchi");
       setPasswordLoading(true);
       setLoading(true);
+
       try {
         const res = await FetchData.post("api/requestreset/", {
           email: contextData.userInfo.email,
@@ -168,7 +174,10 @@ const UpdateProfile = ({ setUpdateProfile }) => {
           setLoading(false);
         }
       } catch (error) {
-        console.log("chihaja mahiyach", error);
+        authContextData.setGlobalMessage({
+          message: error,
+          isError: true,
+        });
       }
     }
   };
@@ -209,10 +218,9 @@ const UpdateProfile = ({ setUpdateProfile }) => {
               />
               <label
                 htmlFor="file-upload"
-                className="
-									flex items-center justify-center px-16 py-4 text-gray bg-stroke-pr gap-16
-									rounded-sm cursor-pointer hover:bg-stroke-sc transition border border-stroke-sc
-								"
+                className="flex items-center justify-center px-16 py-4 text-gray bg-stroke-pr gap-16
+								rounded-sm cursor-pointer hover:bg-stroke-sc transition border border-stroke-sc
+							"
               >
                 <p>Upload image</p>
                 <IoCloudUploadOutline className="text-lg text-green" />
