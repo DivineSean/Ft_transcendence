@@ -8,7 +8,7 @@ class Notifications(models.Model):
 
     TYPES = [
         ("FR", "Friend Request"),
-        ("AR", "Accept Friend Request"),
+        ("AF", "Accept Friend Request"),
         ("IG", "Invite Game"),
         ("IT", "Invite Tournament"),
         ("ME", "Message"),
