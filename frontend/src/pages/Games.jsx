@@ -134,7 +134,7 @@ const ModeDetails = ({ games }) => {
           : undefined;
       if (!modeObject) navigate(`/games/${game}`);
     }
-    if (mode === "local") navigate("PongLocal");
+    // if (mode === "local") navigate("PongLocal");
   }, []);
 
   const Modes = () => {
@@ -280,16 +280,6 @@ const Games = () => {
       name: "pong",
       image:
         "url('https://mir-s3-cdn-cf.behance.net/project_modules/fs/05daa256209423.59a540cb340e6.jpg')",
-      modes: {
-        ai: true,
-        online: true,
-        local: true,
-      },
-    },
-    {
-      id: 1,
-      name: "fleabag vs mutt",
-      image: "url('https://www.gimori.com/images/cat-vs-dog.jpg')",
       modes: {
         ai: true,
         online: true,

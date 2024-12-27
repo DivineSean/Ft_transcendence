@@ -14,7 +14,16 @@ class PlayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ["id", "user", "role", "rating_gain", "rating_loss", "ready", "score"]
+        fields = [
+            "id",
+            "user",
+            "role",
+            "rating_gain",
+            "rating_loss",
+            "ready",
+            "score",
+            "result",
+        ]
 
     def get_user(self, obj):
         from Auth.serializers import UserSerializer

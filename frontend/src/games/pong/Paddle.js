@@ -1,16 +1,13 @@
 import * as THREE from "three";
 
 class Paddle {
-  constructor(send, scene, player, position, controls, loader, ball) {
+  constructor(scene, player, position, controls, loader, ball) {
     this.scene = scene;
     this.player = player;
     this.controls = controls;
     this.loader = loader;
     this.ball = ball;
     this.power = 0.0;
-    // this.send = send;
-    this.model = undefined;
-    this.shadow = undefined;
     this.boundingBox = undefined;
 
     this.x = position.x;
@@ -32,6 +29,9 @@ class Paddle {
     this.left = true;
     this.right = false;
     this.rotating = false;
+
+    //cleanup
+    this.model = undefined;
   }
 
   update(keyboard, ball, send, dt) {
@@ -142,34 +142,12 @@ class Paddle {
     this.boundingBox.getCenter(s);
   }
 
-  // send(send, info, content) {
-  // 	const data = {
-  // 		type: "update",
-  // 		message: {
-  // 			info: info,
-  // 			content: content,
-  // 		},
-  // 	};
-  // 	send(JSON.stringify(data));
-  // }
-
-  checkCollision() {
-    const paddlePosition = new THREE.Vector3(this.x, this.y, this.z);
-    const ballPosition = new THREE.Vector3(
-      this.ball.x,
-      this.ball.y,
-      this.ball.z,
-    );
-    const distance = paddlePosition.distanceTo(ballPosition);
-    return Math.abs(distance);
-  }
-
   rotatePaddle() {
     if (!this.left && !this.right) return;
     this.rotating = true;
     const rotationDuration = 200;
-    const initialRotationY = this.rotationY; // Current rotation around Y axis
-    const initialRotationZ = this.rotationZ; // Current rotation around X axis
+    const initialRotationY = this.rotationY;
+    const initialRotationZ = this.rotationZ;
     const initialRotationX = this.rotationX;
     let targetRotationZ;
     let targetRotationY;
@@ -177,41 +155,31 @@ class Paddle {
 
     if (this.left) {
       if (this.player === -1) {
-        targetRotationY = initialRotationY - Math.PI / 4; // Rotate 45 degrees to the left
-      } else targetRotationY = initialRotationY + Math.PI / 4; // Rotate 45 degrees to the left
-      targetRotationZ = initialRotationZ + Math.PI / 8; // Rotate 22.5 degrees around X
+        targetRotationY = initialRotationY - Math.PI / 4;
+      } else targetRotationY = initialRotationY + Math.PI / 4;
+      targetRotationZ = initialRotationZ + Math.PI / 8;
       if (this.ball.y > this.boundingBox.max.y) {
         this.rotationY = 0;
         this.rotationX = Math.PI / 2;
         this.rotationZ = -Math.PI / 2;
-
-        // this.rotationX = 0;
-        // if (this.player === -1)
-        // {
-        // 	this.rotationX = -10;
-        // 	targetRotationX = initialRotationX + Math.PI / 2;
-        // }
       }
     } else if (this.right) {
       if (this.player === -1) {
-        targetRotationY = initialRotationY - Math.PI / 4; // Rotate 45 degrees to the right
-      } else targetRotationY = initialRotationY + Math.PI / 4; // Rotate 45 degrees to the right
-      targetRotationZ = initialRotationZ + Math.PI / 8; // Rotate 22.5 degrees around X
+        targetRotationY = initialRotationY - Math.PI / 4;
+      } else targetRotationY = initialRotationY + Math.PI / 4;
+      targetRotationZ = initialRotationZ + Math.PI / 8;
       if (this.ball.y > this.boundingBox.max.y) {
         this.rotationY = 0;
         this.rotationX = Math.PI / 2;
         this.rotationZ = -Math.PI / 2;
-        // this.rotationX = -10;
-        // targetRotationX = initialRotationX + Math.PI / 2;
       }
     }
     const start = Date.now();
 
     const animateRotation = () => {
       const elapsed = Date.now() - start;
-      const t = Math.min(elapsed / rotationDuration, 1); // Clamp t to 0 to 1
+      const t = Math.min(elapsed / rotationDuration, 1);
 
-      // Easing function (ease-out)
       const easedT = 1 - Math.pow(1 - t, 3);
 
       // Update rotations
@@ -243,15 +211,13 @@ class Paddle {
       const elapsed = Date.now() - start;
       const t = Math.min(elapsed / resetDuration, 1);
 
-      // Easing function (ease-in)
-      const easedT = t * t; // Quadratic easing for a smooth return
+      const easedT = t * t;
 
       const currentRotationY = this.rotationY;
       let deltaY = initialRotationY - currentRotationY;
       if (deltaY > Math.PI) deltaY -= 2 * Math.PI;
       if (deltaY < -Math.PI) deltaY += 2 * Math.PI;
 
-      // Normalize angle differences for Z rotation
       const currentRotationZ = this.rotationZ;
       let deltaZ = initialRotationZ - currentRotationZ;
       if (deltaZ > Math.PI) deltaZ -= 2 * Math.PI;
@@ -262,7 +228,6 @@ class Paddle {
       if (deltaX > Math.PI) deltaX -= 2 * Math.PI;
       if (deltaX < -Math.PI) deltaX += 2 * Math.PI;
 
-      // Update rotations
       this.rotationY = currentRotationY + deltaY * easedT;
       this.rotationZ = currentRotationZ + deltaZ * easedT;
       if (this.rotationX != initialRotationX)
@@ -276,8 +241,6 @@ class Paddle {
   }
 
   shoot(net, keyboard, ball, dt) {
-    // ball.isServed = true;
-    // ball.lastshooter = this.player;
     if (this.player === 1) {
       ball.x = this.boundingBox.min.x - 1;
     } else {
@@ -348,7 +311,7 @@ class Paddle {
     } else ball.dz = (Math.abs(this.z - 24) / 10000) * this.player;
   }
 
-  netshoot(ball, net, send, player) {
+  netshoot(ball, net) {
     ball.dx = Math.min(Math.abs(ball.dx) + 0.05, 0.01);
     if (
       ball.x < net.boundingBox.min.x + ball.radius &&
@@ -365,8 +328,7 @@ class Paddle {
     }
   }
 
-  hit(ball, send) {
-    // ball.lastshooter = this.player;
+  hit(ball) {
     if (this.player === 1) {
       ball.x = this.boundingBox.min.x - ball.radius;
     } else {
@@ -380,6 +342,30 @@ class Paddle {
   updatePos() {
     this.model.position.set(this.x, this.y, this.z);
     this.model.rotation.set(this.rotationX, this.rotationY, this.rotationZ);
+  }
+
+  RemoveChild(plane) {
+    if (!plane) return;
+    for (let i = plane.children.length - 1; i >= 0; i--) {
+      const child = plane.children[i];
+      plane.remove(child);
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) child.material.dispose();
+    }
+  }
+
+  RemoveMaterial(plane) {
+    if (plane) {
+      this.RemoveChild(plane);
+      this.scene.remove(plane);
+      if (plane.geometry) plane.geometry.dispose();
+      if (plane.material) plane.material.dispose();
+      plane = null;
+    }
+  }
+
+  cleanup() {
+    this.RemoveMaterial(this.model);
   }
 
   async render() {
@@ -398,7 +384,6 @@ class Paddle {
     });
     this.scene.add(this.model);
 
-    // collision
     this.boundingBox = new THREE.Box3().setFromObject(this.model);
   }
 }

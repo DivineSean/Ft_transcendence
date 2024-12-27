@@ -9,7 +9,6 @@ const G = 0.0009;
 class Ball {
   constructor(scene, loader, player) {
     this.scene = scene;
-    this.model = undefined;
     this.loader = loader;
     this.boundingSphere = undefined;
     this.bounceSound = undefined;
@@ -47,22 +46,14 @@ class Ball {
     this.lastshooter = 1;
     this.sendLock = false;
     this.startTime = Date.now();
-    // Set up CSS2DRenderer
-    const container = document.getElementById("message");
-    this.labelRenderer = new CSS2DRenderer();
-    this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
-    this.labelRenderer.domElement.style.position = "absolute";
-    this.labelRenderer.domElement.style.top = "0px";
-    this.labelRenderer.domElement.style.pointerEvents = "none";
-    container.appendChild(this.labelRenderer.domElement);
-    this.div = document.createElement("div");
-    this.div.className = "label";
-    this.div.textContent = "10 Seconds To Serve the Ball\n\t0s\t";
-    this.label = new CSS2DObject(this.div);
-    this.label.position.set(0, 0, 0);
-    this.scene.add(this.label);
-
     this.timeout = false;
+
+    //cleanup
+    this.labelRenderer = undefined;
+    this.container = undefined;
+    this.div = undefined;
+    this.label = undefined;
+    this.model = undefined;
   }
 
   serve(net, sign) {
@@ -194,7 +185,7 @@ class Ball {
         this.netHitSound.currentTime = 0.5;
         this.netHitSound.play();
       }
-      player1.netshoot(this, net, send, player);
+      player1.netshoot(this, net);
       this.count = 0;
       flag = true;
     }
@@ -226,7 +217,7 @@ class Ball {
         this.onlyHit.play();
       }
       status = "hit";
-      player1.hit(this, send);
+      player1.hit(this);
       this.scene.remove(this.label);
       this.serving = false;
       this.count = 0;
@@ -275,7 +266,42 @@ class Ball {
     this.model.position.set(this.x, this.y, this.z);
   }
 
+  RemoveChild(plane) {
+    if (!plane) return;
+    for (let i = plane.children.length - 1; i >= 0; i--) {
+      const child = plane.children[i];
+      plane.remove(child);
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) child.material.dispose();
+    }
+  }
+
+  RemoveMaterial(plane) {
+    if (plane) {
+      this.RemoveChild(plane);
+      this.scene.remove(plane);
+      if (plane.geometry) plane.geometry.dispose();
+      if (plane.material) plane.material.dispose();
+      plane = null;
+    }
+  }
+
   async render(sm) {
+    // Set up CSS2DRenderer
+    this.container = document.getElementById("message");
+    this.labelRenderer = new CSS2DRenderer();
+    this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
+    this.labelRenderer.domElement.style.position = "absolute";
+    this.labelRenderer.domElement.style.top = "0px";
+    this.labelRenderer.domElement.style.pointerEvents = "none";
+    this.container.appendChild(this.labelRenderer.domElement);
+    this.div = document.createElement("div");
+    this.div.className = "label";
+    this.div.textContent = "10 Seconds To Serve the Ball\n\t0s\t";
+    this.label = new CSS2DObject(this.div);
+    this.label.position.set(0, 0, 0);
+    this.scene.add(this.label);
+
     this.model = await this.loader
       .loadAsync(
         `https://${window.location.hostname}:3000/src/games/pong/ball.glb`,
@@ -290,6 +316,7 @@ class Ball {
         child.receiveShadow = true;
       }
     });
+
     // Load all sounds
     sm.audioLoader.load(
       `https://${window.location.hostname}:3000/src/games/pong/Sounds/bounce.mp3`,
@@ -405,6 +432,38 @@ class Ball {
     const center = box.getCenter(new THREE.Vector3());
     this.radius = box.getSize(new THREE.Vector3()).length() / 2;
     this.boundingSphere = new THREE.Sphere(center, this.radius);
+  }
+
+  removeAudio(sound) {
+    if (sound && sound.isPlaying) {
+      sound.stop();
+    }
+    if (sound && sound.buffer) {
+      sound.buffer = null;
+    }
+    if (sound) {
+      sound = null;
+    }
+  }
+
+  cleanup() {
+    this.container.removeChild(this.labelRenderer.domElement);
+    this.div.remove();
+    this.RemoveMaterial(this.model);
+    this.RemoveMaterial(this.label);
+    this.scene.remove(this.labelRenderer);
+    this.removeAudio(this.bounceSound);
+    this.removeAudio(this.netHitSound);
+    this.removeAudio(this.paddleHitSound);
+    this.removeAudio(this.onlyHit);
+    this.removeAudio(this.BackgroundMusic);
+    this.removeAudio(this.scoreSound);
+    this.removeAudio(this.lostSound);
+    this.removeAudio(this.swing);
+    this.removeAudio(this.ballMatchPoint);
+    this.removeAudio(this.Defeat);
+    this.removeAudio(this.Victory);
+    this.removeAudio(this.Achievement);
   }
 }
 

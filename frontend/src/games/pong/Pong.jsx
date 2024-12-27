@@ -8,7 +8,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState, useContext } from "react";
 import AuthContext from "../../context/AuthContext";
 import GameToast from "../../components/GameToast";
-import Toast from "../../components/Toast";
+import JoystickController from "joystick-controller";
 
 const Pong = ({
   send,
@@ -23,12 +23,95 @@ const Pong = ({
   const loaderRef = useRef(null);
   const loaderTRef = useRef(null);
   const loaderBRef = useRef(null);
+  const tableRef = useRef(null);
+  const netRef = useRef(null);
+  const ballRef = useRef(null);
+  const playersRef = useRef(null);
   const keyboard = useRef({});
+  const isMobile = useRef(false);
   const authContextData = useContext(AuthContext);
-
-  // const [ready, setReady] = useState(false);
+  const [isPortrait, setIsPortrait] = useState(false);
   const [isWon, setIsWon] = useState(false);
   const [islost, setIslost] = useState(false);
+
+  useEffect(() => {
+    isMobile.current = /android|iphone|ipad|ipod/i.test(
+      navigator.userAgent || navigator.vendor || window.opera,
+    );
+
+    if (!isMobile.current) return;
+    const handleOrientation = () => {
+      const isPortraitMode = window.innerHeight > window.innerWidth;
+      setIsPortrait(isPortraitMode);
+
+      if (screen.orientation?.lock) {
+        screen.orientation.lock("landscape").catch(() => {
+          // im doing that to force browser to landscape mode if it doesnt require user permission, if does im silencing it using empty catch
+        });
+      }
+    };
+
+    handleOrientation();
+    window.addEventListener("resize", handleOrientation);
+    window.addEventListener("orientationchange", handleOrientation);
+
+    if (!ready) return;
+
+    const MobileEventListener = (event) => {
+      if (event.x > 0.5) {
+        keyboard.current["ArrowRight"] = true;
+        keyboard.current["ArrowLeft"] = false;
+      } else if (event.x < -0.5) {
+        keyboard.current["ArrowLeft"] = true;
+        keyboard.current["ArrowRight"] = false;
+      } else {
+        keyboard.current["ArrowRight"] = false;
+        keyboard.current["ArrowLeft"] = false;
+      }
+      if (event.y > 0.5) {
+        keyboard.current["ArrowUp"] = true;
+        keyboard.current["ArrowDown"] = false;
+      } else if (event.y < -0.5) {
+        keyboard.current["ArrowDown"] = true;
+        keyboard.current["ArrowUp"] = false;
+      } else {
+        keyboard.current["ArrowUp"] = false;
+        keyboard.current["ArrowDown"] = false;
+      }
+    };
+
+    const joystick = new JoystickController(
+      {
+        maxRange: 70,
+        level: 10,
+        radius: 50,
+        joystickRadius: 30,
+        opacity: 0.5,
+        leftToRight: false,
+        bottomToUp: true,
+        containerClass: "joystick-container",
+        controllerClass: "joystick-controller",
+        joystickClass: "joystick",
+        distortion: true,
+        x: "15%",
+        y: "25%",
+        mouseClickButton: "ALL",
+        hideContextMenu: false,
+      },
+      (data) => {
+        MobileEventListener(data);
+      },
+    );
+
+    return () => {
+      if (isMobile.current && joystick) joystick.destroy();
+      window.removeEventListener("resize", handleOrientation);
+      window.removeEventListener("orientationchange", handleOrientation);
+      if (screen.orientation?.unlock) {
+        screen.orientation.unlock();
+      }
+    };
+  }, [ready]);
 
   useEffect(() => {
     loaderTRef.current = new GLTFLoader();
@@ -42,9 +125,10 @@ const Pong = ({
       setIslost,
       setReady,
     );
-    const table = new Table(sm.current.scene, loaderTRef.current);
-    const net = new Net(sm.current.scene, loaderRef.current);
-    const ball = new Ball(sm.current.scene, loaderBRef.current, player);
+    tableRef.current = new Table(sm.current.scene, loaderTRef.current);
+    netRef.current = new Net(sm.current.scene, loaderRef.current);
+    ballRef.current = new Ball(sm.current.scene, loaderBRef.current, player);
+
     const controls = {
       up: "ArrowUp",
       down: "ArrowDown",
@@ -53,26 +137,32 @@ const Pong = ({
       space: "Space",
     };
 
-    const players = [
+    playersRef.current = [
       new Paddle(
-        send,
         sm.current.scene,
         1,
         { x: 43, y: -25.5, z: 12 },
         controls,
         loaderRef.current,
-        ball,
+        ballRef.current,
       ),
       new Paddle(
-        send,
         sm.current.scene,
         -1,
         { x: -43, y: -25.5, z: -12 },
         controls,
         loaderRef.current,
-        ball,
+        ballRef.current,
       ),
     ];
+
+    sm.current.render();
+    tableRef.current.render();
+    netRef.current.render();
+    ballRef.current.render(sm.current);
+    playersRef.current[0].render();
+    playersRef.current[1].render();
+
     const messageHandler = (event) => {
       const msg = JSON.parse(event.data);
       const opp = player == 1 ? 2 : 1;
@@ -87,9 +177,9 @@ const Pong = ({
             sm.current.RemontadaChance = true;
         }
         if (Math.abs(score1 - score2) === 0 && sm.current.RemontadaChance) {
-          if (!ball.Achievement.isPlaying) {
-            ball.Achievement.currentTime = 0;
-            ball.Achievement.play();
+          if (!ballRef.current.Achievement.isPlaying) {
+            ballRef.current.Achievement.currentTime = 0;
+            ballRef.current.Achievement.play();
           }
           authContextData.setGlobalMessage({
             message:
@@ -98,75 +188,128 @@ const Pong = ({
           });
           sm.current.RemontadaChance = false;
         }
-        sm.current.scoreUpdate(scores, msg.message.role, ball);
+        sm.current.scoreUpdate(send, scores, msg.message.role, ballRef.current);
         if (msg.message.role === 1) {
-          ball.serve(net, 1);
+          ballRef.current.serve(netRef.current, 1);
         } else if (msg.message.role === 2) {
-          ball.serve(net, -1);
+          ballRef.current.serve(netRef.current, -1);
         }
       } else if (msg.message.content == "paddle") {
-        players[opp - 1].rotating = false;
-        players[opp - 1].x = msg.message.paddle.x;
-        players[opp - 1].y = msg.message.paddle.y;
-        players[opp - 1].z = msg.message.paddle.z;
+        playersRef.current[opp - 1].rotating = false;
+        playersRef.current[opp - 1].x = msg.message.paddle.x;
+        playersRef.current[opp - 1].y = msg.message.paddle.y;
+        playersRef.current[opp - 1].z = msg.message.paddle.z;
 
-        players[opp - 1].dx = msg.message.paddle.dx;
-        players[opp - 1].dy = msg.message.paddle.dy;
-        players[opp - 1].dz = msg.message.paddle.dz;
+        playersRef.current[opp - 1].dx = msg.message.paddle.dx;
+        playersRef.current[opp - 1].dy = msg.message.paddle.dy;
+        playersRef.current[opp - 1].dz = msg.message.paddle.dz;
 
-        players[opp - 1].rotationX = msg.message.paddle.rotX;
-        players[opp - 1].rotationY = msg.message.paddle.rotY;
-        players[opp - 1].rotationZ = msg.message.paddle.rotZ;
-        players[opp - 1].updatePos();
+        playersRef.current[opp - 1].rotationX = msg.message.paddle.rotX;
+        playersRef.current[opp - 1].rotationY = msg.message.paddle.rotY;
+        playersRef.current[opp - 1].rotationZ = msg.message.paddle.rotZ;
+        playersRef.current[opp - 1].updatePos();
       } else if (msg.message.content == "rotating") {
-        if (!ball.swing.isPlaying) {
-          ball.swing.currentTime = 0;
-          ball.swing.play();
+        if (!ballRef.current.swing.isPlaying) {
+          ballRef.current.swing.currentTime = 0;
+          ballRef.current.swing.play();
         }
-        players[opp - 1].rotating = true;
-        players[opp - 1].rotationX = msg.message.paddle.rotX;
-        players[opp - 1].rotationY = msg.message.paddle.rotY;
-        players[opp - 1].rotationZ = msg.message.paddle.rotZ;
-        players[opp - 1].updatePos();
+        playersRef.current[opp - 1].rotating = true;
+        playersRef.current[opp - 1].rotationX = msg.message.paddle.rotX;
+        playersRef.current[opp - 1].rotationY = msg.message.paddle.rotY;
+        playersRef.current[opp - 1].rotationZ = msg.message.paddle.rotZ;
+        playersRef.current[opp - 1].updatePos();
       } else if (msg.message.content == "ball") {
         if (msg.message.ball.stats === "shoot") {
-          if (!ball.paddleHitSound.isPlaying) {
-            ball.paddleHitSound.currentTime = 0;
-            ball.paddleHitSound.play();
+          if (!ballRef.current.paddleHitSound.isPlaying) {
+            ballRef.current.paddleHitSound.currentTime = 0;
+            ballRef.current.paddleHitSound.play();
           }
         } else if (msg.message.ball.stats === "hit") {
-          if (!ball.onlyHit.isPlaying) {
-            ball.onlyHit.currentTime = 0;
-            ball.onlyHit.play();
+          if (!ballRef.current.onlyHit.isPlaying) {
+            ballRef.current.onlyHit.currentTime = 0;
+            ballRef.current.onlyHit.play();
           }
         }
-        ball.x = msg.message.ball.x;
-        ball.y = msg.message.ball.y;
-        ball.z = msg.message.ball.z;
-        ball.dx = msg.message.ball.dx;
-        ball.dy = msg.message.ball.dy;
-        ball.dz = msg.message.ball.dz;
-        ball.count = 0;
-        ball.serving = msg.message.ball.serving;
-        ball.lastshooter = msg.message.ball.lstshoot;
-        ball.isServerDemon = false;
-        ball.updatePos();
+        ballRef.current.x = msg.message.ball.x;
+        ballRef.current.y = msg.message.ball.y;
+        ballRef.current.z = msg.message.ball.z;
+        ballRef.current.dx = msg.message.ball.dx;
+        ballRef.current.dy = msg.message.ball.dy;
+        ballRef.current.dz = msg.message.ball.dz;
+        ballRef.current.count = 0;
+        ballRef.current.serving = msg.message.ball.serving;
+        ballRef.current.lastshooter = msg.message.ball.lstshoot;
+        ballRef.current.isServerDemon = false;
+        ballRef.current.updatePos();
       } else if (msg.message.content == "lost") {
-        ball.serving = msg.message.ball.serving;
-        ball.lastshooter = msg.message.ball.lstshoot;
-        ball.sendLock = true;
-        ball.sendScore(send);
+        ballRef.current.serving = msg.message.ball.serving;
+        ballRef.current.lastshooter = msg.message.ball.lstshoot;
+        ballRef.current.sendLock = true;
+        ballRef.current.sendScore(send);
       }
     };
 
     addMessageHandler(messageHandler);
+    const handleKeyDown = (event) => {
+      if (playersRef.current[player - 1].rotating) return;
+      keyboard.current[event.code] = true;
+    };
 
-    sm.current.render();
-    table.render();
-    net.render();
-    ball.render(sm.current);
-    players[0].render();
-    players[1].render();
+    const handleKeyUp = (event) => {
+      keyboard.current[event.code] = false;
+    };
+
+    const onWindowResize = () => {
+      sm.current.camera.aspect = window.innerWidth / window.innerHeight;
+      sm.current.camera.updateProjectionMatrix();
+
+      sm.current.renderer.setSize(window.innerWidth, window.innerHeight);
+      ballRef.current.labelRenderer.setSize(
+        window.innerWidth,
+        window.innerHeight,
+      );
+      sm.current.ScalePlan();
+      sm.current.scoreRender(
+        ballRef.current.scoreboard,
+        ballRef.current.whoscore,
+      );
+      sm.current.addMatchPoint(ballRef.current.scoreboard);
+      sm.current.TimeRender(false);
+      sm.current.TimerCSS();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("resize", onWindowResize, false);
+
+    return () => {
+      sm.current.cleanup();
+      ballRef.current.cleanup();
+      tableRef.current.cleanup();
+      netRef.current.cleanup();
+      playersRef.current[0].cleanup();
+      playersRef.current[1].cleanup();
+      removeMessageHandler(messageHandler);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("resize", onWindowResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (
+      !tableRef.current ||
+      !netRef.current ||
+      !ballRef.current ||
+      !playersRef.current ||
+      !sm.current
+    )
+      return;
+
+    const table = tableRef.current;
+    const net = netRef.current;
+    const ball = ballRef.current;
+    const players = playersRef.current;
 
     let simulatedTime = performance.now() / 1000;
     const fixedStep = 0.015;
@@ -191,8 +334,11 @@ const Pong = ({
         !ball.ballMatchPoint ||
         !ball.Defeat ||
         !ball.Victory
-      )
+      ) {
+        sm.current.startTime = Date.now();
+        ball.startTime = Date.now();
         return;
+      }
       if (!ball.BackgroundMusic.isPlaying) {
         ball.BackgroundMusic.currentTime = 0;
         ball.BackgroundMusic.play();
@@ -200,7 +346,6 @@ const Pong = ({
       const timeNow = performance.now() / 1000;
       let dt = clock.getDelta() * 1000;
 
-      table.update();
       while (timeNow > simulatedTime + fixedStep) {
         ball.update(
           net,
@@ -241,39 +386,8 @@ const Pong = ({
     };
 
     sm.current.renderer.setAnimationLoop(animate);
-    const handleKeyDown = (event) => {
-      if (players[player - 1].rotating) return;
-      keyboard.current[event.code] = true;
-    };
 
-    const handleKeyUp = (event) => {
-      keyboard.current[event.code] = false;
-    };
-
-    const onWindowResize = () => {
-      sm.current.camera.aspect = window.innerWidth / window.innerHeight;
-      sm.current.camera.updateProjectionMatrix();
-
-      sm.current.renderer.setSize(window.innerWidth, window.innerHeight);
-      ball.labelRenderer.setSize(window.innerWidth, window.innerHeight);
-      sm.current.ScalePlan();
-      sm.current.scoreRender(ball.scoreboard, ball.whoscore);
-      sm.current.addMatchPoint(ball.scoreboard);
-      sm.current.TimeRender(false);
-      sm.current.TimerCSS();
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    window.addEventListener("resize", onWindowResize, false);
-
-    return () => {
-      sm.current.cleanUp();
-      removeMessageHandler(messageHandler);
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-      window.removeEventListener("resize", onWindowResize);
-    };
+    return () => sm.current.renderer.setAnimationLoop(null);
   }, [ready, isWon, islost]);
 
   function handleExitGame() {
@@ -283,6 +397,24 @@ const Pong = ({
 
   return (
     <div id="message" className="relative w-full h-screen overflow-hidden">
+      {isMobile.current && ready && (
+        <div className="absolute z-[1]">
+          <button
+            className="fixed bottom-2/3 right-3/4 transform -translate-x-1/2
+						flex flex-col p-16 rounded-full shadow-2xl
+						border-[0.5px] border-gray"
+            onTouchStart={() => {
+              if (playersRef.current[player - 1].rotating) return;
+              keyboard.current["Space"] = true;
+            }}
+            onTouchEnd={() => {
+              keyboard.current["Space"] = false;
+            }}
+          >
+            <img src="/images/shoot.png" alt="shooting paddle" />
+          </button>
+        </div>
+      )}
       {authContextData.globalMessage.message && !isWon && !islost && (
         <GameToast
           duration={4000}
@@ -290,6 +422,33 @@ const Pong = ({
           title={authContextData.globalMessage.title}
           onClose={authContextData.setGlobalMessage}
         />
+      )}
+      {isPortrait && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
+          <div className="text-center p-6">
+            <div className="animate-bounce mb-4">
+              <svg
+                className="w-16 h-16 mx-auto text-white transform rotate-90"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 8h16M4 16h16"
+                />
+              </svg>
+            </div>
+            <h2 className="text-white text-2xl font-bold mb-2">
+              Please Rotate Your Device
+            </h2>
+            <p className="text-white text-lg">
+              For the best Pong experience, play in landscape mode
+            </p>
+          </div>
+        </div>
       )}
       <canvas id="pong" className="block"></canvas>
       {/* Victory Section */}

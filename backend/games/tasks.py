@@ -4,7 +4,6 @@ from asgiref.sync import async_to_sync
 from games.models import GameRoom
 from games.serializers import GameRoomSerializer
 from django.conf import settings
-from django.db import transaction
 import redis
 
 r = redis.Redis(
@@ -25,7 +24,7 @@ def mark_game_room_as_expired(game_room_id):
             game_room.save()
 
             channel_layer = get_channel_layer()
-            r.hset(f"game_room_state:{game_room_id}", "status", "expired")
+            r.hset(f"game_room_data:{game_room_id}", "status", "expired")
             async_to_sync(channel_layer.group_send)(
                 f"game_room_{game_room_id}",
                 {
