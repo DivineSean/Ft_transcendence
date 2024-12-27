@@ -1,6 +1,6 @@
 import ProfileOptions from "../components/chat/ProfileOptions";
 import Conversation from "../components/chat/Conversation";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useContext, useEffect, useRef, useState } from "react";
 import Header from "../components/Header";
 import { IoSearchOutline } from "react-icons/io5";
@@ -10,137 +10,113 @@ import { getConversations } from "../utils/chatFetchData";
 import AuthContext from "../context/AuthContext";
 import ChatFriends from "../components/chat/ChatFriends";
 import LoadingPage from "./LoadingPage";
+import NotifContext from "../context/NotifContext";
+import Toast from "../components/Toast";
 
 const Chat = () => {
-  const ws = useRef(null);
   const { uid } = useParams();
   const navigate = useNavigate();
-  const { setGlobalMessage } = useContext(AuthContext);
+  const authContextData = useContext(AuthContext);
+  const notifContextData = useContext(NotifContext);
+  const location = useLocation();
 
   // states
-  const [typing, setTyping] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [tempMessages, setTempMessages] = useState([]);
   const [friendsData, setFriendsData] = useState(null);
-  const [displayTyping, setDisplayTyping] = useState(null);
-  const [isWsConnected, setIsWsConnected] = useState(false);
-  const [readedMessages, setReadedMessages] = useState(null);
   const [conversationSide, setConversationSide] = useState(true);
-  const [updatedConversation, setUpdatedConversation] = useState(null);
   const [profileSide, setProfileSide] = useState(
     window.innerWidth <= 768 ? false : true,
   );
 
   useEffect(() => {
     // first time fetch conversation message from the database to render them to the user
-    getConversations(setFriendsData, setGlobalMessage, navigate);
+    getConversations(
+      setFriendsData,
+      authContextData.setGlobalMessage,
+      navigate,
+    );
   }, []);
 
   useEffect(() => {
-    ws.current = new WebSocket(
-      `wss://${window.location.hostname}:8000/ws/chat/`,
-    );
-    // console.log('from chat ws');
-    // console.log('ws: ', ws.current);
+    if (!uid) {
+      getConversations(
+        setFriendsData,
+        authContextData.setGlobalMessage,
+        navigate,
+      );
+    }
+  }, [uid]);
 
-    ws.current.onopen = () => {
-      // overide the onopen event
-      console.log("Connected");
-      // here we set this state to true to make sure
-      // that the socket is connected successfully when we want to send an event
-      setIsWsConnected(true);
+  useEffect(() => {
+    if (notifContextData.refresh) {
+      console.log("hello");
+      getConversations(
+        setFriendsData,
+        authContextData.setGlobalMessage,
+        navigate,
+      );
+      notifContextData.setRefresh(false);
+    }
+  }, [notifContextData.refresh]);
+
+  useEffect(() => {
+    const handleMessageReceived = (e) => {
+      const messageData = JSON.parse(e.data); // parse the event data
+
+      if (messageData) {
+        // check if the event data is not empty then do the whole work
+        if (messageData.type === "message") {
+          // if we received the message event
+          notifContextData.setUpdatedConversation(messageData); // set the updated data for the left side (friend chat)
+
+          if (uid && messageData.convId === uid) {
+            // check if the user is entered to the conversation that received the message
+
+            if (!messageData.isSender) {
+              // check if the user is the receiver then send to the sender that the message is readed
+              notifContextData.wsHook.send(
+                JSON.stringify({
+                  message: "message is readed",
+                  type: "read",
+                  convId: uid,
+                }),
+              );
+            }
+
+            // append the new message to the previous ones to display them
+            notifContextData.setMessages((preveMessage) => [
+              ...preveMessage,
+              messageData,
+            ]);
+
+            // reset the temp message that we dsiplay them to the user before the socket receive the events
+            notifContextData.setTempMessages([]);
+
+            // reset is typing to notif the receiver that the user no longer is typing
+            notifContextData.setTyping("");
+
+            // reset the display typing to make the front don't display is typing message to the user
+            notifContextData.setDisplayTyping(null);
+          }
+        } else if (
+          messageData.type === "createConv" &&
+          window.location.pathname.search("chat") !== -1
+        ) {
+          getConversations(
+            setFriendsData,
+            authContextData.setGlobalMessage,
+            navigate,
+          );
+          notifContextData.readNotification(messageData.notifId);
+        }
+      }
     };
 
-    ws.current.onclose = () => console.log("Disconnected"); // override the onclose event
+    notifContextData.wsHook.addMessageHandler(handleMessageReceived);
 
     return () => {
-      if (ws.current) {
-        ws.current.close();
-        ws.current = null;
-      }
+      notifContextData.wsHook.removeMessageHandler(handleMessageReceived);
     };
-  }, []);
-
-  // check if there is a new message and add it to the message array state
-  useEffect(() => {
-    if (ws.current) {
-      ws.current.onmessage = (e) => {
-        const messageData = JSON.parse(e.data); // parse the event data
-
-        if (messageData) {
-          // check if the event data is not empty then do the whole work
-          if (messageData.type === "message") {
-            // if we received the message event
-            setUpdatedConversation(messageData); // set the updated data for the left side (friend chat)
-
-            if (uid && messageData.convId === uid) {
-              // check if the user is entered to the conversation that received the message
-
-              if (!messageData.isSender)
-                // check if the user is the receiver then send to the sender that the message is readed
-                ws.current.send(
-                  JSON.stringify({
-                    message: "message is readedf",
-                    type: "read",
-                    convId: uid,
-                  }),
-                );
-
-              setMessages((preveMessage) => [...preveMessage, messageData]); // append the new message to the previous ones to display them
-
-              setTempMessages([]); // reset the temp message that we dsiplay them to the user before the socket receive the events
-
-              setTyping(""); // reset is typing to notif the receiver that the user no longer is typing
-
-              setDisplayTyping(null); // reset the display typing to make the front don't display is typing message to the user
-            }
-          } else if (messageData.type === "read") {
-            // if we received the read event
-            setReadedMessages(messageData); // set readed message with the message we received from the socket to update all unreaded messages
-            // console.log('is reaaad9999999999999999');
-          } else if (messageData.type === "typing")
-            // if we received the typing event
-            setDisplayTyping(messageData); // increment the display typing state to know that the uer is still typing
-          else if (messageData.type === "stopTyping")
-            // if we received the stop typing event
-            setDisplayTyping(null); // reset display typing, to remove the typing message from the conversation
-        }
-      };
-    }
-  }, [ws.current, uid]);
-
-  useEffect(() => {
-    // if the updatedConversation is updated thats mean we need to update chat friend component
-    if (updatedConversation) {
-      // find the conversation that we are already entered into it
-      const findConv = friendsData.users.filter(
-        (user) => user.conversationId === updatedConversation.convId,
-      )[0];
-
-      // then update the values inside that conversation
-      if (findConv) {
-        findConv.lastMessage = updatedConversation.message;
-        findConv.messageDate = updatedConversation.timestamp;
-        findConv.isRead = updatedConversation.isRead;
-        findConv.sender = updatedConversation.isSender;
-        if (uid && findConv.conversationId === uid) findConv.isRead = true;
-      }
-
-      // get all other conversation
-      const newFriendsData = friendsData.users.filter(
-        (user) => user.conversationId !== updatedConversation.convId,
-      );
-
-      // then resort them to make the updated conversation the first one
-      // console.log(updatedConversation);
-      setFriendsData({
-        ...friendsData,
-        users: [findConv, ...newFriendsData],
-      });
-    }
-  }, [updatedConversation]);
-
-  // console.log('friendsData++++++', friendsData);
+  });
 
   let friendInfo = []; // get the conversation that have the same uid that we have in the url
   if (friendsData && friendsData.users && friendsData.users.length) {
@@ -154,9 +130,43 @@ const Chat = () => {
     if (window.innerWidth >= 768) setProfileSide(true);
   });
 
+  useEffect(() => {
+    // if the updatedConversation is updated thats mean we need to update chat friend component
+    if (notifContextData.updatedConversation && friendsData) {
+      // find the conversation that we are already entered into it
+      const findConv = friendsData.users.filter(
+        (user) =>
+          user.conversationId === notifContextData.updatedConversation.convId,
+      )[0];
+
+      // then update the values inside that conversation
+      if (findConv) {
+        findConv.lastMessage = notifContextData.updatedConversation.message;
+        findConv.messageDate = notifContextData.updatedConversation.timestamp;
+        findConv.isRead = notifContextData.updatedConversation.isRead;
+        findConv.sender = notifContextData.updatedConversation.isSender;
+
+        if (uid && findConv.conversationId === uid) findConv.isRead = true;
+      }
+
+      // get all other conversation
+      const newFriendsData = friendsData.users.filter(
+        (user) =>
+          user.conversationId !== notifContextData.updatedConversation.convId,
+      );
+
+      // then resort them to make the updated conversation the first one
+      setFriendsData({
+        ...friendsData,
+        users: [findConv, ...newFriendsData],
+      });
+    }
+  }, [notifContextData.updatedConversation]);
+
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="chat" />
+      {authContextData.globalMessage.message && <Toast position="topCenter" />}
       {!friendsData && <LoadingPage />}
       {friendsData && (
         <div className="container md:px-16 px-0">
@@ -172,12 +182,7 @@ const Chat = () => {
                 />
                 <IoSearchOutline className="text-gray absolute left-8 text-txt-md" />
               </div>
-              <ChatFriends
-                friendsData={friendsData}
-                displayTyping={displayTyping}
-                uid={uid}
-                ws={ws}
-              />
+              <ChatFriends friendsData={friendsData} uid={uid} />
             </div>
 
             <div className="w-[0.5px] bg-stroke-sc md:block hidden"></div>
@@ -187,17 +192,6 @@ const Chat = () => {
                 {conversationSide && (
                   <Conversation
                     uid={uid}
-                    ws={ws}
-                    typing={typing}
-                    isWsConnected={isWsConnected}
-                    setTyping={setTyping}
-                    displayTyping={displayTyping}
-                    setTempMessages={setTempMessages}
-                    tempMessages={tempMessages}
-                    setReadedMessages={setReadedMessages}
-                    readedMessages={readedMessages}
-                    setMessages={setMessages}
-                    messages={messages}
                     friendInfo={friendInfo}
                     displayProfile={setProfileSide}
                     hideSelf={setConversationSide}

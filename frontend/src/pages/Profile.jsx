@@ -47,7 +47,7 @@ const FriendManagementButtons = ({ approval, setApproval }) => {
         !contextData.profileInfo.isUserBlocked &&
         contextData.profileInfo.isFriend && (
           <button
-            onClick={contextData.sendMessage}
+            onClick={contextData.createConversation}
             className="secondary-glass grow lg:w-full p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
           >
             <IoChatbubbleEllipsesOutline />
@@ -114,7 +114,9 @@ const FriendManagementButtons = ({ approval, setApproval }) => {
         contextData.profileInfo.isUserBlocked && (
           <>
             <button
-              onClick={contextData.unblockUser}
+              onClick={() =>
+                contextData.unblockUser(contextData.profileInfo.id)
+              }
               className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
             >
               <ImUserMinus />
@@ -166,44 +168,22 @@ const Profile = () => {
   );
   const contextData = useContext(UserContext);
 
-  if (!section) {
-    // console.log('lwla');
-    navigate("/profile/overview");
-  }
   useEffect(() => {
     if (!profileMenu.includes(section)) {
-      // console.log('tania');
       navigate("/profile/overview");
       setSelectedMenu("overview");
     }
+    return () => {
+      authContextData.setGlobalMessage({ message: "", isError: true });
+    };
   }, []);
 
   useEffect(() => {
     if (section !== selectedMenu) {
-      // console.log('khouna rah section tbadlat');
       setSelectedMenu(section);
       authContextData.setDisplayMenuGl(false);
     }
-    // console.log('section updated');
   });
-
-  // useEffect(() => {
-  // 	console.log('talta');
-  // 	if (username)
-  // 		navigate(`/profile/${section}/${username ? username : ''}`);
-  // 	else
-  // 		navigate(`/profile/${section}/`);
-  // 	authContextData.setDisplayMenuGl(false);
-  // 	setSelectedMenu(section);
-  // }, [section]);
-
-  // useEffect(() => {
-  // 	console.log('selected: ', selectedMenu);
-  // })
-
-  // useEffect(() => {
-  // 	console.log('selected dependencies: ', selectedMenu);
-  // }, [selectedMenu])
 
   useEffect(() => {
     if (username) {
@@ -225,7 +205,6 @@ const Profile = () => {
 
   useEffect(() => {
     if (contextData.profileInfo && contextData.profileInfo.found === "no") {
-      // console.log('rab3a');
       navigate("/profile/overview");
     }
   }, [contextData.profileInfo && contextData.profileInfo.found]);
@@ -233,15 +212,20 @@ const Profile = () => {
   useEffect(() => {
     // update the profile info after hit any profile button
     if (contextData.refresh) {
-      // console.log(contextData.profileInfo.username);
-      contextData.getProfile(contextData.profileInfo.username);
-      contextData.setRefresh(false);
+      if (username) {
+        contextData.getProfile(username);
+        contextData.setRefresh(false);
+      } else {
+        contextData.getProfile();
+        contextData.setRefresh(false);
+      }
     }
   }, [contextData.refresh]);
 
   return (
     <div className="flex flex-col w-full grow lg:gap-32 gap-16 relative">
       <Header link="profile" />
+      {authContextData.globalMessage.message && <Toast position="topCenter" />}
       {!contextData.profileInfo && <LoadingPage />}
       {!authContextData.displayMenuGl && contextData.profileInfo !== null && (
         <div className="container">
@@ -461,14 +445,6 @@ const Profile = () => {
             <Approval approval={approval} setApproval={setApproval} />
           )}
         </div>
-      )}
-      {authContextData.globalMessage.message && (
-        <Toast
-          message={authContextData.globalMessage.message}
-          error={authContextData.globalMessage.isError}
-          onClose={authContextData.setGlobalMessage}
-          position="topCenter"
-        />
       )}
     </div>
   );

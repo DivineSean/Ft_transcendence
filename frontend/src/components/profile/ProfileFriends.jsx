@@ -6,6 +6,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import UserContext from "../../context/UserContext";
 import { BACKENDURL } from "../../utils/fetchWrapper";
 import { useNavigate } from "react-router-dom";
+import { FaChevronDown } from "react-icons/fa6";
 
 const Friends = ({ friend }) => {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const Friends = ({ friend }) => {
   );
 };
 
-const FriendRequest = ({ friendRequest }) => {
+const FriendRequest = ({ friendRequest, type }) => {
   const contextData = useContext(UserContext);
   const navigate = useNavigate();
   return (
@@ -69,19 +70,31 @@ const FriendRequest = ({ friendRequest }) => {
         </div>
       </div>
       <div className="p-8 flex gap-8 justify-center items-center">
-        <button
-          // onClick={() => contextData.acceptFriendRequest(contextData.profileInfo.id)}
-          onClick={() => contextData.acceptFriendRequest(friendRequest.id)}
-          className="hover-secondary text-green p-8 transition-all rounded-md grow flex justify-center hover:bg-green hover:text-black"
-        >
-          <IoMdCheckmark className="text-lg" />
-        </button>
-        <button
-          onClick={() => contextData.declineRequest(friendRequest.id)}
-          className="hover-secondary text-red p-8 transition-all rounded-md flex justify-center hover:bg-red hover:text-white"
-        >
-          <IoMdClose className="text-lg" />
-        </button>
+        {type === "friend request" && (
+          <>
+            <button
+              onClick={() => contextData.acceptFriendRequest(friendRequest.id)}
+              className="hover-secondary text-green p-8 transition-all rounded-md grow flex justify-center hover:bg-green hover:text-black"
+            >
+              <IoMdCheckmark className="text-lg" />
+            </button>
+
+            <button
+              onClick={() => contextData.declineRequest(friendRequest.id)}
+              className="hover-secondary text-red p-8 transition-all rounded-md flex justify-center hover:bg-red hover:text-white"
+            >
+              <IoMdClose className="text-lg" />
+            </button>
+          </>
+        )}
+        {type === "blocked users" && (
+          <button
+            onClick={() => contextData.unblockUser(friendRequest.id)}
+            className="hover-secondary text-green p-8 transition-all font-bold rounded-md grow flex justify-center hover:bg-green hover:text-black"
+          >
+            unblock user
+          </button>
+        )}
       </div>
     </div>
   );
@@ -114,8 +127,10 @@ const ProfileFriends = ({ username }) => {
 
   useEffect(() => {
     userContextData.getFriends(username);
-    if (userContextData.profileInfo && userContextData.profileInfo.me)
+    if (userContextData.profileInfo && userContextData.profileInfo.me) {
       userContextData.getFriendRequest();
+      userContextData.getBlockedUsers();
+    }
   }, [userContextData.profileInfo]);
 
   useEffect(() => {
@@ -135,19 +150,24 @@ const ProfileFriends = ({ username }) => {
   }
 
   const friendRequest = [];
-  console.log("user", userContextData.userFriendRequest);
-  if (
-    userContextData &&
-    userContextData.userInfo &&
-    userContextData.userInfo.username === userContextData.profileInfo.username
-  ) {
-    if (userContextData.userFriendRequest) {
-      userContextData.userFriendRequest.map((item) => {
-        friendRequest.push(
-          <FriendRequest key={item.id} friendRequest={{ ...item }} />,
-        );
-      });
-    }
+
+  const requestOrBlocked = (items, type) => {
+    items.map((item) => {
+      friendRequest.push(
+        <FriendRequest key={item.id} friendRequest={{ ...item }} type={type} />,
+      );
+    });
+  };
+
+  const [selected, setSelected] = useState("friend request");
+  const [displaySelect, setDisplaySelect] = useState(false);
+  const select = ["friend request", "blocked users"];
+
+  if (userContextData.profileInfo && userContextData.profileInfo.me) {
+    if (selected === "friend request" && userContextData.userFriendRequest)
+      requestOrBlocked(userContextData.userFriendRequest, selected);
+    else if (selected === "blocked users" && userContextData.blockedUsers)
+      requestOrBlocked(userContextData.blockedUsers.blockedUsers, selected);
   }
 
   return (
@@ -157,8 +177,36 @@ const ProfileFriends = ({ username }) => {
           userContextData.userInfo &&
           userContextData.userInfo.username ===
             userContextData.profileInfo.username && (
-            <div className="flex flex-col gap-8 relative">
-              <h2 className="font-semibold tracking-wide ">friend requests</h2>
+            <div className="flex flex-col gap-8 items-start">
+              {/* add select to switch between blocked users and friend requests */}
+              <div className="flex justify-start relative">
+                <div
+                  onClick={() => setDisplaySelect(!displaySelect)}
+                  className="flex gap-16 items-center p-8 border-[0.5px] border-stroke-sc rounded-md"
+                >
+                  <h2 className="font-semibold tracking-wide cursor-pointer">
+                    {selected}
+                  </h2>
+                  <FaChevronDown className="text-green cursor-pointer" />
+                  {displaySelect && (
+                    <ul className="absolute top-[44px] z-[1] left-0 border border-stroke-sc rounded-md overflow-hidden text-center w-full flex flex-col bg-[url('/images/background.png')] bg-cover bg-bottom transition-all">
+                      <div className="absolute w-full h-full backdrop-blur-sm z-[-1] rounded-md"></div>
+                      {select.map((item, i) => (
+                        <li
+                          key={i}
+                          onClick={() => setSelected(item)}
+                          className={`border-b tracking-wider bg-black/20 hover:bg-green/10
+								border-stroke-sc shadow p-8 transition-all cursor-pointer
+								${selected === item ? "bg-green/20" : ""}
+							`}
+                        >
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
               {friendRequest.length ? (
                 <div
                   ref={scrollContainer}
@@ -183,8 +231,8 @@ const ProfileFriends = ({ username }) => {
                   )}
                 </div>
               ) : (
-                <p className="text-txt-sm flex justify-center text-stroke-sc">
-                  you have no friend request.
+                <p className="text-txt-sm flex justify-center text-stroke-sc lowercase">
+                  you have no {selected}.
                 </p>
               )}
             </div>
@@ -196,7 +244,7 @@ const ProfileFriends = ({ username }) => {
               {friends}
             </div>
           ) : (
-            <p className="text-txt-sm flex justify-center text-stroke-sc">
+            <p className="text-txt-sm flex justify-center text-stroke-sc lowercase">
               you have no friend yet search for some you want
             </p>
           )}

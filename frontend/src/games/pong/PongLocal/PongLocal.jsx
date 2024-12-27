@@ -20,14 +20,19 @@ const PongLocal = () => {
   const authContextData = useContext(AuthContext);
   const [isOver, setIsOver] = useState(false);
 
+  const tableRef = useRef(null);
+  const netRef = useRef(null);
+  const ballRef = useRef(null);
+  const playersRef = useRef(null);
+
   useEffect(() => {
     loaderTRef.current = new GLTFLoader();
     loaderRef.current = new GLTFLoader();
     loaderBRef.current = new GLTFLoader();
     sm.current = new SceneManager(authContextData.setGlobalMessage, setIsOver);
-    const table = new Table(sm.current.scene, loaderTRef.current);
-    const net = new Net(sm.current.scene, loaderRef.current);
-    const ball = new Ball(sm.current.scene, loaderBRef.current);
+    tableRef.current = new Table(sm.current.scene, loaderTRef.current);
+    netRef.current = new Net(sm.current.scene, loaderRef.current);
+    ballRef.current = new Ball(sm.current.scene, loaderBRef.current);
 
     const controls = [
       {
@@ -45,14 +50,14 @@ const PongLocal = () => {
         space: "ShiftRight",
       },
     ];
-    const players = [
+    playersRef.current = [
       new Paddle(
         sm.current.scene,
         1,
         { x: 43, y: -25.5, z: 12 },
         controls[0],
         loaderRef.current,
-        ball,
+        ballRef.current,
       ),
       new Paddle(
         sm.current.scene,
@@ -60,16 +65,76 @@ const PongLocal = () => {
         { x: -43, y: -25.5, z: -12 },
         controls[1],
         loaderRef.current,
-        ball,
+        ballRef.current,
       ),
     ];
 
     sm.current.render();
-    table.render();
-    net.render();
-    ball.render(sm.current);
-    players[0].render();
-    players[1].render();
+    tableRef.current.render();
+    netRef.current.render();
+    ballRef.current.render(sm.current);
+    playersRef.current[0].render();
+    playersRef.current[1].render();
+
+    const handleKeyDown = (event) => {
+      keyboard.current[event.code] = true;
+    };
+
+    const handleKeyUp = (event) => {
+      keyboard.current[event.code] = false;
+    };
+
+    const onWindowResize = () => {
+      sm.current.camera.aspect = window.innerWidth / 2 / window.innerHeight;
+      sm.current.camera.updateProjectionMatrix();
+      sm.current.camera2.aspect = window.innerWidth / 2 / window.innerHeight;
+      sm.current.camera2.updateProjectionMatrix();
+
+      sm.current.renderer.setSize(window.innerWidth, window.innerHeight);
+      sm.current.ScalePlan();
+      sm.current.scoreRender(
+        ballRef.current.scoreboard,
+        ballRef.current.whoscore,
+      );
+      sm.current.addMatchPoint(ballRef.current.scoreboard);
+      sm.current.TimeRender(false);
+      sm.current.TimerCSS();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("resize", onWindowResize, false);
+
+    return () => {
+      console.log("cleaned pong local");
+      sm.current.listener.setMasterVolume(0);
+      ballRef.current.cleanup();
+      sm.current.cleanup();
+      tableRef.current.cleanup();
+      netRef.current.cleanup();
+      playersRef.current[0].cleanup();
+      playersRef.current[1].cleanup();
+      sm.current.r();
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("resize", onWindowResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (
+      !tableRef.current ||
+      !netRef.current ||
+      !ballRef.current ||
+      !playersRef.current ||
+      !sm.current
+    )
+      return;
+
+    const table = tableRef.current;
+    const net = netRef.current;
+    const ball = ballRef.current;
+    const players = playersRef.current;
 
     let simulatedTime = performance.now() / 1000;
     const fixedStep = 0.015;
@@ -94,8 +159,9 @@ const PongLocal = () => {
         !ball.ballMatchPoint ||
         !ball.Defeat ||
         !ball.Victory
-      )
+      ) {
         return;
+      }
       const timeNow = performance.now() / 1000;
       let dt = clock.getDelta() * 1000;
 
@@ -125,54 +191,12 @@ const PongLocal = () => {
       players[1].update(keyboard.current, ball, dt);
       sm.current.r();
     };
-
     sm.current.renderer.setAnimationLoop(animate);
-    const handleKeyDown = (event) => {
-      // if (players[player - 1].rotating) return;
-      keyboard.current[event.code] = true;
-    };
-
-    const handleKeyUp = (event) => {
-      keyboard.current[event.code] = false;
-    };
-
-    const onWindowResize = () => {
-      sm.current.camera.aspect = window.innerWidth / 2 / window.innerHeight;
-      sm.current.camera.updateProjectionMatrix();
-      sm.current.camera2.aspect = window.innerWidth / 2 / window.innerHeight;
-      sm.current.camera2.updateProjectionMatrix();
-
-      sm.current.renderer.setSize(window.innerWidth, window.innerHeight);
-      sm.current.ScalePlan();
-      sm.current.scoreRender(ball.scoreboard, ball.whoscore);
-      sm.current.addMatchPoint(ball.scoreboard);
-      sm.current.TimeRender(false);
-      sm.current.TimerCSS();
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    window.addEventListener("resize", onWindowResize, false);
 
     return () => {
-			console.log("cleaned pong local");
-      players[0].cleanup();
-      players[1].cleanup();
-      net.cleanup();
-      table.cleanup();
-      ball.cleanup();
-      sm.current.cleanup();
-	    sm.current.renderer.setAnimationLoop(null);
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-      window.removeEventListener("resize", onWindowResize);
+      sm.current.renderer.setAnimationLoop(null);
     };
-  }, []);
-
-  // function handleExitGame() {
-  //   window.location.href = "/games/pong/";
-  //   window.close();
-  // }
+  }, [isOver]);
 
   function restart() {
     window.location.href = "/games/pong/local/PongLocal";

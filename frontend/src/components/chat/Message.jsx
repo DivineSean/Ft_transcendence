@@ -13,7 +13,7 @@ const Message = ({ message }) => {
     return (
       <div className="flex gap-8 items-end">
         <div className="grow"></div>
-        <div className="right-message message-glass py-8 px-12 rounded-[8px] rounded-tr-[2px] max-w-[450px] text-gray text-sm tracking-wider flex flex-col gap-4 mr-12 relative break-all">
+        <div className="right-message message-glass py-8 px-12 rounded-[8px] rounded-tr-[2px] max-w-[450px] text-gray text-txt-md tracking-wider flex flex-col gap-4 mr-12 relative break-all">
           {message.message}
           <div className="flex gap-4 items-center justify-end">
             <p className="text-xs text-stroke-sc">{message.timestamp}</p>
@@ -32,7 +32,7 @@ const Message = ({ message }) => {
   } else {
     return (
       <div className="flex gap-8 items-end">
-        <div className="left-message message-glass py-8 px-12 rounded-[8px] rounded-tl-[2px] max-w-[450px] text-gray text-sm tracking-wider flex flex-col gap-4 ml-12 relative break-all">
+        <div className="left-message message-glass py-8 px-12 rounded-[8px] rounded-tl-[2px] max-w-[450px] text-gray text-txt-md tracking-wider flex flex-col gap-4 ml-12 relative break-all">
           {message.message}
           <div className="flex gap-4 items-center justify-end">
             <p className="text-xs text-stroke-sc">{message.timestamp}</p>

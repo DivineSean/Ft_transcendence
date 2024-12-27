@@ -31,8 +31,7 @@ class GameConsumer(WebsocketConsumer):
         self.game_uuid = self.scope["url_route"]["kwargs"]["room_uuid"]
         self.group_name = f"game_room_{self.game_uuid}"
 
-        async_to_sync(self.channel_layer.group_add)(
-            self.group_name, self.channel_name)
+        async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
         self.connect_player()
 
     def disconnect(self, code):
@@ -42,8 +41,7 @@ class GameConsumer(WebsocketConsumer):
         self.handle_timeout()
 
     def receive(self, text_data):
-        isPlayer = any(player["user"]["id"] ==
-                       self.user_id for player in self.players)
+        isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
         if not isPlayer:
             return
 
@@ -64,8 +62,8 @@ class GameConsumer(WebsocketConsumer):
                     {
                         "type": "whisper",
                         "info": "update",
-                                "sender": self.channel_name,
-                                "message": message,
+                        "sender": self.channel_name,
+                        "message": message,
                     },
                 )
             case "ready":
@@ -116,9 +114,9 @@ class GameConsumer(WebsocketConsumer):
             {
                 "type": "broadcast",
                 "info": "game_manager",
-                        "message": {
-                            "status": "completed",
-                        },
+                "message": {
+                    "status": "completed",
+                },
             },
         )
 
@@ -132,8 +130,7 @@ class GameConsumer(WebsocketConsumer):
                 player["score"] += 1
                 role = player["role"]
                 break
-        scores = {player["role"]: str(player["score"])
-                  for player in self.players}
+        scores = {player["role"]: str(player["score"]) for player in self.players}
 
         self.save_game_data(turn=role, players=json.dumps(self.players))
         async_to_sync(self.channel_layer.group_send)(
@@ -141,10 +138,10 @@ class GameConsumer(WebsocketConsumer):
             {
                 "type": "broadcast",
                 "info": "score",
-                        "message": {
-                            "role": role,
-                            "scores": json.dumps(scores),
-                        },
+                "message": {
+                    "role": role,
+                    "scores": json.dumps(scores),
+                },
             },
         )
 
@@ -271,8 +268,7 @@ class GameConsumer(WebsocketConsumer):
         if countdown == 0:
             sync_game_room_data.delay(self.game_uuid)
         else:
-            sync_game_room_data.apply_async(
-                args=[self.game_uuid], countdown=countdown)
+            sync_game_room_data.apply_async(args=[self.game_uuid], countdown=countdown)
 
     def whisper(self, event):
         if event["sender"] != self.channel_name:
@@ -284,6 +280,5 @@ class GameConsumer(WebsocketConsumer):
 
     def broadcast(self, event):
         self.send(
-            text_data=json.dumps(
-                {"type": event["info"], "message": event["message"]})
+            text_data=json.dumps({"type": event["info"], "message": event["message"]})
         )

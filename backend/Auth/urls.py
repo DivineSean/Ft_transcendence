@@ -33,7 +33,6 @@ urlpatterns = [
         "api/logout/",
         views.logout,
     ),
-    path("api/user/", views.getUser, name="firstLastName"),
     path("api/setupusername/", views.setUpUsername, name="firstLastName"),
     path("api/configure2FA", views.alter2FA, name="2fa"),
     path("api/profile/", views.Profile.as_view(), name="profile"),

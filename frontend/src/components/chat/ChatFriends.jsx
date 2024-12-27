@@ -1,17 +1,13 @@
 import FriendsChat from "./FriendChat";
 
-const ChatFriends = ({ uid, friendsData, ws, displayTyping }) => {
+const ChatFriends = ({ uid, friendsData }) => {
   const friends = [];
 
-  // console.log('friendchat -------', friendsData);
   if (friendsData && friendsData.users && friendsData.users.length) {
     friendsData.users.map((friend) => {
-      // console.log(friend);
       return friends.push(
         <FriendsChat
           uid={uid}
-          ws={ws}
-          displayTyping={displayTyping}
           friendInfo={friend}
           messages={3}
           key={friend.conversationId}
@@ -26,7 +22,6 @@ const ChatFriends = ({ uid, friendsData, ws, displayTyping }) => {
     );
   }
 
-  // console.log('friends', friends);
   return (
     <div className="h-14 flex grow flex-col gap-8 overflow-y-scroll no-scrollbar">
       {friends}

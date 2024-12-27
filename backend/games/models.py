@@ -81,7 +81,8 @@ class PlayerRating(models.Model):
 class Achievement(models.Model):
     name = models.CharField(max_length=100, unique=True)
     game = models.ForeignKey(
-        Game, on_delete=models.PROTECT, related_name="achievements")
+        Game, on_delete=models.PROTECT, related_name="achievements"
+    )
     description = models.TextField(blank=True)
 
     LEVELS = {
@@ -106,7 +107,9 @@ class Achievement(models.Model):
         levels = list(cls.LEVELS.keys())
         try:
             current_index = levels.index(current_level)
-            return levels[current_index + 1] if current_index + 1 < len(levels) else None
+            return (
+                levels[current_index + 1] if current_index + 1 < len(levels) else None
+            )
         except ValueError:
             return None
 
@@ -116,7 +119,8 @@ class Achievement(models.Model):
 
 class PlayerAchievement(models.Model):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="achievements")
+        User, on_delete=models.CASCADE, related_name="achievements"
+    )
     game = models.ForeignKey(Game, on_delete=models.PROTECT)
     achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)
     level = models.CharField(max_length=20)
@@ -154,9 +158,11 @@ class PlayerAchievement(models.Model):
     @classmethod
     def add_progress(cls, user, game, achievement_name, increment=1):
         achievement = Achievement.objects.get(name=achievement_name, game=game)
-        current_level = cls.objects.filter(
-            user=user, game=game, achievement=achievement
-        ).order_by("-threshold").first()
+        current_level = (
+            cls.objects.filter(user=user, game=game, achievement=achievement)
+            .order_by("-threshold")
+            .first()
+        )
 
         if not current_level:
             cls.objects.create(

@@ -146,8 +146,8 @@ class Paddle {
     if (!this.left && !this.right) return;
     this.rotating = true;
     const rotationDuration = 200;
-    const initialRotationY = this.rotationY; 
-    const initialRotationZ = this.rotationZ; 
+    const initialRotationY = this.rotationY;
+    const initialRotationZ = this.rotationZ;
     const initialRotationX = this.rotationX;
     let targetRotationZ;
     let targetRotationY;
@@ -155,9 +155,9 @@ class Paddle {
 
     if (this.left) {
       if (this.player === -1) {
-        targetRotationY = initialRotationY - Math.PI / 4; 
-      } else targetRotationY = initialRotationY + Math.PI / 4; 
-      targetRotationZ = initialRotationZ + Math.PI / 8; 
+        targetRotationY = initialRotationY - Math.PI / 4;
+      } else targetRotationY = initialRotationY + Math.PI / 4;
+      targetRotationZ = initialRotationZ + Math.PI / 8;
       if (this.ball.y > this.boundingBox.max.y) {
         this.rotationY = 0;
         this.rotationX = Math.PI / 2;
@@ -211,14 +211,12 @@ class Paddle {
       const elapsed = Date.now() - start;
       const t = Math.min(elapsed / resetDuration, 1);
 
-
-      const easedT = t * t; 
+      const easedT = t * t;
 
       const currentRotationY = this.rotationY;
       let deltaY = initialRotationY - currentRotationY;
       if (deltaY > Math.PI) deltaY -= 2 * Math.PI;
       if (deltaY < -Math.PI) deltaY += 2 * Math.PI;
-
 
       const currentRotationZ = this.rotationZ;
       let deltaZ = initialRotationZ - currentRotationZ;
@@ -229,7 +227,6 @@ class Paddle {
       let deltaX = initialRotationX - currentRotationX;
       if (deltaX > Math.PI) deltaX -= 2 * Math.PI;
       if (deltaX < -Math.PI) deltaX += 2 * Math.PI;
-
 
       this.rotationY = currentRotationY + deltaY * easedT;
       this.rotationZ = currentRotationZ + deltaZ * easedT;
@@ -347,29 +344,29 @@ class Paddle {
     this.model.rotation.set(this.rotationX, this.rotationY, this.rotationZ);
   }
 
-	RemoveChild(plane) {
-		if (!plane) return;
-		for (let i = plane.children.length - 1; i >= 0; i--) {
-			const child = plane.children[i];
-			plane.remove(child);
-			if (child.geometry) child.geometry.dispose();
-			if (child.material) child.material.dispose();
-		}
-	}
+  RemoveChild(plane) {
+    if (!plane) return;
+    for (let i = plane.children.length - 1; i >= 0; i--) {
+      const child = plane.children[i];
+      plane.remove(child);
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) child.material.dispose();
+    }
+  }
 
-	RemoveMaterial(plane) {
-		if (plane) {
-			this.RemoveChild(plane);
-			this.scene.remove(plane);
-			if (plane.geometry) plane.geometry.dispose();
-			if (plane.material) plane.material.dispose();
-			plane = null;
-		}
-	}
+  RemoveMaterial(plane) {
+    if (plane) {
+      this.RemoveChild(plane);
+      this.scene.remove(plane);
+      if (plane.geometry) plane.geometry.dispose();
+      if (plane.material) plane.material.dispose();
+      plane = null;
+    }
+  }
 
-	cleanup() {
-		this.RemoveMaterial(this.model);
-	}  
+  cleanup() {
+    this.RemoveMaterial(this.model);
+  }
 
   async render() {
     this.model = await this.loader

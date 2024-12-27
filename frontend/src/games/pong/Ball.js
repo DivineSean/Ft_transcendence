@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import {
-	CSS2DRenderer,
-	CSS2DObject,
+  CSS2DRenderer,
+  CSS2DObject,
 } from "three/examples/jsm/renderers/CSS2DRenderer.js";
 
 const G = 0.0009;
@@ -54,17 +54,6 @@ class Ball {
 		this.div = undefined;
 		this.label = undefined;
 		this.model = undefined;
-
-		// this.serve(net, -1);
-		// this.x *= -1;
-		// this.z *= -1;
-		// this.lastshooter = -1;
-		//
-		//
-		// this.scene.remove(sm.P1red);
-		// this.scene.remove(sm.P2red);
-		// if (this.whoscore === 1) this.scene.add(sm.P1red);
-		// else if (this.whoscore === 2) this.scene.add(sm.P2red);
 	}
 
 	serve(net, sign) {

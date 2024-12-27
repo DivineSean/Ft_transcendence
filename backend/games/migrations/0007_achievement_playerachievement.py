@@ -9,33 +9,74 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('games', '0006_player_result'),
+        ("games", "0006_player_result"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Achievement',
+            name="Achievement",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True)),
-                ('description', models.TextField(blank=True)),
-                ('game', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='achievements', to='games.game')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, unique=True)),
+                ("description", models.TextField(blank=True)),
+                (
+                    "game",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="achievements",
+                        to="games.game",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='PlayerAchievement',
+            name="PlayerAchievement",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('level', models.CharField(max_length=20)),
-                ('progress', models.PositiveIntegerField(default=1)),
-                ('threshold', models.PositiveIntegerField()),
-                ('earned_at', models.DateTimeField(blank=True, null=True)),
-                ('achievement', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='games.achievement')),
-                ('game', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='games.game')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='achievements', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("level", models.CharField(max_length=20)),
+                ("progress", models.PositiveIntegerField(default=1)),
+                ("threshold", models.PositiveIntegerField()),
+                ("earned_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "achievement",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="games.achievement",
+                    ),
+                ),
+                (
+                    "game",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, to="games.game"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="achievements",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('user', 'game', 'achievement', 'level')},
+                "unique_together": {("user", "game", "achievement", "level")},
             },
         ),
     ]

@@ -14,6 +14,10 @@ from rest_framework.pagination import PageNumberPagination, BasePagination
 from django.conf import settings
 from .serializers import ConversationSerializer, UserSerializerOne
 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from notification.models import Notifications
+
 
 class ChatConversation(APIView):
     def get(self, request):
@@ -65,7 +69,8 @@ class ChatConversation(APIView):
     def post(self, request, *args, **kwargs):
 
         try:
-            userData = Users.objects.get(id=request.data.get("userId"))
+            userId = request.data.get("userId")
+            userData = Users.objects.get(id=userId)
             if userData.email == request._user.email:
                 return Response("Same clients", status=status.HTTP_400_BAD_REQUEST)
         except:
@@ -91,6 +96,41 @@ class ChatConversation(APIView):
             }
             response.status_code = status.HTTP_201_CREATED
 
+            notification, isNew = Notifications.objects.get_or_create(
+                notifType="CC",
+                userId=userData,
+                senderId=request._user,
+                senderUsername=request._user.username,
+                targetId=str(newConversation.ConversationId),
+            )
+
+            if not isNew and notification.isRead:
+                notification.updateRead()
+
+            channel_layer = get_channel_layer()
+            group_name = f"notifications_{userId}"
+            async_to_sync(channel_layer.group_send)(
+                group_name,
+                {
+                    "type": "create_conversation_room",
+                    "convId": str(newConversation.ConversationId),
+                    "sender": str(request._user.id),
+                    "notifId": str(notification.notificationId),
+                    "targetId": str(newConversation.ConversationId),
+                },
+            )
+
+            group_name = f"notifications_{str(request._user.id)}"
+            async_to_sync(channel_layer.group_send)(
+                group_name,
+                {
+                    "type": "create_conversation_room",
+                    "convId": str(newConversation.ConversationId),
+                    "sender": str(request._user.id),
+                    "notifId": str(notification.notificationId),
+                    "targetId": str(newConversation.ConversationId),
+                },
+            )
         else:
             conv = Conversation.objects.get(
                 Q(Sender=request._user, Receiver=userData)

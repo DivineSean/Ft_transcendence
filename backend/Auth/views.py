@@ -353,33 +353,40 @@ class CheckPasswordChange(APIView):
 class Profile(APIView):
 
     def get(self, request, username=None):
-        foundedUser = "yes"
-        print("username", username, flush=True)
+
+        foundedUser = True
 
         try:
             if not username:
                 username = request._user.username
-                print("hna manakynch username", username)
             user = Users.objects.filter(username=username).first()
 
             if not user:
-                print("mal9inach user bhad l username", flush=True)
-                user = request.user
-                foundedUser = "no"
-                # return Response({"error", "user not found"}, status=404)
+                user = request._user
+                foundedUser = False
+
         except:
-            user = request.user
-            foundedUser = "no"
+            user = request._user
+            foundedUser = False
 
         if user.profile_image:
+
             imagePath = os.path.join(settings.MEDIA_ROOT, str(user.profile_image))
             if not os.path.exists(imagePath):
                 user.profile_image = None
                 user.save()
 
-        print("found", foundedUser, flush=True)
         extraFields = {}
-        if foundedUser == "yes" and user != request._user:
+
+        if foundedUser and user != request._user:
+
+            isBlockedByUser = str(request._user.id) in user.blockedUsers or False
+            if isBlockedByUser:
+                return Response(
+                    {"error": "you are blocked by the user"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             isFriend = Friendship.objects.filter(
                 Q(user1=user, user2=request._user) | Q(user1=request._user, user2=user)
             ).exists()
@@ -392,10 +399,7 @@ class Profile(APIView):
                 fromUser=request._user, toUser=user
             ).exists()
 
-            isBlockedByUser = str(request._user.id) in user.blockedUsers or False
             isUserBlocked = str(user.id) in request._user.blockedUsers or False
-
-            # print('ewa sf 3afa weldi ===========>', request._user.blockedUsers.get('blockedUsers', []), user.id, isUserBlocked, flush=True)
 
             extraFields = {
                 "isFriend": isFriend,
@@ -405,23 +409,22 @@ class Profile(APIView):
                 "isReceiveRequest": isReceiveRequest,
             }
 
-        # print(f'user {user}', flush=True)
         serializer = UserSerializer(user)
-        print(extraFields, flush=True)
-        # print(serializer.data)
         return Response(
             {
                 **serializer.data,
                 "found": foundedUser,
                 "me": user.id == request._user.id,
                 **extraFields,
-            }
+            },
+            status=status.HTTP_200_OK,
         )
 
     def put(self, request, username=None):
-        user = request.user
 
+        user = request.user
         new_username = request.data.get("username", None)
+
         if new_username:
             new_username = new_username.lower()
             username_regex = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]{3,}$")
@@ -461,6 +464,7 @@ class Profile(APIView):
         if serializer.is_valid():
             serializer.save()
             print("User updated successfully", flush=True)
+
         else:
             print("Error in serializer validation", flush=True)
 
@@ -470,30 +474,6 @@ class Profile(APIView):
             {**serializer.data, "me": user.id == request._user.id},
             status=status.HTTP_200_OK,
         )
-
-
-@api_view(["POST"])
-def getUser(request):
-    json_data = json.loads(request.body)
-    try:
-        user_id = json_data.get("id")
-        uuid.UUID(user_id, version=4)
-    except ValueError:
-        return Response({"error": "invalid id"}, status=400)
-
-    try:
-        user = Users.objects.get(id=user_id)
-    except Users.DoesNotExist:
-        return Response({"error": "User not found"}, status=401)
-    except Users.MultipleObjectsReturned:
-        return Response({"error": "Multiple users found with the same id"}, status=401)
-
-    # user_data = model_to_dict(user, exclude=["password"])
-    try:
-        serializer = UserSerializer(user)
-    except:
-        print("yaaarebi salama", flush=True)
-    return Response({"user": serializer.data}, status=200)
 
 
 @api_view(["POST"])

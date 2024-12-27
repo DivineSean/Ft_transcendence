@@ -66,17 +66,17 @@ export class SceneManager {
     controls1.enabled = false;
     controls1.update();
 
-		// Scene
-		this.scene = new THREE.Scene();
+    // Scene
+    this.scene = new THREE.Scene();
 
-		this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-		this.FixLight(this.directionalLight, -80, 20, -45);
+    this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    this.FixLight(this.directionalLight, -80, 20, -45);
 
-		this.directionalLight1 = new THREE.DirectionalLight(0xffffff, 1);
-		this.FixLight(this.directionalLight1, 80, 20, 45);
+    this.directionalLight1 = new THREE.DirectionalLight(0xffffff, 1);
+    this.FixLight(this.directionalLight1, 80, 20, 45);
 
-		this.ambientLight = new THREE.AmbientLight(0xffffff, 1);
-		this.scene.add(this.ambientLight);
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 1);
+    this.scene.add(this.ambientLight);
 
     this.P1ScoreS1 = undefined;
     this.P2ScoreS1 = undefined;
@@ -97,33 +97,33 @@ export class SceneManager {
     this.P2MatchPointS2 = null;
 
     this.wall1 = undefined;
-		this.wall2 = undefined;
-		this.wall3 = undefined;
-		this.wall4 = undefined;
-		this.wall5 = undefined;
-		this.wall6 = undefined;
+    this.wall2 = undefined;
+    this.wall3 = undefined;
+    this.wall4 = undefined;
+    this.wall5 = undefined;
+    this.wall6 = undefined;
 
-    this.audioLoader = new THREE.AudioLoader();
     this.listener = new THREE.AudioListener();
+    this.camera.add(this.listener);
+    this.audioLoader = new THREE.AudioLoader();
   }
 
-	FixLight(light, x, y, z)
-	{
-		light.position.set(x, y, z); // Position it above the room
-		light.target.position.set(0, -25.5, 0); // P
-		light.castShadow = true;
-		light.shadow.mapSize.width = 2048; // Shadow map width (increase for higher resolution)
-		light.shadow.mapSize.height = 2048;
-		light.shadow.camera.near = 0.5;
-		light.shadow.camera.far = 200;
-		light.shadow.camera.left = -200;
-		light.shadow.camera.right = 200;
-		light.shadow.camera.top = 200;
-		light.shadow.camera.bottom = -200;
-		light.shadow.radius = 0.5;
-		light.shadow.blurSamples = 3;
-		this.scene.add(light);
-	}
+  FixLight(light, x, y, z) {
+    light.position.set(x, y, z); // Position it above the room
+    light.target.position.set(0, -25.5, 0); // P
+    light.castShadow = true;
+    light.shadow.mapSize.width = 2048; // Shadow map width (increase for higher resolution)
+    light.shadow.mapSize.height = 2048;
+    light.shadow.camera.near = 0.5;
+    light.shadow.camera.far = 200;
+    light.shadow.camera.left = -200;
+    light.shadow.camera.right = 200;
+    light.shadow.camera.top = 200;
+    light.shadow.camera.bottom = -200;
+    light.shadow.radius = 0.5;
+    light.shadow.blurSamples = 3;
+    this.scene.add(light);
+  }
 
   TimerCSS() {
     this.lastTime = Date.now();
@@ -748,11 +748,9 @@ export class SceneManager {
     this.renderer.clear(true, true, true);
     this.renderer.setViewport(0, 0, (width - 5) / 2, height);
     this.renderer.setScissor(0, 0, (width - 5) / 2, height);
-    this.listener.setMasterVolume(1);
     this.renderer.render(this.scene, this.camera);
     this.renderer.setViewport((width + 5) / 2, 0, width / 2, height);
     this.renderer.setScissor((width + 5) / 2, 0, width / 2, height);
-    this.listener.setMasterVolume(0);
     this.renderer.render(this.scene, this.camera2);
     this.renderer.setScissorTest(false);
   }
@@ -965,25 +963,25 @@ export class SceneManager {
     this.scene.remove(this.P2redS2);
   }
 
-	RemoveChild(plane) {
-		if (!plane) return;
-		for (let i = plane.children.length - 1; i >= 0; i--) {
-			const child = plane.children[i];
-			plane.remove(child);
-			if (child.geometry) child.geometry.dispose();
-			if (child.material) child.material.dispose();
-		}
-	}
+  RemoveChild(plane) {
+    if (!plane) return;
+    for (let i = plane.children.length - 1; i >= 0; i--) {
+      const child = plane.children[i];
+      plane.remove(child);
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) child.material.dispose();
+    }
+  }
 
-	RemoveMaterial(plane) {
-		if (plane) {
-			this.RemoveChild(plane);
-			this.scene.remove(plane);
-			if (plane.geometry) plane.geometry.dispose();
-			if (plane.material) plane.material.dispose();
-			plane = null;
-		}
-	}
+  RemoveMaterial(plane) {
+    if (plane) {
+      this.RemoveChild(plane);
+      this.scene.remove(plane);
+      if (plane.geometry) plane.geometry.dispose();
+      if (plane.material) plane.material.dispose();
+      plane = null;
+    }
+  }
 
   cleanup() {
     this.RemoveMaterial(this.ambientLight);

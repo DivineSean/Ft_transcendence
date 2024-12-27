@@ -41,11 +41,6 @@ class FriendshipRequest(models.Model):
 class ManageFriendship(models.Manager):
     """Hada L manager dyalna, ghadi ndir view ki returni lik friends f Json , calliha fl front"""
 
-    def areFriends(self, user1, user2):
-        return self.filter(
-            Q(user1=user1, user2=user2) | Q(user1=user2, user2=user1)
-        ).exists()
-
     def getFriends(self, user):
         friendships = self.filter(Q(user1=user) | Q(user2=user))
         friendsIds = []

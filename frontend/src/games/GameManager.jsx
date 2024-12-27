@@ -5,20 +5,20 @@ import useWebSocket from "../customHooks/useWebsocket";
 import UserContext from "../context/UserContext.jsx";
 
 const Counter = ({ createdAt }) => {
-	const endTime = new Date(createdAt).getTime() + 60 * 1000;
-	const [count, setCount] = useState(endTime - Date.now());
+  const endTime = new Date(createdAt).getTime() + 60 * 1000;
+  const [count, setCount] = useState(endTime - Date.now());
 
-	useEffect(() => {
-		const updateTime = () => {
-			if (endTime > Date.now())
-				setCount(Math.floor((endTime - Date.now()) / 1000));
-		};
-		const intervalId = setInterval(updateTime, 1000);
+  useEffect(() => {
+    const updateTime = () => {
+      if (endTime > Date.now())
+        setCount(Math.floor((endTime - Date.now()) / 1000));
+    };
+    const intervalId = setInterval(updateTime, 1000);
 
-		return () => clearInterval(intervalId);
-	}, []);
+    return () => clearInterval(intervalId);
+  }, []);
 
-	return <div>{count}</div>;
+  return <div>{count}</div>;
 };
 
 const GameOverlay = ({ data, send }) => {
@@ -64,9 +64,9 @@ const Game = memo(({ userInfo, game, ready, setReady, send, addMessageHandler, r
 	const data = players.current?.find((player) => player.user.username === userInfo.username)
 	console.log("hadi hya data dyali hhhh", userInfo?.username, players, data);
 
-	useEffect(() => {
-		console.log("Game component renered");
-	}, [])
+    useEffect(() => {
+      console.log("Game component renered");
+    }, []);
 
 	switch (game) {
 		case "pong":
@@ -107,15 +107,29 @@ const GameManager = () => {
 		}
 	})
 
-	useEffect(() => {
-		console.log("this nigga's readiness: ", ready);
+        if (msg.type === "game_manager") {
+          // INFO: check if the objects are the same to avoid unnecessary rerenders
+          if (msg.message.status) setReady(msg.message.status === "ongoing");
+          console.log(msg);
+          if (msg.message.players_details)
+            playersDetailsRef.current = msg.message.players_details;
+          setData((prevData) => ({
+            ...prevData,
+            ...msg.message,
+          }));
+        }
+      },
+    },
+  );
 
-	}, [ready])
+  useEffect(() => {
+    console.log("this nigga's readiness: ", ready);
+  }, [ready]);
 
-	const contextData = useContext(UserContext);
-	useEffect(() => {
-		contextData.getUserInfo();
-	}, [])
+  const contextData = useContext(UserContext);
+  useEffect(() => {
+    contextData.getUserInfo();
+  }, []);
 
 	return (
 		<div className="relative w-full">
