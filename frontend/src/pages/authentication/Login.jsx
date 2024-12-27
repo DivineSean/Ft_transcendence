@@ -16,7 +16,7 @@ const Login = () => {
   const [load, setLoad] = useState(true);
 
   useEffect(() => {
-	authContextData.checkIsUserAuthenticated();
+    authContextData.checkIsUserAuthenticated();
   }, []);
 
   const sendCode = async (code, prompt, navigate) => {
@@ -34,14 +34,19 @@ const Login = () => {
           else navigate("/home");
         }
       } else {
-        authContextData.setGlobalMessage({ message: "something went wrong", isError: true });
+        authContextData.setGlobalMessage({
+          message: "something went wrong",
+          isError: true,
+        });
         navigate("/login");
       }
     } catch (error) {
-      authContextData.setGlobalMessage({ message: `error: ${error}`, isError: true });
+      authContextData.setGlobalMessage({
+        message: `error: ${error}`,
+        isError: true,
+      });
     }
   };
-
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -85,12 +90,12 @@ const Login = () => {
                 <div className="flex flex-col gap-10">
                   <InputFieled
                     name="email"
-					formData={authContextData.formData.email}
+                    formData={authContextData.formData.email}
                     type="text"
                     placeholder="Example@gmail.com"
                     onChange={authContextData.handleChange}
                     error={authContextData.error.email}
-					title='email'
+                    title="email"
                   />
                   {/* {error.email && (
                     <span className="text-red">{error.email}</span>
@@ -102,10 +107,10 @@ const Login = () => {
                     name="password"
                     type="password"
                     onChange={authContextData.handleChangePassLogin}
-					formData={authContextData.formData.password}
+                    formData={authContextData.formData.password}
                     placeholder="Password"
                     error={authContextData.error.password}
-					title="password"
+                    title="password"
                   />
                   {/* {error.password && (
                     <span className="text-red">{error.password}</span>
@@ -119,11 +124,11 @@ const Login = () => {
                 </div>
 
                 <button
-					disabled={authContextData.loginBtnLoading}
+                  disabled={authContextData.loginBtnLoading}
                   type="submit"
                   className="bg-green text-black text-h-sm-lg font-bold py-8 rounded disabled:bg-green/20 transition-all"
                 >
-                  {authContextData.loginBtnLoading ? 'loading...' : 'login'}
+                  {authContextData.loginBtnLoading ? "loading..." : "login"}
                 </button>
 
                 <div className="flex gap-8 justify-center md:text-txt-md text-txt-sm">
@@ -140,23 +145,31 @@ const Login = () => {
                 <hr className="grow text-stroke-sc" />
               </div>
 
-              	<button
-					disabled={authContextData.providerBtnLoading}
-					onClick={() => authContextData.authProvider("intra")}
-					className="flex gap-16 py-8 capitalize justify-center items-center rounded border border-stroke-sc hover:bg-black/20 transition-all disabled:text-stroke-sc"
-				>
-					<Si42 className="text-txt-3xl" />
-					<p className="">{authContextData.providerBtnLoading ? 'loading...' : 'login with intra'}</p>
-				</button>
+              <button
+                disabled={authContextData.providerBtnLoading}
+                onClick={() => authContextData.authProvider("intra")}
+                className="flex gap-16 py-8 capitalize justify-center items-center rounded border border-stroke-sc hover:bg-black/20 transition-all disabled:text-stroke-sc"
+              >
+                <Si42 className="text-txt-3xl" />
+                <p className="">
+                  {authContextData.providerBtnLoading
+                    ? "loading..."
+                    : "login with intra"}
+                </p>
+              </button>
 
-				<button
-					disabled={authContextData.providerBtnLoading}
-					onClick={() => authContextData.authProvider("google")}
-					className="flex gap-16 py-8 capitalize justify-center items-center rounded border border-stroke-sc hover:bg-black/20 transition-all disabled:text-stroke-sc"
-				>
-					<FcGoogle className="text-txt-3xl" />
-					<p>{authContextData.providerBtnLoading ? 'loading...' : 'login with google'}</p>
-				</button>
+              <button
+                disabled={authContextData.providerBtnLoading}
+                onClick={() => authContextData.authProvider("google")}
+                className="flex gap-16 py-8 capitalize justify-center items-center rounded border border-stroke-sc hover:bg-black/20 transition-all disabled:text-stroke-sc"
+              >
+                <FcGoogle className="text-txt-3xl" />
+                <p>
+                  {authContextData.providerBtnLoading
+                    ? "loading..."
+                    : "login with google"}
+                </p>
+              </button>
             </div>
 
             <div className="bg-[url('/images/login/login.jpeg')] bg-cover bg-bottom flex flex-col">

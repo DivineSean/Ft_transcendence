@@ -65,8 +65,8 @@ export const NotifProvider = ({ children }) => {
               isError: true,
             });
           } else if (messageData.type === "acceptFriendRequest") {
-			getNotfications();
-		  }
+            getNotfications();
+          }
         }
       },
     },
@@ -79,12 +79,12 @@ export const NotifProvider = ({ children }) => {
         const data = await res.json();
         setNotifData(data);
       } else if (res.status === 400) {
-		const data = await res.json();
-		authContextData.setGlobalMessage({
-			message: data.error,
-			isError: true,
-		});
-	  }
+        const data = await res.json();
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
+      }
     } catch (error) {
       authContextData.setGlobalMessage({
         message: error.message,

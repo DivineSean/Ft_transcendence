@@ -19,7 +19,7 @@ const InputUpdateProfile = ({ ...props }) => {
 				"
             />
             <label
-				className={`
+              className={`
 					absolute top-1/2 -translate-y-1/2
 					${props.formData ? "top-[-8px] left-0 text-txt-xs" : "left-8 text-txt-sm"} text-gray
 					transition-all peer-focus:left-0 peer-focus:text-txt-xs peer-focus:top-[-8px]

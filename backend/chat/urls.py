@@ -9,5 +9,5 @@ urlpatterns = [
     path(
         "chat/getMessages/",
         views.getMessages.as_view(),
-    )
+    ),
 ]

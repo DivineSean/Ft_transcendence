@@ -88,7 +88,9 @@ const Toast = ({ duration = 3000, error = true, position = "topCenter" }) => {
               </div>
             )}
             <p className="tracking-wide text-txt-sm text-white normal-case flex gap-16 items-center">
-              <span className={`font-bold tracking-wide ${authContextData.globalMessage.isError ? 'text-red' : 'text-green'}`}>
+              <span
+                className={`font-bold tracking-wide ${authContextData.globalMessage.isError ? "text-red" : "text-green"}`}
+              >
                 {authContextData.globalMessage.isError
                   ? "error: "
                   : "success: "}
@@ -98,8 +100,8 @@ const Toast = ({ duration = 3000, error = true, position = "topCenter" }) => {
           </div>
         ) : (
           <div className="flex gap-8 items-center normal-case flex gap-16 items-center">
-			<div className="min-w-16 max-w-16 flex items-center">
-            	{authContextData.globalMessage.icon}
+            <div className="min-w-16 max-w-16 flex items-center">
+              {authContextData.globalMessage.icon}
             </div>
             <span className="font-bold tracking-wide text-white">
               {authContextData.globalMessage.username}

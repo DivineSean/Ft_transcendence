@@ -83,7 +83,9 @@ const TwoFaInput = ({ type, saveValues }) => {
       {type === "twoFa" && (
         <>
           <form
-            onSubmit={(e) => authContextData.authorization2FA(e, uid, values2FA)}
+            onSubmit={(e) =>
+              authContextData.authorization2FA(e, uid, values2FA)
+            }
             className="md:py-32 py-16 flex flex-col gap-48"
           >
             <div className="flex justify-between">
@@ -107,11 +109,11 @@ const TwoFaInput = ({ type, saveValues }) => {
               ))}
             </div>
             <button
-				disabled={authContextData.btnLoading}
+              disabled={authContextData.btnLoading}
               type="submit"
               className="bg-green text-black text-h-sm-lg font-bold py-8 rounded disabled:bg-green/20 transition-all"
             >
-              {authContextData.btnLoading ? 'loading...' : 'Verify'}
+              {authContextData.btnLoading ? "loading..." : "Verify"}
             </button>
           </form>
           <div className="flex flex-col gap-8">

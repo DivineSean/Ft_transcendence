@@ -133,11 +133,11 @@ const ProfileFriends = ({ username }) => {
   const friendRequest = [];
 
   const requestOrBlocked = (items, type) => {
-	items.map((item) => {
-		friendRequest.push(
-		<FriendRequest key={item.id} friendRequest={{ ...item }} type={type} />,
-		);
-	});
+    items.map((item) => {
+      friendRequest.push(
+        <FriendRequest key={item.id} friendRequest={{ ...item }} type={type} />,
+      );
+    });
   };
 
   const [selected, setSelected] = useState("friend request");
@@ -188,33 +188,33 @@ const ProfileFriends = ({ username }) => {
                   )}
                 </div>
               </div>
-			  <div className="relative w-full">
-				{friendRequest.length ? (
-					<div
-						ref={scrollContainer}
-						className="min-h-[240px] overflow-x-auto no-scrollbar w-full p-8 flex gap-16 scroll-smooth bg-black/15 rounded-md"
-					>
-						{friendRequest}
-						<button
-							onClick={scrollRight}
-							className="absolute top-1/2 -translate-y-1/2 right-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
-						>
-							<FaChevronRight />
-						</button>
-						
-						<button
-							onClick={scrollLeft}
-							className="absolute top-1/2 -translate-y-1/2 left-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
-						>
-							<FaChevronLeft />
-						</button>
-					</div>
-				) : (
-					<p className="text-txt-sm flex justify-center text-stroke-sc lowercase">
-					you have no {selected}.
-					</p>
-				)}
-			  </div>
+              <div className="relative w-full">
+                {friendRequest.length ? (
+                  <div
+                    ref={scrollContainer}
+                    className="min-h-[240px] overflow-x-auto no-scrollbar w-full p-8 flex gap-16 scroll-smooth bg-black/15 rounded-md"
+                  >
+                    {friendRequest}
+                    <button
+                      onClick={scrollRight}
+                      className="absolute top-1/2 -translate-y-1/2 right-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
+                    >
+                      <FaChevronRight />
+                    </button>
+
+                    <button
+                      onClick={scrollLeft}
+                      className="absolute top-1/2 -translate-y-1/2 left-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
+                    >
+                      <FaChevronLeft />
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-txt-sm flex justify-center text-stroke-sc lowercase">
+                    you have no {selected}.
+                  </p>
+                )}
+              </div>
             </div>
           )}
         <div className="flex flex-col gap-8">

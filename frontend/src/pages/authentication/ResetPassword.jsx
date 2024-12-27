@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import TwoFaInput from "../../components/authentication/TwoFaInput";
 
 const ResetPassword = () => {
-	const authContextData = useContext(AuthContext);
+  const authContextData = useContext(AuthContext);
   const [timer, setTimer] = useState(5);
   const [isActive, setIsActive] = useState(false);
   const [values2FA, setValues2FA] = useState(Array(6).fill(""));
@@ -58,12 +58,14 @@ const ResetPassword = () => {
             name="password"
             type="password"
             onChange={authContextData.handleChange}
-			formData={authContextData.formData.password}
+            formData={authContextData.formData.password}
             error={authContextData.error.password}
-			title="password"
+            title="password"
           />
           {authContextData.error.password && (
-            <span className="text-red text-txt-sm">{authContextData.error.password}</span>
+            <span className="text-red text-txt-sm">
+              {authContextData.error.password}
+            </span>
           )}
         </div>
 
@@ -72,9 +74,9 @@ const ResetPassword = () => {
             name="confirmPassword"
             type="password"
             onChange={authContextData.handleChange}
-			formData={authContextData.formData.confirmPassword}
+            formData={authContextData.formData.confirmPassword}
             error={authContextData.error.confirmPassword}
-			title="confirm password"
+            title="confirm password"
           />
           {authContextData.error.confirmPassword && (
             <span className="text-red text-txt-sm">
@@ -85,11 +87,11 @@ const ResetPassword = () => {
         <TwoFaInput type="reset" saveValues={setValues2FA} />
 
         <button
-			disabled={authContextData.btnLoading}
+          disabled={authContextData.btnLoading}
           type="submit"
           className="bg-green text-black text-h-sm-lg font-bold py-8 rounded disabled:bg-green/20 transition-all"
         >
-          {authContextData.btnLoading ? 'loading...' : 'Send'}
+          {authContextData.btnLoading ? "loading..." : "Send"}
         </button>
         <div className="flex flex-col gap-8 justify-center md:text-txt-md text-txt-sm items-center">
           <p className="text-gray font-light text-txt-sm flex gap-8">
