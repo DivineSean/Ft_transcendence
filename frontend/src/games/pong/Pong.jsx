@@ -23,24 +23,25 @@ const Pong = ({
 	const loaderRef = useRef(null);
 	const loaderTRef = useRef(null);
 	const loaderBRef = useRef(null);
+	const tableRef = useRef(null);
+	const netRef = useRef(null);
+	const ballRef = useRef(null);
+	const playersRef = useRef(null);
 	const keyboard = useRef({});
+	const isMobile = useRef(false)
 	const authContextData = useContext(AuthContext);
 	const [isPortrait, setIsPortrait] = useState(false);
 	const [isWon, setIsWon] = useState(false);
 	const [islost, setIslost] = useState(false);
 
 
-	const tableRef = useRef(null);
-	const netRef = useRef(null);
-	const ballRef = useRef(null);
-	const playersRef = useRef(null);
 
 	useEffect(() => {
-		const isMobile = /android|iphone|ipad|ipod/i.test(
+		isMobile.current = /android|iphone|ipad|ipod/i.test(
 			navigator.userAgent || navigator.vendor || window.opera
 		);
 	
-		if (!isMobile) return;
+		if (!isMobile.current) return;
 		const handleOrientation = () => {
 			const isPortraitMode = window.innerHeight > window.innerWidth;
 			setIsPortrait(isPortraitMode);
@@ -112,7 +113,7 @@ const Pong = ({
 
 	
 		return () => {
-			if (isMobile && joystick)
+			if (isMobile.current && joystick)
 				joystick.destroy();
 			window.removeEventListener('resize', handleOrientation);
 			window.removeEventListener('orientationchange', handleOrientation);
@@ -280,6 +281,7 @@ const Pong = ({
 			sm.current.TimeRender(false);
 			sm.current.TimerCSS();
 		};
+
 		window.addEventListener("keydown", handleKeyDown);
 		window.addEventListener("keyup", handleKeyUp);
 		window.addEventListener("resize", onWindowResize, false);
@@ -331,7 +333,11 @@ const Pong = ({
 				!ball.Defeat ||
 				!ball.Victory
 			)
+			{
+				sm.current.startTime = Date.now();
+				ball.startTime = Date.now();
 				return;
+			}
 			if (!ball.BackgroundMusic.isPlaying) {
 				ball.BackgroundMusic.currentTime = 0;
 				ball.BackgroundMusic.play();
@@ -390,6 +396,22 @@ const Pong = ({
 
 	return (
 		<div id="message" className="relative w-full h-screen overflow-hidden">
+			{isMobile.current && ready && (<div className="absolute z-[1]">
+				<button
+					className="fixed bottom-2/3 right-3/4 transform -translate-x-1/2
+						flex flex-col p-16 rounded-full shadow-2xl
+						border-[0.5px] border-gray"
+					onTouchStart={() => {
+						if (playersRef.current[player - 1].rotating) return;
+						keyboard.current["Space"] = true;
+					}}
+					onTouchEnd={() => {
+						keyboard.current["Space"] = false;
+					}}
+					>
+					<img src="/images/shoot.png" alt="shooting paddle" />
+				</button>
+			</div>)}
 			{authContextData.globalMessage.message && !isWon && !islost && (
 				<GameToast
 					duration={4000}
