@@ -103,8 +103,6 @@ const FriendRequest = ({ friendRequest, type }) => {
 const ProfileFriends = ({ username }) => {
   const userContextData = useContext(UserContext);
   const scrollContainer = useRef(null);
-  const [showLeftButton, setShowLeftButton] = useState(false);
-  const [showRightButton, setShowRightButton] = useState(true);
   const friends = [];
 
   const scrollLeft = () => {
@@ -117,13 +115,6 @@ const ProfileFriends = ({ username }) => {
       scrollContainer.current.scrollBy({ left: 300, behavior: "smooth" });
     }
   };
-  const handleScroll = () => {
-    if (scrollContainer.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainer.current;
-      setShowLeftButton(scrollLeft > 0);
-      setShowRightButton(scrollLeft < scrollWidth - clientWidth);
-    }
-  };
 
   useEffect(() => {
     userContextData.getFriends(username);
@@ -132,16 +123,6 @@ const ProfileFriends = ({ username }) => {
       userContextData.getBlockedUsers();
     }
   }, [userContextData.profileInfo]);
-
-  useEffect(() => {
-    const container = scrollContainer.current;
-    if (container) {
-      container.addEventListener("scroll", handleScroll);
-      handleScroll();
-
-      return () => container.removeEventListener("scroll", handleScroll);
-    }
-  }, [scrollContainer.current]);
 
   if (userContextData.userFriends) {
     userContextData.userFriends.friends.map((item) => {
@@ -182,20 +163,20 @@ const ProfileFriends = ({ username }) => {
               <div className="flex justify-start relative">
                 <div
                   onClick={() => setDisplaySelect(!displaySelect)}
-                  className="flex gap-16 items-center p-8 border-[0.5px] border-stroke-sc rounded-md"
+                  className="flex gap-16 items-center p-8 border-b border-green/50 cursor-pointer"
                 >
                   <h2 className="font-semibold tracking-wide cursor-pointer">
                     {selected}
                   </h2>
                   <FaChevronDown className="text-green cursor-pointer" />
                   {displaySelect && (
-                    <ul className="absolute top-[44px] z-[1] left-0 border border-stroke-sc rounded-md overflow-hidden text-center w-full flex flex-col bg-[url('/images/background.png')] bg-cover bg-bottom transition-all">
+                    <ul className="absolute top-[44px] z-[1] left-0 border-b-[0.5px] border-stroke-sc overflow-hidden text-center w-full flex flex-col bg-[url('/images/background.png')] bg-cover bg-bottom transition-all">
                       <div className="absolute w-full h-full backdrop-blur-sm z-[-1] rounded-md"></div>
                       {select.map((item, i) => (
                         <li
                           key={i}
                           onClick={() => setSelected(item)}
-                          className={`border-b tracking-wider bg-black/20 hover:bg-green/10
+                          className={`border-b tracking-wider bg-black/20 hover:bg-red/20
 								border-stroke-sc shadow p-8 transition-all cursor-pointer
 								${selected === item ? "bg-green/20" : ""}
 							`}
@@ -207,34 +188,33 @@ const ProfileFriends = ({ username }) => {
                   )}
                 </div>
               </div>
-              {friendRequest.length ? (
-                <div
-                  ref={scrollContainer}
-                  className="min-h-[240px] overflow-x-auto no-scrollbar w-full p-8 flex gap-16 scroll-smooth bg-black/15 rounded-md"
-                >
-                  {friendRequest}
-                  {showRightButton && (
+              <div className="relative w-full">
+                {friendRequest.length ? (
+                  <div
+                    ref={scrollContainer}
+                    className="min-h-[240px] overflow-x-auto no-scrollbar w-full p-8 flex gap-16 scroll-smooth bg-black/15 rounded-md"
+                  >
+                    {friendRequest}
                     <button
                       onClick={scrollRight}
-                      className="absolute top-1/2 right-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
+                      className="absolute top-1/2 -translate-y-1/2 right-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
                     >
                       <FaChevronRight />
                     </button>
-                  )}
-                  {showLeftButton && (
+
                     <button
                       onClick={scrollLeft}
-                      className="absolute top-1/2 left-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
+                      className="absolute top-1/2 -translate-y-1/2 left-0 p-10 flex arrow-glass transition-all text-white rounded-full hover:bg-black/50"
                     >
                       <FaChevronLeft />
                     </button>
-                  )}
-                </div>
-              ) : (
-                <p className="text-txt-sm flex justify-center text-stroke-sc lowercase">
-                  you have no {selected}.
-                </p>
-              )}
+                  </div>
+                ) : (
+                  <p className="text-txt-sm flex justify-center text-stroke-sc lowercase">
+                    you have no {selected}.
+                  </p>
+                )}
+              </div>
             </div>
           )}
         <div className="flex flex-col gap-8">

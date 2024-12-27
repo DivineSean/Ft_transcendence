@@ -5,39 +5,10 @@ import { useParams } from "react-router-dom";
 import TwoFaInput from "../../components/authentication/TwoFaInput";
 
 const ResetPassword = () => {
-  const { error, handleBlur, handleChange, resent2FACode, changePassword } =
-    useContext(AuthContext);
+  const authContextData = useContext(AuthContext);
   const [timer, setTimer] = useState(5);
   const [isActive, setIsActive] = useState(false);
   const [values2FA, setValues2FA] = useState(Array(6).fill(""));
-  // const inputs = useRef([]);
-
-  // const handleChange2FA = (e, index) => {
-  // 	const value = e.target.value;
-  // 	if (/^[0-9]$/.test(value)) {
-  // 		const newValues = [...values2FA];
-  // 		newValues[index] = value;
-  // 		setValues2FA(newValues);
-  // 		if (index < 5 && value) {
-  // 			inputs.current[index + 1].focus();
-  // 		}
-  // 	}
-  // };
-
-  // const handleKeyDown2FA = (e, index) => {
-  // 	if (e.key === 'Backspace') {
-  // 		const newValues = [...values2FA];
-  // 		if (newValues[index]) {
-  // 			newValues[index] = '';
-  // 			setValues2FA(newValues);
-  // 		} else if (index > 0) {
-  // 			inputs.current[index - 1].focus();
-  // 			const prevValues = [...values2FA];
-  // 			prevValues[index - 1] = '';
-  // 			setValues2FA(prevValues);
-  // 		}
-  // 	}
-  // }
 
   useEffect(() => {
     let interval = null;
@@ -60,7 +31,7 @@ const ResetPassword = () => {
   };
 
   const resetTimer = (type) => {
-    resent2FACode(uid, type);
+    authContextData.resent2FACode(uid, type);
     setTimer(5);
     setIsActive(false);
   };
@@ -79,20 +50,22 @@ const ResetPassword = () => {
       </div>
 
       <form
-        onSubmit={(e) => changePassword(e, uid, values2FA)}
+        onSubmit={(e) => authContextData.changePassword(e, uid, values2FA)}
         className="md:py-32 py-16 flex flex-col gap-48"
       >
         <div className="flex flex-col gap-10">
           <InputFieled
             name="password"
             type="password"
-            placeholder="Password"
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={error.password}
+            onChange={authContextData.handleChange}
+            formData={authContextData.formData.password}
+            error={authContextData.error.password}
+            title="password"
           />
-          {error.password && (
-            <span className="text-red text-txt-sm">{error.password}</span>
+          {authContextData.error.password && (
+            <span className="text-red text-txt-sm">
+              {authContextData.error.password}
+            </span>
           )}
         </div>
 
@@ -100,24 +73,25 @@ const ResetPassword = () => {
           <InputFieled
             name="confirmPassword"
             type="password"
-            placeholder="Confirm Password"
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={error.confirmPassword}
+            onChange={authContextData.handleChange}
+            formData={authContextData.formData.confirmPassword}
+            error={authContextData.error.confirmPassword}
+            title="confirm password"
           />
-          {error.confirmPassword && (
+          {authContextData.error.confirmPassword && (
             <span className="text-red text-txt-sm">
-              {error.confirmPassword}
+              {authContextData.error.confirmPassword}
             </span>
           )}
         </div>
         <TwoFaInput type="reset" saveValues={setValues2FA} />
 
         <button
+          disabled={authContextData.btnLoading}
           type="submit"
-          className="bg-green text-black text-h-sm-lg font-bold py-8 rounded"
+          className="bg-green text-black text-h-sm-lg font-bold py-8 rounded disabled:bg-green/20 transition-all"
         >
-          Send
+          {authContextData.btnLoading ? "loading..." : "Send"}
         </button>
         <div className="flex flex-col gap-8 justify-center md:text-txt-md text-txt-sm items-center">
           <p className="text-gray font-light text-txt-sm flex gap-8">

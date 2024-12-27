@@ -10,8 +10,4 @@ urlpatterns = [
         "chat/getMessages/",
         views.getMessages.as_view(),
     ),
-    path(
-        "chat/sendmessagetofriend/",
-        views.SendMessageToFriend.as_view(),
-    ),
 ]

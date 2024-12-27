@@ -201,6 +201,17 @@ class Chat(WebsocketConsumer):
             )
         )
 
+    def accept_friend_request(self, event):
+        self.send(
+            text_data=json.dumps(
+                {
+                    "type": "acceptFriendRequest",
+                    "sender": event["sender"],
+                    "message": f"Your friend request get accepted by {self.user['username']}",
+                }
+            )
+        )
+
     def create_conversation_room(self, event):
         self.room_group_name.add(f"conv-{event['convId']}")
         async_to_sync(self.channel_layer.group_add)(

@@ -518,3 +518,8 @@ def setUpUsername(request):
     dump = json.dumps(data)
     http_response.content = dump
     return http_response
+
+
+@api_view(["GET"])
+def checkUserIsAuthenticated(request):
+    return Response({"message": "authenticated user"}, status=status.HTTP_200_OK)

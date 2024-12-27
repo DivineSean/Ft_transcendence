@@ -7,6 +7,11 @@ import re
 import os
 
 urlpatterns = [
+    path(
+        "api/auth/check/",
+        views.checkUserIsAuthenticated,
+        name="check user is authenticated",
+    ),
     path("api/intra/", Oauth2.login42, name="42login"),
     path("api/callback/", Oauth2.callback, name="42login"),
     path("api/google/", Oauth2.loginGoogle, name="loginGoogle"),
