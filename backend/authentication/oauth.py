@@ -13,6 +13,7 @@ from .views import CustomTokenObtainPairView, registerView
 from .serializers import RegisterOAuthSerializer
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from django.core.files.base import ContentFile
+from rest_framework import status
 import requests
 import os, json
 import uuid
@@ -25,204 +26,213 @@ G_CLIENT_ID = os.environ.get("G_CLIENT_ID")
 G_CLIENT_SECRET = os.environ.get("G_CLIENT_SECRET")
 
 
-def download_providers_images(url, userId, isIntra):
-    response = requests.get(url)
-    if response.status_code == 200:
-        if isIntra:
-            file_name = f"{userId}_profile.jpeg"
-        else:
-            file_name = f"{userId}_profile.jpeg"
-        return ContentFile(response.content, file_name)
-    return None
+def download_providers_images(url, userId):
+	response = requests.get(url)
+	if response.status_code == 200:
+		file_name = f"{userId}_profile.jpeg"
+		return ContentFile(response.content, file_name)
+	return None
 
 
 def CreateUserIfNotExists(user_data, isIntra):
-    userID = user_data.get("id")
-    login = user_data.get("login")
-    email = user_data.get("email")
-    if isIntra:
-        image_url = user_data.get("image")["versions"]["large"]
-        first_name = user_data.get("first_name")
-    else:
-        image_url = user_data.get("picture")
-        first_name = user_data.get("given_name")
 
-    # print(user_data, flush=True)
-    print(f"image_url: {image_url}\nfirst_name: {first_name}", flush=True)
+	userID = user_data.get("id")
+	login = user_data.get("login")
+	email = user_data.get("email")
 
-    if first_name == None:
-        first_name = user_data.get("name")
+	if isIntra:
+		image_url = user_data.get("image")["versions"]["large"]
+		first_name = user_data.get("first_name")
+		last_name = user_data.get("last_name")
 
-    last_name = user_data.get("last_name")
+	else:
+		image_url = user_data.get("picture")
+		first_name = user_data.get("given_name")
+		last_name = user_data.get("family_name")
 
-    if last_name == None:
-        last_name = user_data.get("family_name")
+	print(image_url, flush=True)
+	password = None
 
-    password = None
-    data = {
-        "first_name": first_name,
-        "last_name": last_name,
-        "email": email,
-        "password": password,
-        "image_url": image_url,
-    }
+	data = {
+		"first_name": first_name,
+		"last_name": last_name,
+		"email": email,
+		"password": password,
+		"image_url": image_url,
+	}
 
-    user = User.objects.filter(email=email).first()
+	user = User.objects.filter(email=email).first()
 
-    if user:
-        return True, data
-    else:
-        return False, data
+	if user:
+		return True, data
+	else:
+		return False, data
 
 
 @api_view(["GET"])
 def login42(request):
-    response = HttpResponse(content_type="application/json")
-    data = {
-        "url": f"https://api.intra.42.fr/oauth/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URL}&response_type=code"
-    }
-    dump = json.dumps(data)
-    response.content = dump
+	response = HttpResponse(content_type="application/json")
+	data = {
+		"url": f"https://api.intra.42.fr/oauth/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URL}&response_type=code"
+	}
+	dump = json.dumps(data)
+	response.content = dump
 
-    return response
+	return response
 
 
 @api_view(["GET"])
 def loginGoogle(request):
-    response = HttpResponse(content_type="application/json")
-    data = {
-        "url": f"https://accounts.google.com/o/oauth2/v2/auth?client_id={G_CLIENT_ID}&redirect_uri={REDIRECT_URL}&response_type=code&scope=email%20profile"
-    }
-    dump = json.dumps(data)
-    response.content = dump
+	response = HttpResponse(content_type="application/json")
+	data = {
+		"url": f"https://accounts.google.com/o/oauth2/v2/auth?client_id={G_CLIENT_ID}&redirect_uri={REDIRECT_URL}&response_type=code&scope=email%20profile"
+	}
+	dump = json.dumps(data)
+	response.content = dump
 
-    return response
+	return response
 
 
 @api_view(["GET"])
 def show_users(request):
-    users = User.objects.all().values()
-    user_list = list(users)
-    return JsonResponse(user_list, safe=False)
+	users = User.objects.all().values()
+	user_list = list(users)
+	return JsonResponse(user_list, safe=False)
 
 
 @api_view(["POST"])
 def callback(request):
-    reqBody = json.loads(request.body)
-    code = reqBody.get("code", None)
-    prompt = reqBody.get("prompt", None)
+	code = request.data.get("code", None)
+	if not code:
+		return Response(
+			{"error": "no code provided"},
+			status=status.HTTP_400_BAD_REQUEST
+		)
+	prompt = request.data.get("prompt", None)
 
-    if not prompt:  # for intra provider
-        token_response = requests.post(
-            "https://api.intra.42.fr/oauth/token",
-            data={
-                "grant_type": "authorization_code",
-                "client_id": CLIENT_ID,
-                "client_secret": CLIENT_SECRET,
-                "code": code,
-                "redirect_uri": REDIRECT_URL,
-            },
-        )
-    else:  # for google provider
-        token_response = requests.post(
-            "https://oauth2.googleapis.com/token",
-            data={
-                "grant_type": "authorization_code",
-                "client_id": G_CLIENT_ID,
-                "client_secret": G_CLIENT_SECRET,
-                "code": code,
-                "redirect_uri": REDIRECT_URL,
-            },
-        )
+	if not prompt:  # for intra provider
+		token_response = requests.post(
+			"https://api.intra.42.fr/oauth/token",
+			data={
+				"grant_type": "authorization_code",
+				"client_id": CLIENT_ID,
+				"client_secret": CLIENT_SECRET,
+				"code": code,
+				"redirect_uri": REDIRECT_URL,
+			},
+		)
 
-    access_token = token_response.json().get("access_token")
-    if not access_token:
-        return Response({"error": "Failed to obtain access token"}, status=400)
+	else:  # for google provider
+		token_response = requests.post(
+			"https://oauth2.googleapis.com/token",
+			data={
+				"grant_type": "authorization_code",
+				"client_id": G_CLIENT_ID,
+				"client_secret": G_CLIENT_SECRET,
+				"code": code,
+				"redirect_uri": REDIRECT_URL,
+			},
+		)
 
-    isIntra = False
-    if not prompt:
-        user_response = requests.get(
-            "https://api.intra.42.fr/v2/me",
-            headers={"Authorization": f"Bearer {access_token}"},
-        )
-        isIntra = True
-    else:
-        user_response = requests.get(
-            "https://www.googleapis.com/oauth2/v2/userinfo",
-            headers={"Authorization": f"Bearer {access_token}"},
-        )
+	access_token = token_response.json().get("access_token")
+	if not access_token:
+		return Response(
+			{"error": "Failed to obtain access token"},
+			status=status.HTTP_400_BAD_REQUEST
+		)
 
-    response = HttpResponse(content_type="application/json")
-    if user_response.status_code == 200:
+	isIntra = False
+	if not prompt:
+		user_response = requests.get(
+			"https://api.intra.42.fr/v2/me",
+			headers={"Authorization": f"Bearer {access_token}"},
+		)
+		isIntra = True
 
-        user_data = user_response.json()
-        is_new_user, data = CreateUserIfNotExists(user_data, isIntra)
+	else:
+		user_response = requests.get(
+			"https://www.googleapis.com/oauth2/v2/userinfo",
+			headers={"Authorization": f"Bearer {access_token}"},
+		)
 
-        if not is_new_user:
-            serializer = RegisterOAuthSerializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+	if user_response.status_code == 200:
 
-        user = User.objects.get(email=user_data.get("email"))
+		user_data = user_response.json()
+		is_new_user, data = CreateUserIfNotExists(user_data, isIntra)
 
-        # print(f'image_url: {data["image_url"]}', flush=True)
-        # print(f'image file: {image_file.name}', flush=True)
-        if not user.profile_image:
-            image_file = download_providers_images(data["image_url"], user.id, isIntra)
+		if not is_new_user:
+			serializer = RegisterOAuthSerializer(data=data)
+			serializer.is_valid(raise_exception=True)
+			serializer.save()
 
-            if image_file:
-                print("+-=+_+_____--=-=-=-= dkhelna hna", flush=True)
-                print(image_file.name)
-                user.profile_image.save(image_file.name, image_file, save=True)
+		user = User.objects.get(email=user_data.get("email"))
+		if not user.profile_image:
+			image_file = download_providers_images(data["image_url"], user.id, isIntra)
 
-        username = user.username
-        if user.isTwoFa:
-            print("is true am3alam", flush=True)
-            twofaOjt = CustomTokenObtainPairView()
-            two_factor_code = twofaOjt.generate_2fa_code(user, "twoFa")
-            twofaOjt.send_2fa_code(user.email, two_factor_code.code, "twoFa")
-            data = {
-                "message": "2FA code sent",
-                "uid": str(user.id),
-                "requires_2fa": True,
-            }
-            response.content = json.dumps(data)
-            # return Response(, status=200)
+			if image_file:
+				user.profile_image.save(image_file.name, image_file, save=True)
 
-        else:
-            print("is false am3alam", flush=True)
-            if not username:
-                # response = HttpResponse(content_type='application/json')
-                data = {
-                    "message": "logged in successfully!",
-                    "username": username,
-                    "uid": str(user.id),
-                }
-                dump = json.dumps(data)
-                response.content = dump
-                # return response
+		username = user.username
 
-            else:
-                user.isOnline = True
-                user.save()
-                refresh_token = RefreshToken.for_user(user)
-                access = str(refresh_token.access_token)
+		if user.isTwoFa:
+			twofaOjt = CustomTokenObtainPairView()
+			two_factor_code = twofaOjt.generate_2fa_code(user, "twoFa")
+			twofaOjt.send_2fa_code(user.email, two_factor_code.code, "twoFa")
+			data = {
+				"message": "two factor authentication code sent successfully",
+				"uid": str(user.id),
+				"requires_2fa": True,
+			}
+			return Response(
+				data,
+				status=status.HTTP_200_OK
+			)
 
-                # response = HttpResponse(content_type='application/json')
-                response.set_cookie(
-                    "refreshToken",
-                    refresh_token,
-                    httponly=True,
-                    secure=True,
-                    samesite="Lax",
-                )
-                response.set_cookie(
-                    "accessToken", access, httponly=True, secure=True, samesite="Lax"
-                )
-                resData = {"message": "logged in successfully!"}
-                dump = json.dumps(resData)
-                response.content = dump
+		else:
+			if not username:
+				data = {
+					"message": "still one further step to complete",
+					"username": username,
+					"uid": str(user.id),
+				}
+				dump = json.dumps(data)
+				return Repsponse(
+					data,
+					status=status.HTTP_200_OK
+				)
 
-        return response
-    else:
-        return Response({"error": "error cannot login!"}, status=400)
+			else:
+
+				user.isOnline = True
+				user.save()
+
+				response = Response(
+					{"message": "you logged in successfully"},
+					status=status.HTTP_200_OK
+				)
+
+				refresh_token = RefreshToken.for_user(user)
+				access = str(refresh_token.access_token)
+
+				response.set_cookie(
+					"refreshToken",
+					refresh_token,
+					httponly=True,
+					secure=True,
+					samesite="Lax",
+				)
+				response.set_cookie(
+					"accessToken",
+					access,
+					httponly=True,
+					secure=True,
+					samesite="Lax"
+				)
+
+				return response
+
+	else:
+		return Response(
+			{"error": "cannot login please try again"},
+			status=status.HTTP_400_BAD_REQUEST
+		)

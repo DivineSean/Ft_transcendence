@@ -215,7 +215,7 @@ export const AuthProvider = ({ children }) => {
 				}
 			}
 
-		} else if (res.status === 400) {
+		} else if (res.status === 400 || res.status === 401) {
 
 			setGlobalMessage({
 				message: `email or password are invalid please try again!`,

@@ -49,7 +49,6 @@ class sAuthMiddleWare(MiddlewareMixin):
                 validatedAccessToken = AccessToken(accessToken)
                 user = jwtObj.get_user(validatedAccessToken)
                 request._user = user
-                # print("------------------>", request._user, flush=True)
                 return None
 
             except:

@@ -224,13 +224,12 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 	def post(self, request, *args, **kwargs):
 
-		json_data = json.loads(request.body)
-		submitted_2fa_code = json_data.get("2fa_code")
+		submitted_2fa_code = request.data.get("2fa_code")
 
 		if not submitted_2fa_code:  # here is the login part
 
-			email = json_data.get("email")
-			password = json_data.get("password")
+			email = request.data.get("email")
+			password = request.data.get("password")
 			if not email:
 				return Response(
 					{"error": "no email provided"},
@@ -249,16 +248,17 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 			except Exception as e:
 				return Response(
 					{"error": str(e)},
-					status=status.HTTP_401_UNAUTHORIZED
+					status=status.HTTP_400_BAD_REQUEST
 				)
 
 			if user and not user.password:
 				return Response(
 					{"error": "invalid email or password"},
-					status=status.HTTP_401_UNAUTHORIZED
+					status=status.HTTP_400_BAD_REQUEST
 				)
 
 			user_id = str(user.id)
+
 			userTokens = super().post(request, *args, **kwargs)
 
 			if userTokens.status_code == 200:

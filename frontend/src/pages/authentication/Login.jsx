@@ -19,34 +19,54 @@ const Login = () => {
     authContextData.checkIsUserAuthenticated();
   }, []);
 
-  const sendCode = async (code, prompt, navigate) => {
-    try {
-      const res = await FetchData.post("api/callback/", {
-        code: code,
-        prompt: prompt,
-      });
-      if (res.ok) {
-        const data = await res.json();
+	const sendCode = async (code, prompt, navigate) => {
 
-        if (data.requires_2fa) navigate(`/twofa/${data.uid}`);
-        else {
-          if (data.username === null) navigate(`/setupusername/${data.uid}`);
-          else navigate("/home");
-        }
-      } else {
-        authContextData.setGlobalMessage({
-          message: "something went wrong",
-          isError: true,
-        });
-        navigate("/login");
-      }
-    } catch (error) {
-      authContextData.setGlobalMessage({
-        message: `error: ${error}`,
-        isError: true,
-      });
-    }
-  };
+		try {
+			const res = await FetchData.post("api/callback/", {
+				code: code,
+				prompt: prompt,
+			});
+
+			if (res.ok) {
+				const data = await res.json();
+
+				authContextData.setGlobalMessage({
+					message: data.message,
+					isError: false,
+				});
+
+				if (data.requires_2fa) {
+
+					navigate(`/twofa/${data.uid}`);
+				} else {
+
+					if (data.username === null) {
+
+						navigate(`/setupusername/${data.uid}`);
+					} else {
+
+						navigate("/home");
+					}
+				}
+
+			} else if (res.status === 400) {
+
+				const data = await res.json();
+				authContextData.setGlobalMessage({
+					message: data.error,
+					isError: true,
+				});
+				setLoad(false);
+				navigate("/login");
+			}
+
+		} catch (error) {
+			authContextData.setGlobalMessage({
+				message: error.message,
+				isError: true,
+			});
+		}
+	};
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
