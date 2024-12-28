@@ -47,8 +47,8 @@ const Toast = ({ duration = 3000, error = true, position = "topCenter" }) => {
   }, [duration, authContextData.setGlobalMessage]);
 
   return (
-    isVisible && (
-      authContextData.globalMessage.message && (
+    isVisible &&
+    authContextData.globalMessage.message && (
       <div
         className={`
 			${position === "topCenter" && "top-32 left-1/2 transform -translate-x-1/2"}
@@ -117,7 +117,6 @@ const Toast = ({ duration = 3000, error = true, position = "topCenter" }) => {
           className="cursor-pointer text-txt-xl min-w-16"
         />
       </div>
-    )
     )
   );
 };
