@@ -45,7 +45,6 @@ class PasswordUpdateSerializer(serializers.Serializer):
 	new_password = serializers.CharField(write_only=True, required=True)
 
 	def validate_new_password(self, value):
-		print('heheheheheh', flush=True)
 		password_regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+={}\';":,.<>])[A-Za-z\d!@#$%^&*()_+={}\';":,.<>]{6,}$'
 		if not re.match(password_regex, value):
 			raise serializers.ValidationError("password must contain at least 6 characters, uppercase, lowercase, number and special character.")

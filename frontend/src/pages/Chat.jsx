@@ -6,7 +6,6 @@ import Header from "../components/Header";
 import { IoSearchOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
-import { getConversations } from "../utils/chatFetchData";
 import AuthContext from "../context/AuthContext";
 import ChatFriends from "../components/chat/ChatFriends";
 import LoadingPage from "./LoadingPage";
@@ -29,7 +28,7 @@ const Chat = () => {
 
   useEffect(() => {
     // first time fetch conversation message from the database to render them to the user
-    getConversations(
+    notifContextData.getConversations(
       setFriendsData,
       authContextData.setGlobalMessage,
       navigate,
@@ -38,7 +37,7 @@ const Chat = () => {
 
   useEffect(() => {
     if (!uid) {
-      getConversations(
+      notifContextData.getConversations(
         setFriendsData,
         authContextData.setGlobalMessage,
         navigate,
@@ -49,7 +48,7 @@ const Chat = () => {
   useEffect(() => {
     if (notifContextData.refresh) {
       console.log("hello");
-      getConversations(
+      notifContextData.getConversations(
         setFriendsData,
         authContextData.setGlobalMessage,
         navigate,
@@ -101,7 +100,7 @@ const Chat = () => {
           messageData.type === "createConv" &&
           window.location.pathname.search("chat") !== -1
         ) {
-          getConversations(
+          notifContextData.getConversations(
             setFriendsData,
             authContextData.setGlobalMessage,
             navigate,

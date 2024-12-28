@@ -39,12 +39,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 @api_view(["POST"])
-def alter2FA(request):
-	print(request.user)
-	return Response("hello")
-
-
-@api_view(["POST"])
 def registerView(request):
 
 	try:
@@ -95,7 +89,6 @@ def resend2FACode(request):
 		)
 
 	code_type = request.data.get("type")
-	print(code_type, flush=True)
 	if not code_type:
 		return Response(
 			{"error": "no such code type provided. it must be 'reset' or 'twofa'"},
@@ -282,7 +275,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 		else:  # here endpoint for 2FA authorization
 
-			user_id = json_data.get("id")
+			user_id = request.data.get("id")
 			if not user_id:
 				return Response(
 					{"error": "no user id provided"},

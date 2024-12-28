@@ -148,7 +148,7 @@ class ChatConversation(APIView):
                     },
                 )
 
-                return Reponse(resData, status=status.HTTP_201_CREATED)
+                return Response(resData, status=status.HTTP_201_CREATED)
 
             else:
                 conv = Conversation.objects.get(

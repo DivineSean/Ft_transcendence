@@ -222,7 +222,7 @@ export const AuthProvider = ({ children }) => {
 				isError: true,
 			});
 		}
-
+		
       } catch (error) {
 			setGlobalMessage({
 				message: error.message,
@@ -381,7 +381,7 @@ export const AuthProvider = ({ children }) => {
 
       try {
 
-        const res = await FetchData.post("api/changepassword/", {
+        const res = await FetchData.post("api/password-reset/confirm/", {
           id: userId,
           newPassword: e.target.password.value,
           code: values2FA.join(""),
@@ -491,7 +491,7 @@ export const AuthProvider = ({ children }) => {
   // this function to check the user is authenticated to redirect him to the home page
   const checkIsUserAuthenticated = async (uid) => {
     try {
-      const res = await FetchData.get("api/auth/check/");
+      const res = await FetchData.get("api/auth/check-authenticated/");
       if (res.ok) {
         if (window.location.pathname.search("forgotpassword") !== -1 && !uid)
           navigate("/home");

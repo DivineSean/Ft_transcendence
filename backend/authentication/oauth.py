@@ -92,14 +92,6 @@ def loginGoogle(request):
 
 	return response
 
-
-@api_view(["GET"])
-def show_users(request):
-	users = User.objects.all().values()
-	user_list = list(users)
-	return JsonResponse(user_list, safe=False)
-
-
 @api_view(["POST"])
 def callback(request):
 	code = request.data.get("code", None)
@@ -167,7 +159,7 @@ def callback(request):
 
 		user = User.objects.get(email=user_data.get("email"))
 		if not user.profile_image:
-			image_file = download_providers_images(data["image_url"], user.id, isIntra)
+			image_file = download_providers_images(data["image_url"], user.id)
 
 			if image_file:
 				user.profile_image.save(image_file.name, image_file, save=True)
@@ -196,7 +188,7 @@ def callback(request):
 					"uid": str(user.id),
 				}
 				dump = json.dumps(data)
-				return Repsponse(
+				return Response(
 					data,
 					status=status.HTTP_200_OK
 				)
