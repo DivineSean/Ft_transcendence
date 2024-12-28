@@ -18,15 +18,15 @@ body {
 }
 
 input:-webkit-autofill {
-	transition: all 0s 50000s;
+  transition: all 0s 50000s;
 }
 
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
-input:-webkit-autofill:active{
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: white !important;
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: white !important;
 }
 
 @layer utilities {

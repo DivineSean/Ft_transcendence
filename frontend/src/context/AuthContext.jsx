@@ -34,16 +34,16 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState({});
 
   useEffect(() => {
-	// empty all input values it the user change the location
-	setFormData({
-		username: '',
-		firstName: '',
-		lastName: '',
-		email: '',
-		password: '',
-		confirmPassword: '',
-	})
-  }, [window.location.pathname])
+    // empty all input values it the user change the location
+    setFormData({
+      username: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+  }, [window.location.pathname]);
 
   const location = useLocation();
   const [globalMessage, setGlobalMessage] = useState({
@@ -97,17 +97,16 @@ export const AuthProvider = ({ children }) => {
   const authProvider = async (provider) => {
     let url;
     if (provider === "intra") {
-		url = "api/intra/";
-		setProviderBtnLoading(true);
-	}
-    else {
-		url = "api/google/";
-		setGoogleBtnLoading(true);
-	}
+      url = "api/intra/";
+      setProviderBtnLoading(true);
+    } else {
+      url = "api/google/";
+      setGoogleBtnLoading(true);
+    }
     try {
       const res = await FetchData.get(url);
       setProviderBtnLoading(false);
-	  setGoogleBtnLoading(false);
+      setGoogleBtnLoading(false);
       if (res.ok) {
         const data = await res.json();
         window.location.href = data.url;
@@ -387,7 +386,7 @@ export const AuthProvider = ({ children }) => {
 
   const contextData = {
     providerBtnLoading,
-	googleBtnLoading,
+    googleBtnLoading,
     btnLoading,
     loading,
     formData,

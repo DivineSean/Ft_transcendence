@@ -6,13 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notification', '0007_alter_notifications_notiftype'),
+        ("notification", "0007_alter_notifications_notiftype"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='notifications',
-            name='notifType',
-            field=models.CharField(choices=[('FR', 'Friend Request'), ('AF', 'Accept Friend Request'), ('IG', 'Invite Game'), ('IT', 'Invite Tournament'), ('ME', 'Message'), ('CC', 'Create Conversation')], max_length=2),
+            model_name="notifications",
+            name="notifType",
+            field=models.CharField(
+                choices=[
+                    ("FR", "Friend Request"),
+                    ("AF", "Accept Friend Request"),
+                    ("IG", "Invite Game"),
+                    ("IT", "Invite Tournament"),
+                    ("ME", "Message"),
+                    ("CC", "Create Conversation"),
+                ],
+                max_length=2,
+            ),
         ),
     ]
