@@ -48,7 +48,7 @@ const Toast = ({ duration = 3000, error = true, position = "topCenter" }) => {
 
   return (
     isVisible && (
-      // authContextData.globalMessage.message && (
+      authContextData.globalMessage.message && (
       <div
         className={`
 			${position === "topCenter" && "top-32 left-1/2 transform -translate-x-1/2"}
@@ -118,7 +118,7 @@ const Toast = ({ duration = 3000, error = true, position = "topCenter" }) => {
         />
       </div>
     )
-    // )
+    )
   );
 };
 
