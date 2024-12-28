@@ -162,13 +162,13 @@ const SignUp = () => {
               </button>
 
               <button
-                disabled={authContextData.providerBtnLoading}
+                disabled={authContextData.googleBtnLoading}
                 onClick={() => authContextData.authProvider("google")}
                 className="flex gap-16 py-8 capitalize justify-center items-center rounded border border-stroke-sc hover:bg-black/20 transition-all disabled:text-stroke-sc"
               >
                 <FcGoogle className="text-txt-3xl" />
                 <p>
-                  {authContextData.providerBtnLoading
+                  {authContextData.googleBtnLoading
                     ? "loading..."
                     : "login with google"}
                 </p>

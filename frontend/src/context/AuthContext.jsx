@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
 
   const [btnLoading, setBtnLoading] = useState(false);
   const [providerBtnLoading, setProviderBtnLoading] = useState(false);
+  const [googleBtnLoading, setGoogleBtnLoading] = useState(false);
   const [profileReturn, setProfileReturn] = useState(false);
 
   const navigate = useNavigate();
@@ -31,6 +32,18 @@ export const AuthProvider = ({ children }) => {
     confirmPassword: "",
   });
   const [error, setError] = useState({});
+
+  useEffect(() => {
+    // empty all input values it the user change the location
+    setFormData({
+      username: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+  }, [window.location.pathname]);
 
   const location = useLocation();
   const [globalMessage, setGlobalMessage] = useState({
@@ -83,12 +96,17 @@ export const AuthProvider = ({ children }) => {
 
   const authProvider = async (provider) => {
     let url;
-    if (provider === "intra") url = "api/intra/";
-    else url = "api/google/";
-    setProviderBtnLoading(true);
+    if (provider === "intra") {
+      url = "api/intra/";
+      setProviderBtnLoading(true);
+    } else {
+      url = "api/google/";
+      setGoogleBtnLoading(true);
+    }
     try {
       const res = await FetchData.get(url);
       setProviderBtnLoading(false);
+      setGoogleBtnLoading(false);
       if (res.ok) {
         const data = await res.json();
         window.location.href = data.url;
@@ -159,13 +177,13 @@ export const AuthProvider = ({ children }) => {
     setError(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      setLoginBtnLoading(true);
+      setBtnLoading(true);
       try {
         const res = await FetchData.post("api/token/", {
           email: e.target.email.value,
           password: e.target.password.value,
         });
-        setLoginBtnLoading(false);
+        setBtnLoading(false);
         if (res.ok) {
           const data = await res.json();
           if (data.requires_2fa) navigate(`/twofa/${data.uid}`);
@@ -368,6 +386,7 @@ export const AuthProvider = ({ children }) => {
 
   const contextData = {
     providerBtnLoading,
+    googleBtnLoading,
     btnLoading,
     loading,
     formData,
