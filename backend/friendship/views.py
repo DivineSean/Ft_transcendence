@@ -64,7 +64,7 @@ class SendFriendRequest(APIView):
                     )
 
                     # check if the notif is not created before or already read
-                    if not isNew and notification.isRead:
+                    if not isNew or notification.isRead:
                         notification.updateRead()
                         channel_layer = get_channel_layer()
                         group_name = f"notifications_{userId}"
@@ -75,6 +75,7 @@ class SendFriendRequest(APIView):
                                 "sender": str(request._user.id),
                             },
                         )
+
                     return Response(
                         {
                             "message": f"request sent successfully to {receieverData.username}"
@@ -119,6 +120,28 @@ class AcceptFriendRequest(APIView):
                     user1=friendRequest.fromUser,
                     user2=friendRequest.toUser,
                 )
+
+                user = Users.objects.get(id=userId)
+                notification, isNew = Notifications.objects.get_or_create(
+                    notifType="AF",
+                    userId=user,
+                    senderId=request._user,
+                    senderUsername=request._user.username,
+                    targetId=str(request._user.id),
+                )
+
+                # check if the notif is not created before or already read
+                if not isNew or notification.isRead:
+                    notification.updateRead()
+                    channel_layer = get_channel_layer()
+                    group_name = f"notifications_{userId}"
+                    async_to_sync(channel_layer.group_send)(
+                        group_name,
+                        {
+                            "type": "accept_friend_request",
+                            "sender": str(request._user.id),
+                        },
+                    )
 
                 friendRequest.delete()
 

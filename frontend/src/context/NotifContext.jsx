@@ -64,6 +64,8 @@ export const NotifProvider = ({ children }) => {
               message: messageData.message,
               isError: true,
             });
+          } else if (messageData.type === "acceptFriendRequest") {
+            getNotfications();
           }
         }
       },
@@ -76,6 +78,12 @@ export const NotifProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         setNotifData(data);
+      } else if (res.status === 400) {
+        const data = await res.json();
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
       }
     } catch (error) {
       authContextData.setGlobalMessage({

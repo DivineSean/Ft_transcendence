@@ -14,7 +14,7 @@ const OptionsSection = ({ data, type, reference }) => {
   const notifContext = useContext(NotifContext);
 
   const handleReadNotif = (item) => {
-    if (item.notifType === "FR") {
+    if (item.notifType === "FR" || item.notifType === "AF") {
       navigate(`/profile/overview/${item.senderId.username}`);
       contextData.setRefresh(true);
     } else if (item.notifType === "IG") {
@@ -47,19 +47,19 @@ const OptionsSection = ({ data, type, reference }) => {
     <>
       <div
         className={`
-					h-10 w-4 rounded-full bg-stroke-sc absolute top-[59px]
-					${type === "options" && "lg:block hidden lg:right-[46px]"}
-					${type === "notification" && "lg:right-[109px] right-[75px]"}
-				`}
+			h-10 w-4 rounded-full bg-stroke-sc absolute top-[59px]
+			${type === "options" && "lg:block hidden lg:right-[46px]"}
+			${type === "notification" && "lg:right-[109px] right-[75px]"}
+		`}
       ></div>
       <div
         ref={reference}
         className={`
-					options-glass z-[1000] py-8
-					absolute flex-col top-64 rounded-md max-h-[300px]
-					${type === "options" && "lg:flex hidden lg:right-32 p-8 gap-16 w-[250px]"}
-					${type === "notification" && "flex lg:right-[90px] px-8 right-16 ml-16 min-w-[300px] md:ml-0 max-w-[440px]"}
-				`}
+			options-glass z-[1000] py-8
+			absolute flex-col top-64 rounded-md max-h-[300px]
+			${type === "options" && "lg:flex hidden lg:right-32 p-8 gap-16 w-[250px]"}
+			${type === "notification" && "flex lg:right-[90px] px-8 right-16 ml-16 min-w-[300px] md:ml-0 max-w-[440px]"}
+		`}
       >
         {type === "notification" && (
           <h2 className="font-bold p-8 tracking-wide text-h-dm-md text-center">
@@ -131,7 +131,7 @@ const OptionsSection = ({ data, type, reference }) => {
                       </div>
                       <div className="flex flex-col gap-4 items-end grow tracking-wider">
                         <p
-                          className={`${!item.isRead ? "font-semibold" : "font-normal text-stroke-sc"} flex gap-4 w-full`}
+                          className={`${!item.isRead ? "font-semibold" : "font-normal text-stroke-sc"} flex gap-4 justify-between w-full`}
                         >
                           {item.notifMessage}
                           <span

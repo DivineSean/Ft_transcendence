@@ -8,6 +8,7 @@ class Notifications(models.Model):
 
     TYPES = [
         ("FR", "Friend Request"),
+        ("AF", "Accept Friend Request"),
         ("IG", "Invite Game"),
         ("IT", "Invite Tournament"),
         ("ME", "Message"),
@@ -46,4 +47,5 @@ class Notifications(models.Model):
             "IT": "You've been invited to a Tournament from: ",
             "ME": "You received a Message from: ",
             "CC": "Conversation created by: ",
+            "AF": "Your friend request get accepted by: ",
         }.get(self.notifType, "finahowa l message d notif al 3yan")
