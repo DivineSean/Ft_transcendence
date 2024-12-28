@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import OuterRef, Subquery
 from chat.models import Conversation
-from Auth.models import Users
+from authentication.models import User
 from chat.models import Message
 from django.db import connection
 from django.db.models import Prefetch, OuterRef, Subquery, F, Q
@@ -76,7 +76,7 @@ class ChatConversation(APIView):
                     return Response(
                         {"error": "invalid user id"}, status=status.HTTP_400_BAD_REQUEST
                     )
-                userData = Users.objects.get(id=userId)
+                userData = User.objects.get(id=userId)
 
             except Exception as e:
 

@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "chat",
     "channels",
-    "Auth",
+    "authentication",
     "games",
     "matchmaking",
     "friendship",
@@ -127,7 +127,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "Auth.AuthMiddleware.sAuthMiddleWare",
+    "authentication.authMiddleware.sAuthMiddleWare",
     "silk.middleware.SilkyMiddleware",
 ]
 
@@ -235,7 +235,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = "Auth.Users"
+AUTH_USER_MODEL = "authentication.User"
 
 
 # CSRF_COOKIE_SECURE = True

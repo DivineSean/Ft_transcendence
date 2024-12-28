@@ -98,7 +98,7 @@ const Toast = ({ duration = 3000, error = true, position = "topCenter" }) => {
                   ? "error: "
                   : "success: "}
               </span>
-              {authContextData.globalMessage.message} hello
+              {authContextData.globalMessage.message}
             </p>
           </div>
         ) : (

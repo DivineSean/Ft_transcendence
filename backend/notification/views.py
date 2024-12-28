@@ -3,7 +3,7 @@ from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from .models import Notifications
 from .serializers import NotifSerializer
-from Auth.models import Users
+from authentication.models import User
 from rest_framework import status
 from django.utils import timezone
 from datetime import timedelta
@@ -12,7 +12,7 @@ from datetime import timedelta
 class CreateNotif(APIView):
     def post(self, request):
         try:
-            user = Users.objects.get(id=request.data.get("receiverID"))
+            user = User.objects.get(id=request.data.get("receiverID"))
         except:
             return Response(
                 {"Message": "user Not found"}, status=status.HTTP_400_BAD_REQUEST

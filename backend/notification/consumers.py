@@ -1,6 +1,6 @@
 from channels.generic.websocket import WebsocketConsumer
 from .models import Notifications
-from Auth.models import Users
+from authentication.models import User
 import json
 from chat.models import Conversation, Message
 from asgiref.sync import async_to_sync
@@ -9,7 +9,7 @@ from django.db.models import Q
 
 class ChatAndNotificationConsumer(WebsocketConsumer):
     def connect(self):
-        self.user = Users.objects.get(id=self.scope["user"].id)
+        self.user = User.objects.get(id=self.scope["user"].id)
 
         # Set up chat rooms
         self.chat_rooms = []
@@ -195,7 +195,7 @@ class ChatAndNotificationConsumer(WebsocketConsumer):
 
     def create_notification(self, message):
         return Notifications.objects.create(
-            userId=Users.objects.get(id=message["userId"]),
+            userId=User.objects.get(id=message["userId"]),
             notifType=message["notifType"],
             notifMessage=message["notifMessage"],
         )

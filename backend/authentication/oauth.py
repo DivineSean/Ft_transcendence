@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from .models import Users
+from .models import User
 from django.contrib.auth.hashers import make_password
 from .views import CustomTokenObtainPairView, registerView
 from .serializers import RegisterOAuthSerializer
@@ -67,7 +67,7 @@ def CreateUserIfNotExists(user_data, isIntra):
         "image_url": image_url,
     }
 
-    user = Users.objects.filter(email=email).first()
+    user = User.objects.filter(email=email).first()
 
     if user:
         return True, data
@@ -101,7 +101,7 @@ def loginGoogle(request):
 
 @api_view(["GET"])
 def show_users(request):
-    users = Users.objects.all().values()
+    users = User.objects.all().values()
     user_list = list(users)
     return JsonResponse(user_list, safe=False)
 
@@ -163,7 +163,7 @@ def callback(request):
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
-        user = Users.objects.get(email=user_data.get("email"))
+        user = User.objects.get(email=user_data.get("email"))
 
         # print(f'image_url: {data["image_url"]}', flush=True)
         # print(f'image file: {image_file.name}', flush=True)
@@ -180,7 +180,7 @@ def callback(request):
             print("is true am3alam", flush=True)
             twofaOjt = CustomTokenObtainPairView()
             two_factor_code = twofaOjt.generate_2fa_code(user, "twoFa")
-            twofaOjt.send_2fa_code(user.email, two_factor_code.code)
+            twofaOjt.send_2fa_code(user.email, two_factor_code.code, "twoFa")
             data = {
                 "message": "2FA code sent",
                 "uid": str(user.id),

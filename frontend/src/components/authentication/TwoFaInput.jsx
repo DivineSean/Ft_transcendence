@@ -126,7 +126,7 @@ const TwoFaInput = ({ type, saveValues }) => {
               <p className="text-gray font-light text-txt-sm flex gap-8">
                 Haven't received it?
                 <button
-                  onClick={() => resetTimer("towfa")}
+                  onClick={() => resetTimer("twofa")}
                   disabled={!isActive}
                   className={`text-white underline ${isActive ? "cursor-pointer font-bold opacity-100" : "cursor-not-allowed opacity-50"}`}
                 >

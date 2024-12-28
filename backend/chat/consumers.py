@@ -3,10 +3,10 @@ from channels.generic.websocket import WebsocketConsumer
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from .models import Conversation, Message
-from Auth.models import Users
+from authentication.models import User
 from django.utils import timezone
 from asgiref.sync import async_to_sync
-from Auth.serializers import UserSerializer
+from authentication.serializers import UserSerializer
 from rest_framework.serializers import ValidationError
 from notification.models import Notifications
 
@@ -250,7 +250,7 @@ class Chat(WebsocketConsumer):
         )
 
     def get_user(self):
-        return Users.objects.get()  # should be modifed
+        return User.objects.get()  # should be modifed
 
     def get_room(self, convID):
         return Conversation.objects.get(ConversationId=convID)  # Get object or 404
@@ -261,7 +261,7 @@ class Chat(WebsocketConsumer):
             return None
         return Message.objects.create(
             ConversationName=conversation,
-            sender=Users.objects.get(email=self.user["email"]),
+            sender=User.objects.get(email=self.user["email"]),
             message=message,
         )
 
