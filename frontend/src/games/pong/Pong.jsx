@@ -9,6 +9,7 @@ import { useEffect, useRef, useState, useContext } from "react";
 import AuthContext from "../../context/AuthContext";
 import GameToast from "../../components/GameToast";
 import JoystickController from "joystick-controller";
+import { PiPingPongFill } from "react-icons/pi";
 
 const Pong = ({
   send,
@@ -404,9 +405,9 @@ const Pong = ({
       {isMobile.current && ready && (
         <div className="absolute z-[1]">
           <button
-            className="fixed bottom-2/3 right-3/4 transform -translate-x-1/2
-						flex flex-col p-16 rounded-full shadow-2xl
-						border-[0.5px] border-gray"
+            className="fixed bottom-2/3 left-[80px] flex items-center
+            justify-center p-8 rounded-full shadow-2xl
+						border-[0.5px] border-stroke-sc"
             onTouchStart={() => {
               if (playersRef.current[player - 1].rotating) return;
               keyboard.current["Space"] = true;
@@ -415,7 +416,7 @@ const Pong = ({
               keyboard.current["Space"] = false;
             }}
           >
-            <img src="/images/shoot.png" alt="shooting paddle" />
+            <PiPingPongFill className="text-txt-6xl text-stroke-sc transform scale-x-[-1]" />
           </button>
         </div>
       )}
