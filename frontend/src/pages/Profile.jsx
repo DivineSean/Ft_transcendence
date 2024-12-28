@@ -342,7 +342,7 @@ const Profile = () => {
                 {contextData.profileInfo.me && (
                   <div
                     onClick={() => setUpdateProfile(true)}
-                    className="absolute flex gap-8 items-center font-light text-gray top-0 right-0 text-md secondary-glass p-8 cursor-pointer"
+                    className="absolute flex gap-8 items-center text-gray tracking-wide top-0 right-0 text-md backdrop-blur-3xl p-8 cursor-pointer rounded-lg border-[0.5px] border-stroke-sc"
                   >
                     <FiEdit3 className="text-green" />
                     <p className="text-txt-xs md:text-txt-md">edit profile</p>

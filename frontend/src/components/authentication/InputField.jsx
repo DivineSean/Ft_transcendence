@@ -18,7 +18,7 @@ const InputFieled = ({ ...props }) => {
             onBlur={authContextData.handleBlur}
             className={`
 				py-16  grow peer outline-none bg-transparent grow border 
-				rounded-sm px-16 transition-all
+				rounded-sm px-16 transition-all 
 				${props.error ? "border-red" : "border-stroke-sc focus:border-gray"}
 			`}
           />

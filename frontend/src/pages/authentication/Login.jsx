@@ -124,11 +124,11 @@ const Login = () => {
                 </div>
 
                 <button
-                  disabled={authContextData.loginBtnLoading}
+                  disabled={authContextData.btnLoading}
                   type="submit"
                   className="bg-green text-black text-h-sm-lg font-bold py-8 rounded disabled:bg-green/20 transition-all"
                 >
-                  {authContextData.loginBtnLoading ? "loading..." : "login"}
+                  {authContextData.btnLoading ? "loading..." : "login"}
                 </button>
 
                 <div className="flex gap-8 justify-center md:text-txt-md text-txt-sm">
@@ -159,13 +159,13 @@ const Login = () => {
               </button>
 
               <button
-                disabled={authContextData.providerBtnLoading}
+                disabled={authContextData.googleBtnLoading}
                 onClick={() => authContextData.authProvider("google")}
                 className="flex gap-16 py-8 capitalize justify-center items-center rounded border border-stroke-sc hover:bg-black/20 transition-all disabled:text-stroke-sc"
               >
                 <FcGoogle className="text-txt-3xl" />
                 <p>
-                  {authContextData.providerBtnLoading
+                  {authContextData.googleBtnLoading
                     ? "loading..."
                     : "login with google"}
                 </p>
