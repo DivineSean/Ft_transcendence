@@ -416,7 +416,7 @@ const Pong = ({
               keyboard.current["Space"] = false;
             }}
           >
-            <PiPingPongFill className="text-txt-6xl text-stroke-sc transform scale-x-[-1]"/>
+            <PiPingPongFill className="text-txt-6xl text-stroke-sc transform scale-x-[-1]" />
           </button>
         </div>
       )}

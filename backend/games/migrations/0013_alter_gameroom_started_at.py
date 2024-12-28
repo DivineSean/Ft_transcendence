@@ -11,7 +11,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-
             model_name="gameroom",
             name="started_at",
             field=models.BigIntegerField(default=1735372110492),
