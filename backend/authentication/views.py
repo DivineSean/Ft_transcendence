@@ -86,14 +86,6 @@ def resend2FACode(request):
 	
 	try:
 		uuid.UUID(user_id, version=4)
-
-	except Exception as e:
-		return Response(
-			{"error": str(e)},
-			status=status.HTTP_400_BAD_REQUEST
-		)
-
-	try:
 		user = User.objects.get(id=user_id)
 
 	except Exception as e:
@@ -296,17 +288,9 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 					{"error": "no user id provided"},
 					status=status.HTTP_400_BAD_REQUEST
 				)
-				
-			try: # check if the id is a valid uuid
-				uuid.UUID(user_id, version=4)
-
-			except Exception as e:
-				return Response(
-					{"error": str(e)},
-					status=status.HTTP_400_BAD_REQUEST
-				)
 
 			try:
+				uuid.UUID(user_id, version=4)
 				user = User.objects.get(id=user_id)
 
 			except Exception as e:
@@ -453,17 +437,9 @@ class CheckPasswordChange(APIView):
 				{"error": "no password provided"},
 				status=status.HTTP_400_BAD_REQUEST
 			)
-		
+
 		try:
 			uuid.UUID(user_id, version=4)
-
-		except Exception as e:
-			return Response(
-				{"error": str(e)},
-				status=status.HTTP_400_BAD_REQUEST
-			)
-
-		try:
 			user = User.objects.get(id=user_id)
 
 		except Exception as e:
@@ -644,14 +620,8 @@ def setUpUsername(request):
 		)
 
 	try:
-		uuid.UUID(user_id, version=4)
-	except Exception as e:
-		return Response(
-			{"error": str(e)},
-			status=status.HTTP_400_BAD_REQUEST
-		)
 
-	try:
+		uuid.UUID(user_id, version=4)
 		user = User.objects.get(id=user_id)
 
 	except Exception as e:
@@ -695,18 +665,6 @@ def setUpUsername(request):
 	)
 
 	return response
-
-	# http_response = HttpResponse(content_type="application/json")
-	# http_response.set_cookie(
-	# 	"refreshToken", refresh_token, httponly=True, secure=True, samesite="Lax"
-	# )
-	# http_response.set_cookie(
-	# 	"accessToken", access_token, httponly=True, secure=True, samesite="Lax"
-	# )
-	# data = {"message": "username has been set up"}
-	# dump = json.dumps(data)
-	# http_response.content = dump
-	# return http_response
 
 
 @api_view(["GET"])
