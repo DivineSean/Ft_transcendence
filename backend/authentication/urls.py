@@ -1,22 +1,21 @@
 from django.contrib import admin
 from django.urls import path, include
 from . import views
-from . import Oauth2
+from . import oauth
 from django.contrib.auth import views as auth_views
 import re
 import os
 
 urlpatterns = [
     path(
-        "api/auth/check/",
+        "api/auth/check-authenticated/",
         views.checkUserIsAuthenticated,
         name="check user is authenticated",
     ),
-    path("api/intra/", Oauth2.login42, name="42login"),
-    path("api/callback/", Oauth2.callback, name="42login"),
-    path("api/google/", Oauth2.loginGoogle, name="loginGoogle"),
-    path("api/users/", Oauth2.show_users, name="users"),
-    path("api/resent2fa/", views.resend2FACode, name="resend_2fa_code"),
+    path("api/intra/login/", oauth.login42, name="42login"),
+    path("api/google/login/", oauth.loginGoogle, name="loginGoogle"),
+    path("api/callback/", oauth.callback, name="42login"),
+    path("api/two-factor/resend/", views.resend2FACode, name="resend_2fa_code"),
     path("api/register/", views.registerView, name="register"),
     path(
         "api/token/",
@@ -29,17 +28,20 @@ urlpatterns = [
         name="token_refresh",
     ),
     path(
-        "api/requestreset/", views.RequestPasswordChange.as_view(), name="send2FACode"
+        "api/password-reset/send-code/",
+        views.RequestPasswordChange.as_view(),
+        name="send2FACode",
     ),
     path(
-        "api/changepassword/", views.CheckPasswordChange.as_view(), name="resetPassword"
+        "api/password-reset/confirm/",
+        views.CheckPasswordChange.as_view(),
+        name="resetPassword",
     ),
     path(
         "api/logout/",
         views.logout,
     ),
-    path("api/setupusername/", views.setUpUsername, name="firstLastName"),
-    path("api/configure2FA", views.alter2FA, name="2fa"),
+    path("api/auth/username/setup/", views.setUpUsername, name="firstLastName"),
     path("api/profile/", views.Profile.as_view(), name="profile"),
     path("api/profile/<str:username>/", views.Profile.as_view(), name="profile"),
     path("api/profile/update/", views.Profile.as_view(), name="updateProfie"),

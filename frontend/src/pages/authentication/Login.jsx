@@ -25,24 +25,36 @@ const Login = () => {
         code: code,
         prompt: prompt,
       });
+
       if (res.ok) {
         const data = await res.json();
 
-        if (data.requires_2fa) navigate(`/twofa/${data.uid}`);
-        else {
-          if (data.username === null) navigate(`/setupusername/${data.uid}`);
-          else navigate("/home");
-        }
-      } else {
         authContextData.setGlobalMessage({
-          message: "something went wrong",
+          message: data.message,
+          isError: false,
+        });
+
+        if (data.requires_2fa) {
+          navigate(`/twofa/${data.uid}`);
+        } else {
+          if (data.username === null) {
+            navigate(`/setupusername/${data.uid}`);
+          } else {
+            navigate("/home");
+          }
+        }
+      } else if (res.status === 400) {
+        const data = await res.json();
+        authContextData.setGlobalMessage({
+          message: data.error,
           isError: true,
         });
+        setLoad(false);
         navigate("/login");
       }
     } catch (error) {
       authContextData.setGlobalMessage({
-        message: `error: ${error}`,
+        message: error.message,
         isError: true,
       });
     }

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Game, GameRoom, Player, PlayerRating
-from Auth.models import Users as User
+from authentication.models import User as User
 import json
 
 
@@ -28,7 +28,7 @@ class PlayerSerializer(serializers.ModelSerializer):
         ]
 
     def get_user(self, obj):
-        from Auth.serializers import UserSerializer
+        from authentication.serializers import UserSerializer
 
         user_serializer = UserSerializer(obj.user).data
         return {

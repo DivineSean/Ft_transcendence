@@ -7,12 +7,13 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from .models import Users
+from .models import User
 from django.contrib.auth.hashers import make_password
 from .views import CustomTokenObtainPairView, registerView
 from .serializers import RegisterOAuthSerializer
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from django.core.files.base import ContentFile
+from rest_framework import status
 import requests
 import os, json
 import uuid
@@ -25,40 +26,33 @@ G_CLIENT_ID = os.environ.get("G_CLIENT_ID")
 G_CLIENT_SECRET = os.environ.get("G_CLIENT_SECRET")
 
 
-def download_providers_images(url, userId, isIntra):
+def download_providers_images(url, userId):
     response = requests.get(url)
     if response.status_code == 200:
-        if isIntra:
-            file_name = f"{userId}_profile.jpeg"
-        else:
-            file_name = f"{userId}_profile.jpeg"
+        file_name = f"{userId}_profile.jpeg"
         return ContentFile(response.content, file_name)
     return None
 
 
 def CreateUserIfNotExists(user_data, isIntra):
+
     userID = user_data.get("id")
     login = user_data.get("login")
     email = user_data.get("email")
+
     if isIntra:
         image_url = user_data.get("image")["versions"]["large"]
         first_name = user_data.get("first_name")
+        last_name = user_data.get("last_name")
+
     else:
         image_url = user_data.get("picture")
         first_name = user_data.get("given_name")
-
-    # print(user_data, flush=True)
-    print(f"image_url: {image_url}\nfirst_name: {first_name}", flush=True)
-
-    if first_name == None:
-        first_name = user_data.get("name")
-
-    last_name = user_data.get("last_name")
-
-    if last_name == None:
         last_name = user_data.get("family_name")
 
+    print(image_url, flush=True)
     password = None
+
     data = {
         "first_name": first_name,
         "last_name": last_name,
@@ -67,7 +61,7 @@ def CreateUserIfNotExists(user_data, isIntra):
         "image_url": image_url,
     }
 
-    user = Users.objects.filter(email=email).first()
+    user = User.objects.filter(email=email).first()
 
     if user:
         return True, data
@@ -99,18 +93,14 @@ def loginGoogle(request):
     return response
 
 
-@api_view(["GET"])
-def show_users(request):
-    users = Users.objects.all().values()
-    user_list = list(users)
-    return JsonResponse(user_list, safe=False)
-
-
 @api_view(["POST"])
 def callback(request):
-    reqBody = json.loads(request.body)
-    code = reqBody.get("code", None)
-    prompt = reqBody.get("prompt", None)
+    code = request.data.get("code", None)
+    if not code:
+        return Response(
+            {"error": "no code provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    prompt = request.data.get("prompt", None)
 
     if not prompt:  # for intra provider
         token_response = requests.post(
@@ -123,6 +113,7 @@ def callback(request):
                 "redirect_uri": REDIRECT_URL,
             },
         )
+
     else:  # for google provider
         token_response = requests.post(
             "https://oauth2.googleapis.com/token",
@@ -137,7 +128,10 @@ def callback(request):
 
     access_token = token_response.json().get("access_token")
     if not access_token:
-        return Response({"error": "Failed to obtain access token"}, status=400)
+        return Response(
+            {"error": "Failed to obtain access token"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     isIntra = False
     if not prompt:
@@ -146,13 +140,13 @@ def callback(request):
             headers={"Authorization": f"Bearer {access_token}"},
         )
         isIntra = True
+
     else:
         user_response = requests.get(
             "https://www.googleapis.com/oauth2/v2/userinfo",
             headers={"Authorization": f"Bearer {access_token}"},
         )
 
-    response = HttpResponse(content_type="application/json")
     if user_response.status_code == 200:
 
         user_data = user_response.json()
@@ -163,52 +157,48 @@ def callback(request):
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
-        user = Users.objects.get(email=user_data.get("email"))
-
-        # print(f'image_url: {data["image_url"]}', flush=True)
-        # print(f'image file: {image_file.name}', flush=True)
+        user = User.objects.get(email=user_data.get("email"))
         if not user.profile_image:
-            image_file = download_providers_images(data["image_url"], user.id, isIntra)
+            image_file = download_providers_images(data["image_url"], user.id)
 
             if image_file:
-                print("+-=+_+_____--=-=-=-= dkhelna hna", flush=True)
-                print(image_file.name)
                 user.profile_image.save(image_file.name, image_file, save=True)
 
         username = user.username
+
         if user.isTwoFa:
-            print("is true am3alam", flush=True)
             twofaOjt = CustomTokenObtainPairView()
             two_factor_code = twofaOjt.generate_2fa_code(user, "twoFa")
-            twofaOjt.send_2fa_code(user.email, two_factor_code.code)
+            twofaOjt.send_2fa_code(user.email, two_factor_code.code, "twoFa")
             data = {
-                "message": "2FA code sent",
+                "message": "two factor authentication code sent successfully",
                 "uid": str(user.id),
                 "requires_2fa": True,
             }
-            response.content = json.dumps(data)
-            # return Response(, status=200)
+            return Response(data, status=status.HTTP_200_OK)
 
         else:
-            print("is false am3alam", flush=True)
             if not username:
-                # response = HttpResponse(content_type='application/json')
                 data = {
-                    "message": "logged in successfully!",
+                    "message": "still one further step to complete",
                     "username": username,
                     "uid": str(user.id),
                 }
                 dump = json.dumps(data)
-                response.content = dump
-                # return response
+                return Response(data, status=status.HTTP_200_OK)
 
             else:
+
                 user.isOnline = True
                 user.save()
+
+                response = Response(
+                    {"message": "you logged in successfully"}, status=status.HTTP_200_OK
+                )
+
                 refresh_token = RefreshToken.for_user(user)
                 access = str(refresh_token.access_token)
 
-                # response = HttpResponse(content_type='application/json')
                 response.set_cookie(
                     "refreshToken",
                     refresh_token,
@@ -219,10 +209,11 @@ def callback(request):
                 response.set_cookie(
                     "accessToken", access, httponly=True, secure=True, samesite="Lax"
                 )
-                resData = {"message": "logged in successfully!"}
-                dump = json.dumps(resData)
-                response.content = dump
 
-        return response
+                return response
+
     else:
-        return Response({"error": "error cannot login!"}, status=400)
+        return Response(
+            {"error": "cannot login please try again"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )

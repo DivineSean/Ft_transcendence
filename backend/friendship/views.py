@@ -3,17 +3,18 @@ from django.shortcuts import render
 from .models import FriendshipRequest, Friendship, ManageFriendship
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
-from Auth.models import Users
+from authentication.models import User
 from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.decorators import api_view
 from channels.layers import get_channel_layer
 from uuid import UUID
 from django.db.models import Q
-from Auth.serializers import UserFriendSerializer
+from authentication.serializers import UserFriendSerializer
 from chat.views import Conversation
 from asgiref.sync import async_to_sync
 from notification.models import Notifications
+import uuid
 
 
 class SendFriendRequest(APIView):
@@ -21,15 +22,16 @@ class SendFriendRequest(APIView):
     def post(self, request):  # handled all errors
         userId = request.data.get("userId")
         if userId:  # check if the userId provided in the request body
-            try:
 
+            try:
                 # check if the userId is the same of the current user id
                 if userId == str(request._user.id):
                     return Response(
                         {"error": "trying to send friend request to current account"},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
-                receieverData = Users.objects.get(id=userId)
+
+                receieverData = User.objects.get(id=userId)
 
             except Exception as e:  # error
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -54,7 +56,7 @@ class SendFriendRequest(APIView):
                 )
                 # check if the friend request already sent return BAD REQUEST
                 if isCreated:
-                    user = Users.objects.get(id=userId)
+                    user = User.objects.get(id=userId)
                     notification, isNew = Notifications.objects.get_or_create(
                         notifType="FR",
                         userId=user,
@@ -121,7 +123,7 @@ class AcceptFriendRequest(APIView):
                     user2=friendRequest.toUser,
                 )
 
-                user = Users.objects.get(id=userId)
+                user = User.objects.get(id=userId)
                 notification, isNew = Notifications.objects.get_or_create(
                     notifType="AF",
                     userId=user,
@@ -264,7 +266,7 @@ def getFriendsView(request, username=None):
     if username == None:
         user = request._user
     else:
-        user = Users.objects.filter(username=username).first()
+        user = User.objects.filter(username=username).first()
 
     if not user:
         return Response(
@@ -409,7 +411,7 @@ def getBlockedUsers(request):
     try:
         blockedUsersId = request._user.blockedUsers or []
 
-        blockedUsers = Users.objects.filter(id__in=blockedUsersId)
+        blockedUsers = User.objects.filter(id__in=blockedUsersId)
 
         serializer = UserFriendSerializer(blockedUsers, many=True)
 

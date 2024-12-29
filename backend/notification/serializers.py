@@ -1,5 +1,5 @@
 from .models import Notifications
-from Auth.serializers import UserFriendSerializer
+from authentication.serializers import UserFriendSerializer
 from rest_framework import serializers
 
 

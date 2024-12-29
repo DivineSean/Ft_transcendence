@@ -156,7 +156,7 @@ const UpdateProfile = ({ setUpdateProfile }) => {
       setLoading(true);
 
       try {
-        const res = await FetchData.post("api/requestreset/", {
+        const res = await FetchData.post("api/password-reset/send-code/", {
           email: contextData.userInfo.email,
         });
         if (res.ok) {

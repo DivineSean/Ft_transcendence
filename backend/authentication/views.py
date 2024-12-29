@@ -1,5 +1,6 @@
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
+from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializers import (
     RegisterSerializer,
@@ -15,7 +16,7 @@ from rest_framework.decorators import api_view
 from django.forms.models import model_to_dict
 from rest_framework import exceptions, status
 from rest_framework.response import Response
-from .models import Users, TwoFactorCode
+from .models import User, TwoFactorCode
 from friendship.models import FriendshipRequest, Friendship
 from rest_framework.views import APIView
 from django.shortcuts import render
@@ -33,37 +34,25 @@ import jwt
 import re
 from PIL import Image
 from django.db.models import Prefetch, OuterRef, Subquery, F, Q
-
+from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
 @api_view(["POST"])
-def alter2FA(request):
-    print(request.user)
-    return Response("hello")
-
-
-# @api_view(['GET'])
-
-# def checkAuth(request): #Should be removed
-# 	token = request.COOKIES.get('accessToken')
-# 	if not token:
-# 		return Response({'authenticated': False}, status=401)
-# 	try:
-# 		JWTAuthentication().get_validated_token(token)
-
-# 		return Response({'authenticated': True})
-# 	except Exception as e:
-# 		return Response({'authenticated': False, 'error': str(e)}, status=401)
-
-
-@api_view(["POST"])
 def registerView(request):
-    serializer = RegisterSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
 
-    return Response(serializer.data)
+    try:
+        serializer = RegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    except ValidationError as e:
+        return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # resend2FACode is a post method to resend the 2FA code
@@ -71,30 +60,51 @@ def registerView(request):
 # -> then generate a new 2FA code and send it the user's email and return a response
 @api_view(["POST"])
 def resend2FACode(request):
-    json_data = json.loads(request.body)
-    try:
-        user_id = json_data.get("id")
-        uuid.UUID(user_id, version=4)
-    except ValueError:
-        return Response({"error": "invalid id"}, status=400)
 
-    try:
-        user = Users.objects.get(id=user_id)
-    except Users.DoesNotExist:
-        return Response({"error": "User not  found"}, status=401)
-    except Users.MultipleObjectsReturned:
+    user_id = request.data.get("id")
+    if not user_id:
         return Response(
-            {"error": "Multiple users found with the same email"}, status=401
+            {"error": "no user id provided"}, status=status.HTTP_400_BAD_REQUEST
         )
 
-    code_type = json_data.get("type")
+    try:
+        uuid.UUID(user_id, version=4)
+        user = User.objects.get(id=user_id)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    code_type = request.data.get("type")
+    if not code_type:
+        return Response(
+            {"error": "no such code type provided. it must be 'reset' or 'twofa'"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     twofaOjt = CustomTokenObtainPairView()
+    message_displayed = ""
+
     if code_type == "reset":
-        two_factor_code = twofaOjt.generate_2fa_code(user, "password")
+        message_displayed = "reset pasword confirmation code sent successfully"
+        type_code = "password"
+        two_factor_code = twofaOjt.generate_2fa_code(user, type_code)
+
+    elif code_type == "twofa":
+        message_displayed = "two factor authentication code sent successfully"
+        type_code = "twoFa"
+        two_factor_code = twofaOjt.generate_2fa_code(user, type_code)
+
     else:
-        two_factor_code = twofaOjt.generate_2fa_code(user, "twoFa")
-    twofaOjt.send_2fa_code(user.email, two_factor_code.code)
-    return Response({"message": "2FA code sent", "required_2fa": True}, status=200)
+        return Response(
+            {"error": "invalid type. it must be 'reset' or 'twofa'"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    twofaOjt.send_2fa_code(user.email, two_factor_code.code, type_code)
+
+    return Response(
+        {"message": message_displayed, "required_2fa": True}, status=status.HTTP_200_OK
+    )
 
 
 # if the 2fa_code is not set in the body of the request the POST function behave as follow:
@@ -111,7 +121,15 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     def generate_2fa_code(self, user, codeType):
         return TwoFactorCode.generate_code(user, codeType)
 
-    def send_2fa_code(self, user_email, code):
+    def send_2fa_code(self, user_email, code, codeType):
+
+        if codeType == "password":
+            email_message = f"your reset password confirmation code is: {code}"
+        else:
+            email_message = (
+                f"your two factor authentication confirmation code is: {code}"
+            )
+
         with get_connection(
             host=os.environ.get("EMAIL_HOST"),
             port=os.environ.get("EMAIL_PORT"),
@@ -119,115 +137,137 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             password=os.environ.get("EMAIL_HOST_PASSWORD"),
             use_tls=True,
         ) as connection:
+
             subject = "2FA CODE"
             email_from = settings.EMAIL_HOST_USER
             recipient_list = [user_email]
-            message = f"Your 2FA CODE : {code}"
+            message = email_message
+
             EmailMessage(
                 subject, message, email_from, recipient_list, connection=connection
             ).send()
 
     def checkUsername(self, user, user_id):
+
         user_username = user.username
         if not user_username:
 
-            http_response = HttpResponse(content_type="application/json")
-            data = {"message": "ok", "username": user_username, "uid": str(user_id)}
-            dump = json.dumps(data)
-            http_response.content = dump
-            return http_response
+            return Response(
+                {"message": "ok", "username": user_username, "uid": user_id},
+                status=status.HTTP_200_OK,
+            )
 
         else:
+
+            # set the user online
             user.isOnline = True
             user.save()
+
             refresh_token = RefreshToken.for_user(user)
             access_token = str(refresh_token.access_token)
 
-            http_response = HttpResponse(content_type="application/json")
-            http_response.set_cookie(
+            response = Response(
+                {"message": "logged in successfully!"}, status=status.HTTP_200_OK
+            )
+
+            response.set_cookie(
                 "refreshToken",
                 refresh_token,
                 httponly=True,
                 secure=True,
                 samesite="Lax",
             )
-            http_response.set_cookie(
+
+            response.set_cookie(
                 "accessToken", access_token, httponly=True, secure=True, samesite="Lax"
             )
-            data = {
-                "message": "logged in successfully!",
-            }
-            dump = json.dumps(data)
-            http_response.content = dump
-            return http_response
+
+            return response
 
     def post(self, request, *args, **kwargs):
 
-        json_data = json.loads(request.body)
-        submitted_2fa_code = json_data.get("2fa_code")
+        submitted_2fa_code = request.data.get("2fa_code")
 
         if not submitted_2fa_code:  # here is the login part
 
-            try:
-                email = json_data.get("email")
-                user = Users.objects.get(email=email)
-            except Users.DoesNotExist:
-                return Response({"error": "User not found"}, status=401)
-            except Users.MultipleObjectsReturned:
+            email = request.data.get("email")
+            password = request.data.get("password")
+            if not email:
                 return Response(
-                    {"error": "Multiple users found with the same email"}, status=401
+                    {"error": "no email provided"}, status=status.HTTP_400_BAD_REQUEST
                 )
 
-            if user and not user.password:
-                return Response({"error": "invalid email or password"}, status=401)
+            if not password:
+                return Response(
+                    {"error": "no password provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-            user_id = user.id
+            try:
+                user = User.objects.get(email=email)
+
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+            if user and not user.password:
+                return Response(
+                    {"error": "invalid email or password"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            user_id = str(user.id)
+
             userTokens = super().post(request, *args, **kwargs)
+
             if userTokens.status_code == 200:
                 if user.isTwoFa:
-                    print("is true am3alam", flush=True)
+
                     two_factor_code = self.generate_2fa_code(user, "twoFa")
-                    self.send_2fa_code(user.email, two_factor_code.code)
+                    self.send_2fa_code(user.email, two_factor_code.code, "twoFa")
+
                     return Response(
                         {
                             "message": "2FA code sent",
                             "uid": user_id,
                             "requires_2fa": True,
                         },
-                        status=200,
+                        status=status.HTTP_200_OK,
                     )
+
                 else:
-                    print("is false am3alam", flush=True)
-                    # return Response({'message': '2FA code sent', 'uid': user_id, 'requires_2fa': False}, status=200)
+
                     return self.checkUsername(user, user_id)
 
         else:  # here endpoint for 2FA authorization
 
-            try:
-                user_id = json_data.get("id")
-                uuid.UUID(user_id, version=4)
-            except ValueError:
-                return Response({"error": "invalid id"}, status=400)
-
-            try:
-                user = Users.objects.get(id=user_id)
-            except Users.DoesNotExist:
-                return Response({"error": "User not found"}, status=401)
-            except Users.MultipleObjectsReturned:
+            user_id = request.data.get("id")
+            if not user_id:
                 return Response(
-                    {"error": "Multiple users found with the same id"}, status=401
+                    {"error": "no user id provided"}, status=status.HTTP_400_BAD_REQUEST
                 )
 
+            try:
+                uuid.UUID(user_id, version=4)
+                user = User.objects.get(id=user_id)
+
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
             if not TwoFactorCode.validate_code(user, submitted_2fa_code, "twoFa"):
-                print("here", flush=True)
-                return Response({"error": "Invalid 2FA code"}, status=400)
+
+                return Response(
+                    {"error": "invalid two factor authentication code"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             return self.checkUsername(user, user_id)
 
 
 # this method to refresh tokens
 class CustomTokenRefreshView(TokenRefreshView):
+
     def post(self, request, *args, **kwargs):
+
         refresh_token = request.COOKIES.get("refreshToken")
         if not refresh_token:
             raise exceptions.AuthenticationFailed("no refresh token found in cookie")
@@ -237,13 +277,16 @@ class CustomTokenRefreshView(TokenRefreshView):
         request._full_data = data
 
         response = super().post(request, *args, **kwargs)
+
         if response.status_code == 200:
+
             access_token = response.data.get("access")
             refresh_token = response.data.get("refresh")
 
             response.set_cookie(
                 "accessToken", access_token, httponly=True, secure=True, samesite="Lax"
             )
+
             response.set_cookie(
                 "refreshToken",
                 refresh_token,
@@ -259,7 +302,6 @@ class CustomTokenRefreshView(TokenRefreshView):
 def logout(request):
 
     refresh_token = request.COOKIES.get("refreshToken")
-    # response = HttpResponseRedirect(os.environ.get("REDIRECT_URL"))
     response = Response({"message": "Logged Out"}, status=status.HTTP_200_OK)
 
     if refresh_token:
@@ -268,6 +310,7 @@ def logout(request):
         response.delete_cookie("accessToken")
         response.delete_cookie("refreshToken")
         jwtObj = JWTAuthentication()
+
         try:
             user = jwtObj.get_user(token)
             user.isOnline = False
@@ -276,36 +319,44 @@ def logout(request):
             token.blacklist()
         except:
             pass
+
     else:
         response.delete_cookie("accessToken")
         response.delete_cookie("refreshToken")
+
     return response
 
 
 class RequestPasswordChange(APIView):
 
     def post(self, request):
-        return self.getCode(request)
 
-    def getCode(self, request):
-        json_data = json.loads(request.body)
-        try:
-            userEmail = json_data.get("email")
-            user = Users.objects.get(email=userEmail)
-        except Users.DoesNotExist:
-            return Response({"error": "User with this email is not found"}, status=401)
-        except Users.MultipleObjectsReturned:
+        user_email = request.data.get("email")
+        if not user_email:
             return Response(
-                {"error": "Multiple users found with the same email"}, status=401
+                {"error": "no email provided"}, status=status.HTTP_400_BAD_REQUEST
             )
+
+        try:
+            user = User.objects.get(email=user_email)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
         user_id = user.id
 
         obj = CustomTokenObtainPairView()
         twoFACode = obj.generate_2fa_code(user, "password")
 
-        obj.send_2fa_code(userEmail, twoFACode.code)
+        obj.send_2fa_code(user_email, twoFACode.code, "password")
 
-        return Response({"message": "Code Sent", "uid": user_id}, status=200)
+        return Response(
+            {
+                "message": "the code sent to your email successfully",
+                "uid": str(user_id),
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class CheckPasswordChange(APIView):
@@ -314,40 +365,49 @@ class CheckPasswordChange(APIView):
         return self.checkCode(request)
 
     def checkCode(self, request):
-        json_data = json.loads(request.body)
-        try:
-            user_id = json_data.get("id")
-            uuid.UUID(user_id, version=4)
-        except ValueError:
-            return Response({"error": "invalid id"}, status=400)
 
-        try:
-            user = Users.objects.get(id=user_id)
-        except Users.DoesNotExist:
-            return Response({"error": "User not found"}, status=401)
-        except Users.MultipleObjectsReturned:
+        user_id = request.data.get("id")
+        if not user_id:
             return Response(
-                {"error": "Multiple users found with the same id"}, status=401
+                {"error": "no user id provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        code = json_data.get("code")
-        if code == None:
-            return Response({"error": "Code missing"}, status=400)
+        code = request.data.get("code")
+        if not code:
+            return Response(
+                {"error": "no code provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-        newPassword = json_data.get("newPassword")
-        if newPassword == None:
-            return Response({"error": "newPassword missing"}, status=400)
+        newPassword = request.data.get("newPassword")
+        if not newPassword:
+            return Response(
+                {"error": "no password provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            uuid.UUID(user_id, version=4)
+            user = User.objects.get(id=user_id)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         if TwoFactorCode.validate_code(user, code, "password") == False:
-            return Response({"error": "Code Invalid"}, status=401)
+            return Response(
+                {"error": "code provided is invalid"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         serializer = PasswordUpdateSerializer(user, data={"new_password": newPassword})
 
         if serializer.is_valid():
             serializer.save()
-            return Response({"error": "Password Updateed"}, status=200)
+            return Response(
+                {"message": "password updated successfully"}, status=status.HTTP_200_OK
+            )
         else:
-            return Response(serializer.errors, status=400)
+            return Response(
+                {"error": "invalid password"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class Profile(APIView):
@@ -359,7 +419,7 @@ class Profile(APIView):
         try:
             if not username:
                 username = request._user.username
-            user = Users.objects.filter(username=username).first()
+            user = User.objects.filter(username=username).first()
 
             if not user:
                 user = request._user
@@ -435,7 +495,7 @@ class Profile(APIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            if Users.objects.filter(username=new_username).exclude(id=user.id).exists():
+            if User.objects.filter(username=new_username).exclude(id=user.id).exists():
                 return Response(
                     {"username": "this username is already taken"},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -478,28 +538,40 @@ class Profile(APIView):
 
 @api_view(["POST"])
 def setUpUsername(request):
-    json_data = json.loads(request.body)
-    try:
-        user_id = json_data.get("id")
-        uuid.UUID(user_id, version=4)
-    except ValueError:
-        return Response({"error": "invalid id"}, status=400)
 
-    try:
-        user = Users.objects.get(id=user_id)
-    except Users.DoesNotExist:
-        return Response({"error": "User not found"}, status=401)
-    except Users.MultipleObjectsReturned:
-        return Response({"error": "Multiple users found with the same id"}, status=401)
+    user_id = request.data.get("id")
+    if not user_id:
+        return Response(
+            {"error": "no user id provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
-    username = json_data.get("username")
-    username = username.lower()
-    print(username, flush=True)
+    username = request.data.get("username")
     if not username:
-        return Response({"error": "username is required"}, status=400)
+        return Response(
+            {"error": "no username provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
-    if Users.objects.filter(username=username).exists():
-        return Response({"error": "This username is already taken."}, status=400)
+    username = username.lower()
+    username_regex = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]{3,}$")
+    if not username_regex.match(username):
+        return Response(
+            {"error": "invalid username, examples user, user1, user-12, user_12"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+
+        uuid.UUID(user_id, version=4)
+        user = User.objects.get(id=user_id)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    if User.objects.filter(username=username).exists():
+        return Response(
+            {"error": "This username is already taken."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     user.username = username
     user.save()
@@ -507,17 +579,19 @@ def setUpUsername(request):
     refresh_token = RefreshToken.for_user(user)
     access_token = str(refresh_token.access_token)
 
-    http_response = HttpResponse(content_type="application/json")
-    http_response.set_cookie(
+    response = Response(
+        {"message": "setup completed successfully! welcome"}, status=status.HTTP_200_OK
+    )
+
+    response.set_cookie(
         "refreshToken", refresh_token, httponly=True, secure=True, samesite="Lax"
     )
-    http_response.set_cookie(
+
+    response.set_cookie(
         "accessToken", access_token, httponly=True, secure=True, samesite="Lax"
     )
-    data = {"message": "username has been set up"}
-    dump = json.dumps(data)
-    http_response.content = dump
-    return http_response
+
+    return response
 
 
 @api_view(["GET"])

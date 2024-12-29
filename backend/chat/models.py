@@ -1,17 +1,17 @@
 from django.db import models
 import random
 import string
-from Auth.models import Users
+from authentication.models import User
 import uuid
 
 
 class Conversation(models.Model):
     ConversationId = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True)
     Sender = models.ForeignKey(
-        Users, on_delete=models.CASCADE, related_name="sent_conversations"
+        User, on_delete=models.CASCADE, related_name="sent_conversations"
     )
     Receiver = models.ForeignKey(
-        Users, on_delete=models.CASCADE, related_name="received_conversations"
+        User, on_delete=models.CASCADE, related_name="received_conversations"
     )
     isBlocked = models.BooleanField(default=False)
 
@@ -22,7 +22,7 @@ class Message(models.Model):
         Conversation, on_delete=models.CASCADE, related_name="ConversationName"
     )
     sender = models.ForeignKey(
-        Users, on_delete=models.CASCADE, related_name="sender_user"
+        User, on_delete=models.CASCADE, related_name="sender_user"
     )
     message = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)

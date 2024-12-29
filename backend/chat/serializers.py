@@ -1,4 +1,4 @@
-from Auth.models import Users
+from authentication.models import User
 from chat.models import Conversation
 from rest_framework import serializers
 from django.conf import settings
@@ -19,7 +19,7 @@ class UserSerializerOne(serializers.ModelSerializer):
         return None
 
     class Meta:
-        model = Users
+        model = User
         fields = [
             "id",
             "first_name",

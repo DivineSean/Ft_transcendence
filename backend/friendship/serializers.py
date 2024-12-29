@@ -1,11 +1,11 @@
 from rest_framework import serializers
 from .models import Friendship, FriendshipRequest
-from Auth.models import Users
+from authentication.models import User
 
 
 class UserData(serializers.Serializer):
     class Meta:
-        model = Users
+        model = User
         fields = [
             "id",
             "username",
@@ -23,5 +23,5 @@ class FriendshipRequestSerializer(serializers.Serializer):
 
 class UserFriendSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Users
+        model = User
         fields = ["id", "username"]

@@ -28,7 +28,7 @@ def callableDict():
     return listofblockedUsers
 
 
-class Users(AbstractUser):
+class User(AbstractUser):
 
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
@@ -50,7 +50,7 @@ class Users(AbstractUser):
 
     last_update = models.DateTimeField(auto_now=True)
 
-    # Friends  = models.ManyToManyField("Users", blank = True)
+    # Friends  = models.ManyToManyField("User", blank = True)
 
     objects = CustomUserManager()
 
@@ -59,7 +59,7 @@ class Users(AbstractUser):
 
 
 class TwoFactorCode(models.Model):
-    user = models.ForeignKey("Users", on_delete=models.CASCADE)
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
     codeType = models.CharField(max_length=8)
     created_at = models.DateTimeField(auto_now_add=True)

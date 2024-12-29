@@ -97,10 +97,10 @@ export const AuthProvider = ({ children }) => {
   const authProvider = async (provider) => {
     let url;
     if (provider === "intra") {
-      url = "api/intra/";
+      url = "api/intra/login/";
       setProviderBtnLoading(true);
     } else {
-      url = "api/google/";
+      url = "api/google/login/";
       setGoogleBtnLoading(true);
     }
     try {
@@ -110,9 +110,11 @@ export const AuthProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         window.location.href = data.url;
-      } else setGlobalMessage({ message: data.error, isError: true });
+      } else {
+        setGlobalMessage({ message: "something went wrong!", isError: true });
+      }
     } catch (error) {
-      setGlobalMessage({ message: "something went wrong!", isError: true });
+      setGlobalMessage({ message: error.message, isError: true });
     }
   };
 
@@ -144,22 +146,17 @@ export const AuthProvider = ({ children }) => {
           password: e.target.password.value,
         });
         setBtnLoading(false);
-        if (res.status === 200) {
+
+        if (res.ok) {
           navigate("/login");
-        } else {
-          if (res.status === 404)
-            setGlobalMessage({
-              message: "the url you have reached is not found!",
-              isError: true,
-            });
-          else
-            setGlobalMessage({
-              message: "email already exists or some cridentials not correct!",
-              isError: true,
-            });
+        } else if (res.status === 400) {
+          setGlobalMessage({
+            message: "email already exists or some cridentials not correct!",
+            isError: true,
+          });
         }
       } catch (error) {
-        setGlobalMessage({ message: "something went wrong!", isError: true });
+        setGlobalMessage({ message: error.message, isError: true });
       }
     }
   };
@@ -178,67 +175,100 @@ export const AuthProvider = ({ children }) => {
 
     if (Object.keys(validationErrors).length === 0) {
       setBtnLoading(true);
+
       try {
         const res = await FetchData.post("api/token/", {
           email: e.target.email.value,
           password: e.target.password.value,
         });
         setBtnLoading(false);
+
         if (res.ok) {
           const data = await res.json();
-          if (data.requires_2fa) navigate(`/twofa/${data.uid}`);
-          else {
-            if (data.username === null) navigate(`setupusername/${data.uid}`);
-            else navigate("/home");
+
+          if (data.requires_2fa) {
+            navigate(`/twofa/${data.uid}`);
+          } else {
+            if (data.username === null) {
+              navigate(`setupusername/${data.uid}`);
+            } else {
+              navigate("/home");
+            }
           }
-        } else {
-          if (res.status === 404)
-            setGlobalMessage({
-              message: "the url you have reached is not found!",
-              isError: true,
-            });
-          else {
-            setGlobalMessage({
-              message: `error: email or password are invalid please try again!`,
-              isError: true,
-            });
-          }
+        } else if (res.status === 400 || res.status === 401) {
+          setGlobalMessage({
+            message: `email or password are invalid please try again!`,
+            isError: true,
+          });
         }
       } catch (error) {
-        setGlobalMessage({ message: `error: ${error}`, isError: true });
+        setGlobalMessage({
+          message: error.message,
+          isError: true,
+        });
       }
     }
   };
 
   const authorization2FA = async (e, userId, values2FA) => {
     e.preventDefault();
+    setBtnLoading(true);
+
     try {
-      setBtnLoading(true);
       const res = await FetchData.post("api/token/", {
         id: userId,
         "2fa_code": values2FA.join(""),
       });
+
       setBtnLoading(false);
-      const data = await res.json();
+
       if (res.ok) {
-        if (data.username === null) navigate(`setupusername/${data.uid}`);
-        else navigate("/home");
-      } else setGlobalMessage({ message: data.error, isError: true });
+        const data = await res.json();
+        if (data.username === null) {
+          navigate(`setupusername/${data.uid}`);
+        } else {
+          navigate("/home");
+        }
+      } else if (res.status === 400) {
+        const data = await res.json();
+        setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
+      }
     } catch (error) {
-      setGlobalMessage({ message: `error: ${error}`, isError: true });
+      setGlobalMessage({
+        message: error.message,
+        isError: true,
+      });
     }
   };
 
   const resent2FACode = async (userId, type) => {
     try {
-      const res = await FetchData.post("api/resent2fa/", {
+      const res = await FetchData.post("api/two-factor/resend/", {
         id: userId,
         type: type,
       });
-      if (!res.ok)
-        setGlobalMessage({ message: "something went wrong!", isError: true });
+
+      if (res.ok) {
+        const data = await res.json();
+        setGlobalMessage({
+          message: data.message,
+          isError: false,
+        });
+      } else if (res.status === 400) {
+        const data = await res.json();
+        setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
+      }
     } catch (error) {
-      setGlobalMessage({ message: `error: ${error}`, isError: true });
+      setGlobalMessage({
+        message: error.message,
+        isError: true,
+      });
     }
   };
 
@@ -247,6 +277,7 @@ export const AuthProvider = ({ children }) => {
     for (const data in formData) {
       if (data === "email" && !emailRegex.test(formData[data]))
         validationErrors[data] = `invalid ${data}!`;
+
       if (data === "email" && !formData[data].trim())
         validationErrors[data] = `${data} is required!`;
     }
@@ -254,19 +285,32 @@ export const AuthProvider = ({ children }) => {
 
     if (Object.keys(validationErrors).length === 0) {
       setBtnLoading(true);
+
       try {
-        const res = await FetchData.post("api/requestreset/", {
+        const res = await FetchData.post("api/password-reset/send-code/", {
           email: e.target.email.value,
         });
         setBtnLoading(false);
+
         if (res.ok) {
           const data = await res.json();
+          setGlobalMessage({
+            message: data.message,
+            isError: false,
+          });
           navigate(`/forgotpassword/${data.uid}`);
-        } else {
-          setGlobalMessage({ message: data.error, isError: true });
+        } else if (res.status === 400) {
+          const data = await res.json();
+          setGlobalMessage({
+            message: data.error,
+            isError: true,
+          });
         }
       } catch (error) {
-        setGlobalMessage({ message: `error: ${error}`, isError: true });
+        setGlobalMessage({
+          message: error.message,
+          isError: true,
+        });
       }
     }
   };
@@ -277,6 +321,7 @@ export const AuthProvider = ({ children }) => {
       if (data === "password" && !passwordRegex.test(formData[data]))
         validationErrors[data] =
           `${data} must contain at least 6 characters, uppercase, lowercase, number and special character.`;
+
       if (data === "confirmPassword" && formData.password != formData[data])
         validationErrors[data] = "password does not matched!";
 
@@ -291,22 +336,38 @@ export const AuthProvider = ({ children }) => {
 
     if (Object.keys(validationErrors).length === 0) {
       setBtnLoading(true);
+
       try {
-        const res = await FetchData.post("api/changepassword/", {
+        const res = await FetchData.post("api/password-reset/confirm/", {
           id: userId,
           newPassword: e.target.password.value,
           code: values2FA.join(""),
         });
         setBtnLoading(false);
+
         if (res.ok) {
-          if (profileReturn) navigate("/profile/overview");
-          else navigate("/login");
-        } else {
           const data = await res.json();
-          setGlobalMessage({ message: data.error, isError: true });
+          setGlobalMessage({
+            message: data.message,
+            isError: false,
+          });
+          if (profileReturn) {
+            navigate("/profile/overview");
+          } else {
+            navigate("/login");
+          }
+        } else if (res.status === 400) {
+          const data = await res.json();
+          setGlobalMessage({
+            message: data.error,
+            isError: true,
+          });
         }
       } catch (error) {
-        setGlobalMessage({ message: `error: ${error}`, isError: true });
+        setGlobalMessage({
+          message: error.message,
+          isError: true,
+        });
       }
     }
   };
@@ -345,16 +406,31 @@ export const AuthProvider = ({ children }) => {
     if (Object.keys(validationErrors).length === 0) {
       setBtnLoading(true);
       try {
-        const res = await FetchData.post("api/setupusername/", {
+        const res = await FetchData.post("api/auth/username/setup/", {
           id: userId,
           username: e.target.username.value,
         });
         setBtnLoading(false);
-        const data = await res.json();
-        if (res.ok) navigate("/home");
-        else setGlobalMessage({ message: data.error, isError: true });
+
+        if (res.ok) {
+          const data = await res.json();
+          setGlobalMessage({
+            message: data.message,
+            isError: false,
+          });
+          navigate("/home");
+        } else if (res.status === 400) {
+          const data = await res.json();
+          setGlobalMessage({
+            message: data.error,
+            isError: true,
+          });
+        }
       } catch (error) {
-        setGlobalMessage({ message: `error: ${error}`, isError: true });
+        setGlobalMessage({
+          message: error.message,
+          isError: true,
+        });
       }
     }
   };
@@ -362,7 +438,7 @@ export const AuthProvider = ({ children }) => {
   // this function to check the user is authenticated to redirect him to the home page
   const checkIsUserAuthenticated = async (uid) => {
     try {
-      const res = await FetchData.get("api/auth/check/");
+      const res = await FetchData.get("api/auth/check-authenticated/");
       if (res.ok) {
         if (window.location.pathname.search("forgotpassword") !== -1 && !uid)
           navigate("/home");

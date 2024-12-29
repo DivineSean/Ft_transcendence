@@ -2,7 +2,6 @@ import { IoIosInformationCircleOutline } from "react-icons/io";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { BiSolidSend } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
-import { getChunkedMessages, getMessages } from "../../utils/chatFetchData";
 import { useContext, useEffect, useRef, useState } from "react";
 import Message from "./Message";
 import { BACKENDURL } from "../../utils/fetchWrapper";
@@ -43,7 +42,12 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
     if (uid) {
       setAllMessages(false);
       setChunkedData(0);
-      getMessages(uid, notifContextData.setMessages, setOffsetMssg, navigate);
+      notifContextData.getMessages(
+        uid,
+        notifContextData.setMessages,
+        setOffsetMssg,
+        navigate,
+      );
     }
   }, [uid]);
 
@@ -81,7 +85,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
             topScrollRef.current.scrollBy({ top: 15, behavior: "smooth" });
         }
 
-        getChunkedMessages(
+        notifContextData.getChunkedMessages(
           uid,
           notifContextData.setMessages,
           offsetMssg,

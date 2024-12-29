@@ -1,6 +1,6 @@
 from django.db import models
 import uuid
-from Auth.models import Users
+from authentication.models import User
 from datetime import datetime
 
 
@@ -18,10 +18,10 @@ class Notifications(models.Model):
         default=uuid.uuid4, unique=True, null=False, primary_key=True
     )
     userId = models.ForeignKey(
-        Users, on_delete=models.CASCADE, related_name="receiver"
+        User, on_delete=models.CASCADE, related_name="receiver"
     )  # Receiver
     senderId = models.ForeignKey(
-        Users, on_delete=models.CASCADE, related_name="sender"
+        User, on_delete=models.CASCADE, related_name="sender"
     )  # Sender
     senderUsername = models.CharField(max_length=255, blank=True)
     notifType = models.CharField(max_length=2, choices=TYPES)

@@ -13,15 +13,17 @@ class sAuthMiddleWare(MiddlewareMixin):
     def __init__(self, get_response):
         self.get_response = get_response
         self.UnlockedPaths = [
-            "/api/google/",
-            "/api/token/refresh/",
+            "/api/google/login/",
+            "/api/intra/login/",
             "/api/token/",
             "/api/callback/",
+            "/api/token/refresh/",
             "/api/register/",
-            "/api/setupusername/",
-            "/api/intra/",
-            "/api/requestreset/",
-            "/api/changepassword/",
+            "/api/auth/username/setup/",
+            "/api/password-reset/send-code/",
+            "/api/password-reset/confirm/",
+            "/api/logout/",
+            "/api/two-factor/resend/",
         ]
 
     def process_request(self, request):
@@ -46,7 +48,6 @@ class sAuthMiddleWare(MiddlewareMixin):
                 validatedAccessToken = AccessToken(accessToken)
                 user = jwtObj.get_user(validatedAccessToken)
                 request._user = user
-                # print("------------------>", request._user, flush=True)
                 return None
 
             except:

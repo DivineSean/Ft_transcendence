@@ -1,5 +1,5 @@
 from django.db import models
-from Auth.models import Users
+from authentication.models import User
 from django.utils import timezone
 from django.db.models import Q
 import uuid
@@ -13,10 +13,10 @@ class FriendshipRequest(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
     fromUser = models.ForeignKey(
-        Users, related_name="fromUser", on_delete=models.CASCADE
+        User, related_name="fromUser", on_delete=models.CASCADE
     )  # t9der t accessi via user_object.friendship_request_sent.all()
     toUser = models.ForeignKey(
-        Users, related_name="toUser", on_delete=models.CASCADE
+        User, related_name="toUser", on_delete=models.CASCADE
     )  # t9der t accessi via user_object.friendship_request_received.all()
     created_at = models.DateTimeField(auto_now_add=True)
     accepted_at = models.DateTimeField(null=True, default=None, blank=True)
@@ -50,7 +50,7 @@ class ManageFriendship(models.Manager):
             else:
                 friendsIds.append(f.user1.id)
 
-        return Users.objects.filter(id__in=friendsIds)
+        return User.objects.filter(id__in=friendsIds)
 
 
 class Friendship(models.Model):
@@ -59,8 +59,8 @@ class Friendship(models.Model):
     friendshipID = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
-    user1 = models.ForeignKey(Users, related_name="f1", on_delete=models.CASCADE)
-    user2 = models.ForeignKey(Users, related_name="f2", on_delete=models.CASCADE)
+    user1 = models.ForeignKey(User, related_name="f1", on_delete=models.CASCADE)
+    user2 = models.ForeignKey(User, related_name="f2", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -1,12 +1,12 @@
 from django.db import models
-from Auth.models import Users
+from authentication.models import User
 import uuid
 
 
 class Lobby(models.Model):
     lobbyID = models.UUIDField(default=uuid.uuid4, unique=True)
     creator = models.ForeignKey(
-        Users, related_name="created_tournaments", on_delete=models.CASCADE
+        User, related_name="created_tournaments", on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(auto_now=True)
     maxPlayers = models.PositiveIntegerField()
@@ -39,7 +39,7 @@ class Player(models.Model):
         Lobby, related_name="players", on_delete=models.CASCADE
     )
     user = models.ForeignKey(
-        Users, related_name="tournamentParticipations", on_delete=models.CASCADE
+        User, related_name="tournamentParticipations", on_delete=models.CASCADE
     )
     isEliminated = models.BooleanField(default=False)
     # isActive = models.BooleanField(default=True)
