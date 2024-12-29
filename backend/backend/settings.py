@@ -16,12 +16,6 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "saadouledlafqui@gmail.com"
-EMAIL_HOST_PASSWORD = "xjvs ffzm kpfi mzlq"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -107,13 +101,10 @@ SIMPLE_JWT = {
 CSRF_TRUSTED_ORIGINS = [
     "https://localhost:3000",
     "https://localhost:8000",
-    "https://10.11.3.13:3000",
-    "https://10.11.3.13:8000",
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "https://localhost:3000",
-    "https://10.11.3.13:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -165,16 +156,19 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [
-                f"redis://:{REDIS_CONNECTION['password']}@{REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/0"
+                f"redis://:{REDIS_CONNECTION['password']}@{
+                    REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/0"
             ],
         },
     }
 }
 
-CELERY_BROKER_URL = f"redis://:{REDIS_CONNECTION['password']}@{REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/{REDIS_CONNECTION['db']}"
+CELERY_BROKER_URL = f"redis://:{REDIS_CONNECTION['password']}@{
+    REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/{REDIS_CONNECTION['db']}"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_BACKEND = f"redis://:{REDIS_CONNECTION['password']}@{REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/{REDIS_CONNECTION['db']}"
+CELERY_RESULT_BACKEND = f"redis://:{REDIS_CONNECTION['password']}@{
+    REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/{REDIS_CONNECTION['db']}"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -237,10 +231,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "Auth.Users"
 
-
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
-
-
 # email configurations
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_USE_TLS = True
+EMAIL_HOST = os.environ.get("EMAIL_HOST")
+EMAIL_PORT = os.environ.get("EMAIL_PORT")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
