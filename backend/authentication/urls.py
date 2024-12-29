@@ -28,10 +28,14 @@ urlpatterns = [
         name="token_refresh",
     ),
     path(
-        "api/password-reset/send-code/", views.RequestPasswordChange.as_view(), name="send2FACode"
+        "api/password-reset/send-code/",
+        views.RequestPasswordChange.as_view(),
+        name="send2FACode",
     ),
     path(
-        "api/password-reset/confirm/", views.CheckPasswordChange.as_view(), name="resetPassword"
+        "api/password-reset/confirm/",
+        views.CheckPasswordChange.as_view(),
+        name="resetPassword",
     ),
     path(
         "api/logout/",

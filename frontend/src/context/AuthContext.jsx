@@ -111,8 +111,8 @@ export const AuthProvider = ({ children }) => {
         const data = await res.json();
         window.location.href = data.url;
       } else {
-		  setGlobalMessage({ message: "something went wrong!", isError: true });
-	  }
+        setGlobalMessage({ message: "something went wrong!", isError: true });
+      }
     } catch (error) {
       setGlobalMessage({ message: error.message, isError: true });
     }
@@ -139,7 +139,6 @@ export const AuthProvider = ({ children }) => {
     if (Object.keys(validationErrors).length === 0) {
       setBtnLoading(true);
       try {
-
         const res = await FetchData.post("api/register/", {
           first_name: e.target.firstName.value,
           last_name: e.target.lastName.value,
@@ -149,22 +148,15 @@ export const AuthProvider = ({ children }) => {
         setBtnLoading(false);
 
         if (res.ok) {
-
           navigate("/login");
-
         } else if (res.status === 400) {
-
-            setGlobalMessage({
-              message: "email already exists or some cridentials not correct!",
-              isError: true,
-            });
-
+          setGlobalMessage({
+            message: "email already exists or some cridentials not correct!",
+            isError: true,
+          });
         }
-
       } catch (error) {
-
         setGlobalMessage({ message: error.message, isError: true });
-
       }
     }
   };
@@ -172,14 +164,12 @@ export const AuthProvider = ({ children }) => {
   const login = async (e) => {
     e.preventDefault();
     for (const data in formData) {
-
       if (data === "email" && !emailRegex.test(formData[data]))
         validationErrors[data] = `invalid ${data}!`;
       if (data === "email" && !formData[data].trim())
         validationErrors[data] = `${data} is required!`;
       if (data === "password" && !formData[data].trim())
         validationErrors[data] = `${data} is required!`;
-
     }
     setError(validationErrors);
 
@@ -187,136 +177,109 @@ export const AuthProvider = ({ children }) => {
       setBtnLoading(true);
 
       try {
-
         const res = await FetchData.post("api/token/", {
           email: e.target.email.value,
           password: e.target.password.value,
         });
         setBtnLoading(false);
 
-		if (res.ok) {
+        if (res.ok) {
+          const data = await res.json();
 
-			const data = await res.json();
-
-			if (data.requires_2fa) {
-
-				navigate(`/twofa/${data.uid}`);
-
-			} else {
-
-				if (data.username === null) {
-
-					navigate(`setupusername/${data.uid}`);
-
-				} else {
-
-					navigate("/home");
-
-				}
-			}
-
-		} else if (res.status === 400 || res.status === 401) {
-
-			setGlobalMessage({
-				message: `email or password are invalid please try again!`,
-				isError: true,
-			});
-		}
-		
+          if (data.requires_2fa) {
+            navigate(`/twofa/${data.uid}`);
+          } else {
+            if (data.username === null) {
+              navigate(`setupusername/${data.uid}`);
+            } else {
+              navigate("/home");
+            }
+          }
+        } else if (res.status === 400 || res.status === 401) {
+          setGlobalMessage({
+            message: `email or password are invalid please try again!`,
+            isError: true,
+          });
+        }
       } catch (error) {
-			setGlobalMessage({
-				message: error.message,
-				isError: true
-			});
+        setGlobalMessage({
+          message: error.message,
+          isError: true,
+        });
       }
     }
   };
 
   const authorization2FA = async (e, userId, values2FA) => {
     e.preventDefault();
-	setBtnLoading(true);
+    setBtnLoading(true);
 
     try {
-		const res = await FetchData.post("api/token/", {
-			id: userId,
-			"2fa_code": values2FA.join(""),
-		});
-		
-		setBtnLoading(false);
+      const res = await FetchData.post("api/token/", {
+        id: userId,
+        "2fa_code": values2FA.join(""),
+      });
 
-		if (res.ok) {
-			
-			const data = await res.json();
-			if (data.username === null) {
+      setBtnLoading(false);
 
-				navigate(`setupusername/${data.uid}`);
-				
-			} else {
-
-				navigate("/home");
-			}
-
-		} else if (res.status === 400) {
-
-			const data = await res.json();
-			setGlobalMessage({
-				message: data.error,
-				isError: true
-			});
-		}
-
+      if (res.ok) {
+        const data = await res.json();
+        if (data.username === null) {
+          navigate(`setupusername/${data.uid}`);
+        } else {
+          navigate("/home");
+        }
+      } else if (res.status === 400) {
+        const data = await res.json();
+        setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
+      }
     } catch (error) {
-
-		setGlobalMessage({
-			message: error.message,
-			isError: true
-		});
-
+      setGlobalMessage({
+        message: error.message,
+        isError: true,
+      });
     }
   };
 
   const resent2FACode = async (userId, type) => {
-		try {
-			const res = await FetchData.post("api/two-factor/resend/", {
-				id: userId,
-				type: type,
-			});
-		
-		if (res.ok) {
+    try {
+      const res = await FetchData.post("api/two-factor/resend/", {
+        id: userId,
+        type: type,
+      });
 
-			const data = await res.json();
-			setGlobalMessage({
-				message: data.message,
-				isError: false,
-			})
-
-		} else if (res.status === 400) {
-
-			const data = await res.json();
-			setGlobalMessage({
-				message: data.error,
-				isError: true,
-			})
-		}
-		} catch (error) {
-
-			setGlobalMessage({
-				message: error.message,
-				isError: true
-			});
-		}
+      if (res.ok) {
+        const data = await res.json();
+        setGlobalMessage({
+          message: data.message,
+          isError: false,
+        });
+      } else if (res.status === 400) {
+        const data = await res.json();
+        setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
+      }
+    } catch (error) {
+      setGlobalMessage({
+        message: error.message,
+        isError: true,
+      });
+    }
   };
 
   const requestResetPassword = async (e) => {
     e.preventDefault();
     for (const data in formData) {
-
       if (data === "email" && !emailRegex.test(formData[data]))
         validationErrors[data] = `invalid ${data}!`;
 
       if (data === "email" && !formData[data].trim())
         validationErrors[data] = `${data} is required!`;
-
     }
     setError(validationErrors);
 
@@ -324,35 +287,30 @@ export const AuthProvider = ({ children }) => {
       setBtnLoading(true);
 
       try {
-
         const res = await FetchData.post("api/password-reset/send-code/", {
           email: e.target.email.value,
         });
         setBtnLoading(false);
 
         if (res.ok) {
-
           const data = await res.json();
-		  setGlobalMessage({
-			message: data.message,
-			isError: false,
-		  })
+          setGlobalMessage({
+            message: data.message,
+            isError: false,
+          });
           navigate(`/forgotpassword/${data.uid}`);
-
         } else if (res.status === 400) {
-
-			const data = await res.json();
-			setGlobalMessage({
-				message: data.error,
-				isError: true
-			});
-
+          const data = await res.json();
+          setGlobalMessage({
+            message: data.error,
+            isError: true,
+          });
         }
       } catch (error) {
         setGlobalMessage({
-			message: error.message,
-			isError: true
-		});
+          message: error.message,
+          isError: true,
+        });
       }
     }
   };
@@ -360,15 +318,15 @@ export const AuthProvider = ({ children }) => {
   const changePassword = async (e, userId, values2FA) => {
     e.preventDefault();
     for (const data in formData) {
-
       if (data === "password" && !passwordRegex.test(formData[data]))
         validationErrors[data] =
           `${data} must contain at least 6 characters, uppercase, lowercase, number and special character.`;
-      
-		  if (data === "confirmPassword" && formData.password != formData[data])
+
+      if (data === "confirmPassword" && formData.password != formData[data])
         validationErrors[data] = "password does not matched!";
 
-      if (!formData[data].trim() &&
+      if (
+        !formData[data].trim() &&
         (data === "password" || data === "confirmPassword")
       ) {
         validationErrors[data] = `${data} is required!`;
@@ -380,7 +338,6 @@ export const AuthProvider = ({ children }) => {
       setBtnLoading(true);
 
       try {
-
         const res = await FetchData.post("api/password-reset/confirm/", {
           id: userId,
           newPassword: e.target.password.value,
@@ -389,33 +346,28 @@ export const AuthProvider = ({ children }) => {
         setBtnLoading(false);
 
         if (res.ok) {
-			const data = await res.json();
-			setGlobalMessage({
-				message: data.message,
-				isError: false,
-			})
-          if (profileReturn) {
-			navigate("/profile/overview");
-
-		  } else {
-
-			navigate("/login");
-		  }
-
-        } else if (res.status === 400) {
-
           const data = await res.json();
-			setGlobalMessage({
-				message: data.error,
-				isError: true
-			});
-
+          setGlobalMessage({
+            message: data.message,
+            isError: false,
+          });
+          if (profileReturn) {
+            navigate("/profile/overview");
+          } else {
+            navigate("/login");
+          }
+        } else if (res.status === 400) {
+          const data = await res.json();
+          setGlobalMessage({
+            message: data.error,
+            isError: true,
+          });
         }
       } catch (error) {
         setGlobalMessage({
-			message: error.message,
-			isError: true
-		});
+          message: error.message,
+          isError: true,
+        });
       }
     }
   };
@@ -461,29 +413,24 @@ export const AuthProvider = ({ children }) => {
         setBtnLoading(false);
 
         if (res.ok) {
-
-			const data = await res.json();
-			setGlobalMessage({
-				message: data.message,
-				isError: false,
-			})
-			navigate("/home");
-
-		} else if (res.status === 400) {
-
-			const data = await res.json();
-			setGlobalMessage({
-				message: data.error,
-				isError: true
-			});
-		}
-
+          const data = await res.json();
+          setGlobalMessage({
+            message: data.message,
+            isError: false,
+          });
+          navigate("/home");
+        } else if (res.status === 400) {
+          const data = await res.json();
+          setGlobalMessage({
+            message: data.error,
+            isError: true,
+          });
+        }
       } catch (error) {
-
         setGlobalMessage({
-			message: error.message,
-			isError: true
-		});
+          message: error.message,
+          isError: true,
+        });
       }
     }
   };

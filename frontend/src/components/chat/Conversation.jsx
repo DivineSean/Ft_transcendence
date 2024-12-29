@@ -42,7 +42,12 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
     if (uid) {
       setAllMessages(false);
       setChunkedData(0);
-      notifContextData.getMessages(uid, notifContextData.setMessages, setOffsetMssg, navigate);
+      notifContextData.getMessages(
+        uid,
+        notifContextData.setMessages,
+        setOffsetMssg,
+        navigate,
+      );
     }
   }, [uid]);
 

@@ -16,15 +16,14 @@ class sAuthMiddleWare(MiddlewareMixin):
             "/api/google/login/",
             "/api/intra/login/",
             "/api/token/",
-
             "/api/callback/",
             "/api/token/refresh/",
             "/api/register/",
             "/api/auth/username/setup/",
             "/api/password-reset/send-code/",
             "/api/password-reset/confirm/",
-			"/api/logout/",
-			"/api/two-factor/resend/"
+            "/api/logout/",
+            "/api/two-factor/resend/",
         ]
 
     def process_request(self, request):
