@@ -29,6 +29,7 @@ export const UserProvider = ({ children }) => {
         const data = await res.json();
         setUserInfo(data);
         setProfileImage(data.profile_image);
+		authContextData.setIsUserLoggedIn(true);
         setGeneralLoading(false);
       } else {
         if (res.status === 401) {
