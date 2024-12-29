@@ -104,8 +104,7 @@ const useWebSocket = (
   ]);
 
   useEffect(() => {
-	if (authContextData.isUserLoggedIn)
-    	connect();
+    if (authContextData.isUserLoggedIn) connect();
 
     return () => {
       debugLog("Cleaning up WebSocket");

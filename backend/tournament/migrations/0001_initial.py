@@ -16,44 +16,126 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Lobby',
+            name="Lobby",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('lobbyID', models.UUIDField(default=uuid.uuid4, unique=True)),
-                ('created_at', models.DateTimeField(auto_now=True)),
-                ('maxPlayers', models.PositiveIntegerField()),
-                ('currentPlayerCount', models.PositiveIntegerField(default=0)),
-                ('isCompleted', models.BooleanField(default=False)),
-                ('creator', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='created_tournaments', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("lobbyID", models.UUIDField(default=uuid.uuid4, unique=True)),
+                ("created_at", models.DateTimeField(auto_now=True)),
+                ("maxPlayers", models.PositiveIntegerField()),
+                ("currentPlayerCount", models.PositiveIntegerField(default=0)),
+                ("isCompleted", models.BooleanField(default=False)),
+                (
+                    "creator",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="created_tournaments",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Player',
+            name="Player",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('isEliminated', models.BooleanField(default=False)),
-                ('tournament', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='players', to='tournament.lobby')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tournamentParticipations', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("isEliminated", models.BooleanField(default=False)),
+                (
+                    "tournament",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="players",
+                        to="tournament.lobby",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tournamentParticipations",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('tournament', 'user')},
+                "unique_together": {("tournament", "user")},
             },
         ),
         migrations.CreateModel(
-            name='Match',
+            name="Match",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('tnRound', models.PositiveIntegerField()),
-                ('completed', models.BooleanField(default=False)),
-                ('lobby', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='matches', to='tournament.lobby')),
-                ('player1', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='matches_p1', to='tournament.player')),
-                ('player2', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='matches_p2', to='tournament.player')),
-                ('winner', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='matches_won', to='tournament.player')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("tnRound", models.PositiveIntegerField()),
+                ("completed", models.BooleanField(default=False)),
+                (
+                    "lobby",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="matches",
+                        to="tournament.lobby",
+                    ),
+                ),
+                (
+                    "player1",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="matches_p1",
+                        to="tournament.player",
+                    ),
+                ),
+                (
+                    "player2",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="matches_p2",
+                        to="tournament.player",
+                    ),
+                ),
+                (
+                    "winner",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="matches_won",
+                        to="tournament.player",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='lobby',
-            name='winner',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='TNwinner', to='tournament.player'),
+            model_name="lobby",
+            name="winner",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="TNwinner",
+                to="tournament.player",
+            ),
         ),
     ]

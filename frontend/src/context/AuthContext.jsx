@@ -194,7 +194,7 @@ export const AuthProvider = ({ children }) => {
             if (data.username === null) {
               navigate(`setupusername/${data.uid}`);
             } else {
-				setIsUserLoggedIn(true);
+              setIsUserLoggedIn(true);
               navigate("/home");
             }
           }
@@ -230,7 +230,7 @@ export const AuthProvider = ({ children }) => {
         if (data.username === null) {
           navigate(`setupusername/${data.uid}`);
         } else {
-			setIsUserLoggedIn(true);
+          setIsUserLoggedIn(true);
           navigate("/home");
         }
       } else if (res.status === 400) {
@@ -422,7 +422,7 @@ export const AuthProvider = ({ children }) => {
             message: data.message,
             isError: false,
           });
-		  setIsUserLoggedIn(true);
+          setIsUserLoggedIn(true);
           navigate("/home");
         } else if (res.status === 400) {
           const data = await res.json();
@@ -466,7 +466,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const contextData = {
-	isUserLoggedIn,
+    isUserLoggedIn,
     providerBtnLoading,
     googleBtnLoading,
     btnLoading,
@@ -496,7 +496,7 @@ export const AuthProvider = ({ children }) => {
     setUpUsername,
     checkIsUserAuthenticated,
     setLoading,
-	setIsUserLoggedIn,
+    setIsUserLoggedIn,
   };
 
   return (
