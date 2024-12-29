@@ -111,7 +111,7 @@ export class SceneManager {
     this.scene.add(light);
   }
 
-  TimerCSS(ball) {
+  TimerCSS(send, ball) {
     this.lastTime = Date.now();
     const elapsedTimeInSeconds = Math.floor(
       (this.lastTime - this.startTime) / 1000,
@@ -124,8 +124,14 @@ export class SceneManager {
       }
       this.globalMessage({
         message: "The game doesnt just need you—it thrives because of you!",
-        title: "The Marathoner Achieved",
+        title: "The Marathoner",
       });
+      send(
+        JSON.stringify({
+          type: "Achievements",
+          message: "The Marathoner",
+        }),
+      );
       this.Marathoner = true;
     }
     const seconds = elapsedTimeInSeconds % 60;
@@ -242,6 +248,24 @@ export class SceneManager {
       );
       this.addTextToPlane(this.P2MatchPoint, "Match Point", -0.25, 0, 0xffffff);
     }
+    if ((P["1"] === "0" && P["2"] === "7" && this.player === -1)|| (P["1"] === "7" && P["2"] === "0" && this.player === 1)) {
+      if (!ball.Achievement.isPlaying) {
+        ball.Achievement.currentTime = 0;
+        ball.Achievement.play();
+      }
+      console.log("Hello");
+      this.globalMessage({
+        message:
+          "You didnt just win—you sent a message to everyone watching!",
+        title: "The Dominator",
+      });
+      send(
+        JSON.stringify({
+          type: "Achievements",
+          message: "The Dominator",
+        }),
+      );
+    }
     if (
       (this.player === -1 && P["1"] === "6") ||
       (this.player === 1 && P["2"] === "6")
@@ -269,17 +293,6 @@ export class SceneManager {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
-            if (P["2"] === 0) {
-              if (!ball.Achievement.isPlaying) {
-                ball.Achievement.currentTime = 0;
-                ball.Achievement.play();
-              }
-              this.globalMessage({
-                message:
-                  "You didnt just win—you sent a message to everyone watching!",
-                title: "The Dominator Achieved",
-              });
-            }
             this.setIsWon(true);
             send(
               JSON.stringify({
@@ -318,17 +331,6 @@ export class SceneManager {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
-            if (P["1"] === 0) {
-              if (!ball.Achievement.isPlaying) {
-                ball.Achievement.currentTime = 0;
-                ball.Achievement.play();
-              }
-              this.globalMessage({
-                message:
-                  "You didnt just win—you sent a message to everyone watching!",
-                title: "The Dominator Achieved",
-              });
-            }
             this.setIsWon(true);
             send(
               JSON.stringify({

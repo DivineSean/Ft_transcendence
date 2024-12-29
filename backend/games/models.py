@@ -46,7 +46,7 @@ class GameRoom(models.Model):
     )
     state = models.JSONField(default=dict)
     turn = models.PositiveSmallIntegerField(default=1)
-    started_at = models.BigIntegerField(default=int(time.time() * 1000))
+    started_at = models.BigIntegerField(default=0)
     paused_at = models.BigIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -123,24 +123,20 @@ class PlayerAchievement(models.Model):
     game = models.ForeignKey(Game, on_delete=models.PROTECT)
     achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)
     level = models.CharField(max_length=20)
-    progress = models.PositiveIntegerField(default=1)
+    progress = models.PositiveIntegerField(default=0)
     threshold = models.PositiveIntegerField()
-    earned_at = models.DateTimeField(null=True, blank=True)
+    earned_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ("user", "game", "achievement", "level")
 
-    def save(self, *args, **kwargs):
-        if self.progress >= self.threshold:
-            self.upgrade_level()
-        super().save(*args, **kwargs)
-
     def upgrade_level(self):
-        next_level = self.achievement.next_level(self.level)
+        if self.progress < self.threshold:
+            return
 
+        next_level = self.achievement.next_level(self.level)
         if next_level:
             self.earned_at = self.earned_at or now()
-            self.save()
 
             PlayerAchievement.objects.create(
                 user=self.user,
@@ -153,6 +149,8 @@ class PlayerAchievement(models.Model):
         else:
             self.progress = self.threshold
             self.earned_at = self.earned_at or now()
+
+        self.save()
 
     @classmethod
     def add_progress(cls, user, game, achievement_name, increment=1):
@@ -168,13 +166,13 @@ class PlayerAchievement(models.Model):
                 user=user,
                 game=game,
                 achievement=achievement,
-                level="bronze",
+                level="iron",
                 progress=increment,
-                threshold=achievement.get_threshold_for_level("bronze"),
+                threshold=achievement.get_threshold_for_level("iron"),
             )
         else:
             current_level.progress += increment
-            current_level.save()
+            current_level.upgrade_level()
 
 
 @receiver(post_save, sender=Game)

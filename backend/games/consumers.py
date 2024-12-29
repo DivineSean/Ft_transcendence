@@ -3,7 +3,8 @@ from games.serializers import GameRoomSerializer
 from .tasks import sync_game_room_data, mark_game_abandoned
 from celery.result import AsyncResult
 from django.conf import settings
-from .models import GameRoom
+from authentication.models import User
+from .models import Game, GameRoom, PlayerAchievement
 from datetime import datetime
 import json
 import redis
@@ -24,10 +25,13 @@ TIMEOUT_DURATION = 30
 # TODO: update player rating when the game ends
 # TODO: update user status to 'in-game' and revert back to 'online' when the game concludes
 # TODO: achievements
+# TODO: EXP
+
 class GameConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()
         self.user_id = str(self.scope["user"].id)
+        self.game_name = self.scope["url_route"]["kwargs"]["game_name"]
         self.game_uuid = self.scope["url_route"]["kwargs"]["room_uuid"]
         self.group_name = f"game_room_{self.game_uuid}"
 
@@ -70,6 +74,8 @@ class GameConsumer(WebsocketConsumer):
                 self.update_readiness()
             case "result":
                 self.update_result(message)
+            case "Achievements":
+                self.update_achievements(message)
 
     def connect_player(self):
         # WARNING: still have to handle spectators (players not taking part of the game)
@@ -111,6 +117,17 @@ class GameConsumer(WebsocketConsumer):
                 },
             },
         )
+
+    def update_achievements(self, message):
+        # Handle Achievements
+        try:
+            PlayerAchievement.add_progress(
+                user=User.objects.get(pk=self.user_id),
+                game=Game.objects.get(name=self.game_name),
+                achievement_name=message
+            )
+        except Exception as e:
+            print(e, flush=True)
 
     def update_score(self):
         role = None
