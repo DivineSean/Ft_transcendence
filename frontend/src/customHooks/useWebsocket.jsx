@@ -1,4 +1,5 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useContext } from "react";
+import AuthContext from "../context/AuthContext";
 
 const useWebSocket = (
   url,
@@ -18,6 +19,7 @@ const useWebSocket = (
   const connectedRef = useRef(false);
   const reconnectAttemptsRef = useRef(0);
   const intentiallyClosedRef = useRef(false);
+  const authContextData = useContext(AuthContext);
 
   const debugLog = (...args) => {
     if (debug) console.log("[WebSocket Hook]", ...args);
@@ -102,13 +104,13 @@ const useWebSocket = (
   ]);
 
   useEffect(() => {
-    connect();
+    if (authContextData.isUserLoggedIn) connect();
 
     return () => {
       debugLog("Cleaning up WebSocket");
       websocketRef.current?.close();
     };
-  }, []);
+  }, [authContextData.isUserLoggedIn]);
 
   const send = useCallback((message) => {
     if (
