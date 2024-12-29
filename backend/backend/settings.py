@@ -156,19 +156,19 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [
-                f"redis://:{REDIS_CONNECTION['password']}@{
-                    REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/0"
+                f"""redis://:{REDIS_CONNECTION['password']}@{
+                    REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/0"""
             ],
         },
     }
 }
 
-CELERY_BROKER_URL = f"redis://:{REDIS_CONNECTION['password']}@{
-    REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/{REDIS_CONNECTION['db']}"
+CELERY_BROKER_URL = f"""redis://:{REDIS_CONNECTION['password']}@{
+    REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/{REDIS_CONNECTION['db']}"""
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_BACKEND = f"redis://:{REDIS_CONNECTION['password']}@{
-    REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/{REDIS_CONNECTION['db']}"
+CELERY_RESULT_BACKEND = f"""redis://:{REDIS_CONNECTION['password']}@{
+    REDIS_CONNECTION['host']}:{REDIS_CONNECTION['port']}/{REDIS_CONNECTION['db']}"""
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
