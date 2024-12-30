@@ -1,7 +1,8 @@
 from celery import shared_task
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from games.models import GameRoom, Player
+from authentication.models import User
+from games.models import Game, GameRoom, Player, PlayerRating
 from games.serializers import GameRoomSerializer
 from django.conf import settings
 import redis
@@ -35,6 +36,8 @@ def mark_game_abandoned(game_room_id, user_id):
             player["result"] = Player.Result.LOSS
         else:
             player["result"] = Player.Result.WIN
+        #Back to Be Online Again
+        PlayerRating.handle_rating(User.objects.get(pk=player["user"]["id"]), Game.objects.get(pk=game_room_data["game"]), player)
 
     game_room_data["status"] = GameRoom.Status.COMPLETED
     serializer = GameRoomSerializer(game_room, data=game_room_data, partial=True)

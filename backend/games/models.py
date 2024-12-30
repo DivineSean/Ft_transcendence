@@ -76,6 +76,25 @@ class PlayerRating(models.Model):
     rating = models.PositiveIntegerField(default=951)
     updated_at = models.DateTimeField(auto_now=True)
 
+    @classmethod
+    def handle_rating(cls, user, game, player):
+        try:
+            player_rating, created = cls.objects.get_or_create(user=user, game=game)
+            if created:
+                player_rating = created
+        except Exception as e:
+            return
+        if player["result"] == "win":
+            player_rating.rating += player["rating_gain"]
+        elif player["result"] == "loss":
+            if player_rating.rating < player["rating_loss"]:
+                player_rating.rating = 0
+            else:
+                player_rating.rating -= player["rating_loss"]
+        user.status = User.Status.ONLINE
+        user.save()
+        player_rating.save()
+
 
 class Achievement(models.Model):
     name = models.CharField(max_length=100, unique=True)
