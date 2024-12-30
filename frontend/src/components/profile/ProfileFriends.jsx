@@ -163,22 +163,25 @@ const ProfileFriends = ({ username }) => {
               <div className="flex justify-start relative">
                 <div
                   onClick={() => setDisplaySelect(!displaySelect)}
-                  className="flex gap-16 items-center p-8 border-b border-green/50 cursor-pointer"
+                  className="flex gap-16 items-center p-8 px-16 border-b-[0.5px] border-stroke-sc cursor-pointer"
                 >
                   <h2 className="font-semibold tracking-wide cursor-pointer">
                     {selected}
                   </h2>
                   <FaChevronDown className="text-green cursor-pointer" />
                   {displaySelect && (
-                    <ul className="absolute top-[44px] z-[1] left-0 border-b-[0.5px] border-stroke-sc overflow-hidden text-center w-full flex flex-col bg-[url('/images/background.png')] bg-cover bg-bottom transition-all">
-                      <div className="absolute w-full h-full backdrop-blur-sm z-[-1] rounded-md"></div>
+                    <ul
+						className="absolute top-[44px] z-[1] left-0 overflow-hidden text-center w-full flex flex-col
+						bg-[url('/images/background.png')] bg-cover bg-bottom transition-all rounded-md p-8 gap-4 border-[0.5px] border-stroke-sc"
+					>
+                      <div className="absolute w-full h-full backdrop-blur-3xl z-[-1] rounded-md top-0 left-0"></div>
                       {select.map((item, i) => (
                         <li
                           key={i}
                           onClick={() => setSelected(item)}
-                          className={`border-b tracking-wider bg-black/20 hover:bg-red/20
-								border-stroke-sc shadow p-8 transition-all cursor-pointer
-								${selected === item ? "bg-green/20" : ""}
+                          className={`tracking-wider bg-gray/5 hover:bg-gray/15
+								shadow p-8 transition-all cursor-pointer
+								${selected === item ? "bg-gray/10" : ""}
 							`}
                         >
                           {item}

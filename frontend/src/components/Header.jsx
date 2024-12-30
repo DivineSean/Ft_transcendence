@@ -99,7 +99,7 @@ const Header = ({ ...props }) => {
     document.addEventListener("mousedown", handleClickOutside);
     contextData.getUserInfo();
     return () => {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -224,17 +224,18 @@ const Header = ({ ...props }) => {
               <IoSearchOutline className="text-gray absolute left-8 text-txt-md" />
 			{searchResult &&
 				<>
-					<div className="absolute top-[38px] bg-[url(/images/background.png)] bg-cover bg-center left-0 right-0 max-h-[300px] rounded-md">
+					<div className="absolute top-[44px] bg-[url(/images/background.png)] bg-cover bg-top left-0 right-0 max-h-[300px] rounded-md">
 						<ul
 							ref={searchResultRef}
-							className="w-full max-h-[300px] backdrop-blur-xl overflow-y-scroll no-scrollbar
+							className="w-full max-h-[300px] bg-black/30 backdrop-blur-xl overflow-y-scroll no-scrollbar
 							rounded-md border-[0.5px] border-stroke-sc p-8 flex flex-col gap-8"
 							>
 								{foundUsers.length !== 0 ?
 									foundUsers.map((user) => (
 										<li 
 											onClick={() => handleNavigate(user)}
-											className="bg-blue-400/10 py-8 px-12 hover:bg-blue-400/15 overflow-hidden cursor-pointer
+											key={user.id}
+											className="bg-gray/5 py-8 px-12 hover:bg-gray/15 overflow-hidden cursor-pointer
 											transition-all rounded-md grid grid-cols-[48px,1fr] gap-12 items-center shrink-0"
 											>
 											<div className="w-48 h-48 rounded-full overflow-hidden flex border-[0.5px] border-stroke-sc">
@@ -256,7 +257,7 @@ const Header = ({ ...props }) => {
 										
 									))
 									:
-									<p className="text-stroke-sc text-txt-md grow flex justify-center items-center py-16">no user founded</p>
+									<p className="text-stroke-sc text-txt-md grow flex justify-center items-center py-8">no user founded</p>
 								}
 						</ul>
 					</div>

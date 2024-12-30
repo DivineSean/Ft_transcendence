@@ -1,8 +1,3 @@
-import {
-  IoSearchOutline,
-  IoNotificationsOutline,
-  IoNotifications,
-} from "react-icons/io5";
 import Header from "../components/Header";
 import { useContext } from "react";
 import AuthContext from "../context/AuthContext";

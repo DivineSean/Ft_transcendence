@@ -14,7 +14,6 @@ import { LiaMedalSolid } from "react-icons/lia";
 import { GiFlamedLeaf } from "react-icons/gi";
 import { FaClover } from "react-icons/fa6";
 import Header from "../components/Header";
-import NotFound from "./NotFound";
 import { useNavigate } from "react-router-dom";
 import "react-circular-progressbar/dist/styles.css";
 import { BACKENDURL } from "../utils/fetchWrapper";
@@ -22,136 +21,11 @@ import LoadingPage from "./LoadingPage";
 import UserContext from "../context/UserContext";
 import { FiEdit3 } from "react-icons/fi";
 import UpdateProfile from "../components/profile/UpdateProfile";
-import { MdOutlineBlock } from "react-icons/md";
-import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
-import { IoMdPersonAdd } from "react-icons/io";
-import { ImUserPlus, ImUserMinus } from "react-icons/im";
-import { CgUnblock } from "react-icons/cg";
 import Toast from "../components/Toast";
+import FriendManagementButtons from "../components/profile/FriendManagementButtons";
+import Approval from "../components/profile/Approval";
 
 const profileMenu = ["overview", "statistics", "achievements", "friends"];
-
-const FriendManagementButtons = ({ approval, setApproval }) => {
-  const contextData = useContext(UserContext);
-
-  const handleApprovedAction = (type) => {
-    setApproval({
-      visible: true,
-      message: "are you sure!",
-      type: type,
-    });
-  };
-  return (
-    <>
-      {!contextData.profileInfo.isBlockedByUser &&
-        !contextData.profileInfo.isUserBlocked &&
-        contextData.profileInfo.isFriend && (
-          <button
-            onClick={contextData.createConversation}
-            className="secondary-glass grow lg:w-full p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
-          >
-            <IoChatbubbleEllipsesOutline />
-            <p>message</p>
-          </button>
-        )}
-
-      {!contextData.profileInfo.isBlockedByUser &&
-        !contextData.profileInfo.isUserBlocked &&
-        !contextData.profileInfo.isFriend &&
-        !contextData.profileInfo.isSentRequest &&
-        !contextData.profileInfo.isReceiveRequest && (
-          <button
-            onClick={() =>
-              contextData.sendFriendRequest(contextData.profileInfo.id)
-            }
-            className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
-          >
-            <IoMdPersonAdd />
-            <p>add friend</p>
-          </button>
-        )}
-
-      {!contextData.profileInfo.isBlockedByUser &&
-        !contextData.profileInfo.isUserBlocked &&
-        !contextData.profileInfo.isFriend &&
-        contextData.profileInfo.isReceiveRequest && (
-          <button
-            onClick={contextData.cancelFriendRequest}
-            className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
-          >
-            <ImUserMinus />
-            <p>cancel request</p>
-          </button>
-        )}
-
-      {!contextData.profileInfo.isBlockedByUser &&
-        !contextData.profileInfo.isUserBlocked &&
-        !contextData.profileInfo.isFriend &&
-        contextData.profileInfo.isSentRequest && (
-          <>
-            <button
-              onClick={() =>
-                contextData.acceptFriendRequest(contextData.profileInfo.id)
-              }
-              className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
-            >
-              <ImUserPlus />
-              <p>confirm</p>
-            </button>
-            <button
-              onClick={() =>
-                contextData.declineRequest(contextData.profileInfo.id)
-              }
-              className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
-            >
-              <ImUserMinus />
-              <p>delete</p>
-            </button>
-          </>
-        )}
-
-      {!contextData.profileInfo.isBlockedByUser &&
-        contextData.profileInfo.isUserBlocked && (
-          <>
-            <button
-              onClick={() =>
-                contextData.unblockUser(contextData.profileInfo.id)
-              }
-              className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
-            >
-              <ImUserMinus />
-              <p>unblock</p>
-            </button>
-            {/* <p className="text-center normal-case text-txt-xs text-red">this user have been blocked by you click to unblock</p> */}
-          </>
-        )}
-
-      {!contextData.profileInfo.isBlockedByUser &&
-        !contextData.profileInfo.isUserBlocked &&
-        contextData.profileInfo.isFriend && (
-          <button
-            onClick={() => handleApprovedAction("unfriend")}
-            className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
-          >
-            <ImUserMinus />
-            <p>unfriend</p>
-          </button>
-        )}
-
-      {!contextData.profileInfo.isBlockedByUser &&
-        !contextData.profileInfo.isUserBlocked &&
-        contextData.profileInfo.isFriend && (
-          <button
-            onClick={() => handleApprovedAction("block")}
-            className="secondary-glass text-txt-sm p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
-          >
-            <MdOutlineBlock />
-            <p>block</p>
-          </button>
-        )}
-    </>
-  );
-};
 
 const Profile = () => {
   const authContextData = useContext(AuthContext);
@@ -447,57 +321,6 @@ const Profile = () => {
         </div>
       )}
     </div>
-  );
-};
-
-const Approval = ({ approval, setApproval }) => {
-  const contextData = useContext(UserContext);
-
-  const handleApproval = () => {
-    if (approval.type === "block") contextData.blockFriend();
-    else if (approval.type === "unfriend") contextData.unfriend();
-    setApproval({ visible: false, message: null, type: null });
-  };
-
-  return (
-    <>
-      <div
-        onClick={() =>
-          setApproval({ visible: false, message: null, type: null })
-        }
-        className="bg-black/50 h-full w-full absolute top-0 left-0 flex justify-center items-center"
-      ></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-        <div className="secondary-glass p-16 px-32 flex flex-col items-center gap-32 z-[10]">
-          <div className="flex flex-col gap-8 w-full items-center">
-            <h2 className="font-bold text-txt-lg text-red">{approval.type}?</h2>
-            <p className="text-txt-md lowercase">{approval.message}</p>
-          </div>
-          <div className="flex gap-16">
-            <button
-              onClick={() =>
-                setApproval({ visible: false, message: null, type: null })
-              }
-              className="
-								px-16 py-8 bg-red rounded-md hover-secondary text-green font-semibold hover:bg-green hover:text-black
-								transition-all
-							"
-            >
-              cancel
-            </button>
-            <button
-              onClick={handleApproval}
-              className="
-								px-16 py-8 bg-red rounded-md hover-secondary text-red font-semibold hover:bg-red hover:text-white
-								transition-all
-							"
-            >
-              confirm
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
   );
 };
 

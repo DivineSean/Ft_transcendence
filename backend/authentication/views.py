@@ -567,6 +567,13 @@ def setUpUsername(request):
 
 	except Exception as e:
 		return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+	
+	if user.username:
+		return Response(
+			{"error": "This user already has a username."},
+			status=status.HTTP_400_BAD_REQUEST,
+		)
+
 
 	if User.objects.filter(username=username).exists():
 		return Response(
@@ -629,9 +636,9 @@ def search_users(request):
 			'-similarity'
 		)
 
-		print(users, flush=True)
-
 		serializer = UserFriendSerializer(users, many=True)
+
+		print(serializer.data, flush=True)
 
 		return Response(
 			serializer.data,
