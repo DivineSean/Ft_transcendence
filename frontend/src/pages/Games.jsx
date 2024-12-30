@@ -166,7 +166,7 @@ const BmoScreen = ({ games }) => {
     const newRoutes = routes.slice(0, index + 1);
     setRoutes(newRoutes);
     console.log(newRoutes, newRoutes[index]);
-    navigate(newRoutes.join("/"));
+    navigate('/games/' + newRoutes.join("/"));
   };
 
   useEffect(() => {
