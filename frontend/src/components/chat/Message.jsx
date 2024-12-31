@@ -44,3 +44,16 @@ const Message = ({ message }) => {
 };
 
 export default Message;
+
+
+/*
+Dear Xcelerit Team,
+
+Thank you for the clarification,
+
+I am pleased to confirm my attendance at the Final Stage Event on January 8th, 2025, at Spaces Anfa Place, Casablanca.
+
+Best regards
+Driss El yaagoubi
+
+*/

@@ -294,7 +294,7 @@ const UpdateProfile = ({ setUpdateProfile }) => {
             if you want to change your password you click the
             <label
               disabled={passwordLoading}
-              className="text-green font-semibold tracking-wide disabled:text-stroke-sc cursor-pointer"
+              className="text-green font-semibold tracking-wide disabled:text-green/20 cursor-pointer"
               onClick={handleChangePassword}
             >
               change password
@@ -302,7 +302,7 @@ const UpdateProfile = ({ setUpdateProfile }) => {
           </div>
           <button
             disabled={loading}
-            className="bg-green p-8 text-black text-lg font-bold rounded-sm disabled:bg-stroke-pr disabled:text-stroke-sc"
+            className="bg-green p-8 text-black text-lg font-bold rounded-sm disabled:bg-green/20"
           >
             {loading ? "loading..." : "update"}
           </button>
