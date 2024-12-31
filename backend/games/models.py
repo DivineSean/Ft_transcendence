@@ -46,7 +46,7 @@ class GameRoom(models.Model):
     )
     state = models.JSONField(default=dict)
     turn = models.PositiveSmallIntegerField(default=1)
-    started_at = models.BigIntegerField(default=int(time.time() * 1000))
+    started_at = models.BigIntegerField(default=0)
     paused_at = models.BigIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -107,7 +107,8 @@ class Achievement(models.Model):
         try:
             current_index = levels.index(current_level)
             return (
-                levels[current_index + 1] if current_index + 1 < len(levels) else None
+                levels[current_index + 1] if current_index +
+                1 < len(levels) else None
             )
         except ValueError:
             return None
