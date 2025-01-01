@@ -1,0 +1,92 @@
+# ELK stack docker compose
+
+volumes:
+  certs:
+    name: certs
+  elasticsearch:
+    name: elasticsearch
+  kibana:
+    name: kibana
+  logs:
+    driver: local
+    driver_opts:
+      type: none
+      device: "./logs/"
+      o: bind
+
+networks:
+  elk-stack:
+    name: elk-stack
+
+services:
+  setup:
+    container_name: setup
+    build: ./ssl-setup
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .env
+    networks:
+      - elk-stack
+    healthcheck:
+      test: ['CMD-SHELL', '[ -f /usr/share/elasticsearch/config/certs/elasticsearch/elasticsearch.crt ]']
+      interval: 1s
+      timeout: 5s
+      retries: 120
+
+  elasticsearch:
+    container_name: elasticsearch
+    depends_on:
+      setup:
+        condition: service_healthy
+    build: ./elasticsearch
+    ports:
+      - 9200:9200
+    restart: unless-stopped
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - elasticsearch:/usr/share/elasticsearch/data
+      - logs:/usr/share/elasticsearch/logs
+    env_file:
+      - .env
+    networks:
+      - elk-stack
+    # mem_limit: ${MEM_LIMIT}
+    # ulimits:
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+
+  kibana:
+    container_name: kibana
+    depends_on:
+      setup:
+        condition: service_healthy
+    build: ./kibana
+    ports:
+      - 5601:5601
+    restart: unless-stopped
+    volumes:
+      - certs:/usr/share/kibana/config/certs
+      - kibana:/usr/share/kibana/data
+    env_file:
+      - .env
+    networks:
+      - elk-stack
+    mem_limit: ${MEM_LIMIT}
+
+  logstash:
+    container_name: logstash
+    depends_on:
+      setup:
+        condition: service_healthy
+    build: ./logstash
+    restart: unless-stopped
+    volumes:
+      - certs:/usr/share/logstash/certs
+      - ./nginx/access.log:/usr/share/logstash/nginx/access.log
+    env_file:
+      - .env
+    networks:
+      - elk-stack

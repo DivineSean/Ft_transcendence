@@ -1,0 +1,4 @@
+http.host: "logstash"
+http.port: 9600
+xpack.monitoring.enabled: false
+# monitoring.elasticsearch.hosts: "http://elasticsearch:9200"
