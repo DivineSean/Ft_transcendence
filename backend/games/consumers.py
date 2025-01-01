@@ -113,7 +113,11 @@ class GameConsumer(WebsocketConsumer):
         for player in self.players:
             if player["user"]["id"] == self.user_id:
                 player["result"] = message
-                PlayerRating.handle_rating(User.objects.get(pk=self.user_id), Game.objects.get(name=self.game_name), player)
+                PlayerRating.handle_rating(self.user ,Game.objects.get(name=self.game_name), player)
+                self.user.status = User.Status.ONLINE
+                # check if tournament or normal game
+                self.user.exp += 250
+                self.user.save()
                 break
         self.save_game_data(players=json.dumps(self.players), status="completed")
         async_to_sync(self.channel_layer.group_send)(
@@ -131,7 +135,7 @@ class GameConsumer(WebsocketConsumer):
         # Handle Achievements
         try:
             PlayerAchievement.add_progress(
-                user=User.objects.get(pk=self.user_id),
+                user=self.user,
                 game=Game.objects.get(name=self.game_name),
                 achievement_name=message
             )

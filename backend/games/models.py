@@ -91,10 +91,7 @@ class PlayerRating(models.Model):
                 player_rating.rating = 0
             else:
                 player_rating.rating -= player["rating_loss"]
-        user.status = User.Status.ONLINE
-        user.save()
         player_rating.save()
-
 
 class Achievement(models.Model):
     name = models.CharField(max_length=100, unique=True)

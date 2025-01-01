@@ -32,12 +32,16 @@ def mark_game_abandoned(game_room_id, user_id):
     game_room_data["players"] = json.loads(game_room_data["players"])
 
     for player in game_room_data["players"]:
+        user = User.objects.get(pk=player["user"]["id"])
         if player["user"]["id"] == user_id:
             player["result"] = Player.Result.LOSS
         else:
             player["result"] = Player.Result.WIN
+            user.exp += 250
         #Back to Be Online Again
-        PlayerRating.handle_rating(User.objects.get(pk=player["user"]["id"]), Game.objects.get(pk=game_room_data["game"]), player)
+        PlayerRating.handle_rating(user, Game.objects.get(pk=game_room_data["game"]), player)
+        user.status = User.Status.ONLINE
+        user.save()
 
     game_room_data["status"] = GameRoom.Status.COMPLETED
     serializer = GameRoomSerializer(game_room, data=game_room_data, partial=True)
