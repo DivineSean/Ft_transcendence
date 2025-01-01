@@ -345,3 +345,35 @@ input:-webkit-autofill:active {
 .EmojiPickerReact .epr-body::-webkit-scrollbar-thumb:hover {
   @apply bg-stroke-sc cursor-all-scroll;
 }
+
+
+/* ----------- start tournaments ----------- */
+.round-collapse {
+	@apply md:ml-[-16.666666666%] ml-[-22%];
+}
+
+.team-hover {
+	@apply !bg-green/40 text-black font-semibold;
+}
+
+.team-loser.team-hover {
+	@apply !bg-red/40 text-gray/70;
+}
+
+.team-loser {
+	@apply bg-stroke-sc/50 text-stroke-sc;
+}
+
+.region-right .round {
+  float: right;
+}
+.region-right .round.round-collapse {
+  margin-left: 0;
+  margin-right: -16.666666666%;
+}
+.region-right .round .team {
+  border-left: 0;
+  flex-direction: row-reverse;
+  text-align: right;
+}
+/* ----------- end tournaments ----------- */

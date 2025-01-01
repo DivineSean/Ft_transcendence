@@ -81,8 +81,8 @@ const levels = [
 ]
 
 const playerLevel = {
-	level: 10,
-	xp: 91000,
+	level: 1,
+	xp: 900,
 };
 
 

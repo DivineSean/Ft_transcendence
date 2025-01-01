@@ -7,7 +7,8 @@ const snowflakes = [];
 const canvas = document.createElement('canvas');
 canvas.style.position = 'absolute';
 canvas.style.pointerEvents = 'none';
-canvas.style.top = '0px';
+canvas.style.top = '0';
+canvas.style.left = '0px';
 canvas.style.zIndex = '-2';
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -60,8 +61,8 @@ window.addEventListener('resize', () => {
 	canvas.height = window.innerHeight;
 });
 
-window.addEventListener('scroll', () => {
-	canvas.style.top = `${window.scrollY}px`;
-});
+// window.addEventListener('scroll', () => {
+// 	canvas.style.top = `${window.scrollY}px`;
+// });
 
 animate();
