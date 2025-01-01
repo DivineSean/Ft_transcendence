@@ -43,9 +43,15 @@ class Command(BaseCommand):
                         description=achievement["description"],
                     )
                     if created:
-                        self.stdout.write(self.style.SUCCESS(f"Achievement '{new_achievement.name}' added."))
+                        self.stdout.write(
+                            self.style.SUCCESS(
+                                f"Achievement '{new_achievement.name}' added."
+                            )
+                        )
                     else:
-                        self.stdout.write(f"Achievement '{new_achievement.name}' already exists.")
+                        self.stdout.write(
+                            f"Achievement '{new_achievement.name}' already exists."
+                        )
                 except IntegrityError:
                     self.stdout.write(
                         self.style.ERROR(

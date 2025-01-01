@@ -93,6 +93,7 @@ class PlayerRating(models.Model):
                 player_rating.rating -= player["rating_loss"]
         player_rating.save()
 
+
 class Achievement(models.Model):
     name = models.CharField(max_length=100, unique=True)
     game = models.ForeignKey(

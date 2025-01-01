@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('games', '0013_alter_gameroom_paused_at_alter_gameroom_started_at'),
+        ("games", "0013_alter_gameroom_paused_at_alter_gameroom_started_at"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='playerachievement',
-            name='progress',
+            model_name="playerachievement",
+            name="progress",
             field=models.PositiveIntegerField(default=0),
         ),
     ]

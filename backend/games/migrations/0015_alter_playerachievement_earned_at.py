@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('games', '0014_alter_playerachievement_progress'),
+        ("games", "0014_alter_playerachievement_progress"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='playerachievement',
-            name='earned_at',
+            model_name="playerachievement",
+            name="earned_at",
             field=models.DateTimeField(auto_now_add=True),
         ),
     ]

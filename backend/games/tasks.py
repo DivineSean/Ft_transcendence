@@ -38,8 +38,10 @@ def mark_game_abandoned(game_room_id, user_id):
         else:
             player["result"] = Player.Result.WIN
             user.exp += 250
-        #Back to Be Online Again
-        PlayerRating.handle_rating(user, Game.objects.get(pk=game_room_data["game"]), player)
+        # Back to Be Online Again
+        PlayerRating.handle_rating(
+            user, Game.objects.get(pk=game_room_data["game"]), player
+        )
         user.status = User.Status.ONLINE
         user.save()
 

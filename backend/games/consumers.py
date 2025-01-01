@@ -23,6 +23,7 @@ TIMEOUT_DURATION = 30
 
 # TODO: EXP
 
+
 class GameConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()
@@ -78,7 +79,9 @@ class GameConsumer(WebsocketConsumer):
             self.user.status = status
             self.user.save()
         except Exception as e:
-            self.close(code=1006, reason=f"Unexpected error while saving user status: {str(e)}")
+            self.close(
+                code=1006, reason=f"Unexpected error while saving user status: {str(e)}"
+            )
             return
 
     def connect_player(self):
@@ -113,7 +116,9 @@ class GameConsumer(WebsocketConsumer):
         for player in self.players:
             if player["user"]["id"] == self.user_id:
                 player["result"] = message
-                PlayerRating.handle_rating(self.user ,Game.objects.get(name=self.game_name), player)
+                PlayerRating.handle_rating(
+                    self.user, Game.objects.get(name=self.game_name), player
+                )
                 self.user.status = User.Status.ONLINE
                 # check if tournament or normal game
                 self.user.exp += 250
@@ -137,7 +142,7 @@ class GameConsumer(WebsocketConsumer):
             PlayerAchievement.add_progress(
                 user=self.user,
                 game=Game.objects.get(name=self.game_name),
-                achievement_name=message
+                achievement_name=message,
             )
         except Exception as e:
             print(e, flush=True)

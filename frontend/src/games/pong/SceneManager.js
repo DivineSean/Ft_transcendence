@@ -248,15 +248,17 @@ export class SceneManager {
       );
       this.addTextToPlane(this.P2MatchPoint, "Match Point", -0.25, 0, 0xffffff);
     }
-    if ((P["1"] === "0" && P["2"] === "7" && this.player === -1)|| (P["1"] === "7" && P["2"] === "0" && this.player === 1)) {
+    if (
+      (P["1"] === "0" && P["2"] === "7" && this.player === -1) ||
+      (P["1"] === "7" && P["2"] === "0" && this.player === 1)
+    ) {
       if (!ball.Achievement.isPlaying) {
         ball.Achievement.currentTime = 0;
         ball.Achievement.play();
       }
       console.log("Hello");
       this.globalMessage({
-        message:
-          "You didnt just win—you sent a message to everyone watching!",
+        message: "You didnt just win—you sent a message to everyone watching!",
         title: "The Dominator",
       });
       send(

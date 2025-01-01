@@ -1,5 +1,12 @@
 from django.contrib import admin
-from games.models import Game, Player, GameRoom, PlayerRating, Achievement, PlayerAchievement
+from games.models import (
+    Game,
+    Player,
+    GameRoom,
+    PlayerRating,
+    Achievement,
+    PlayerAchievement,
+)
 
 # Register your models here.
 admin.site.register(Achievement)

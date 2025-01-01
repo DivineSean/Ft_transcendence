@@ -33,7 +33,7 @@ class User(AbstractUser):
         ONLINE = "online", "Online"
         OFFLINE = "offline", "Offline"
         IN_GAME = "in-game", "In Game"
-    
+
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
@@ -43,7 +43,9 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=255, blank=True, null=True)
     username = models.CharField(max_length=255, null=True, blank=True)
 
-    status = models.CharField(max_length=8, choices=Status.choices, default=Status.OFFLINE)
+    status = models.CharField(
+        max_length=8, choices=Status.choices, default=Status.OFFLINE
+    )
     isOnline = models.BooleanField(default=False)
     isTwoFa = models.BooleanField(default=False)
     about = models.TextField(blank=True)
@@ -89,8 +91,6 @@ class User(AbstractUser):
             return 2
         elif cls.exp >= 0:
             return 1
-
-
 
 
 class TwoFactorCode(models.Model):
