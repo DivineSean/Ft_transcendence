@@ -152,8 +152,14 @@ class Ball {
           }
           globalMessage({
             message: "Nobody Can handle that kind of power!",
-            title: "The Server Demon Achieved",
+            title: "The Serve Demon",
           });
+          send(
+            JSON.stringify({
+              type: "Achievements",
+              message: "The Serve Demon",
+            }),
+          );
           this.serverWin = 0;
         }
       }

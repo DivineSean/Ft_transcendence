@@ -3,7 +3,8 @@ from games.serializers import GameRoomSerializer
 from .tasks import sync_game_room_data, mark_game_abandoned
 from celery.result import AsyncResult
 from django.conf import settings
-from .models import GameRoom
+from authentication.models import User
+from .models import Game, GameRoom, PlayerAchievement, PlayerRating
 from datetime import datetime
 import json
 import redis
@@ -20,14 +21,15 @@ r = redis.Redis(
 MAX_ALLOWED_TIMEOUTS = 2
 TIMEOUT_DURATION = 30
 
+# TODO: EXP
 
-# TODO: update player rating when the game ends
-# TODO: update user status to 'in-game' and revert back to 'online' when the game concludes
-# TODO: achievements
+
 class GameConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()
+        self.user = self.scope.get("user")
         self.user_id = str(self.scope["user"].id)
+        self.game_name = self.scope["url_route"]["kwargs"]["game_name"]
         self.game_uuid = self.scope["url_route"]["kwargs"]["room_uuid"]
         self.group_name = f"game_room_{self.game_uuid}"
 
@@ -50,7 +52,6 @@ class GameConsumer(WebsocketConsumer):
             type = data["type"]
             message = data["message"]
         except (json.JSONDecodeError, KeyError):
-            print("------------------> nn hh", flush=True)
             return
 
         match type:
@@ -70,6 +71,18 @@ class GameConsumer(WebsocketConsumer):
                 self.update_readiness()
             case "result":
                 self.update_result(message)
+            case "Achievements":
+                self.update_achievements(message)
+
+    def update_status(self, status):
+        try:
+            self.user.status = status
+            self.user.save()
+        except Exception as e:
+            self.close(
+                code=1006, reason=f"Unexpected error while saving user status: {str(e)}"
+            )
+            return
 
     def connect_player(self):
         # WARNING: still have to handle spectators (players not taking part of the game)
@@ -89,6 +102,10 @@ class GameConsumer(WebsocketConsumer):
         if game_data["status"] == "paused":
             self.handle_reconnect(game_data)
 
+        isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
+        if isPlayer:
+            self.update_status(self.user.Status.IN_GAME)
+
         self.send(text_data=json.dumps({"type": "game_manager", "message": game_data}))
 
     def update_result(self, message):
@@ -99,6 +116,13 @@ class GameConsumer(WebsocketConsumer):
         for player in self.players:
             if player["user"]["id"] == self.user_id:
                 player["result"] = message
+                PlayerRating.handle_rating(
+                    self.user, Game.objects.get(name=self.game_name), player
+                )
+                self.user.status = User.Status.ONLINE
+                # check if tournament or normal game
+                self.user.exp += 250
+                self.user.save()
                 break
         self.save_game_data(players=json.dumps(self.players), status="completed")
         async_to_sync(self.channel_layer.group_send)(
@@ -111,6 +135,17 @@ class GameConsumer(WebsocketConsumer):
                 },
             },
         )
+
+    def update_achievements(self, message):
+        # Handle Achievements
+        try:
+            PlayerAchievement.add_progress(
+                user=self.user,
+                game=Game.objects.get(name=self.game_name),
+                achievement_name=message,
+            )
+        except Exception as e:
+            print(e, flush=True)
 
     def update_score(self):
         role = None

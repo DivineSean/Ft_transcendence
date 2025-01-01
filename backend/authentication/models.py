@@ -29,6 +29,10 @@ def callableDict():
 
 
 class User(AbstractUser):
+    class Status(models.TextChoices):
+        ONLINE = "online", "Online"
+        OFFLINE = "offline", "Offline"
+        IN_GAME = "in-game", "In Game"
 
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
@@ -39,13 +43,16 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=255, blank=True, null=True)
     username = models.CharField(max_length=255, null=True, blank=True)
 
+    status = models.CharField(
+        max_length=8, choices=Status.choices, default=Status.OFFLINE
+    )
     isOnline = models.BooleanField(default=False)
     isTwoFa = models.BooleanField(default=False)
     about = models.TextField(blank=True)
     profile_image = models.ImageField(
         upload_to="profile_images/", blank=True, null=True
     )
-
+    exp = models.PositiveBigIntegerField(default=0)
     blockedUsers = models.JSONField(default=callableDict, null=True, blank=True)
 
     last_update = models.DateTimeField(auto_now=True)
@@ -56,6 +63,34 @@ class User(AbstractUser):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+
+    def save(self, *args, **kwargs):
+        if self.exp > 45000:
+            self.exp = 45000
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_levels(cls):
+        if cls.exp >= 45000:
+            return 10
+        elif cls.exp >= 36000:
+            return 9
+        elif cls.exp >= 28000:
+            return 8
+        elif cls.exp >= 21000:
+            return 7
+        elif cls.exp >= 15000:
+            return 6
+        elif cls.exp >= 10000:
+            return 5
+        elif cls.exp >= 6000:
+            return 4
+        elif cls.exp >= 3000:
+            return 3
+        elif cls.exp >= 1000:
+            return 2
+        elif cls.exp >= 0:
+            return 1
 
 
 class TwoFactorCode(models.Model):

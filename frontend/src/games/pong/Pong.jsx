@@ -186,8 +186,14 @@ const Pong = ({
           authContextData.setGlobalMessage({
             message:
               "From the brink of defeat to total domination. Truly inspiring!",
-            title: "The Bounceback Boss Achieved",
+            title: "The Bounceback Boss",
           });
+          send(
+            JSON.stringify({
+              type: "Achievements",
+              message: "The Bounceback Boss",
+            }),
+          );
           sm.current.RemontadaChance = false;
         }
         sm.current.scoreUpdate(send, scores, msg.message.role, ballRef.current);
@@ -375,7 +381,7 @@ const Pong = ({
           }
         }
         if (Math.floor((Date.now() - sm.current.lastTime) / 1000) > 0)
-          sm.current.TimerCSS(ball);
+          sm.current.TimerCSS(send, ball);
       }
 
       const alpha = (timeNow - simulatedTime) / fixedStep;
