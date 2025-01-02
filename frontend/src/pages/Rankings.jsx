@@ -20,6 +20,7 @@ const Rankings = () => {
   for (let i = 1; i < 100; i++) {
     rankedUsers.push(
       <RankedUsers
+				key={i}
         rank={i}
         player={"si mhammed"}
         won={i}

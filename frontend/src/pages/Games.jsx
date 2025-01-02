@@ -289,7 +289,7 @@ const Games = () => {
   ];
 
   return (
-    <div className="flex flex-col grow">
+    <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="games" />
       <div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
       <div className="container md:px-16 px-0">

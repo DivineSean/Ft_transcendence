@@ -178,7 +178,7 @@ const Profile = () => {
 						<div className={`w-[80px] flex justify-center items-end overflow-hidden`}>
 							<img
 								className={`
-									${level.level > playerLevel.level ? ' grayscale-[100%]' : ''} object-cover grow
+									${level.level > playerLevel.level ? ' grayscale-[100%]' : ''} object-cover grow h-full w-full
 								`}
 								src={level.image}
 								alt={`lvl${level.level}`}

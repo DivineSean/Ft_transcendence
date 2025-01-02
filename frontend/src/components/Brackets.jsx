@@ -6,41 +6,78 @@ let region = null
 region = [
 	{
 		100: [
-			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 67},
-			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-hassan', seed: 16, name: 'hasan', score: 55}
+			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
+			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
 		],
 		200: [
-			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-moha', seed: 8, name: 'moha', score: 48},
-			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-mas3oz', seed: 9, name: 'mas3oz', score: 77}
+			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
+			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
 		],
 		300: [
-			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 76},
-			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-lmgadar', seed: 13, name: 'lmgadar', score: 59}
+			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
+			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
 		],
 		400: [
-			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-handala', seed: 5, name: 'handala', score: 75},
-			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-9ador', seed: 12, name: '9ador', score: 77}
+			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
+			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
 		],
 	},
 	{
-		900: [
-			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 61},
-			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-mas3oz', seed: 9, name: 'mas3oz', score: 45}
+		500: [
+			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
+			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
 		],
-		1000: [
-			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 77},
-			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-9ador', seed: 12, name: '9ador', score: 60}
+		600: [
+			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
+			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
 		],
 	},
 	{
-		1300: [
-			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 79},
-			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 68},
+		700: [
+			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
+			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
 		],
 	}
 ]
 
-// const region = [
+// region = [
+// 	{
+// 		100: [
+// 			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 67},
+// 			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-hassan', seed: 16, name: 'hasan', score: 55}
+// 		],
+// 		200: [
+// 			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-moha', seed: 8, name: 'moha', score: 48},
+// 			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-mas3oz', seed: 9, name: 'mas3oz', score: 77}
+// 		],
+// 		300: [
+// 			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 76},
+// 			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-lmgadar', seed: 13, name: 'lmgadar', score: 59}
+// 		],
+// 		400: [
+// 			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-handala', seed: 5, name: 'handala', score: 75},
+// 			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-9ador', seed: 12, name: '9ador', score: 77}
+// 		],
+// 	},
+// 	{
+// 		900: [
+// 			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 61},
+// 			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-mas3oz', seed: 9, name: 'mas3oz', score: 45}
+// 		],
+// 		1000: [
+// 			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 77},
+// 			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-9ador', seed: 12, name: '9ador', score: 60}
+// 		],
+// 	},
+// 	{
+// 		1300: [
+// 			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 79},
+// 			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 68},
+// 		],
+// 	}
+// ]
+
+// region = [
 // 	{
 // 		100: [
 // 			{ winnerClass: 'team-winner', loserClass: '', teamClass: 'team-player1', seed: 1, name: 'player1', score: 85 },
@@ -113,7 +150,7 @@ region = [
 // 	},
 // ];
 
-// const region = [
+// region = [
 // 	{
 // 		// Round 1: 16 Games
 // 		100: [
@@ -270,11 +307,13 @@ const Brackets = () => {
 	return (
 		<>
 		{region && 
-			<div className="grow h-full region flex justify-center overflow-y-auto no-scrollbar">
-				<canvas ref={canvasRef} className='absolute top-0 left-0 w-screen h-screen'></canvas>
+			<div className="grow h-full region flex md:justify-center justify-start overflow-y-auto no-scrollbar gap-4">
+
+				<canvas ref={canvasRef} style={{width: '100%', height: '100%'}} className='absolute top-0 left-0'></canvas>
+
 				{region.map((round, index) => (
 
-					<section className={` flex flex-col justify-around h-full px-16 float-left w-1/3
+					<section className={`flex flex-col justify-around h-full px-16 float-left w-1/3
 						z-20 pointer-events-none
 						round ${index >= 2 && 'round-collapse'}`}
 						key={index}
@@ -284,7 +323,7 @@ const Brackets = () => {
 
 							<article
 								className="overflow-hidden flex border-[0.5px] border-stroke-pr
-									flex-col md:max-h-[300px] max-h-[80px] pointer-events-auto bg-[url(/images/background.png)]
+									flex-col md:max-h-[300px] max-h-[70px] pointer-events-auto bg-[url(/images/background.png)]
 									bg-cover bg-center
 									game relative"
 									key={key}
@@ -293,19 +332,21 @@ const Brackets = () => {
 								{game.map((team, index) => (
 
 									<div
-										className={`transition-all flex items-center justify-between flex-[1_1_40px] cursor-pointer
-											team z-10 ${team.winnerClass} ${team.loserClass} team-${team.name} pl-8 md:p-8 p-0
+										className={`transition-all flex items-center justify-between cursor-pointer gap-8
+											team z-10 md:p-8 p-4
+											${team.winnerClass} ${team.loserClass} team-${team.name} 
+											${index === 1 && 'border-t-[0.5px] border-stroke-sc'}
 										`}
 										data-team={team.name}
-										key={team.name}
+										key={index}
 									>
-										<div className="flex gap-8 items-center">
-											<div className="w-32 h-32 rounded-full border-[0.5px] border-stroke-sc md:flex hidden overflow-hidden">
-												<img src="/images/default.jpeg" alt="img" className='object-cover grow' />
+										<div className="flex gap-8 items-center md:max-w-full max-w-8">
+											<div className="max-w-32 min-w-32 min-h-32 max-h-32 rounded-full border-[0.5px] bg-gray/20 border-stroke-sc md:flex hidden overflow-hidden">
+												{team.name && <img src="/images/default.jpeg" alt="img" className='object-cover grow' />}
 											</div>
-											<span className="whitespace-nowrap overflow-hidden text-ellipsis">{team.name}</span>
+											<span className="whitespace-nowrap overflow-hidden text-ellipsis ">{team.name ? team.name : 'loading...'}</span>
 										</div>
-										<span className="font-semibold flex-[0_1_30px]">{team.score}</span>
+										<span className="">{team.score ? team.score : '0'}</span>
 									</div>
 									
 								))}

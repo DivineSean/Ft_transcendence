@@ -48,15 +48,14 @@ class Tournament {
     this.canvas.width = w * 2; // retina
     this.canvas.height = h * 2; // retina
 
-    this.canvas.style.width = `${w}px`;
-    this.canvas.style.height = `${h}px`;
+    // this.canvas.style.width = `${w}px`;
+    // this.canvas.style.height = `${h}px`;
 
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.scale(2, 2); // retina
 
     document.querySelectorAll(this.options.regionSelector).forEach((region) => {
-      const rightAlign = region.classList.contains("region-right");
 
       region.querySelectorAll(".round").forEach((round, roundIndex) => {
         const nextGames = round.nextElementSibling?.querySelectorAll(".game");
@@ -67,14 +66,14 @@ class Tournament {
           const nextGame = nextGames[Math.floor(gameIndex / 2)];
           const color = this.options.color;
           const width = winner ? this.options.width : 0.5;
-          const calcFn = rightAlign ? this.calcLeft : this.calcRight;
+          const calcFn = this.calcRight;
           const start = calcFn(winner || game);
 
           if (roundIndex === 0) {
             const endNode = winner
               ? nextGame.querySelector(`.team-${winner.getAttribute("data-team")}`)
               : nextGame;
-            const calcEndFn = rightAlign ? this.calcRight : this.calcLeft;
+            const calcEndFn = this.calcLeft;
             const end = calcEndFn(endNode);
             const radiusAdjust = Math.min(
               this.options.radius,
