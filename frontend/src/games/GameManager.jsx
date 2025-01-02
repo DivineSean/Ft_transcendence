@@ -99,6 +99,10 @@ const Game = memo(
       console.log("Game component renered");
     }, []);
 
+    const overideSend = () =>{
+        return;
+    }
+
     switch (game) {
       case "pong":
         return (
@@ -107,10 +111,11 @@ const Game = memo(
             setReady={setReady}
             playersData={players.current}
             turn={turn}
-            player={data.role}
-            send={send}
+            player={data ? data.role: 1}
+            send={data ? send: overideSend}
             addMessageHandler={addMessageHandler}
             removeMessageHandler={removeMessageHandler}
+            isSpectator={data ? false: true}
           />
         );
     }

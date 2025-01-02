@@ -249,6 +249,9 @@ class GameConsumer(WebsocketConsumer):
             self.save_game_data(state=json.dumps(game_data["state"]))
 
     def handle_timeout(self):
+        isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
+        if not isPlayer:
+            return
         game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
         self.players = json.loads(game_data["players"])
         if game_data["status"] in ("ongoing", "paused"):

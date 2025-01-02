@@ -123,11 +123,41 @@ class Ball {
     send(JSON.stringify(data));
   }
 
-  update(net, table, player1, send, dt, player, keyboard, globalMessage) {
+  update(net, table, player1, send, dt, player, keyboard, globalMessage, isSpectator) {
     if (this.sendLock && this.serving && this.count >= 2) return;
     this.dy -= G;
     let flag = false;
     //serve
+
+    if (isSpectator)
+    {
+      if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
+        this.y = table.boundingBoxTable.max.y + 1;
+        this.dy *= -0.6;
+        if (!this.bounceSound.isPlaying) {
+          this.bounceSound.currentTime = 0;
+          this.bounceSound.play();
+        }
+      }
+      if (this.boundingSphere.intersectsBox(net.boundingBox)) {
+        if (!this.netHitSound.isPlaying) {
+          this.netHitSound.currentTime = 0.5;
+          this.netHitSound.play();
+        }
+        player1.netshoot(this, net);
+      }
+      this.x += this.dx * dt;
+      this.y += this.dy * dt;
+      this.z += this.dz * dt;
+
+      this.model.position.set(this.x, this.y, this.z);
+      const box = new THREE.Box3().setFromObject(this.model);
+      const center = box.getCenter(new THREE.Vector3());
+      this.radius = box.getSize(new THREE.Vector3()).length() / 2;
+      this.boundingSphere = new THREE.Sphere(center, this.radius - 0.5);
+      return;
+    }
+
     if (this.serving) this.count = 0;
     if (this.y < -50 && this.sendLock === false && this.serving === false) {
       if (this.lastshooter === 1 && player === 1) {
