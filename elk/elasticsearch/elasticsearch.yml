@@ -1,11 +1,19 @@
 cluster.name: elk-cluster
 node.name: elasticsearch
 network.host: 0.0.0.0
+
+# INFO: These settings are commented out because the current environment lacks the necessary permissions to enable them. 
+#       - `bootstrap.memory_lock: true` requires system-level privileges to lock JVM memory, which helps prevent swapping and improves stability. 
+#         Enabling this in production ensures better performance, especially under heavy loads.
+#       - `cluster.initial_master_nodes`: Used to bootstrap multi-node clusters. Since this is a single-node setup, it is unnecessary here. 
+#         For production with multiple nodes, this ensures proper cluster formation.
+#       - `discovery.type: single-node`: Explicitly indicates a single-node environment, which simplifies configuration. 
+#         It is sufficient for development but not recommended for production where scalability and fault tolerance are needed.
+discovery.type: single-node
+
 # bootstrap.memory_lock: true
-bootstrap.memory_lock: false
-# bootstrap.system_call_filter: false
-bootstrap.seccomp: false
-cluster.initial_master_nodes: elasticsearch
+# cluster.initial_master_nodes: elasticsearch
+
 xpack.security.enabled: true
 xpack.security.http.ssl.enabled: true
 xpack.security.http.ssl.key: certs/elasticsearch/elasticsearch.key

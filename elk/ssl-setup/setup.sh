@@ -61,14 +61,14 @@ until curl -s \
 echo "Waiting for Kibana availability..."
 until curl -s -k https://kibana:5601/api/status | grep -q '"status":{"overall":{"level":"available"'; do sleep 5; done
 
-echo "Importing kibana Dashboard..."
-until curl -s -k \
-	-X POST "https://kibana:5601/api/saved_objects/_import" \
-	-u "elastic:${KIBANA_PASSWORD}" \
-	-H "kbn-xsrf: true" \
-	-H "Content-Type: multipart/form-data" \
-	--form file=@/usr/share/elasticsearch/config/dashboard.ndjson |
-	grep -q '"success":true'; do sleep 5; done
+# echo "Importing kibana Dashboard..."
+# until curl -s -k \
+# 	-X POST "https://kibana:5601/api/saved_objects/_import" \
+# 	-u "elastic:${KIBANA_PASSWORD}" \
+# 	-H "kbn-xsrf: true" \
+# 	-H "Content-Type: multipart/form-data" \
+# 	--form file=@/usr/share/elasticsearch/config/dashboard.ndjson |
+# 	grep -q '"success":true'; do sleep 5; done
 
 echo "All done!, removing the setup container"
 CONTAINER_ID=$(hostname)
