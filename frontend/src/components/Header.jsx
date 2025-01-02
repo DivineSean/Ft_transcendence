@@ -35,7 +35,7 @@ const Header = ({ ...props }) => {
   const [searchResult, setSearchResult] = useState(false);
   const searchResultRef = useRef(null);
   const searchBarRef = useRef(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const FetchData = new FetchWrapper();
   const [foundUsers, setFoundUsers] = useState([]);
   const navigate = useNavigate();
@@ -85,14 +85,14 @@ const Header = ({ ...props }) => {
       }
     }
 
-	if (
-		searchResultRef.current &&
-		!searchResultRef.current.contains(event.target) &&
-		searchBarRef.current &&
-		!searchBarRef.current.contains(event.target)
-	) {
-		setSearchResult(false);
-	}
+    if (
+      searchResultRef.current &&
+      !searchResultRef.current.contains(event.target) &&
+      searchBarRef.current &&
+      !searchBarRef.current.contains(event.target)
+    ) {
+      setSearchResult(false);
+    }
   };
 
   useEffect(() => {
@@ -137,47 +137,48 @@ const Header = ({ ...props }) => {
   });
 
   const searchForUsers = async () => {
-	try {
-		const res = await FetchData.get(`api/users/search/?query=${encodeURIComponent(searchQuery)}`);
-		if (res.ok) {
-			const data = await res.json();
-			setFoundUsers(data);
-		} else {
-			const data = await res.json();
-			authContextData.setGlobalMessage({
-				message: data.error,
-				isError: true,
-			})
-		}
-	} catch (error) {
-		authContextData.setGlobalMessage({
-			message: error.message,
-			isError: true,
-		})
-	}
-  }
+    try {
+      const res = await FetchData.get(
+        `api/users/search/?query=${encodeURIComponent(searchQuery)}`,
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setFoundUsers(data);
+      } else {
+        const data = await res.json();
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
+      }
+    } catch (error) {
+      authContextData.setGlobalMessage({
+        message: error.message,
+        isError: true,
+      });
+    }
+  };
 
   useEffect(() => {
-	if (searchQuery) {
-		searchForUsers();
-	} else {
-		setFoundUsers([]);
-	}
-  }, [searchQuery])
+    if (searchQuery) {
+      searchForUsers();
+    } else {
+      setFoundUsers([]);
+    }
+  }, [searchQuery]);
 
   const handleSearch = (e) => {
-	e.preventDefault();
-	if (!searchQuery)
-		setSearchQuery(e.target.value);
-	setTimeout(() => {
-		setSearchQuery(e.target.value);
-	}, 500);
-  }
+    e.preventDefault();
+    if (!searchQuery) setSearchQuery(e.target.value);
+    setTimeout(() => {
+      setSearchQuery(e.target.value);
+    }, 500);
+  };
 
   const handleNavigate = (user) => {
-	setSearchResult(false);
-	navigate(`/profile/overview/${user.username}`);
-  }
+    setSearchResult(false);
+    navigate(`/profile/overview/${user.username}`);
+  };
 
   return (
     <>
@@ -214,57 +215,62 @@ const Header = ({ ...props }) => {
           <div className="flex grow justify-center">
             <div className="flex items-center relative lg:w-full md:w-[60%] w-full">
               <input
-			  	ref={searchBarRef}
+                ref={searchBarRef}
                 type="text"
-				onFocus={() => setSearchResult(true)}
-				onChange={handleSearch}
+                onFocus={() => setSearchResult(true)}
+                onChange={handleSearch}
                 placeholder="find users"
                 className="search-glass text-txt-sm px-32 py-8 outline-none text-white w-full"
               />
               <IoSearchOutline className="text-gray absolute left-8 text-txt-md" />
-			{searchResult &&
-				<>
-					<div className="absolute top-[44px] bg-[url(/images/background.png)] bg-cover bg-top left-0 right-0 max-h-[300px] rounded-md">
-						<ul
-							ref={searchResultRef}
-							className="w-full max-h-[300px] bg-black/30 backdrop-blur-xl overflow-y-scroll no-scrollbar
+              {searchResult && (
+                <>
+                  <div className="absolute top-[44px] bg-[url(/images/background.png)] bg-cover bg-top left-0 right-0 max-h-[300px] rounded-md">
+                    <ul
+                      ref={searchResultRef}
+                      className="w-full max-h-[300px] bg-black/30 backdrop-blur-xl overflow-y-scroll no-scrollbar
 							rounded-md border-[0.5px] border-stroke-sc p-8 flex flex-col gap-8"
-							>
-								{foundUsers.length !== 0 ?
-									foundUsers.map((user) => (
-										<li 
-											onClick={() => handleNavigate(user)}
-											key={user.id}
-											className="bg-gray/5 py-8 px-12 hover:bg-gray/15 overflow-hidden cursor-pointer
+                    >
+                      {foundUsers.length !== 0 ? (
+                        foundUsers.map((user) => (
+                          <li
+                            onClick={() => handleNavigate(user)}
+                            key={user.id}
+                            className="bg-gray/5 py-8 px-12 hover:bg-gray/15 overflow-hidden cursor-pointer
 											transition-all rounded-md grid grid-cols-[48px,1fr] gap-12 items-center shrink-0"
-											>
-											<div className="w-48 h-48 rounded-full overflow-hidden flex border-[0.5px] border-stroke-sc">
-												<img
-													src={
-														user.profile_image
-														  ? `${BACKENDURL}${user.profile_image}?t=${new Date().getTime()}`
-														  : "/images/default.jpeg"
-													  }
-													alt="img"
-													className="grow object-cover"
-												/>
-											</div>
-											<section className="flex flex-col justify-center normal-case">
-												<h1 className="tracking-wider text-txt-sm font-semibold">{user.first_name} {user.last_name}</h1>
-												<p className="text-txt-xs text-gray tracking-wide">@{user.username}</p>
-											</section>
-										</li>
-										
-									))
-									:
-									<p className="text-stroke-sc text-txt-md grow flex justify-center items-center py-8">no user founded</p>
-								}
-						</ul>
-					</div>
-				</>
-			}
+                          >
+                            <div className="w-48 h-48 rounded-full overflow-hidden flex border-[0.5px] border-stroke-sc">
+                              <img
+                                src={
+                                  user.profile_image
+                                    ? `${BACKENDURL}${user.profile_image}?t=${new Date().getTime()}`
+                                    : "/images/default.jpeg"
+                                }
+                                alt="img"
+                                className="grow object-cover"
+                              />
+                            </div>
+                            <section className="flex flex-col justify-center normal-case">
+                              <h1 className="tracking-wider text-txt-sm font-semibold">
+                                {user.first_name} {user.last_name}
+                              </h1>
+                              <p className="text-txt-xs text-gray tracking-wide">
+                                @{user.username}
+                              </p>
+                            </section>
+                          </li>
+                        ))
+                      ) : (
+                        <p className="text-stroke-sc text-txt-md grow flex justify-center items-center py-8">
+                          no user founded
+                        </p>
+                      )}
+                    </ul>
+                  </div>
+                </>
+              )}
             </div>
-		  </div>
+          </div>
           <div
             ref={(el) => (toggleOptionsRef.current[0] = el)}
             onClick={toggleNotification}

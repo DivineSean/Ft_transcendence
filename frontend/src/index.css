@@ -346,25 +346,24 @@ input:-webkit-autofill:active {
   @apply bg-stroke-sc cursor-all-scroll;
 }
 
-
 /* ----------- start tournaments ----------- */
 .round-collapse {
-	@apply md:ml-[-16.666666666%];
+  @apply md:ml-[-16.666666666%];
 }
 
 .team-hover {
-	@apply !bg-transparent;
+  @apply !bg-transparent;
 }
 
 .team-winner.team-hover {
-	@apply !bg-green/40 text-black;
+  @apply !bg-green/40 text-black;
 }
 
 .team-loser.team-hover {
-	@apply !bg-red/40 text-gray/70;
+  @apply !bg-red/40 text-gray/70;
 }
 
 .team-loser {
-	@apply bg-stroke-sc/50 text-stroke-sc;
+  @apply bg-stroke-sc/50 text-stroke-sc;
 }
 /* ----------- end tournaments ----------- */

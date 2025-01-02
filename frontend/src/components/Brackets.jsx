@@ -1,44 +1,142 @@
-import { useEffect, useRef } from 'react';
-import Tournament from '../utils/tournaments';
+import { useEffect, useRef } from "react";
+import Tournament from "../utils/tournaments";
 
-let region = null
+let region = null;
 
 region = [
-	{
-		100: [
-			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
-			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
-		],
-		200: [
-			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
-			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
-		],
-		300: [
-			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
-			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
-		],
-		400: [
-			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
-			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
-		],
-	},
-	{
-		500: [
-			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
-			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
-		],
-		600: [
-			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
-			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
-		],
-	},
-	{
-		700: [
-			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
-			{winnerClass: '', loserClass: '', teamClass: '', seed: '', name: '', score: ''},
-		],
-	}
-]
+  {
+    100: [
+      {
+        winnerClass: "",
+        loserClass: "",
+        teamClass: "",
+        seed: "",
+        name: "",
+        score: "",
+      },
+      {
+        winnerClass: "",
+        loserClass: "",
+        teamClass: "",
+        seed: "",
+        name: "",
+        score: "",
+      },
+    ],
+    200: [
+      {
+        winnerClass: "",
+        loserClass: "",
+        teamClass: "",
+        seed: "",
+        name: "",
+        score: "",
+      },
+      {
+        winnerClass: "",
+        loserClass: "",
+        teamClass: "",
+        seed: "",
+        name: "",
+        score: "",
+      },
+    ],
+    300: [
+      {
+        winnerClass: "",
+        loserClass: "",
+        teamClass: "",
+        seed: "",
+        name: "",
+        score: "",
+      },
+      {
+        winnerClass: "",
+        loserClass: "",
+        teamClass: "",
+        seed: "",
+        name: "",
+        score: "",
+      },
+    ],
+    400: [
+      {
+        winnerClass: "",
+        loserClass: "",
+        teamClass: "",
+        seed: "",
+        name: "",
+        score: "",
+      },
+      {
+        winnerClass: "",
+        loserClass: "",
+        teamClass: "",
+        seed: "",
+        name: "",
+        score: "",
+      },
+    ],
+  },
+  {
+    500: [
+      {
+        winnerClass: "",
+        loserClass: "",
+        teamClass: "",
+        seed: "",
+        name: "",
+        score: "",
+      },
+      {
+        winnerClass: "",
+        loserClass: "",
+        teamClass: "",
+        seed: "",
+        name: "",
+        score: "",
+      },
+    ],
+    600: [
+      {
+        winnerClass: "",
+        loserClass: "",
+        teamClass: "",
+        seed: "",
+        name: "",
+        score: "",
+      },
+      {
+        winnerClass: "",
+        loserClass: "",
+        teamClass: "",
+        seed: "",
+        name: "",
+        score: "",
+      },
+    ],
+  },
+  {
+    700: [
+      {
+        winnerClass: "",
+        loserClass: "",
+        teamClass: "",
+        seed: "",
+        name: "",
+        score: "",
+      },
+      {
+        winnerClass: "",
+        loserClass: "",
+        teamClass: "",
+        seed: "",
+        name: "",
+        score: "",
+      },
+    ],
+  },
+];
 
 // region = [
 // 	{
@@ -282,7 +380,7 @@ region = [
 // 			{ winnerClass: 'team-winner', loserClass: '', teamClass: 'team-player17', seed: 2, name: 'player17', score: 88 },
 // 			{ winnerClass: '', loserClass: 'team-loser', teamClass: 'team-player25', seed: 3, name: 'player25', score: 84 },
 // 		],
-// 	},	
+// 	},
 // 	{
 // 		// Final: 1 Game
 // 		100: [
@@ -292,77 +390,78 @@ region = [
 // 	},
 // ];
 
-
 const Brackets = () => {
-	const canvasRef = useRef(null);
-	const regionRef = useRef(null);
-	
-	useEffect(() => {
-		if (canvasRef.current ) {
-			const tournament = new Tournament(canvasRef.current, regionRef.current);
-			tournament.init();
-		}
-	}, [canvasRef, regionRef])
+  const canvasRef = useRef(null);
+  const regionRef = useRef(null);
 
-	return (
-		<>
-		{region && 
-			<div className="grow h-full region flex md:justify-center justify-start overflow-y-auto no-scrollbar gap-4">
+  useEffect(() => {
+    if (canvasRef.current) {
+      const tournament = new Tournament(canvasRef.current, regionRef.current);
+      tournament.init();
+    }
+  }, [canvasRef, regionRef]);
 
-				<canvas ref={canvasRef} style={{width: '100%', height: '100%'}} className='absolute top-0 left-0'></canvas>
+  return (
+    <>
+      {region && (
+        <div className="grow h-full region flex md:justify-center justify-start overflow-y-auto no-scrollbar gap-4">
+          <canvas
+            ref={canvasRef}
+            style={{ width: "100%", height: "100%" }}
+            className="absolute top-0 left-0"
+          ></canvas>
 
-				{region.map((round, index) => (
-
-					<section className={`flex flex-col justify-around h-full px-16 float-left w-1/3
+          {region.map((round, index) => (
+            <section
+              className={`flex flex-col justify-around h-full px-16 float-left w-1/3
 						z-20 pointer-events-none
-						round ${index >= 2 && 'round-collapse'}`}
-						key={index}
-					>
-
-						{Object.entries(round).map(([key, game]) => (
-
-							<article
-								className="overflow-hidden flex border-[0.5px] border-stroke-pr
+						round ${index >= 2 && "round-collapse"}`}
+              key={index}
+            >
+              {Object.entries(round).map(([key, game]) => (
+                <article
+                  className="overflow-hidden flex border-[0.5px] border-stroke-pr
 									flex-col md:max-h-[300px] max-h-[70px] pointer-events-auto bg-[url(/images/background.png)]
 									bg-cover bg-center
 									game relative"
-									key={key}
-								>
-								<div className="absolute h-full w-full top-0 left-0 backdrop-blur-md "></div>
-								{game.map((team, index) => (
-
-									<div
-										className={`transition-all flex items-center justify-between cursor-pointer gap-8
+                  key={key}
+                >
+                  <div className="absolute h-full w-full top-0 left-0 backdrop-blur-md "></div>
+                  {game.map((team, index) => (
+                    <div
+                      className={`transition-all flex items-center justify-between cursor-pointer gap-8
 											team z-10 md:p-8 p-4
 											${team.winnerClass} ${team.loserClass} team-${team.name} 
-											${index === 1 && 'border-t-[0.5px] border-stroke-sc'}
+											${index === 1 && "border-t-[0.5px] border-stroke-sc"}
 										`}
-										data-team={team.name}
-										key={index}
-									>
-										<div className="flex gap-8 items-center md:max-w-full max-w-8">
-											<div className="max-w-32 min-w-32 min-h-32 max-h-32 rounded-full border-[0.5px] bg-gray/20 border-stroke-sc md:flex hidden overflow-hidden">
-												{team.name && <img src="/images/default.jpeg" alt="img" className='object-cover grow' />}
-											</div>
-											<span className="whitespace-nowrap overflow-hidden text-ellipsis ">{team.name ? team.name : 'loading...'}</span>
-										</div>
-										<span className="">{team.score ? team.score : '0'}</span>
-									</div>
-									
-								))}
-
-							</article>
-
-						))}
-
-					</section>
-
-				))}
-
-			</div>
-		}
-		</>
-	)
-}
+                      data-team={team.name}
+                      key={index}
+                    >
+                      <div className="flex gap-8 items-center md:max-w-full max-w-8">
+                        <div className="max-w-32 min-w-32 min-h-32 max-h-32 rounded-full border-[0.5px] bg-gray/20 border-stroke-sc md:flex hidden overflow-hidden">
+                          {team.name && (
+                            <img
+                              src="/images/default.jpeg"
+                              alt="img"
+                              className="object-cover grow"
+                            />
+                          )}
+                        </div>
+                        <span className="whitespace-nowrap overflow-hidden text-ellipsis ">
+                          {team.name ? team.name : "loading..."}
+                        </span>
+                      </div>
+                      <span className="">{team.score ? team.score : "0"}</span>
+                    </div>
+                  ))}
+                </article>
+              ))}
+            </section>
+          ))}
+        </div>
+      )}
+    </>
+  );
+};
 
 export default Brackets;

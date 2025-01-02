@@ -40,7 +40,7 @@ export const create3DModel = async (canvas, modelFolderName) => {
   // controls.maxDistance = 2.4;
   // controls.minPolarAngle = 0.5;
   // controls.maxPolarAngle = Math.PI / 2;
-	controls.enabled = false;
+  controls.enabled = false;
   // controls.autoRotate = true;
   // controls.target = new THREE.Vector3(0, 0, 0);
 
@@ -63,22 +63,22 @@ export const create3DModel = async (canvas, modelFolderName) => {
   leftBehindLight.position.set(-25, 0, -25);
   scene.add(leftBehindLight);
 
-	const loader = new GLTFLoader(manager);
+  const loader = new GLTFLoader(manager);
 
-	loader
-		.loadAsync(`https://${window.location.hostname}:3000/planet/scene.gltf`)
-		.then((gltf) => {
-			const mesh = gltf.scene;
-			scene.add(mesh);
-		})
-		.catch((error) => {});
+  loader
+    .loadAsync(`https://${window.location.hostname}:3000/planet/scene.gltf`)
+    .then((gltf) => {
+      const mesh = gltf.scene;
+      scene.add(mesh);
+    })
+    .catch((error) => {});
 
-		function animate() {
-			// requestAnimationFrame(animate);
-			renderer.render(scene, camera);
-			controls.update();
-		}
-		renderer.setAnimationLoop(animate)
-			
+  function animate() {
+    // requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+    controls.update();
+  }
+  renderer.setAnimationLoop(animate);
+
   // animate();
 };

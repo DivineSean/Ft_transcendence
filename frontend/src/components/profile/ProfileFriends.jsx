@@ -171,9 +171,9 @@ const ProfileFriends = ({ username }) => {
                   <FaChevronDown className="text-green cursor-pointer" />
                   {displaySelect && (
                     <ul
-						className="absolute top-[44px] z-[1] left-0 overflow-hidden text-center w-full flex flex-col
+                      className="absolute top-[44px] z-[1] left-0 overflow-hidden text-center w-full flex flex-col
 						bg-[url('/images/background.png')] bg-cover bg-bottom transition-all rounded-md p-8 gap-4 border-[0.5px] border-stroke-sc"
-					>
+                    >
                       <div className="absolute w-full h-full backdrop-blur-3xl z-[-1] rounded-md top-0 left-0"></div>
                       {select.map((item, i) => (
                         <li

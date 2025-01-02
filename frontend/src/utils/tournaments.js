@@ -1,7 +1,7 @@
 class Tournament {
   constructor(canvas, regoin) {
-		this.canvas = canvas;
-		this.regoin = regoin;
+    this.canvas = canvas;
+    this.regoin = regoin;
     this.defaults = {
       width: 2,
       color: "#5B5B5B",
@@ -14,9 +14,9 @@ class Tournament {
     this.options = { ...this.defaults, ...options };
     // this.canvas = document.getElementById("canvas");
 
-		this.ctx = this.canvas.getContext("2d");
-		this.bindEvents();
-		this.render();
+    this.ctx = this.canvas.getContext("2d");
+    this.bindEvents();
+    this.render();
   }
 
   bindEvents() {
@@ -51,12 +51,10 @@ class Tournament {
     // this.canvas.style.width = `${w}px`;
     // this.canvas.style.height = `${h}px`;
 
-
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.scale(2, 2); // retina
 
     document.querySelectorAll(this.options.regionSelector).forEach((region) => {
-
       region.querySelectorAll(".round").forEach((round, roundIndex) => {
         const nextGames = round.nextElementSibling?.querySelectorAll(".game");
         if (!nextGames) return;
@@ -71,15 +69,24 @@ class Tournament {
 
           if (roundIndex === 0) {
             const endNode = winner
-              ? nextGame.querySelector(`.team-${winner.getAttribute("data-team")}`)
+              ? nextGame.querySelector(
+                  `.team-${winner.getAttribute("data-team")}`,
+                )
               : nextGame;
             const calcEndFn = this.calcLeft;
             const end = calcEndFn(endNode);
             const radiusAdjust = Math.min(
               this.options.radius,
-              Math.abs(start.y - end.y) / 2
+              Math.abs(start.y - end.y) / 2,
             );
-            this.drawSCurve(start, end, color, width, this.options.radius, radiusAdjust);
+            this.drawSCurve(
+              start,
+              end,
+              color,
+              width,
+              this.options.radius,
+              radiusAdjust,
+            );
           } else {
             const end = this.calcCenter(nextGame);
             this.drawCurve(
@@ -88,7 +95,7 @@ class Tournament {
               "horizontal",
               color,
               width,
-              this.options.radius
+              this.options.radius,
             );
           }
         });
@@ -127,9 +134,10 @@ class Tournament {
 
   drawCurve(start, end, orientation, color, width, radius, radius2 = radius) {
     this.ctx.beginPath();
-    const anchor = orientation === "horizontal"
-      ? { x: end.x, y: start.y }
-      : { x: start.x, y: end.y };
+    const anchor =
+      orientation === "horizontal"
+        ? { x: end.x, y: start.y }
+        : { x: start.x, y: end.y };
 
     const m1 = this.lineDistanceFromEnd(start, anchor, radius);
     const m2 = this.lineDistanceFromEnd(end, anchor, radius2);
@@ -146,7 +154,15 @@ class Tournament {
 
   drawSCurve(start, end, color, width, radius, radius2) {
     const midpoint = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 };
-    this.drawCurve(start, midpoint, "horizontal", color, width, radius, radius2);
+    this.drawCurve(
+      start,
+      midpoint,
+      "horizontal",
+      color,
+      width,
+      radius,
+      radius2,
+    );
     this.drawCurve(midpoint, end, "vertical", color, width, radius2, radius);
   }
 
