@@ -167,46 +167,35 @@ const Profile = () => {
 
   const currentLevel = [];
 
-  levels.map((level, index) => {
-    if (playerLevel.level === level.level) {
-      const percentage = calculateLevelPercentage(
-        levels,
-        level,
-        playerLevel,
-        index,
-      );
-      currentLevel.push(
-        <div className="flex gap-8 grow" key={level.level}>
-          <div
-            className={`w-[80px] flex justify-center items-end overflow-hidden`}
-          >
-            <img
-              className={`
-									${level.level > playerLevel.level ? " grayscale-[100%]" : ""} object-cover grow h-full w-full
-								`}
-              src={level.image}
-              alt={`lvl${level.level}`}
-            />
-          </div>
-          <div className="flex flex-col grow gap-8 justify-center">
-            <div className="flex justify-between items-end">
-              <p className="font-bold tracking-wider">level {level.level}</p>
-              <p className="tracking-wide text-gray text-txt-xs flex gap-4">
-                {playerLevel.xp >= 100000 ? "+100K" : playerLevel.xp}
-                <span className="font-semibold uppercase text-green">xp</span>
-              </p>
-            </div>
-            <div className="h-8 w-full bg-black/50 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-green transition-all"
-                style={{ width: `${percentage}%` }}
-              ></div>
-            </div>
-          </div>
-        </div>,
-      );
-    }
-  });
+	if (contextData.profileInfo)
+		currentLevel.push(
+			<div className="flex gap-8 grow" key={contextData.profileInfo.id}>
+				<div
+					className={`w-[80px] flex justify-center items-end overflow-hidden`}
+				>
+					<img
+						className={` object-cover grow h-full w-full`}
+						src={`/images/badges/lvl${contextData.profileInfo.level}.png`}
+						alt={`lvl1`}
+					/>
+				</div>
+				<div className="flex flex-col grow gap-8 justify-center">
+					<div className="flex justify-between items-end">
+						<p className="font-bold tracking-wider">level {contextData.profileInfo.level}</p>
+						<p className="tracking-wide text-gray text-txt-xs flex gap-4">
+							{contextData.profileInfo.exp}
+							<span className="font-semibold uppercase text-green">xp</span>
+						</p>
+					</div>
+					<div className="h-8 w-full bg-black/50 rounded-full overflow-hidden">
+						<div
+							className="h-full bg-green transition-all"
+							style={{ width: `${contextData.profileInfo.percentage}%` }}
+						></div>
+					</div>
+				</div>
+			</div>,
+		);
 
   return (
     <div className="flex flex-col w-full grow lg:gap-32 gap-16 relative">
@@ -261,7 +250,11 @@ const Profile = () => {
                   key={0}
                   className="bg-black/20 p-8 rounded-lg border-[0.5px] border-stroke-sc flex w-full"
                 >
-                  {currentLevel}
+                  {contextData.profileInfo && 
+										<>
+											{currentLevel}
+										</>
+									}
                 </div>
               </div>
 
@@ -336,7 +329,11 @@ const Profile = () => {
                   )}
                 </div>
                 <div className="bg-black/20 p-8 rounded-lg border-[0.5px] border-stroke-sc w-full lg:hidden secondary-glass">
-                  {currentLevel}
+								{contextData.profileInfo && 
+									<>
+										{currentLevel}
+									</>
+								}
                 </div>
                 {!contextData.profileInfo.isUserBlocked && (
                   <div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">

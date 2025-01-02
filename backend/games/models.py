@@ -102,12 +102,12 @@ class Achievement(models.Model):
     description = models.TextField(blank=True)
 
     LEVELS = {
-        "iron": 1,
-        "bronze": 3,
-        "silver": 10,
-        "gold": 25,
-        "platinum": 50,
-        "diamond": 100,
+        "bronze": 1,
+        "silver": 3,
+        "gold": 10,
+        "platinum": 25,
+        "diamond": 50,
+        "titanium": 100,
     }
 
     @classmethod
@@ -183,9 +183,9 @@ class PlayerAchievement(models.Model):
                 user=user,
                 game=game,
                 achievement=achievement,
-                level="iron",
+                level="bronze",
                 progress=increment,
-                threshold=achievement.get_threshold_for_level("iron"),
+                threshold=achievement.get_threshold_for_level("bronze"),
             )
         else:
             current_level.progress += increment
