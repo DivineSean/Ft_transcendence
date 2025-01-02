@@ -33,8 +33,7 @@ class UserSerializerOne(serializers.ModelSerializer):
 
 
 class ConversationSerializer(serializers.ModelSerializer):
-    Sender = UserSerializerOne()
-    Receiver = UserSerializerOne()
+    user = serializers.SerializerMethodField()
     latest_message = serializers.CharField()
     latest_message_timestamp = serializers.DateTimeField()
     is_read_message = serializers.BooleanField()
@@ -43,9 +42,22 @@ class ConversationSerializer(serializers.ModelSerializer):
         model = Conversation
         fields = [
             "ConversationId",
-            "Sender",
-            "Receiver",
+            "user",
             "latest_message",
             "latest_message_timestamp",
             "is_read_message",
         ]
+
+    def __init__(self, *args, **kwargs):
+        exclude_fields = kwargs.pop("exclude_fields", [])
+        super().__init__(*args, **kwargs)
+
+        for field in exclude_fields:
+            self.fields.pop(field, None)
+
+    def get_user(self, obj):
+        current_user = self.context["request"].user
+
+        if obj.Sender == current_user:
+            return UserSerializerOne(obj.Receiver).data
+        return UserSerializerOne(obj.Sender).data

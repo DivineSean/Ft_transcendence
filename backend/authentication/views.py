@@ -7,6 +7,7 @@ from .serializers import (
     PasswordUpdateSerializer,
     UserSerializer,
     UpdateUserSerializer,
+    UserFriendSerializer,
 )
 from django.core.mail import get_connection, EmailMessage
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -567,6 +568,12 @@ def setUpUsername(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    if user.username:
+        return Response(
+            {"error": "This user already has a username."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     if User.objects.filter(username=username).exists():
         return Response(
             {"error": "This username is already taken."},
@@ -597,3 +604,47 @@ def setUpUsername(request):
 @api_view(["GET"])
 def checkUserIsAuthenticated(request):
     return Response({"message": "authenticated user"}, status=status.HTTP_200_OK)
+
+
+from django.contrib.postgres.search import (
+    SearchQuery,
+    SearchVector,
+    SearchRank,
+    TrigramSimilarity,
+)
+
+
+@api_view(["GET"])
+def search_users(request):
+
+    try:
+        query = request.GET.get("query").strip()
+
+        if not query:
+            return Response(
+                {"error": "no query provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        search_query = SearchQuery(query, search_type="websearch")
+
+        search_vector = SearchVector("username", "first_name", "last_name")
+
+        users = (
+            User.objects.annotate(
+                similarity=TrigramSimilarity("username", query)
+                + TrigramSimilarity("first_name", query)
+                + TrigramSimilarity("last_name", query)
+            )
+            .filter(similarity__gt=0.1)
+            .exclude(blockedUsers__contains=[str(request._user.id)])
+            .order_by("-similarity")
+        )
+
+        serializer = UserFriendSerializer(users, many=True)
+
+        print(serializer.data, flush=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

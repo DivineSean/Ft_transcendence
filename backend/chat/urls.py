@@ -10,4 +10,8 @@ urlpatterns = [
         "chat/getMessages/",
         views.getMessages.as_view(),
     ),
+    path(
+        "chat/conversations/search/",
+        views.search_conversations,
+    ),
 ]

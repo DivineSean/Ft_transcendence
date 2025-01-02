@@ -1,8 +1,3 @@
-import {
-  IoSearchOutline,
-  IoNotificationsOutline,
-  IoNotifications,
-} from "react-icons/io5";
 import Header from "../components/Header";
 import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
@@ -25,6 +20,7 @@ const Rankings = () => {
   for (let i = 1; i < 100; i++) {
     rankedUsers.push(
       <RankedUsers
+        key={i}
         rank={i}
         player={"si mhammed"}
         won={i}

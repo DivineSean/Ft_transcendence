@@ -14,7 +14,6 @@ import { LiaMedalSolid } from "react-icons/lia";
 import { GiFlamedLeaf } from "react-icons/gi";
 import { FaClover } from "react-icons/fa6";
 import Header from "../components/Header";
-import NotFound from "./NotFound";
 import { useNavigate } from "react-router-dom";
 import "react-circular-progressbar/dist/styles.css";
 import { BACKENDURL } from "../utils/fetchWrapper";
@@ -22,135 +21,67 @@ import LoadingPage from "./LoadingPage";
 import UserContext from "../context/UserContext";
 import { FiEdit3 } from "react-icons/fi";
 import UpdateProfile from "../components/profile/UpdateProfile";
-import { MdOutlineBlock } from "react-icons/md";
-import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
-import { IoMdPersonAdd } from "react-icons/io";
-import { ImUserPlus, ImUserMinus } from "react-icons/im";
-import { CgUnblock } from "react-icons/cg";
 import Toast from "../components/Toast";
+import FriendManagementButtons from "../components/profile/FriendManagementButtons";
+import Approval from "../components/profile/Approval";
 
 const profileMenu = ["overview", "statistics", "achievements", "friends"];
+const levels = [
+  {
+    level: 1,
+    maxXp: 10000,
+    image: "/images/badges/lvl1.png",
+  },
+  {
+    level: 2,
+    maxXp: 20000,
+    image: "/images/badges/lvl2.png",
+  },
+  {
+    level: 3,
+    maxXp: 30000,
+    image: "/images/badges/lvl3.png",
+  },
+  {
+    level: 4,
+    maxXp: 40000,
+    image: "/images/badges/lvl4.png",
+  },
+  {
+    level: 5,
+    maxXp: 50000,
+    image: "/images/badges/lvl5.png",
+  },
+  {
+    level: 6,
+    maxXp: 60000,
+    image: "/images/badges/lvl6.png",
+  },
+  {
+    level: 7,
+    maxXp: 70000,
+    image: "/images/badges/lvl7.png",
+  },
+  {
+    level: 8,
+    maxXp: 80000,
+    image: "/images/badges/lvl8.png",
+  },
+  {
+    level: 9,
+    maxXp: 90000,
+    image: "/images/badges/lvl9.png",
+  },
+  {
+    level: 10,
+    maxXp: 100000,
+    image: "/images/badges/lvl10.png",
+  },
+];
 
-const FriendManagementButtons = ({ approval, setApproval }) => {
-  const contextData = useContext(UserContext);
-
-  const handleApprovedAction = (type) => {
-    setApproval({
-      visible: true,
-      message: "are you sure!",
-      type: type,
-    });
-  };
-  return (
-    <>
-      {!contextData.profileInfo.isBlockedByUser &&
-        !contextData.profileInfo.isUserBlocked &&
-        contextData.profileInfo.isFriend && (
-          <button
-            onClick={contextData.createConversation}
-            className="secondary-glass grow lg:w-full p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
-          >
-            <IoChatbubbleEllipsesOutline />
-            <p>message</p>
-          </button>
-        )}
-
-      {!contextData.profileInfo.isBlockedByUser &&
-        !contextData.profileInfo.isUserBlocked &&
-        !contextData.profileInfo.isFriend &&
-        !contextData.profileInfo.isSentRequest &&
-        !contextData.profileInfo.isReceiveRequest && (
-          <button
-            onClick={() =>
-              contextData.sendFriendRequest(contextData.profileInfo.id)
-            }
-            className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
-          >
-            <IoMdPersonAdd />
-            <p>add friend</p>
-          </button>
-        )}
-
-      {!contextData.profileInfo.isBlockedByUser &&
-        !contextData.profileInfo.isUserBlocked &&
-        !contextData.profileInfo.isFriend &&
-        contextData.profileInfo.isReceiveRequest && (
-          <button
-            onClick={contextData.cancelFriendRequest}
-            className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
-          >
-            <ImUserMinus />
-            <p>cancel request</p>
-          </button>
-        )}
-
-      {!contextData.profileInfo.isBlockedByUser &&
-        !contextData.profileInfo.isUserBlocked &&
-        !contextData.profileInfo.isFriend &&
-        contextData.profileInfo.isSentRequest && (
-          <>
-            <button
-              onClick={() =>
-                contextData.acceptFriendRequest(contextData.profileInfo.id)
-              }
-              className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
-            >
-              <ImUserPlus />
-              <p>confirm</p>
-            </button>
-            <button
-              onClick={() =>
-                contextData.declineRequest(contextData.profileInfo.id)
-              }
-              className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
-            >
-              <ImUserMinus />
-              <p>delete</p>
-            </button>
-          </>
-        )}
-
-      {!contextData.profileInfo.isBlockedByUser &&
-        contextData.profileInfo.isUserBlocked && (
-          <>
-            <button
-              onClick={() =>
-                contextData.unblockUser(contextData.profileInfo.id)
-              }
-              className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
-            >
-              <ImUserMinus />
-              <p>unblock</p>
-            </button>
-            {/* <p className="text-center normal-case text-txt-xs text-red">this user have been blocked by you click to unblock</p> */}
-          </>
-        )}
-
-      {!contextData.profileInfo.isBlockedByUser &&
-        !contextData.profileInfo.isUserBlocked &&
-        contextData.profileInfo.isFriend && (
-          <button
-            onClick={() => handleApprovedAction("unfriend")}
-            className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
-          >
-            <ImUserMinus />
-            <p>unfriend</p>
-          </button>
-        )}
-
-      {!contextData.profileInfo.isBlockedByUser &&
-        !contextData.profileInfo.isUserBlocked &&
-        contextData.profileInfo.isFriend && (
-          <button
-            onClick={() => handleApprovedAction("block")}
-            className="secondary-glass text-txt-sm p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
-          >
-            <MdOutlineBlock />
-            <p>block</p>
-          </button>
-        )}
-    </>
-  );
+const playerLevel = {
+  level: 1,
+  xp: 900,
 };
 
 const Profile = () => {
@@ -222,6 +153,61 @@ const Profile = () => {
     }
   }, [contextData.refresh]);
 
+  const calculateLevelPercentage = (levels, level, playerLevel, index) => {
+    const lowerBound = index === 0 ? 0 : levels[index - 1].maxXp;
+    let percentage = 0;
+    if (playerLevel.xp >= lowerBound && playerLevel.xp <= level.maxXp) {
+      percentage =
+        ((playerLevel.xp - lowerBound) / (level.maxXp - lowerBound)) * 100;
+    } else if (playerLevel.xp > level.maxXp) {
+      percentage = 100;
+    }
+    return percentage;
+  };
+
+  const currentLevel = [];
+
+  levels.map((level, index) => {
+    if (playerLevel.level === level.level) {
+      const percentage = calculateLevelPercentage(
+        levels,
+        level,
+        playerLevel,
+        index,
+      );
+      currentLevel.push(
+        <div className="flex gap-8 grow" key={level.level}>
+          <div
+            className={`w-[80px] flex justify-center items-end overflow-hidden`}
+          >
+            <img
+              className={`
+									${level.level > playerLevel.level ? " grayscale-[100%]" : ""} object-cover grow h-full w-full
+								`}
+              src={level.image}
+              alt={`lvl${level.level}`}
+            />
+          </div>
+          <div className="flex flex-col grow gap-8 justify-center">
+            <div className="flex justify-between items-end">
+              <p className="font-bold tracking-wider">level {level.level}</p>
+              <p className="tracking-wide text-gray text-txt-xs flex gap-4">
+                {playerLevel.xp >= 100000 ? "+100K" : playerLevel.xp}
+                <span className="font-semibold uppercase text-green">xp</span>
+              </p>
+            </div>
+            <div className="h-8 w-full bg-black/50 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-green transition-all"
+                style={{ width: `${percentage}%` }}
+              ></div>
+            </div>
+          </div>
+        </div>,
+      );
+    }
+  });
+
   return (
     <div className="flex flex-col w-full grow lg:gap-32 gap-16 relative">
       <Header link="profile" />
@@ -232,7 +218,7 @@ const Profile = () => {
           {udpateProfile && (
             <UpdateProfile setUpdateProfile={setUpdateProfile} />
           )}
-          <div className="flex primary-glass overflow-hidden p-16 w-full lg:gap-32 gap-16 relative  get-height">
+          <div className="flex primary-glass overflow-hidden p-16 w-full lg:gap-32 gap-16 relative get-height">
             <div
               className={`absolute top-0 left-0 w-full lg:h-[232px] ${contextData.profileInfo.me ? "h-[216px]" : "h-[260px]"}`}
             >
@@ -243,37 +229,26 @@ const Profile = () => {
                 alt="Profile Cover image"
               />
             </div>
-            <div className="lg:flex hidden flex-col w-full secondary-glass p-16 gap-16 min-w-[320px] max-w-[320px]">
-              <div className="flex flex-col gap-8 items-center justify-center">
-                <CircularProgressbarWithChildren
-                  value={50}
-                  className="w-[120px] h-[120px] bg-black bg-opacity-40 rounded-full"
-                  strokeWidth={6}
-                  styles={buildStyles({
-                    strokeLinecap: "round",
-                    pathColor: "#31E78B",
-                    trailColor: "rgba(80,80,80,0.2)",
-                  })}
-                >
-                  <div className="w-[104px] h-[104px] flex justify-center rounded-full overflow-hidden">
-                    <img
-                      src={
-                        contextData.profileInfo &&
-                        contextData.profileInfo.profile_image
-                          ? `${BACKENDURL}${contextData.profileInfo.profile_image}?t=${new Date().getTime()}`
-                          : "/images/default.jpeg"
-                      }
-                      alt="profile pic"
-                      className="object-cover w-full"
-                    />
-                  </div>
-                </CircularProgressbarWithChildren>
+            <div className="lg:flex hidden flex-col w-full secondary-glass p-16 gap-16 min-w-[320px] max-w-[320px] relative">
+              <div className="flex flex-col gap-8 items-center justify-center p-8">
+                <div className="w-[104px] h-[104px] flex justify-center rounded-full overflow-hidden">
+                  <img
+                    src={
+                      contextData.profileInfo &&
+                      contextData.profileInfo.profile_image
+                        ? `${BACKENDURL}${contextData.profileInfo.profile_image}?t=${new Date().getTime()}`
+                        : "/images/default.jpeg"
+                    }
+                    alt="profile pic"
+                    className="object-cover w-full"
+                  />
+                </div>
                 <h1 className="text-h-lg-md font-bold">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
                 <h2 className="text-txt-md normal-case">
                   @{contextData.profileInfo.username}
                 </h2>
               </div>
-              <div className="flex flex-col gap-16 overflow-y-scroll no-scrollbar grow justify-between">
+              <div className="flex flex-col gap-16">
                 {!contextData.profileInfo.me && (
                   <div className="flex gap-8 flex-wrap text-txt-md py-4">
                     <FriendManagementButtons
@@ -282,34 +257,17 @@ const Profile = () => {
                     />
                   </div>
                 )}
-                {!contextData.profileInfo.me && (
-                  <div className="bg-stroke-sc min-h-[1px] w-full"></div>
-                )}
+                <div
+                  key={0}
+                  className="bg-black/20 p-8 rounded-lg border-[0.5px] border-stroke-sc flex w-full"
+                >
+                  {currentLevel}
+                </div>
+              </div>
+
+              <div className="flex flex-col grow justify-between mt-16 overflow-y-auto no-scrollbar">
                 {!contextData.profileInfo.isUserBlocked ? (
                   <>
-                    <div className="flex flex-col gap-16 text-gray mt-8">
-                      <div className="flex justify-center gap-16">
-                        <div className="flex items-center border rounded-lg border-stroke-sc p-8 gap-8">
-                          <GiCrossedSwords className="text-green text-txt-2xl" />
-                          <p>34</p>
-                        </div>
-                        <div className="flex items-center border rounded-lg border-stroke-sc p-8 gap-8">
-                          <FaClover className="text-green text-txt-2xl" />
-                          <p>72</p>
-                        </div>
-                      </div>
-                      <div className="flex justify-center gap-16">
-                        <div className="flex items-center border rounded-lg border-stroke-sc p-8 gap-8">
-                          <GiFlamedLeaf className="text-green text-txt-2xl" />
-                          <p>16</p>
-                        </div>
-                        <div className="flex items-center border rounded-lg border-stroke-sc p-8 gap-8">
-                          <LiaMedalSolid className="text-green text-txt-2xl" />
-                          <p>442</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-stroke-sc min-h-[1px] w-full"></div>
                     <div className="flex flex-col gap-8">
                       <h1 className="text-h-lg-md font-bold">about</h1>
                       <p
@@ -337,8 +295,9 @@ const Profile = () => {
                 )}
               </div>
             </div>
+
             <div className="flex flex-col w-full overflow-hidden grow z-[1] gap-16">
-              <div className="flex flex-col gap-32 md:items-start w-full items-center lg:min-h-[216px] relative">
+              <div className="flex flex-col gap-32 md:items-start w-full items-center lg:min-h-[216px] relative lg:justify-end lg:p-16">
                 {contextData.profileInfo.me && (
                   <div
                     onClick={() => setUpdateProfile(true)}
@@ -350,29 +309,18 @@ const Profile = () => {
                 )}
                 <div className="w-full flex gap-16 flex-col items-center lg:hidden">
                   <div className="flex h-[184px] flex-col gap-8 py-16 items-center">
-                    <CircularProgressbarWithChildren
-                      value={75}
-                      className="w-[112px] h-[112px] bg-black bg-opacity-40 rounded-full flex"
-                      strokeWidth={6}
-                      styles={buildStyles({
-                        strokeLinecap: "round",
-                        pathColor: "#31E78B",
-                        trailColor: "rgba(80,80,80,0.2)",
-                      })}
-                    >
-                      <div className="w-[98px] h-[98px] flex justify-center rounded-full overflow-hidden">
-                        <img
-                          src={
-                            contextData.profileInfo &&
-                            contextData.profileInfo.profile_image
-                              ? `${BACKENDURL}${contextData.profileInfo.profile_image}?t=${new Date().getTime()}`
-                              : "/images/default.jpeg"
-                          }
-                          alt="profile pic"
-                          className="object-cover w-full"
-                        />
-                      </div>
-                    </CircularProgressbarWithChildren>
+                    <div className="w-[98px] h-[98px] flex justify-center rounded-full overflow-hidden">
+                      <img
+                        src={
+                          contextData.profileInfo &&
+                          contextData.profileInfo.profile_image
+                            ? `${BACKENDURL}${contextData.profileInfo.profile_image}?t=${new Date().getTime()}`
+                            : "/images/default.jpeg"
+                        }
+                        alt="profile pic"
+                        className="object-cover w-full"
+                      />
+                    </div>
                     <h1 className="text-h-sm-sm font-bold">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
                     <h2 className="text-txt-xs normal-case">
                       @{contextData.profileInfo.username}
@@ -386,6 +334,9 @@ const Profile = () => {
                       />
                     </div>
                   )}
+                </div>
+                <div className="bg-black/20 p-8 rounded-lg border-[0.5px] border-stroke-sc w-full lg:hidden secondary-glass">
+                  {currentLevel}
                 </div>
                 {!contextData.profileInfo.isUserBlocked && (
                   <div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">
@@ -447,57 +398,6 @@ const Profile = () => {
         </div>
       )}
     </div>
-  );
-};
-
-const Approval = ({ approval, setApproval }) => {
-  const contextData = useContext(UserContext);
-
-  const handleApproval = () => {
-    if (approval.type === "block") contextData.blockFriend();
-    else if (approval.type === "unfriend") contextData.unfriend();
-    setApproval({ visible: false, message: null, type: null });
-  };
-
-  return (
-    <>
-      <div
-        onClick={() =>
-          setApproval({ visible: false, message: null, type: null })
-        }
-        className="bg-black/50 h-full w-full absolute top-0 left-0 flex justify-center items-center"
-      ></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-        <div className="secondary-glass p-16 px-32 flex flex-col items-center gap-32 z-[10]">
-          <div className="flex flex-col gap-8 w-full items-center">
-            <h2 className="font-bold text-txt-lg text-red">{approval.type}?</h2>
-            <p className="text-txt-md lowercase">{approval.message}</p>
-          </div>
-          <div className="flex gap-16">
-            <button
-              onClick={() =>
-                setApproval({ visible: false, message: null, type: null })
-              }
-              className="
-								px-16 py-8 bg-red rounded-md hover-secondary text-green font-semibold hover:bg-green hover:text-black
-								transition-all
-							"
-            >
-              cancel
-            </button>
-            <button
-              onClick={handleApproval}
-              className="
-								px-16 py-8 bg-red rounded-md hover-secondary text-red font-semibold hover:bg-red hover:text-white
-								transition-all
-							"
-            >
-              confirm
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
   );
 };
 

@@ -27,7 +27,6 @@ const SetUpUsername = () => {
       )}
       {!authContextData.loading && (
         <div className="max-w-[1440px] m-auto lg:px-32 md:px-16 md:py-32 flex flex-col lg:gap-32 gap-16 min-h-screen">
-          <div className="backdrop-blur-md w-full h-full absolute top-0 right-0"></div>
           <div className="login-glass overflow-hidden md:p-32 p-0 flex justify-center items-center grow md:rounded-[8px] md:border-[0.5px] md:border-stroke-pr">
             <>
               <div className="md:px-64 px-32 flex flex-col justify-center items-center md:gap-32 gap-24 lg:py-64 py-32 grow">
