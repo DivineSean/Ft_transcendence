@@ -385,6 +385,7 @@ const Pong = ({
         !ball.Defeat ||
         !ball.Victory
       ) {
+        ball.div.textContent = "";
         ball.startTime = Date.now();
         return;
       }
