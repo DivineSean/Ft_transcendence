@@ -26,63 +26,6 @@ import FriendManagementButtons from "../components/profile/FriendManagementButto
 import Approval from "../components/profile/Approval";
 
 const profileMenu = ["overview", "statistics", "achievements", "friends"];
-const levels = [
-  {
-    level: 1,
-    maxXp: 10000,
-    image: "/images/badges/lvl1.png",
-  },
-  {
-    level: 2,
-    maxXp: 20000,
-    image: "/images/badges/lvl2.png",
-  },
-  {
-    level: 3,
-    maxXp: 30000,
-    image: "/images/badges/lvl3.png",
-  },
-  {
-    level: 4,
-    maxXp: 40000,
-    image: "/images/badges/lvl4.png",
-  },
-  {
-    level: 5,
-    maxXp: 50000,
-    image: "/images/badges/lvl5.png",
-  },
-  {
-    level: 6,
-    maxXp: 60000,
-    image: "/images/badges/lvl6.png",
-  },
-  {
-    level: 7,
-    maxXp: 70000,
-    image: "/images/badges/lvl7.png",
-  },
-  {
-    level: 8,
-    maxXp: 80000,
-    image: "/images/badges/lvl8.png",
-  },
-  {
-    level: 9,
-    maxXp: 90000,
-    image: "/images/badges/lvl9.png",
-  },
-  {
-    level: 10,
-    maxXp: 100000,
-    image: "/images/badges/lvl10.png",
-  },
-];
-
-const playerLevel = {
-  level: 1,
-  xp: 900,
-};
 
 const Profile = () => {
   const authContextData = useContext(AuthContext);
@@ -153,18 +96,6 @@ const Profile = () => {
     }
   }, [contextData.refresh]);
 
-  const calculateLevelPercentage = (levels, level, playerLevel, index) => {
-    const lowerBound = index === 0 ? 0 : levels[index - 1].maxXp;
-    let percentage = 0;
-    if (playerLevel.xp >= lowerBound && playerLevel.xp <= level.maxXp) {
-      percentage =
-        ((playerLevel.xp - lowerBound) / (level.maxXp - lowerBound)) * 100;
-    } else if (playerLevel.xp > level.maxXp) {
-      percentage = 100;
-    }
-    return percentage;
-  };
-
   const currentLevel = [];
 
 	if (contextData.profileInfo)
@@ -187,9 +118,9 @@ const Profile = () => {
 							<span className="font-semibold uppercase text-green">xp</span>
 						</p>
 					</div>
-					<div className="h-8 w-full bg-black/50 rounded-full overflow-hidden">
+					<div className="h-8 w-full bg-black/50 rounded-full overflow-hidden border-[0.5px] border-black/50">
 						<div
-							className="h-full bg-green transition-all"
+							className="h-full bg-green/90 transition-all"
 							style={{ width: `${contextData.profileInfo.percentage}%` }}
 						></div>
 					</div>
@@ -376,7 +307,7 @@ const Profile = () => {
                   </div>
                   {selectedMenu === "overview" && <ProfileOverview />}
                   {selectedMenu === "statistics" && <ProfileStatistics />}
-                  {selectedMenu === "achievements" && <ProfileAchievements />}
+                  {selectedMenu === "achievements" && <ProfileAchievements username={username} />}
                   {selectedMenu === "friends" && (
                     <ProfileFriends username={username} />
                   )}

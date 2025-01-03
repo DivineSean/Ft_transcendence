@@ -138,42 +138,42 @@ region = [
   },
 ];
 
-// region = [
-// 	{
-// 		100: [
-// 			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 67},
-// 			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-hassan', seed: 16, name: 'hasan', score: 55}
-// 		],
-// 		200: [
-// 			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-moha', seed: 8, name: 'moha', score: 48},
-// 			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-mas3oz', seed: 9, name: 'mas3oz', score: 77}
-// 		],
-// 		300: [
-// 			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 76},
-// 			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-lmgadar', seed: 13, name: 'lmgadar', score: 59}
-// 		],
-// 		400: [
-// 			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-handala', seed: 5, name: 'handala', score: 75},
-// 			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-9ador', seed: 12, name: '9ador', score: 77}
-// 		],
-// 	},
-// 	{
-// 		900: [
-// 			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 61},
-// 			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-mas3oz', seed: 9, name: 'mas3oz', score: 45}
-// 		],
-// 		1000: [
-// 			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 77},
-// 			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-9ador', seed: 12, name: '9ador', score: 60}
-// 		],
-// 	},
-// 	{
-// 		1300: [
-// 			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 79},
-// 			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 68},
-// 		],
-// 	}
-// ]
+region = [
+	{
+		100: [
+			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 67},
+			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-hassan', seed: 16, name: 'hasan', score: 55}
+		],
+		200: [
+			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-moha', seed: 8, name: 'moha', score: 48},
+			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-mas3oz', seed: 9, name: 'mas3oz', score: 77}
+		],
+		300: [
+			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 76},
+			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-lmgadar', seed: 13, name: 'lmgadar', score: 59}
+		],
+		400: [
+			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-handala', seed: 5, name: 'handala', score: 75},
+			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-9ador', seed: 12, name: '9ador', score: 77}
+		],
+	},
+	{
+		900: [
+			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 61},
+			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-mas3oz', seed: 9, name: 'mas3oz', score: 45}
+		],
+		1000: [
+			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 77},
+			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-9ador', seed: 12, name: '9ador', score: 60}
+		],
+	},
+	{
+		1300: [
+			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 79},
+			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 68},
+		],
+	}
+]
 
 // region = [
 // 	{
@@ -420,13 +420,12 @@ const Brackets = () => {
             >
               {Object.entries(round).map(([key, game]) => (
                 <article
-                  className="overflow-hidden flex border-[0.5px] border-stroke-pr
-									flex-col md:max-h-[300px] max-h-[70px] pointer-events-auto bg-[url(/images/background.png)]
-									bg-cover bg-center
+                  className="overflow-hidden flex 
+									flex-col md:max-h-[300px] max-h-[70px] pointer-events-auto rounded-lg bg-center bg-black/30
 									game relative"
                   key={key}
                 >
-                  <div className="absolute h-full w-full top-0 left-0 backdrop-blur-md "></div>
+                  <div className="absolute h-full w-full top-0 left-0 backdrop-blur-md rounded-lg border-[0.5px] border-stroke-pr"></div>
                   {game.map((team, index) => (
                     <div
                       className={`transition-all flex items-center justify-between cursor-pointer gap-8

@@ -46,4 +46,6 @@ urlpatterns = [
     path("api/profile/<str:username>/", views.Profile.as_view(), name="profile"),
     path("api/profile/update/", views.Profile.as_view(), name="updateProfie"),
     path("api/users/search/", views.search_users, name="updateProfie"),
+    path("api/user/achievements/", views.get_user_achievements, name="updateProfie"),
+    path("api/user/achievements/<str:username>/", views.get_user_achievements, name="updateProfie"),
 ]
