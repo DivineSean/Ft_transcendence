@@ -21,6 +21,7 @@ const Pong = ({
   turn,
   playersData,
   isSpectator,
+  started_at,
 }) => {
   const sm = useRef(null);
   const loaderRef = useRef(null);
@@ -161,7 +162,7 @@ const Pong = ({
       ),
     ];
 
-    sm.current.render();
+    sm.current.render(started_at);
     tableRef.current.render();
     netRef.current.render();
     ballRef.current.render(sm.current);
@@ -170,6 +171,31 @@ const Pong = ({
 
     const messageHandler = (event) => {
       const msg = JSON.parse(event.data);
+      if(isSpectator)
+      {
+        if (
+          !ready ||
+          !sm.current.audioLoader ||
+          !ballRef.model ||
+          !netRef.boundingBox ||
+          !tableRef.boundingBoxTable ||
+          !playersRef[player - 1].boundingBox ||
+          !ballRef.boundingSphere ||
+          !ballRef.bounceSound ||
+          !ballRef.netHitSound ||
+          !ballRef.paddleHitSound ||
+          !ballRef.onlyHit ||
+          !ballRef.swing ||
+          !ballRef.scoreSound ||
+          !ballRef.BackgroundMusic ||
+          !ballRef.lostSound ||
+          !ballRef.ballMatchPoint ||
+          !ballRef.Defeat ||
+          !ballRef.Victory
+        ) {
+          return;
+        }
+      }
       let opp = player == 1 ? 2 : 1;
       if (msg.type === "score") {
         const scores = JSON.parse(msg.message.scores);

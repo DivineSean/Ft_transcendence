@@ -21,9 +21,6 @@ r = redis.Redis(
 MAX_ALLOWED_TIMEOUTS = 2
 TIMEOUT_DURATION = 30
 
-# TODO: EXP
-
-
 class GameConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()

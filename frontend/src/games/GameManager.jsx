@@ -89,6 +89,7 @@ const Game = memo(
     removeMessageHandler,
     players,
     turn,
+    started_at,
   }) => {
     const data = players.current?.find(
       (player) => player.user.username === userInfo.username,
@@ -116,6 +117,7 @@ const Game = memo(
             addMessageHandler={addMessageHandler}
             removeMessageHandler={removeMessageHandler}
             isSpectator={data ? false: true}
+            started_at={started_at}
           />
         );
     }
@@ -169,6 +171,7 @@ const GameManager = () => {
           removeMessageHandler={removeMessageHandler}
           players={playersRef}
           turn={data.turn}
+          started_at={data.started_at}
         />
       )}
       {!ready && data && (

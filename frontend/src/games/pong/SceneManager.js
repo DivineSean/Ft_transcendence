@@ -610,7 +610,7 @@ export class SceneManager {
       this.updateTextOnPlane(this.timerDiv, "00:00", -0.095, 0, 0.05, 0xffffff);
   }
 
-  render() {
+  render(started_at) {
     // Optional: Adding a point light for more localized highlights or for lighting specific areas (like the center of the room)
     this.pointLight = new THREE.PointLight(0xffffff, 100000, 500); // Low intensity, limited range
     this.pointLight.position.set(0, -150, 0); // Placing in the center of the room
@@ -627,8 +627,16 @@ export class SceneManager {
       playerData.score.toString(),
     );
     this.scoreRender(scores, this.changeServe);
-    this.startTime = Date.now();
-    this.lastTime = Date.now();
+    if (started_at > 0)
+    {
+      this.startTime = started_at;
+      this.lastTime = Date.now();
+    }
+    else
+    {
+      this.startTime = Date.now();
+      this.lastTime = Date.now();
+    }
     this.TimeRender(true);
   }
 
