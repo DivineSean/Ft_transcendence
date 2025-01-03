@@ -7,12 +7,6 @@ volumes:
     name: elasticsearch
   kibana:
     name: kibana
-  logs:
-    driver: local
-    driver_opts:
-      type: none
-      device: "./logs/"
-      o: bind
 
 networks:
   elk-stack:
@@ -47,12 +41,11 @@ services:
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
       - elasticsearch:/usr/share/elasticsearch/data
-      - logs:/usr/share/elasticsearch/logs
     env_file:
       - .env
     networks:
       - elk-stack
-    # mem_limit: ${MEM_LIMIT}
+    mem_limit: ${MEM_LIMIT}
     # ulimits:
     #   memlock:
     #     soft: -1
@@ -84,9 +77,10 @@ services:
     build: ./logstash
     restart: unless-stopped
     volumes:
-      - certs:/usr/share/logstash/certs
+      - certs:/usr/share/logstash/config/certs
       - ./nginx/access.log:/usr/share/logstash/nginx/access.log
     env_file:
       - .env
     networks:
       - elk-stack
+    mem_limit: ${MEM_LIMIT}

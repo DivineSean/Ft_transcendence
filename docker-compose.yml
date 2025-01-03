@@ -81,6 +81,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./backend/static:/home/app/static
+      - ./elk/nginx/access.log:/var/log/nginx/access.log
 
 volumes:
   data:
