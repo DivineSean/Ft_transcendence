@@ -108,14 +108,14 @@ const Game = memo(
       case "pong":
         return (
           <Pong
+            send={data ? send: overideSend}
             ready={ready}
             setReady={setReady}
-            playersData={players.current}
-            turn={turn}
-            player={data ? data.role: 1}
-            send={data ? send: overideSend}
             addMessageHandler={addMessageHandler}
             removeMessageHandler={removeMessageHandler}
+            player={data ? data.role: 1}
+            turn={turn}
+            playersData={players.current}
             isSpectator={data ? false: true}
             started_at={started_at}
           />

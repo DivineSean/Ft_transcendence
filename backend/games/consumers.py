@@ -82,7 +82,6 @@ class GameConsumer(WebsocketConsumer):
             return
 
     def connect_player(self):
-        # WARNING: still have to handle spectators (players not taking part of the game)
         try:
             game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
             if not game_data:

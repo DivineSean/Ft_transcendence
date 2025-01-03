@@ -15,6 +15,12 @@ export class SceneManager {
   ) {
     this.player = player;
     this.playersData = playersData;
+    if (playersData[0].user.username.length > 10) {
+        this.playersData[0].user.username = playersData[0].user.username.slice(0, 10) + '...';
+    }
+    if (playersData[1].user.username.length > 10) {
+      this.playersData[1].user.username = playersData[1].user.username.slice(0, 10) + '...';
+    }
     this.Marathoner = false;
     this.globalMessage = globalMessage;
     this.RemontadaPlayer = player;
