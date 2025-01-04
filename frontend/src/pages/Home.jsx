@@ -14,10 +14,18 @@ const Home = () => {
   const friends = [];
   useEffect(() => {
     userContextData.getFriends();
+    userContextData.getOnlineMatches()
 
     return () =>
       authContextData.setGlobalMessage({ message: "", isError: false });
   }, []);
+
+  useEffect(() => {
+
+    if (userContextData.onlineMatches)
+      console.log('hello',userContextData.onlineMatches);
+
+  }, [userContextData.onlineMatches])
 
   if (userContextData.userFriends && userContextData.userFriends.friends) {
     userContextData.userFriends.friends.map((friend) => {

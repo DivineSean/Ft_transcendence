@@ -21,6 +21,7 @@ export const UserProvider = ({ children }) => {
   const [userFriendRequest, setUserFriendRequest] = useState(null);
   const [refresh, setRefresh] = useState(false);
   const [blockedUsers, setBlockedUsers] = useState(null);
+  const [onlineMatches, setOnlineMatches] = useState(null);
 
   const getUserInfo = async () => {
     try {
@@ -363,7 +364,25 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  // --------- start home functions --------- //
+  const getOnlineMatches = async () => {
+    try {
+      const res = await FetchData.get('api/matches/');
+      if (res.ok) {
+        const data = await res.json();
+        setOnlineMatches(data);
+      }
+    } catch (error) {
+      authContextData.setGlobalMessage({
+        message: error.message,
+        isError: true,
+      })
+    }
+  }
+  // --------- end home functions --------- //
+
   const contextData = {
+    onlineMatches,
     blockedUsers,
     refresh,
     userFriendRequest,
@@ -391,6 +410,8 @@ export const UserProvider = ({ children }) => {
     unblockUser,
     createConversation,
     getBlockedUsers,
+
+    getOnlineMatches,
   };
 
   return (
