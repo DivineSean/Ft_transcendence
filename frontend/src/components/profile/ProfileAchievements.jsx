@@ -37,12 +37,12 @@ const ProfileAchievements = ({username}) => {
 														<img
 															src={`/images/achievement/icons/${achievement.name}.png`}
 															alt={`achivement image of ${achievement.name}`}
-															className="object-cover grow"
+															className="grow"
 														/>
 													</div>
 													<div className="flex flex-col">
-														<h2>{achievement.name}</h2>
-														<p className="text-gray text-txt-sm">{achievement.description}</p>
+														<h2 className="font-semibold text-white/90 tracking-wider">{achievement.name}</h2>
+														<p className="text-gray/60 text-txt-sm">{achievement.description}</p>
 													</div>
 												</div>
 											</div>
