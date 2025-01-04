@@ -57,17 +57,10 @@ class User(AbstractUser):
 
     last_update = models.DateTimeField(auto_now=True)
 
-    # Friends  = models.ManyToManyField("User", blank = True)
-
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
-
-    # def save(self, *args, **kwargs):
-    # 		if self.exp > 45000:
-    # 				self.exp = 45000
-    # 		super().save(*args, **kwargs)
 
     def get_levels(self):
         if self.exp >= 45000:
