@@ -1,18 +1,10 @@
-import {
-  CircularProgressbarWithChildren,
-  buildStyles,
-} from "react-circular-progressbar";
 import ProfileAchievements from "../components/profile/ProfileAchievements";
 import ProfileStatistics from "../components/profile/ProfileStatistics";
 import ProfileOverview from "../components/profile/ProfileOverview";
 import ProfileFriends from "../components/profile/ProfileFriends";
 import React, { useContext, useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { GiCrossedSwords } from "react-icons/gi";
+import { useParams } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
-import { LiaMedalSolid } from "react-icons/lia";
-import { GiFlamedLeaf } from "react-icons/gi";
-import { FaClover } from "react-icons/fa6";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import "react-circular-progressbar/dist/styles.css";
@@ -24,65 +16,9 @@ import UpdateProfile from "../components/profile/UpdateProfile";
 import Toast from "../components/Toast";
 import FriendManagementButtons from "../components/profile/FriendManagementButtons";
 import Approval from "../components/profile/Approval";
+import UserLevel from "../components/profile/UserLevel";
 
 const profileMenu = ["overview", "statistics", "achievements", "friends"];
-const levels = [
-  {
-    level: 1,
-    maxXp: 10000,
-    image: "/images/badges/lvl1.png",
-  },
-  {
-    level: 2,
-    maxXp: 20000,
-    image: "/images/badges/lvl2.png",
-  },
-  {
-    level: 3,
-    maxXp: 30000,
-    image: "/images/badges/lvl3.png",
-  },
-  {
-    level: 4,
-    maxXp: 40000,
-    image: "/images/badges/lvl4.png",
-  },
-  {
-    level: 5,
-    maxXp: 50000,
-    image: "/images/badges/lvl5.png",
-  },
-  {
-    level: 6,
-    maxXp: 60000,
-    image: "/images/badges/lvl6.png",
-  },
-  {
-    level: 7,
-    maxXp: 70000,
-    image: "/images/badges/lvl7.png",
-  },
-  {
-    level: 8,
-    maxXp: 80000,
-    image: "/images/badges/lvl8.png",
-  },
-  {
-    level: 9,
-    maxXp: 90000,
-    image: "/images/badges/lvl9.png",
-  },
-  {
-    level: 10,
-    maxXp: 100000,
-    image: "/images/badges/lvl10.png",
-  },
-];
-
-const playerLevel = {
-  level: 1,
-  xp: 900,
-};
 
 const Profile = () => {
   const authContextData = useContext(AuthContext);
@@ -153,61 +89,6 @@ const Profile = () => {
     }
   }, [contextData.refresh]);
 
-  const calculateLevelPercentage = (levels, level, playerLevel, index) => {
-    const lowerBound = index === 0 ? 0 : levels[index - 1].maxXp;
-    let percentage = 0;
-    if (playerLevel.xp >= lowerBound && playerLevel.xp <= level.maxXp) {
-      percentage =
-        ((playerLevel.xp - lowerBound) / (level.maxXp - lowerBound)) * 100;
-    } else if (playerLevel.xp > level.maxXp) {
-      percentage = 100;
-    }
-    return percentage;
-  };
-
-  const currentLevel = [];
-
-  levels.map((level, index) => {
-    if (playerLevel.level === level.level) {
-      const percentage = calculateLevelPercentage(
-        levels,
-        level,
-        playerLevel,
-        index,
-      );
-      currentLevel.push(
-        <div className="flex gap-8 grow" key={level.level}>
-          <div
-            className={`w-[80px] flex justify-center items-end overflow-hidden`}
-          >
-            <img
-              className={`
-									${level.level > playerLevel.level ? " grayscale-[100%]" : ""} object-cover grow h-full w-full
-								`}
-              src={level.image}
-              alt={`lvl${level.level}`}
-            />
-          </div>
-          <div className="flex flex-col grow gap-8 justify-center">
-            <div className="flex justify-between items-end">
-              <p className="font-bold tracking-wider">level {level.level}</p>
-              <p className="tracking-wide text-gray text-txt-xs flex gap-4">
-                {playerLevel.xp >= 100000 ? "+100K" : playerLevel.xp}
-                <span className="font-semibold uppercase text-green">xp</span>
-              </p>
-            </div>
-            <div className="h-8 w-full bg-black/50 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-green transition-all"
-                style={{ width: `${percentage}%` }}
-              ></div>
-            </div>
-          </div>
-        </div>,
-      );
-    }
-  });
-
   return (
     <div className="flex flex-col w-full grow lg:gap-32 gap-16 relative">
       <Header link="profile" />
@@ -231,7 +112,7 @@ const Profile = () => {
             </div>
             <div className="lg:flex hidden flex-col w-full secondary-glass p-16 gap-16 min-w-[320px] max-w-[320px] relative">
               <div className="flex flex-col gap-8 items-center justify-center p-8">
-                <div className="w-[104px] h-[104px] flex justify-center rounded-full overflow-hidden">
+                <div className="w-[104px] h-[104px] flex justify-center rounded-full overflow-hidden border-[0.5px] border-stroke-sc">
                   <img
                     src={
                       contextData.profileInfo &&
@@ -257,12 +138,13 @@ const Profile = () => {
                     />
                   </div>
                 )}
-                <div
-                  key={0}
-                  className="bg-black/20 p-8 rounded-lg border-[0.5px] border-stroke-sc flex w-full"
-                >
-                  {currentLevel}
-                </div>
+                {contextData.profileInfo && (
+                  <UserLevel
+                    exp={contextData.profileInfo.exp}
+                    level={contextData.profileInfo.level}
+                    percentage={contextData.profileInfo.percentage}
+                  />
+                )}
               </div>
 
               <div className="flex flex-col grow justify-between mt-16 overflow-y-auto no-scrollbar">
@@ -309,7 +191,7 @@ const Profile = () => {
                 )}
                 <div className="w-full flex gap-16 flex-col items-center lg:hidden">
                   <div className="flex h-[184px] flex-col gap-8 py-16 items-center">
-                    <div className="w-[98px] h-[98px] flex justify-center rounded-full overflow-hidden">
+                    <div className="min-w-[98px] max-w-[98px] min-h-[98px] max-h-[98px] flex justify-center rounded-full overflow-hidden border-[0.5px] border-stroke-sc">
                       <img
                         src={
                           contextData.profileInfo &&
@@ -335,9 +217,14 @@ const Profile = () => {
                     </div>
                   )}
                 </div>
-                <div className="bg-black/20 p-8 rounded-lg border-[0.5px] border-stroke-sc w-full lg:hidden secondary-glass">
-                  {currentLevel}
-                </div>
+                {contextData.profileInfo && (
+                  <UserLevel
+                    exp={contextData.profileInfo.exp}
+                    level={contextData.profileInfo.level}
+                    percentage={contextData.profileInfo.percentage}
+                    isMobile={true}
+                  />
+                )}
                 {!contextData.profileInfo.isUserBlocked && (
                   <div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">
                     <div className="flex w-[213px] items-center justify-center">
@@ -379,7 +266,9 @@ const Profile = () => {
                   </div>
                   {selectedMenu === "overview" && <ProfileOverview />}
                   {selectedMenu === "statistics" && <ProfileStatistics />}
-                  {selectedMenu === "achievements" && <ProfileAchievements />}
+                  {selectedMenu === "achievements" && (
+                    <ProfileAchievements username={username} />
+                  )}
                   {selectedMenu === "friends" && (
                     <ProfileFriends username={username} />
                   )}

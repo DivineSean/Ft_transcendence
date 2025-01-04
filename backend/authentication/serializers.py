@@ -78,6 +78,14 @@ class RegisterOAuthSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(format="hex_verbose")
     profile_image = serializers.SerializerMethodField()
+    level = serializers.SerializerMethodField()
+    percentage = serializers.SerializerMethodField()
+
+    def get_level(self, obj):
+        return obj.get_levels()
+
+    def get_percentage(self, obj):
+        return obj.get_percentage()
 
     def get_profile_image(self, obj):
         if obj.profile_image:

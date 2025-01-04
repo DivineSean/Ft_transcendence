@@ -57,40 +57,53 @@ class User(AbstractUser):
 
     last_update = models.DateTimeField(auto_now=True)
 
-    # Friends  = models.ManyToManyField("User", blank = True)
-
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
-    def save(self, *args, **kwargs):
-        if self.exp > 45000:
-            self.exp = 45000
-        super().save(*args, **kwargs)
-
-    @classmethod
-    def get_levels(cls):
-        if cls.exp >= 45000:
+    def get_levels(self):
+        if self.exp >= 45000:
             return 10
-        elif cls.exp >= 36000:
+        elif self.exp >= 36000:
             return 9
-        elif cls.exp >= 28000:
+        elif self.exp >= 28000:
             return 8
-        elif cls.exp >= 21000:
+        elif self.exp >= 21000:
             return 7
-        elif cls.exp >= 15000:
+        elif self.exp >= 15000:
             return 6
-        elif cls.exp >= 10000:
+        elif self.exp >= 10000:
             return 5
-        elif cls.exp >= 6000:
+        elif self.exp >= 6000:
             return 4
-        elif cls.exp >= 3000:
+        elif self.exp >= 3000:
             return 3
-        elif cls.exp >= 1000:
+        elif self.exp >= 1000:
             return 2
-        elif cls.exp >= 0:
+        elif self.exp >= 0:
             return 1
+
+    def get_percentage(self):
+        levels = {
+            1: (0, 1000),
+            2: (1000, 3000),
+            3: (3000, 6000),
+            4: (6000, 10000),
+            5: (10000, 15000),
+            6: (15000, 21000),
+            7: (21000, 28000),
+            8: (28000, 36000),
+            9: (36000, 45000),
+            10: (45000, float("inf")),
+        }
+
+        lower_bound, upper_bound = levels[self.get_levels()]
+
+        if upper_bound == float("inf"):
+            return 100
+
+        return ((self.exp - lower_bound) / (upper_bound - lower_bound)) * 100
 
 
 class TwoFactorCode(models.Model):

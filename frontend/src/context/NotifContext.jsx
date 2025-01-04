@@ -3,12 +3,14 @@ import AuthContext from "./AuthContext";
 import FetchWrapper from "../utils/fetchWrapper";
 import useWebsocket from "../customHooks/useWebsocket";
 import { AiFillMessage } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
 
 const NotifContext = createContext();
 
 export default NotifContext;
 
 export const NotifProvider = ({ children }) => {
+  const navigate = useNavigate();
   const FetchData = new FetchWrapper();
   const [friendRequest, setFriendRequest] = useState(false);
   const [notifData, setNotifData] = useState(null);
@@ -108,7 +110,7 @@ export const NotifProvider = ({ children }) => {
   };
 
   // ----------- start chat functions ----------- //
-  const getConversations = async (setData, setGlobalMessage, navigate) => {
+  const getConversations = async (setData) => {
     try {
       const res = await FetchData.get("api/chat/conversations/");
       if (res.ok) {
@@ -117,7 +119,10 @@ export const NotifProvider = ({ children }) => {
       } else if (res.status) {
         const data = await res.json();
         if (res.status === 401) {
-          setGlobalMessage({ message: "unauthorized user", isError: true });
+          authContextData.setGlobalMessage({
+            message: "unauthorized user",
+            isError: true,
+          });
           navigate("/login");
         }
       }
@@ -129,7 +134,7 @@ export const NotifProvider = ({ children }) => {
     }
   };
 
-  const getMessages = async (convId, setData, setOffsetMssg, navigate) => {
+  const getMessages = async (convId, setOffsetMssg) => {
     try {
       const res = await FetchData.post("chat/getMessages/", {
         convID: convId,
@@ -140,7 +145,7 @@ export const NotifProvider = ({ children }) => {
         const data = await res.json();
         if (res.status === 200) {
           if (data.messages.length === 20) setOffsetMssg(20);
-          setData(data.messages);
+          setMessages(data.messages);
         } else {
           navigate("/chat");
         }
@@ -157,7 +162,6 @@ export const NotifProvider = ({ children }) => {
 
   const getChunkedMessages = async (
     convId,
-    setData,
     offsetMssg,
     setOfssetMssg,
     setIsChunked,
@@ -172,7 +176,7 @@ export const NotifProvider = ({ children }) => {
       if (res.status !== 500) {
         const data = await res.json();
         if (res.status === 200) {
-          setData((prevMessages) => [...data.messages, ...prevMessages]);
+          setMessages((prevMessages) => [...data.messages, ...prevMessages]);
           if (data.next_offset === null) {
             setOfssetMssg(0);
             setAllMessages(true);
@@ -185,6 +189,7 @@ export const NotifProvider = ({ children }) => {
         console.log("internal server error 500");
       }
     } catch (error) {
+      console.log(error);
       authContextData.setGlobalMessage({
         message: error.message,
         isError: true,

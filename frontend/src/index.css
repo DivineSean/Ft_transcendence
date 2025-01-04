@@ -364,6 +364,6 @@ input:-webkit-autofill:active {
 }
 
 .team-loser {
-  @apply bg-stroke-sc/50 text-stroke-sc;
+  @apply bg-stroke-sc/30 text-stroke-sc;
 }
 /* ----------- end tournaments ----------- */
