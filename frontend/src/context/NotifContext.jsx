@@ -10,7 +10,7 @@ const NotifContext = createContext();
 export default NotifContext;
 
 export const NotifProvider = ({ children }) => {
-	const navigate = useNavigate();
+  const navigate = useNavigate();
   const FetchData = new FetchWrapper();
   const [friendRequest, setFriendRequest] = useState(false);
   const [notifData, setNotifData] = useState(null);
@@ -120,9 +120,9 @@ export const NotifProvider = ({ children }) => {
         const data = await res.json();
         if (res.status === 401) {
           authContextData.setGlobalMessage({
-						message: "unauthorized user",
-						isError: true
-					});
+            message: "unauthorized user",
+            isError: true,
+          });
           navigate("/login");
         }
       }
@@ -189,7 +189,7 @@ export const NotifProvider = ({ children }) => {
         console.log("internal server error 500");
       }
     } catch (error) {
-			console.log(error);
+      console.log(error);
       authContextData.setGlobalMessage({
         message: error.message,
         isError: true,

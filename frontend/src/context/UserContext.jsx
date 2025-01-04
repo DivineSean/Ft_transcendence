@@ -21,7 +21,7 @@ export const UserProvider = ({ children }) => {
   const [userFriendRequest, setUserFriendRequest] = useState(null);
   const [refresh, setRefresh] = useState(false);
   const [blockedUsers, setBlockedUsers] = useState(null);
-	const [profileAchievements, setProfileAchievements] = useState(null);
+  const [profileAchievements, setProfileAchievements] = useState(null);
 
   const getUserInfo = async () => {
     try {
@@ -364,30 +364,32 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-	const getProfileAchievements = async (username) => {
-		const url = username ? `api/user/achievements/${username}` : `api/user/achievements/`
-		try {
-			const res = await FetchData.get(url);
-			if (res.ok) {
-				const data = await res.json();
-				setProfileAchievements(data.games);
-			} else if (res.status === 400) {
-				const data = await res.json();
-				authContextData.setGlobalMessage({
-					message: data.error,
-					isError: true,
-				})
-			}
-		} catch (error) {
-			authContextData.setGlobalMessage({
-				message: error.message,
-				isError: true,
-			})
-		}
-	}
+  const getProfileAchievements = async (username) => {
+    const url = username
+      ? `api/user/achievements/${username}`
+      : `api/user/achievements/`;
+    try {
+      const res = await FetchData.get(url);
+      if (res.ok) {
+        const data = await res.json();
+        setProfileAchievements(data.games);
+      } else if (res.status === 400) {
+        const data = await res.json();
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
+      }
+    } catch (error) {
+      authContextData.setGlobalMessage({
+        message: error.message,
+        isError: true,
+      });
+    }
+  };
 
   const contextData = {
-		profileAchievements,
+    profileAchievements,
     blockedUsers,
     refresh,
     userFriendRequest,
@@ -415,7 +417,7 @@ export const UserProvider = ({ children }) => {
     unblockUser,
     createConversation,
     getBlockedUsers,
-		getProfileAchievements,
+    getProfileAchievements,
   };
 
   return (

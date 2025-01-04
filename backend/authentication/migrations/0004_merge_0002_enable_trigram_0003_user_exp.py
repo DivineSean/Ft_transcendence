@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0002_enable_trigram'),
-        ('authentication', '0003_user_exp'),
+        ("authentication", "0002_enable_trigram"),
+        ("authentication", "0003_user_exp"),
     ]
 
-    operations = [
-    ]
+    operations = []

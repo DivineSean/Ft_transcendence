@@ -608,6 +608,7 @@ def setUpUsername(request):
 def checkUserIsAuthenticated(request):
     return Response({"message": "authenticated user"}, status=status.HTTP_200_OK)
 
+
 @api_view(["GET"])
 def search_users(request):
 
@@ -641,48 +642,39 @@ def search_users(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 def get_user_achievements(request, username=None):
-	if not username:
-		try:
-			game_data = get_user_achievements_helper(request._user)
+    if not username:
+        try:
+            game_data = get_user_achievements_helper(request._user)
 
-			return Response(
-				game_data,
-				status=status.HTTP_200_OK
-			)
+            return Response(game_data, status=status.HTTP_200_OK)
 
-		except Exception as e:
-			return Response(
-				{"error": str(e)},
-				status=status.HTTP_400_BAD_REQUEST
-			)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-	else:
-		try:
-			user = User.objects.get(username=username)
-			game_data = get_user_achievements_helper(user)
+    else:
+        try:
+            user = User.objects.get(username=username)
+            game_data = get_user_achievements_helper(user)
 
-			return Response(
-				game_data,
-				status=status.HTTP_200_OK
-			)
+            return Response(game_data, status=status.HTTP_200_OK)
 
-		except Exception as e:
-			return Response(
-				{"error": str(e)},
-				status=status.HTTP_400_BAD_REQUEST
-			)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 def get_user_achievements_helper(user):
 
-	games = Game.objects.prefetch_related('achievements').all()
+    games = Game.objects.prefetch_related("achievements").all()
 
-	game_serializer = GameAchievementSerializer(games, context={'user': user}, many=True)
+    game_serializer = GameAchievementSerializer(
+        games, context={"user": user}, many=True
+    )
 
-	game_data = {
-		'games': game_serializer.data,
-	}
+    game_data = {
+        "games": game_serializer.data,
+    }
 
-	
-	return game_data
+    return game_data

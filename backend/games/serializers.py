@@ -6,62 +6,66 @@ import json
 
 class UserAchievementSerializer(serializers.ModelSerializer):
 
-	class Meta:
-		model = PlayerAchievement
-		fields = '__all__'
+    class Meta:
+        model = PlayerAchievement
+        fields = "__all__"
+
 
 class AchievementSerializer(serializers.ModelSerializer):
-	user_achievements = serializers.SerializerMethodField()
+    user_achievements = serializers.SerializerMethodField()
 
-	class Meta:
-			model = Achievement
-			fields = ['id', 'name', 'description', 'game', 'user_achievements']
+    class Meta:
+        model = Achievement
+        fields = ["id", "name", "description", "game", "user_achievements"]
 
-	def get_user_achievements(self, obj):
-		user = self.context.get('user')
-		if not user:
-			return []
+    def get_user_achievements(self, obj):
+        user = self.context.get("user")
+        if not user:
+            return []
 
-		
-		levels = ['bronze', 'silver', 'gold', 'diamond', 'platinium', 'titanium']
+        levels = ["bronze", "silver", "gold", "diamond", "platinium", "titanium"]
 
+        player_achievements = PlayerAchievement.objects.filter(
+            achievement=obj, user=user
+        )
 
-		player_achievements = PlayerAchievement.objects.filter(
-			achievement=obj, user=user
-		)
+        serializer_data = UserAchievementSerializer(player_achievements, many=True).data
 
-		serializer_data = UserAchievementSerializer(player_achievements, many=True).data
+        result = []
 
-		result = []
+        for level in levels:
+            existing_achievement = next(
+                (
+                    player_achievement
+                    for player_achievement in serializer_data
+                    if player_achievement["level"] == level
+                ),
+                None,
+            )
 
-		for level in levels:
-			existing_achievement = next(
-				(player_achievement for player_achievement in serializer_data if player_achievement['level'] == level),
-				None
-			)
+            if existing_achievement:
+                result.append(existing_achievement)
+            else:
+                result.append(
+                    {
+                        "id": None,
+                        "level": level,
+                        "progress": 0,
+                        "threshold": 0,
+                        "user": str(user.id),
+                        "game": obj.game.id if obj.game else None,
+                        "achivement": obj.id,
+                    }
+                )
+        return result
 
-			if existing_achievement:
-				result.append(existing_achievement)
-			else:
-				result.append({
-					'id': None,
-					'level': level,
-					'progress': 0,
-					'threshold': 0,
-					'user': str(user.id),
-					'game': obj.game.id if obj.game else None,
-					'achivement': obj.id
-				})
-		return result
 
 class GameAchievementSerializer(serializers.ModelSerializer):
-		achievements = AchievementSerializer(many=True, read_only=True)
+    achievements = AchievementSerializer(many=True, read_only=True)
 
-		class Meta:
-				model = Game
-				fields = ['id', 'name', 'achievements']
-
-
+    class Meta:
+        model = Game
+        fields = ["id", "name", "achievements"]
 
 
 class GameSerializer(serializers.ModelSerializer):
@@ -185,5 +189,3 @@ class GameRoomSerializer(serializers.ModelSerializer):
                 )
 
         return instance
-
-

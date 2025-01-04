@@ -9,13 +9,12 @@ const ProfileOptions = ({
   isVisible,
   friendInfo,
 }) => {
-
   const goToProfileSide = () => {
     displayCoversation(true);
     hideSelf(false);
   };
 
-	const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
     <div
       className={`
@@ -46,21 +45,28 @@ const ProfileOptions = ({
           @{friendInfo.username}
         </p>
       </div>
-			{!friendInfo.isBlocked && (
-				<>
-					<div className="flex gap-8 justify-center">
-						<button className="secondary-glass grow lg:w-full p-8 transition-all hover:bg-green/60 hover:text-black rounded-md text-green font-semibold">
-							invite to play
-						</button>
-						<button
-							onClick={() => navigate(`/profile/overview/${friendInfo.username}`)}
-							className="secondary-glass grow lg:w-full p-8 transition-all hover:bg-green/60 hover:text-black rounded-md text-green font-semibold">
-							view profile
-						</button>
-					</div>
-					<UserLevel exp={friendInfo.exp} level={friendInfo.level} percentage={friendInfo.percentage} />
-				</>
-			)}
+      {!friendInfo.isBlocked && (
+        <>
+          <div className="flex gap-8 justify-center">
+            <button className="secondary-glass grow lg:w-full p-8 transition-all hover:bg-green/60 hover:text-black rounded-md text-green font-semibold">
+              invite to play
+            </button>
+            <button
+              onClick={() =>
+                navigate(`/profile/overview/${friendInfo.username}`)
+              }
+              className="secondary-glass grow lg:w-full p-8 transition-all hover:bg-green/60 hover:text-black rounded-md text-green font-semibold"
+            >
+              view profile
+            </button>
+          </div>
+          <UserLevel
+            exp={friendInfo.exp}
+            level={friendInfo.level}
+            percentage={friendInfo.percentage}
+          />
+        </>
+      )}
       {!friendInfo.isBlocked && (
         <>
           <div className="h-[0.5px] bg-stroke-sc w-full"></div>

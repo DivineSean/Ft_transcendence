@@ -139,41 +139,139 @@ region = [
 ];
 
 region = [
-	{
-		100: [
-			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 67},
-			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-hassan', seed: 16, name: 'hasan', score: 55}
-		],
-		200: [
-			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-moha', seed: 8, name: 'moha', score: 48},
-			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-mas3oz', seed: 9, name: 'mas3oz', score: 77}
-		],
-		300: [
-			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 76},
-			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-lmgadar', seed: 13, name: 'lmgadar', score: 59}
-		],
-		400: [
-			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-handala', seed: 5, name: 'handala', score: 75},
-			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-9ador', seed: 12, name: '9ador', score: 77}
-		],
-	},
-	{
-		900: [
-			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 61},
-			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-mas3oz', seed: 9, name: 'mas3oz', score: 45}
-		],
-		1000: [
-			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 77},
-			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-9ador', seed: 12, name: '9ador', score: 60}
-		],
-	},
-	{
-		1300: [
-			{winnerClass: 'team-winner', loserClass: '', teamClass: 'team-driss', seed: 1, name: 'driss', score: 79},
-			{winnerClass: '', loserClass: 'team-loser', teamClass: 'team-jilali', seed: 4, name: 'jilali', score: 68},
-		],
-	}
-]
+  {
+    100: [
+      {
+        winnerClass: "team-winner",
+        loserClass: "",
+        teamClass: "team-driss",
+        seed: 1,
+        name: "driss",
+        score: 67,
+      },
+      {
+        winnerClass: "",
+        loserClass: "team-loser",
+        teamClass: "team-hassan",
+        seed: 16,
+        name: "hasan",
+        score: 55,
+      },
+    ],
+    200: [
+      {
+        winnerClass: "",
+        loserClass: "team-loser",
+        teamClass: "team-moha",
+        seed: 8,
+        name: "moha",
+        score: 48,
+      },
+      {
+        winnerClass: "team-winner",
+        loserClass: "",
+        teamClass: "team-mas3oz",
+        seed: 9,
+        name: "mas3oz",
+        score: 77,
+      },
+    ],
+    300: [
+      {
+        winnerClass: "team-winner",
+        loserClass: "",
+        teamClass: "team-jilali",
+        seed: 4,
+        name: "jilali",
+        score: 76,
+      },
+      {
+        winnerClass: "",
+        loserClass: "team-loser",
+        teamClass: "team-lmgadar",
+        seed: 13,
+        name: "lmgadar",
+        score: 59,
+      },
+    ],
+    400: [
+      {
+        winnerClass: "",
+        loserClass: "team-loser",
+        teamClass: "team-handala",
+        seed: 5,
+        name: "handala",
+        score: 75,
+      },
+      {
+        winnerClass: "team-winner",
+        loserClass: "",
+        teamClass: "team-9ador",
+        seed: 12,
+        name: "9ador",
+        score: 77,
+      },
+    ],
+  },
+  {
+    900: [
+      {
+        winnerClass: "team-winner",
+        loserClass: "",
+        teamClass: "team-driss",
+        seed: 1,
+        name: "driss",
+        score: 61,
+      },
+      {
+        winnerClass: "",
+        loserClass: "team-loser",
+        teamClass: "team-mas3oz",
+        seed: 9,
+        name: "mas3oz",
+        score: 45,
+      },
+    ],
+    1000: [
+      {
+        winnerClass: "team-winner",
+        loserClass: "",
+        teamClass: "team-jilali",
+        seed: 4,
+        name: "jilali",
+        score: 77,
+      },
+      {
+        winnerClass: "",
+        loserClass: "team-loser",
+        teamClass: "team-9ador",
+        seed: 12,
+        name: "9ador",
+        score: 60,
+      },
+    ],
+  },
+  {
+    1300: [
+      {
+        winnerClass: "team-winner",
+        loserClass: "",
+        teamClass: "team-driss",
+        seed: 1,
+        name: "driss",
+        score: 79,
+      },
+      {
+        winnerClass: "",
+        loserClass: "team-loser",
+        teamClass: "team-jilali",
+        seed: 4,
+        name: "jilali",
+        score: 68,
+      },
+    ],
+  },
+];
 
 // region = [
 // 	{

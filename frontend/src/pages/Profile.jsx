@@ -138,13 +138,13 @@ const Profile = () => {
                     />
                   </div>
                 )}
-                {contextData.profileInfo &&
-									<UserLevel
-										exp={contextData.profileInfo.exp}
-										level={contextData.profileInfo.level}
-										percentage={contextData.profileInfo.percentage}
-									/>
-								}
+                {contextData.profileInfo && (
+                  <UserLevel
+                    exp={contextData.profileInfo.exp}
+                    level={contextData.profileInfo.level}
+                    percentage={contextData.profileInfo.percentage}
+                  />
+                )}
               </div>
 
               <div className="flex flex-col grow justify-between mt-16 overflow-y-auto no-scrollbar">
@@ -217,14 +217,14 @@ const Profile = () => {
                     </div>
                   )}
                 </div>
-                {contextData.profileInfo &&
-									<UserLevel
-										exp={contextData.profileInfo.exp}
-										level={contextData.profileInfo.level}
-										percentage={contextData.profileInfo.percentage}
-										isMobile={true}
-									/>
-								}
+                {contextData.profileInfo && (
+                  <UserLevel
+                    exp={contextData.profileInfo.exp}
+                    level={contextData.profileInfo.level}
+                    percentage={contextData.profileInfo.percentage}
+                    isMobile={true}
+                  />
+                )}
                 {!contextData.profileInfo.isUserBlocked && (
                   <div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">
                     <div className="flex w-[213px] items-center justify-center">
@@ -266,7 +266,9 @@ const Profile = () => {
                   </div>
                   {selectedMenu === "overview" && <ProfileOverview />}
                   {selectedMenu === "statistics" && <ProfileStatistics />}
-                  {selectedMenu === "achievements" && <ProfileAchievements username={username} />}
+                  {selectedMenu === "achievements" && (
+                    <ProfileAchievements username={username} />
+                  )}
                   {selectedMenu === "friends" && (
                     <ProfileFriends username={username} />
                   )}
