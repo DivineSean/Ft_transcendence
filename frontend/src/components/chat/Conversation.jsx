@@ -137,7 +137,6 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
     if (!notifContextData.isWsConnected) return;
 
     const sendTyping = setTimeout(() => {
-      console.log("ljkshdfgjkhgfdjhdsf");
       if (notifContextData.typing.length)
         // send typing because the typing state is not empty
         notifContextData.wsHook.send(

@@ -41,7 +41,6 @@ const Chat = () => {
 
   useEffect(() => {
     if (notifContextData.refresh) {
-      console.log("hello");
       notifContextData.getConversations(setFriendsData);
       notifContextData.setRefresh(false);
     }
@@ -152,7 +151,7 @@ const Chat = () => {
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="chat" />
 
-      {authContextData.globalMessage.message && <Toast position="topCenter" />}
+			{authContextData.globalMessage.message && <Toast position="topCenter" />}
       {!friendsData && <LoadingPage />}
 
       {friendsData && (

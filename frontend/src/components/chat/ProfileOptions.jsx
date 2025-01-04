@@ -2,19 +2,25 @@ import { IoArrowBackOutline } from "react-icons/io5";
 import { BACKENDURL } from "../../utils/fetchWrapper";
 import UserLevel from "../profile/UserLevel";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import NotifContext from "../../context/NotifContext";
 
 const ProfileOptions = ({
+	uid,
   displayCoversation,
   hideSelf,
   isVisible,
   friendInfo,
 }) => {
+
   const goToProfileSide = () => {
     displayCoversation(true);
     hideSelf(false);
   };
 
   const navigate = useNavigate();
+	const notifContextData = useContext(NotifContext);
+
   return (
     <div
       className={`
@@ -48,7 +54,9 @@ const ProfileOptions = ({
       {!friendInfo.isBlocked && (
         <>
           <div className="flex gap-8 justify-center">
-            <button className="secondary-glass grow lg:w-full p-8 transition-all hover:bg-green/60 hover:text-black rounded-md text-green font-semibold">
+            <button
+							onClick={() => notifContextData.inviteFriend(friendInfo.id, 'pong', uid)}
+							className="secondary-glass grow lg:w-full p-8 transition-all hover:bg-green/60 hover:text-black rounded-md text-green font-semibold">
               invite to play
             </button>
             <button

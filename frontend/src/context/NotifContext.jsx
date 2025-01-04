@@ -196,6 +196,36 @@ export const NotifProvider = ({ children }) => {
       });
     }
   };
+
+	const inviteFriend = async (friendId, gameName, convId) => {
+		try {
+			const res = await FetchData.post(`api/games/${gameName}/invite/`, {
+				friend_id: friendId,
+				conversation_id: convId,
+			});
+			// console.log(res);
+			if (res.ok) {
+				const data = await res.json();
+				console.log('data', data);
+				authContextData.setGlobalMessage({
+					message: data.message,
+					isError: false,
+				});
+			} else if (res.status === 400) {
+				const data = await res.json();
+				console.log('data error', data.error);
+				authContextData.setGlobalMessage({
+					message: data.error,
+					isError: true,
+				})
+			}
+		} catch (error) {
+			authContextData.setGlobalMessage({
+				message: error.message,
+				isError: true,
+			})
+		}
+	}
   // ----------- end chat functions ----------- //
 
   const contextData = {
@@ -227,6 +257,7 @@ export const NotifProvider = ({ children }) => {
     getConversations,
     getMessages,
     getChunkedMessages,
+		inviteFriend,
   };
 
   return (
