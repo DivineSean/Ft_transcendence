@@ -112,7 +112,7 @@ const Profile = () => {
             </div>
             <div className="lg:flex hidden flex-col w-full secondary-glass p-16 gap-16 min-w-[320px] max-w-[320px] relative">
               <div className="flex flex-col gap-8 items-center justify-center p-8">
-                <div className="w-[104px] h-[104px] flex justify-center rounded-full overflow-hidden">
+                <div className="w-[104px] h-[104px] flex justify-center rounded-full overflow-hidden border-[0.5px] border-stroke-sc">
                   <img
                     src={
                       contextData.profileInfo &&
@@ -191,7 +191,7 @@ const Profile = () => {
                 )}
                 <div className="w-full flex gap-16 flex-col items-center lg:hidden">
                   <div className="flex h-[184px] flex-col gap-8 py-16 items-center">
-                    <div className="w-[98px] h-[98px] flex justify-center rounded-full overflow-hidden">
+                    <div className="min-w-[98px] max-w-[98px] min-h-[98px] max-h-[98px] flex justify-center rounded-full overflow-hidden border-[0.5px] border-stroke-sc">
                       <img
                         src={
                           contextData.profileInfo &&
