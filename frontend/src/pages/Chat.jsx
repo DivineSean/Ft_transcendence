@@ -30,31 +30,19 @@ const Chat = () => {
 
   useEffect(() => {
     // first time fetch conversation message from the database to render them to the user
-    notifContextData.getConversations(
-      setFriendsData,
-      authContextData.setGlobalMessage,
-      navigate,
-    );
+    notifContextData.getConversations(setFriendsData);
   }, []);
 
   useEffect(() => {
     if (!uid) {
-      notifContextData.getConversations(
-        setFriendsData,
-        authContextData.setGlobalMessage,
-        navigate,
-      );
+      notifContextData.getConversations(setFriendsData);
     }
   }, [uid]);
 
   useEffect(() => {
     if (notifContextData.refresh) {
       console.log("hello");
-      notifContextData.getConversations(
-        setFriendsData,
-        authContextData.setGlobalMessage,
-        navigate,
-      );
+      notifContextData.getConversations(setFriendsData);
       notifContextData.setRefresh(false);
     }
   }, [notifContextData.refresh]);
@@ -102,11 +90,7 @@ const Chat = () => {
           messageData.type === "createConv" &&
           window.location.pathname.search("chat") !== -1
         ) {
-          notifContextData.getConversations(
-            setFriendsData,
-            authContextData.setGlobalMessage,
-            navigate,
-          );
+          notifContextData.getConversations(setFriendsData);
           notifContextData.readNotification(messageData.notifId);
         }
       }

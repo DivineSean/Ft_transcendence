@@ -105,8 +105,8 @@ class Achievement(models.Model):
         "bronze": 1,
         "silver": 3,
         "gold": 10,
-        "platinum": 25,
-        "diamond": 50,
+        "diamond": 25,
+        "platinium": 50,
         "titanium": 100,
     }
 

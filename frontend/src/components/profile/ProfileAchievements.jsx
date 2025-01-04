@@ -19,15 +19,6 @@ const ProfileAchievements = ({username}) => {
 		contextData.getProfileAchievements(username);
 	}, []);
 
-	useEffect(() => {
-		if (contextData.profileAchievements) {
-			contextData.profileAchievements.map((game) => {
-				console.log(game);
-				
-			})
-		}
-	}, [contextData.profileAchievements])
-
   return (
 		<div className="flex flex-col gap-32 overflow-y-auto no-scrollbar">
 			{contextData.profileAchievements && 
@@ -42,8 +33,12 @@ const ProfileAchievements = ({username}) => {
 											<div className="flex justify-between gap-16">
 												
 												<div className="flex gap-16 items-center">
-													<div className="min-h-40 max-h-40 min-w-40 max-w-40 flex rounded-full border-[0.5px] border-stroke-sc bg-black/50 shadow-inner">
-														<img src={`/images/achievement/icons/${achievement.name}.png`} alt={`achivement image of ${achievement.name}`} className="object-cover grow"/>
+													<div className="min-h-64 max-h-64 min-w-64 max-w-64 flex rounded-full border-[0.5px] border-stroke-sc bg-black/50">
+														<img
+															src={`/images/achievement/icons/${achievement.name}.png`}
+															alt={`achivement image of ${achievement.name}`}
+															className="object-cover grow"
+														/>
 													</div>
 													<div className="flex flex-col">
 														<h2>{achievement.name}</h2>

@@ -1,18 +1,10 @@
-import {
-  CircularProgressbarWithChildren,
-  buildStyles,
-} from "react-circular-progressbar";
 import ProfileAchievements from "../components/profile/ProfileAchievements";
 import ProfileStatistics from "../components/profile/ProfileStatistics";
 import ProfileOverview from "../components/profile/ProfileOverview";
 import ProfileFriends from "../components/profile/ProfileFriends";
 import React, { useContext, useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { GiCrossedSwords } from "react-icons/gi";
+import { useParams } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
-import { LiaMedalSolid } from "react-icons/lia";
-import { GiFlamedLeaf } from "react-icons/gi";
-import { FaClover } from "react-icons/fa6";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import "react-circular-progressbar/dist/styles.css";
@@ -24,6 +16,7 @@ import UpdateProfile from "../components/profile/UpdateProfile";
 import Toast from "../components/Toast";
 import FriendManagementButtons from "../components/profile/FriendManagementButtons";
 import Approval from "../components/profile/Approval";
+import UserLevel from "../components/profile/UserLevel";
 
 const profileMenu = ["overview", "statistics", "achievements", "friends"];
 
@@ -96,38 +89,6 @@ const Profile = () => {
     }
   }, [contextData.refresh]);
 
-  const currentLevel = [];
-
-	if (contextData.profileInfo)
-		currentLevel.push(
-			<div className="flex gap-8 grow" key={contextData.profileInfo.id}>
-				<div
-					className={`w-[80px] flex justify-center items-end overflow-hidden`}
-				>
-					<img
-						className={` object-cover grow h-full w-full`}
-						src={`/images/badges/lvl${contextData.profileInfo.level}.png`}
-						alt={`lvl1`}
-					/>
-				</div>
-				<div className="flex flex-col grow gap-8 justify-center">
-					<div className="flex justify-between items-end">
-						<p className="font-bold tracking-wider">level {contextData.profileInfo.level}</p>
-						<p className="tracking-wide text-gray text-txt-xs flex gap-4">
-							{contextData.profileInfo.exp}
-							<span className="font-semibold uppercase text-green">xp</span>
-						</p>
-					</div>
-					<div className="h-8 w-full bg-black/50 rounded-full overflow-hidden border-[0.5px] border-black/50">
-						<div
-							className="h-full bg-green/90 transition-all"
-							style={{ width: `${contextData.profileInfo.percentage}%` }}
-						></div>
-					</div>
-				</div>
-			</div>,
-		);
-
   return (
     <div className="flex flex-col w-full grow lg:gap-32 gap-16 relative">
       <Header link="profile" />
@@ -177,16 +138,13 @@ const Profile = () => {
                     />
                   </div>
                 )}
-                <div
-                  key={0}
-                  className="bg-black/20 p-8 rounded-lg border-[0.5px] border-stroke-sc flex w-full"
-                >
-                  {contextData.profileInfo && 
-										<>
-											{currentLevel}
-										</>
-									}
-                </div>
+                {contextData.profileInfo &&
+									<UserLevel
+										exp={contextData.profileInfo.exp}
+										level={contextData.profileInfo.level}
+										percentage={contextData.profileInfo.percentage}
+									/>
+								}
               </div>
 
               <div className="flex flex-col grow justify-between mt-16 overflow-y-auto no-scrollbar">
@@ -259,13 +217,14 @@ const Profile = () => {
                     </div>
                   )}
                 </div>
-                <div className="bg-black/20 p-8 rounded-lg border-[0.5px] border-stroke-sc w-full lg:hidden secondary-glass">
-								{contextData.profileInfo && 
-									<>
-										{currentLevel}
-									</>
+                {contextData.profileInfo &&
+									<UserLevel
+										exp={contextData.profileInfo.exp}
+										level={contextData.profileInfo.level}
+										percentage={contextData.profileInfo.percentage}
+										isMobile={true}
+									/>
 								}
-                </div>
                 {!contextData.profileInfo.isUserBlocked && (
                   <div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">
                     <div className="flex w-[213px] items-center justify-center">
