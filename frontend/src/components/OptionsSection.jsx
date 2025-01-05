@@ -18,11 +18,9 @@ const OptionsSection = ({ data, type, reference }) => {
       navigate(`/profile/overview/${item.senderId.username}`);
       contextData.setRefresh(true);
     } else if (item.notifType === "IG") {
-      console.log("had khouna invitak tl3eb game am3lm");
+      navigate(`/chat/${item.targetId}`);
     } else if (item.notifType === "IT") {
       console.log("had khouna invitak tl3eb tournaments am3lm");
-    } else if (item.notifType === "ME") {
-      console.log("had khouna sifet lik message am3lm");
     } else if (item.notifType === "CC") {
       navigate(`/chat/${item.targetId}`);
     }
@@ -74,7 +72,7 @@ const OptionsSection = ({ data, type, reference }) => {
             }}
             className="flex gap-16 p-8 cursor-pointer hover-secondary rounded items-center"
           >
-            <div className="bg-gray w-32 h-32 rounded-full lg:flex hidden overflow-hidden cursor-pointer">
+            <div className="bg-gray min-w-32 max-w-32 h-32 rounded-full lg:flex hidden overflow-hidden cursor-pointer">
               <img
                 src={
                   contextData.userInfo && contextData.userInfo.profile_image
@@ -85,7 +83,7 @@ const OptionsSection = ({ data, type, reference }) => {
                 className="grow object-cover"
               />
             </div>
-            <h2 className="text-h-sm-sm tracking-wide lowercase">
+            <h2 className="text-h-sm-sm tracking-wide lowercase truncate">
               {contextData.userInfo && contextData.userInfo.username}
             </h2>
           </div>
@@ -135,7 +133,7 @@ const OptionsSection = ({ data, type, reference }) => {
                         >
                           {item.notifMessage}
                           <span
-                            className={`font-semibold ${!item.isRead ? "text-red" : "text-stroke-sc"}`}
+                            className={`font-semibold ${!item.isRead ? "text-red" : "text-stroke-sc"} truncate max-w-[120px]`}
                           >
                             {item.senderUsername}
                           </span>

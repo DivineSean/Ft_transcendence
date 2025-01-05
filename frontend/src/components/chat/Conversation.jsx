@@ -137,7 +137,6 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
     if (!notifContextData.isWsConnected) return;
 
     const sendTyping = setTimeout(() => {
-      console.log("ljkshdfgjkhgfdjhdsf");
       if (notifContextData.typing.length)
         // send typing because the typing state is not empty
         notifContextData.wsHook.send(
@@ -193,7 +192,13 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
 
   if (notifContextData.messages && notifContextData.messages.length) {
     notifContextData.messages.map((message) => {
-      conversation.push(<Message message={message} key={message.messageId} />);
+      conversation.push(
+        <Message
+          friendInfo={friendInfo}
+          message={message}
+          key={message.messageId}
+        />,
+      );
     });
   } else {
     conversation.push(
@@ -208,7 +213,13 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
 
   if (notifContextData.tempMessages && notifContextData.tempMessages.length) {
     notifContextData.tempMessages.map((message) => {
-      conversation.push(<Message message={message} key={message.messageId} />);
+      conversation.push(
+        <Message
+          friendInfo={friendInfo}
+          message={message}
+          key={message.messageId}
+        />,
+      );
     });
   }
 
@@ -282,7 +293,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
             />
           </div>
           <div className="flex flex-col justify-between h-full">
-            <h2 className="md:text-h-sm-md text-h-sm-sm font-bold">{`${friendInfo.first_name} ${friendInfo.last_name}`}</h2>
+            <h2 className="md:text-h-sm-md text-h-sm-sm font-bold max-w-[200px] truncate">{`${friendInfo.first_name} ${friendInfo.last_name}`}</h2>
             {friendInfo.isOnline && !friendInfo.isBlocked && (
               <p className="md:text-txt-md text-txt-xs text-green">online</p>
             )}

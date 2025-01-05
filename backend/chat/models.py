@@ -28,6 +28,7 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     isRead = models.BooleanField(default=False)
     isSent = models.BooleanField(default=True)
+    metadata = models.JSONField(blank=True, null=True)
 
     def __str__(self):
         return self.sender.username

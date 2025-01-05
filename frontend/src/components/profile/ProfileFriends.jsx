@@ -28,19 +28,18 @@ const Friends = ({ friend }) => {
           />
         </div>
         <div className="flex flex-col justify-center">
-          <div className="text-txt-xs font-bold cursor-pointer">
+          <div className="text-txt-xs font-bold cursor-pointer truncate max-w-[160px]">
             {`${friend.first_name} ${friend.last_name}`}
           </div>
-          <div className="text-txt-xs text-gray">@{friend.username}</div>
+          <div className="text-txt-xs text-gray max-w-[120px] truncate">
+            @{friend.username}
+          </div>
         </div>
       </div>
       <div className="flex gap-16">
         <button className="px-16 p-8 gap-10 transition-all rounded-md bg-green/70 text-black font-semibold hover:bg-green txt-xs">
           invite
         </button>
-        {/* <div className="flex w-[24px] h-[24px] items-center justify-center cursor-pointer">
-          <TiThMenu />
-        </div> */}
       </div>
     </div>
   );
@@ -65,7 +64,7 @@ const FriendRequest = ({ friendRequest, type }) => {
           alt="request"
           className="object-cover grow "
         />
-        <div className="text-txt-xs p-8 pt-16 text-whiter w-full tracking-wide font-semibold absolute bottom-0 cover-gradient">
+        <div className="text-txt-xs p-8 pt-16 text-whiter w-full tracking-wide font-semibold absolute bottom-0 cover-gradient max-w-full truncate">
           {friendRequest.first_name} {friendRequest.last_name}
         </div>
       </div>
@@ -172,7 +171,7 @@ const ProfileFriends = ({ username }) => {
                   {displaySelect && (
                     <ul
                       className="absolute top-[44px] z-[1] left-0 overflow-hidden text-center w-full flex flex-col
-						bg-[url('/images/background.png')] bg-cover bg-bottom transition-all rounded-md p-8 gap-4 border-[0.5px] border-stroke-sc"
+												bg-[url('/images/background.png')] bg-cover bg-bottom transition-all rounded-md p-8 gap-4 border-[0.5px] border-stroke-sc"
                     >
                       <div className="absolute w-full h-full backdrop-blur-3xl z-[-1] rounded-md top-0 left-0"></div>
                       {select.map((item, i) => (
@@ -180,9 +179,9 @@ const ProfileFriends = ({ username }) => {
                           key={i}
                           onClick={() => setSelected(item)}
                           className={`tracking-wider bg-gray/5 hover:bg-gray/15
-								shadow p-8 transition-all cursor-pointer
-								${selected === item ? "bg-gray/10" : ""}
-							`}
+														shadow p-8 transition-all cursor-pointer
+														${selected === item ? "bg-gray/10" : ""}
+													`}
                         >
                           {item}
                         </li>

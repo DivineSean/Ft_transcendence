@@ -2,8 +2,11 @@ import { IoArrowBackOutline } from "react-icons/io5";
 import { BACKENDURL } from "../../utils/fetchWrapper";
 import UserLevel from "../profile/UserLevel";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import NotifContext from "../../context/NotifContext";
 
 const ProfileOptions = ({
+  uid,
   displayCoversation,
   hideSelf,
   isVisible,
@@ -15,6 +18,8 @@ const ProfileOptions = ({
   };
 
   const navigate = useNavigate();
+  const notifContextData = useContext(NotifContext);
+
   return (
     <div
       className={`
@@ -38,17 +43,22 @@ const ProfileOptions = ({
             className="grow object-cover"
           />
         </div>
-        <h2 className="text-h-lg-md font-bold max-w-[200px] text-center">
+        <h2 className="text-h-lg-md font-bold max-w-[200px] text-center truncate">
           {friendInfo.first_name} {friendInfo.last_name}
         </h2>
-        <p className="text-txt-md text-gray lowercase font-light tracking-wide">
+        <p className="text-txt-md text-gray lowercase font-light tracking-wide max-w-[120px] truncate">
           @{friendInfo.username}
         </p>
       </div>
       {!friendInfo.isBlocked && (
         <>
           <div className="flex gap-8 justify-center">
-            <button className="secondary-glass grow lg:w-full p-8 transition-all hover:bg-green/60 hover:text-black rounded-md text-green font-semibold">
+            <button
+              onClick={() =>
+                notifContextData.inviteFriend(friendInfo.id, "pong", uid)
+              }
+              className="secondary-glass grow lg:w-full p-8 transition-all hover:bg-green/60 hover:text-black rounded-md text-green font-semibold"
+            >
               invite to play
             </button>
             <button

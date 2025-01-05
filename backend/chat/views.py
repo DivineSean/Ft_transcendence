@@ -210,6 +210,7 @@ class getMessages(APIView):
                         "isSent": message.isSent,
                         "timestamp": message.timestamp.strftime("%b %d, %H:%M"),
                         "isSender": True,
+                        "metadata": message.metadata,
                     }
                 )  # maybe other fields, not sure
             else:
@@ -224,6 +225,7 @@ class getMessages(APIView):
                         "timestamp": message.timestamp.strftime("%b %d, %H:%M"),
                         "isSender": False,
                         "ReceiverID": receiverID,
+                        "metadata": message.metadata,
                     }
                 )
         response.data = {

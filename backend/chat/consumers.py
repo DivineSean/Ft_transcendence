@@ -9,6 +9,8 @@ from asgiref.sync import async_to_sync
 from authentication.serializers import UserSerializer
 from rest_framework.serializers import ValidationError
 from notification.models import Notifications
+from games.models import GameRoom
+from django.db.models.expressions import RawSQL
 
 
 class Chat(WebsocketConsumer):
@@ -99,6 +101,7 @@ class Chat(WebsocketConsumer):
                                 "convId": str(self.convName),
                                 "message": msg.message,
                                 "isRead": msg.isRead,
+                                "metadata": msg.metadata,
                                 "isSent": True,
                                 "messageId": str(msg.MessageId),
                                 "sender": self.user,
@@ -161,8 +164,30 @@ class Chat(WebsocketConsumer):
             .update(isRead=True)
         )
 
-        if event["sender"]["id"] != self.user["id"]:
-            self.send(text_data=json.dumps({"type": "read", "convId": event["convId"]}))
+        expired_game_room_ids = GameRoom.objects.filter(
+            status=GameRoom.Status.EXPIRED
+        ).values_list("id", flat=True)
+
+        invites = (
+            Message.objects.filter(
+                ConversationName=event["convId"],
+                metadata__status="waiting",
+            )
+            .annotate(game_room_id=RawSQL("(metadata->>'gameRoomId')::uuid", ()))
+            .filter(game_room_id__in=expired_game_room_ids)
+        )
+
+        for invite in invites:
+            invite.metadata["status"] = "expired"
+            invite.save()
+
+        if invites:
+            self.send(text_data=json.dumps({"type": "expiredInvite"}))
+        else:
+            if event["sender"]["id"] != self.user["id"]:
+                self.send(
+                    text_data=json.dumps({"type": "read", "convId": event["convId"]})
+                )
 
     def chat_message(self, event):
         self.send(
@@ -175,6 +200,7 @@ class Chat(WebsocketConsumer):
                     "isSent": event["isSent"],
                     "messageId": event["messageId"],
                     "isSender": event["sender"]["id"] == self.user["id"],
+                    "metadata": event["metadata"],
                     "firstName": (
                         self.user["first_name"]
                         if event["sender"]["id"] != self.user["id"]
@@ -235,6 +261,17 @@ class Chat(WebsocketConsumer):
                     "type": "messageNotif",
                     "message": event["message"],
                     "username": event["senderUsername"],
+                }
+            )
+        )
+
+    def send_invite_to_notification(self, event):
+        self.send(
+            text_data=json.dumps(
+                {
+                    "type": "gameInvite",
+                    "senderUsername": event["sender_username"],
+                    "game": event["game"],
                 }
             )
         )

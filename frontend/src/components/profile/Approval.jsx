@@ -4,7 +4,6 @@ import { BACKENDURL } from "../../utils/fetchWrapper";
 
 const Approval = ({ approval, setApproval }) => {
   const contextData = useContext(UserContext);
-  console.log(contextData);
   const handleApproval = () => {
     if (approval.type === "block") contextData.blockFriend();
     else if (approval.type === "unfriend") contextData.unfriend();
