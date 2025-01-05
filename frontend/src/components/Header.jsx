@@ -229,7 +229,7 @@ const Header = ({ ...props }) => {
                     <ul
                       ref={searchResultRef}
                       className="w-full max-h-[300px] bg-black/30 backdrop-blur-xl overflow-y-scroll no-scrollbar
-							rounded-md border-[0.5px] border-stroke-sc p-8 flex flex-col gap-8"
+												rounded-md border-[0.5px] border-stroke-sc p-8 flex flex-col gap-8"
                     >
                       {foundUsers.length !== 0 ? (
                         foundUsers.map((user) => (
@@ -237,7 +237,7 @@ const Header = ({ ...props }) => {
                             onClick={() => handleNavigate(user)}
                             key={user.id}
                             className="bg-gray/5 py-8 px-12 hover:bg-gray/15 overflow-hidden cursor-pointer
-											transition-all rounded-md grid grid-cols-[48px,1fr] gap-12 items-center shrink-0"
+															transition-all rounded-md grid grid-cols-[48px,1fr] gap-12 items-center shrink-0"
                           >
                             <div className="w-48 h-48 rounded-full overflow-hidden flex border-[0.5px] border-stroke-sc">
                               <img
@@ -251,7 +251,7 @@ const Header = ({ ...props }) => {
                               />
                             </div>
                             <section className="flex flex-col justify-center normal-case">
-                              <h1 className="tracking-wider text-txt-sm font-semibold">
+                              <h1 className="tracking-wider text-txt-sm font-semibold truncate">
                                 {user.first_name} {user.last_name}
                               </h1>
                               <p className="text-txt-xs text-gray tracking-wide">

@@ -19,7 +19,7 @@ const Chat = () => {
   const notifContextData = useContext(NotifContext);
 
   // states
-  const [friendsData, setFriendsData] = useState(null);
+  // const [notifContextData.friendsData, setFriendsData] = useState(null);
   const [conversationSide, setConversationSide] = useState(true);
   const [profileSide, setProfileSide] = useState(
     window.innerWidth <= 768 ? false : true,
@@ -30,18 +30,21 @@ const Chat = () => {
 
   useEffect(() => {
     // first time fetch conversation message from the database to render them to the user
-    notifContextData.getConversations(setFriendsData);
+    notifContextData.getConversations();
+		return () => {
+			authContextData.setGlobalMessage({message: '', isError: false});
+		}
   }, []);
 
   useEffect(() => {
     if (!uid) {
-      notifContextData.getConversations(setFriendsData);
+      notifContextData.getConversations();
     }
   }, [uid]);
 
   useEffect(() => {
     if (notifContextData.refresh) {
-      notifContextData.getConversations(setFriendsData);
+      notifContextData.getConversations();
       notifContextData.setRefresh(false);
     }
   }, [notifContextData.refresh]);
@@ -89,9 +92,11 @@ const Chat = () => {
           messageData.type === "createConv" &&
           window.location.pathname.search("chat") !== -1
         ) {
-          notifContextData.getConversations(setFriendsData);
+          notifContextData.getConversations();
           notifContextData.readNotification(messageData.notifId);
-        }
+        } else if (messageData.type === "expiredInvite") {
+					notifContextData.getMessages(uid, 0)
+				}
       }
     };
 
@@ -103,8 +108,8 @@ const Chat = () => {
   });
 
   let friendInfo = []; // get the conversation that have the same uid that we have in the url
-  if (friendsData && friendsData.users && friendsData.users.length) {
-    friendInfo = friendsData.users.filter((u) => u.conversationId === uid)[0];
+  if (notifContextData.friendsData && notifContextData.friendsData.users && notifContextData.friendsData.users.length) {
+    friendInfo = notifContextData.friendsData.users.filter((u) => u.conversationId === uid)[0];
   }
 
   // this event listener just for the small media if the window is resized the profileOption component will disappear
@@ -116,9 +121,9 @@ const Chat = () => {
 
   useEffect(() => {
     // if the updatedConversation is updated thats mean we need to update chat friend component
-    if (notifContextData.updatedConversation && friendsData) {
+    if (notifContextData.updatedConversation && notifContextData.friendsData) {
       // find the conversation that we are already entered into it
-      const findConv = friendsData.users.filter(
+      const findConv = notifContextData.friendsData.users.filter(
         (user) =>
           user.conversationId === notifContextData.updatedConversation.convId,
       )[0];
@@ -134,14 +139,14 @@ const Chat = () => {
       }
 
       // get all other conversation
-      const newFriendsData = friendsData.users.filter(
+      const newFriendsData = notifContextData.friendsData.users.filter(
         (user) =>
           user.conversationId !== notifContextData.updatedConversation.convId,
       );
 
       // then resort them to make the updated conversation the first one
-      setFriendsData({
-        ...friendsData,
+      notifContextData.setFriendsData({
+        ...notifContextData.friendsData,
         users: [findConv, ...newFriendsData],
       });
     }
@@ -152,9 +157,9 @@ const Chat = () => {
       <Header link="chat" />
 
 			{authContextData.globalMessage.message && <Toast position="topCenter" />}
-      {!friendsData && <LoadingPage />}
+      {!notifContextData.friendsData && <LoadingPage />}
 
-      {friendsData && (
+      {notifContextData.friendsData && (
         <div className="container md:px-16 px-0">
           {displaySearch && (
             <SearchForConversation setDisplaySearch={setDisplaySearch} />
@@ -173,7 +178,7 @@ const Chat = () => {
                   find conversation
                 </p>
               </div>
-              <ChatFriends friendsData={friendsData} uid={uid} />
+              <ChatFriends friendsData={notifContextData.friendsData} uid={uid} />
             </div>
 
             <div className="w-[0.5px] bg-stroke-sc md:block hidden"></div>

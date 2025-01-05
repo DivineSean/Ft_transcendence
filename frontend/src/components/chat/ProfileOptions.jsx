@@ -44,10 +44,10 @@ const ProfileOptions = ({
             className="grow object-cover"
           />
         </div>
-        <h2 className="text-h-lg-md font-bold max-w-[200px] text-center">
+        <h2 className="text-h-lg-md font-bold max-w-[200px] text-center truncate">
           {friendInfo.first_name} {friendInfo.last_name}
         </h2>
-        <p className="text-txt-md text-gray lowercase font-light tracking-wide">
+        <p className="text-txt-md text-gray lowercase font-light tracking-wide max-w-[120px] truncate">
           @{friendInfo.username}
         </p>
       </div>

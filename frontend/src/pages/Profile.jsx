@@ -124,8 +124,8 @@ const Profile = () => {
                     className="object-cover w-full"
                   />
                 </div>
-                <h1 className="text-h-lg-md font-bold">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
-                <h2 className="text-txt-md normal-case">
+                <h1 className="text-h-lg-md font-bold max-w-[200px] truncate">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
+                <h2 className="text-txt-md normal-case max-w-[120px] truncate">
                   @{contextData.profileInfo.username}
                 </h2>
               </div>
@@ -203,8 +203,8 @@ const Profile = () => {
                         className="object-cover w-full"
                       />
                     </div>
-                    <h1 className="text-h-sm-sm font-bold">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
-                    <h2 className="text-txt-xs normal-case">
+                    <h1 className="text-h-sm-sm font-bold max-w-[160px] truncate">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
+                    <h2 className="text-txt-xs normal-case max-w-[120px] truncate">
                       @{contextData.profileInfo.username}
                     </h2>
                   </div>

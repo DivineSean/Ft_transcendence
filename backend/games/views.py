@@ -7,11 +7,13 @@ from authentication.serializers import UserFriendSerializer
 from chat.views import Conversation
 from asgiref.sync import async_to_sync
 from notification.models import Notifications
-from .models import Game
+from .models import Game, Player, GameRoom
 from .serializers import GameRoomSerializer
 from .tasks import mark_game_room_as_expired
 from matchmaking.matchmaker import GAME_EXPIRATION
 from chat.models import Conversation, Message
+from channels.layers import get_channel_layer
+from authentication.serializers import UserSerializer
 
 @api_view(['POST'])
 def inviteFriend(request, game_name=None):
@@ -45,14 +47,16 @@ def inviteFriend(request, game_name=None):
 				status=status.HTTP_400_BAD_REQUEST
 			)
 		
-		Message.objects.create(
-			ConversationName=conversation,
-			sender=request._user,
-			message="invite",
-			metadata={"type": "invite", "status": "pending"}
+		player = Player.objects.filter(
+			user=request._user,
+			game_room__status__in=[GameRoom.Status.WAITING, GameRoom.Status.ONGOING]
 		)
 
-		print('game', game, conversation, flush=True)
+		if player:
+			return Response(
+			{"error": "you are already associated with another game you cannot send the invite"},
+			status=status.HTTP_400_BAD_REQUEST
+		)
 
 		players_data = [
 			{
@@ -61,7 +65,7 @@ def inviteFriend(request, game_name=None):
 			},
 			{
 				"user": friend_id,
-				"role": 1
+				"role": 2
 			},
 		]
 
@@ -69,37 +73,66 @@ def inviteFriend(request, game_name=None):
 
 		serializer = GameRoomSerializer(data=game_data)
 
-		# need to check if the player is already in game to don't allow him to invite the other players
-		# if serializer.is_valid(raise_exception=True):
-		# 		game = serializer.create(serializer.validated_data)
-		# 		mark_game_room_as_expired.apply_async(
-		# 				args=[game.id], countdown=GAME_EXPIRATION
-		# 		)
-		
-		# user = User.objects.get(id=friend_id)
-		# notification, isNew = Notifications.objects.get_or_create(
-		# 		notifType="FR",
-		# 		userId=user,
-		# 		senderId=request._user,
-		# 		senderUsername=request._user.username,
-		# 		targetId=str(request._user.id),
-		# )
+		game_room = None
+		if serializer.is_valid(raise_exception=True):
+				game_room = serializer.create(serializer.validated_data)
+				mark_game_room_as_expired.apply_async(
+						args=[game_room.id], countdown=GAME_EXPIRATION
+				)
 
-		# check if the notif is not created before or already read
-		# if not isNew or notification.isRead:
-		# 		notification.updateRead()
-		# 		channel_layer = get_channel_layer()
-		# 		group_name = f"notifications_{userId}"
-		# 		async_to_sync(channel_layer.group_send)(
-		# 				group_name,
-		# 				{
-		# 						"type": "send_invite_to_friend",
-		# 						"sender": str(request._user.id),
-		# 				},
-		# 		)
+		message = Message.objects.create(
+			ConversationName=conversation,
+			sender=request._user,
+			message="game invite",
+			metadata={
+				"type": "invite", 
+				"status": "waiting", 
+				"game": game_name,
+				"gameRoomId": str(game_room.id)
+			}
+		)
+		
+		user = User.objects.get(id=friend_id)
+		notification = Notifications.objects.create(
+				notifType="IG",
+				userId=user,
+				senderId=request._user,
+				senderUsername=request._user.username,
+				targetId=conversation_id
+		)
+
+		user_data = UserSerializer(request._user).data
+		channel_layer = get_channel_layer()
+		group_name = f"conv-{conversation_id}"
+		async_to_sync(channel_layer.group_send)(
+			group_name,
+			{
+				"type": "chat_message",
+				"convId": conversation_id,
+				"message": message.message,
+				"metadata": message.metadata,
+				"isRead": message.isRead,
+				"isSent": True,
+				"messageId": str(message.MessageId),
+				"sender": user_data,
+				"timestamp": str(
+						message.timestamp.strftime("%b %d, %H:%M")
+				),
+			},
+		)
+
+		group_name = f"notifications_{friend_id}"
+		async_to_sync(channel_layer.group_send)(
+			group_name,
+			{
+				"type": "send_invite_to_notification",
+				"sender_username": request._user.username,
+				"game": game_name,
+			}
+		)
 
 		return Response(
-			{"message": "invite d left"},
+			{"message": "invite sent successfully"},
 			status=status.HTTP_200_OK
 		)
 		

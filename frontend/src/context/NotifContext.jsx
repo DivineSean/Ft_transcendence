@@ -24,6 +24,7 @@ export const NotifProvider = ({ children }) => {
   const [displayTyping, setDisplayTyping] = useState(null);
   const [readedMessages, setReadedMessages] = useState(null);
   const [refresh, setRefresh] = useState(false);
+	const [friendsData, setFriendsData] = useState(null);
 
   const wsHook = useWebsocket(
     `wss://${window.location.hostname}:8000/ws/chat/`,
@@ -68,7 +69,12 @@ export const NotifProvider = ({ children }) => {
             });
           } else if (messageData.type === "acceptFriendRequest") {
             getNotfications();
-          }
+          } else if (messageData.type === "gameInvite") {
+						getNotfications();
+						authContextData.setGlobalMessage({
+							message: `you get invited by @${messageData.senderUsername} to play ${messageData.game} game`
+						})
+					} 
         }
       },
     },
@@ -110,12 +116,12 @@ export const NotifProvider = ({ children }) => {
   };
 
   // ----------- start chat functions ----------- //
-  const getConversations = async (setData) => {
+  const getConversations = async () => {
     try {
       const res = await FetchData.get("api/chat/conversations/");
       if (res.ok) {
         const data = await res.json();
-        setData(data);
+        setFriendsData(data);
       } else if (res.status) {
         const data = await res.json();
         if (res.status === 401) {
@@ -141,17 +147,14 @@ export const NotifProvider = ({ children }) => {
         offset: 0,
       });
 
-      if (res.status !== 500) {
-        const data = await res.json();
-        if (res.status === 200) {
-          if (data.messages.length === 20) setOffsetMssg(20);
-          setMessages(data.messages);
-        } else {
-          navigate("/chat");
-        }
-      } else {
-        console.log("internal server error 500");
-      }
+			if (res.status === 200) {
+				const data = await res.json();
+				if (data.messages.length === 20) setOffsetMssg(20);
+				setMessages(data.messages);
+			} else {
+				navigate("/chat");
+			}
+
     } catch (error) {
       authContextData.setGlobalMessage({
         message: error.message,
@@ -173,23 +176,19 @@ export const NotifProvider = ({ children }) => {
         offset: offsetMssg,
       });
 
-      if (res.status !== 500) {
-        const data = await res.json();
-        if (res.status === 200) {
-          setMessages((prevMessages) => [...data.messages, ...prevMessages]);
-          if (data.next_offset === null) {
-            setOfssetMssg(0);
-            setAllMessages(true);
-          } else {
-            setOfssetMssg(data.next_offset);
-            setIsChunked(true);
-          }
-        }
-      } else {
-        console.log("internal server error 500");
-      }
+			if (res.status === 200) {
+				const data = await res.json();
+				setMessages((prevMessages) => [...data.messages, ...prevMessages]);
+				if (data.next_offset === null) {
+					setOfssetMssg(0);
+					setAllMessages(true);
+				} else {
+					setOfssetMssg(data.next_offset);
+					setIsChunked(true);
+				}
+			}
+
     } catch (error) {
-      console.log(error);
       authContextData.setGlobalMessage({
         message: error.message,
         isError: true,
@@ -203,17 +202,14 @@ export const NotifProvider = ({ children }) => {
 				friend_id: friendId,
 				conversation_id: convId,
 			});
-			// console.log(res);
 			if (res.ok) {
 				const data = await res.json();
-				console.log('data', data);
 				authContextData.setGlobalMessage({
-					message: data.message,
+					message: 'invite sent successfully',
 					isError: false,
 				});
 			} else if (res.status === 400) {
 				const data = await res.json();
-				console.log('data error', data.error);
 				authContextData.setGlobalMessage({
 					message: data.error,
 					isError: true,
@@ -229,6 +225,7 @@ export const NotifProvider = ({ children }) => {
   // ----------- end chat functions ----------- //
 
   const contextData = {
+		friendsData,
     updatedConversation,
     tempMessages,
     messages,
@@ -258,6 +255,7 @@ export const NotifProvider = ({ children }) => {
     getMessages,
     getChunkedMessages,
 		inviteFriend,
+		setFriendsData,
   };
 
   return (
