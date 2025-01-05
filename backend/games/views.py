@@ -31,6 +31,7 @@ def getOnlineMatches(request):
             game_data["players"].append({
                 "username": player["username"],
                 "profile_image": player["profile_image"],
+                "user_id": player["id"],
                 "score": player_data["score"]
             })
 

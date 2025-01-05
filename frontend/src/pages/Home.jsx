@@ -21,10 +21,6 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-
-    if (userContextData.onlineMatches)
-      console.log('hello',userContextData.onlineMatches);
-
   }, [userContextData.onlineMatches])
 
   if (userContextData.userFriends && userContextData.userFriends.friends) {
@@ -71,8 +67,8 @@ const Home = () => {
                     />
                   </div>
                   <div className="grid lg:grid-cols-[1fr_1.1fr] lg:gap-32 gap-16">
-                    <OnlineMatches />
-                    <OnlineMatches />
+                    <OnlineMatches data={userContextData.onlineMatches}/>
+                    <OnlineMatches data={userContextData.onlineMatches}/>
                   </div>
                   <div className="primary-glass"></div>
                 </article>
