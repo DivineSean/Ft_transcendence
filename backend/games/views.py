@@ -6,9 +6,14 @@ from .models import GameRoom, Game
 from .serializers import GameRoomSerializer
 import json
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 def getOnlineMatches(request):
-    games = GameRoom.objects.exclude(Q(status=GameRoom.Status.COMPLETED) | Q(status=GameRoom.Status.EXPIRED) | Q(status=GameRoom.Status.WAITING))
+    games = GameRoom.objects.exclude(
+        Q(status=GameRoom.Status.COMPLETED)
+        | Q(status=GameRoom.Status.EXPIRED)
+        | Q(status=GameRoom.Status.WAITING)
+    )
     serializers = GameRoomSerializer(games, many=True)
     gamestowatch = []
     for serialized in serializers.data:
@@ -20,18 +25,17 @@ def getOnlineMatches(request):
             "game": serialized["game"],
             "id": serialized["id"],
             "started_at": serialized["started_at"],
-            "players": []
+            "players": [],
         }
         for player_data in players:
             player = player_data["user"]
-            game_data["players"].append({
-                "username": player["username"],
-                "profile_image": player["profile_image"],
-                "score": player_data["score"]
-            })
+            game_data["players"].append(
+                {
+                    "username": player["username"],
+                    "profile_image": player["profile_image"],
+                    "score": player_data["score"],
+                }
+            )
         gamestowatch.append(game_data)
 
-    return Response(
-        gamestowatch,
-        status=status.HTTP_200_OK
-    )
+    return Response(gamestowatch, status=status.HTTP_200_OK)

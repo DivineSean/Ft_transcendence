@@ -16,10 +16,12 @@ export class SceneManager {
     this.player = player;
     this.playersData = playersData;
     if (playersData[0].user.username.length > 10) {
-        this.playersData[0].user.username = playersData[0].user.username.slice(0, 10) + '...';
+      this.playersData[0].user.username =
+        playersData[0].user.username.slice(0, 10) + "...";
     }
     if (playersData[1].user.username.length > 10) {
-      this.playersData[1].user.username = playersData[1].user.username.slice(0, 10) + '...';
+      this.playersData[1].user.username =
+        playersData[1].user.username.slice(0, 10) + "...";
     }
     this.Marathoner = false;
     this.globalMessage = globalMessage;
@@ -633,13 +635,10 @@ export class SceneManager {
       playerData.score.toString(),
     );
     this.scoreRender(scores, this.changeServe);
-    if (started_at > 0)
-    {
+    if (started_at > 0) {
       this.startTime = started_at;
       this.lastTime = Date.now();
-    }
-    else
-    {
+    } else {
       this.startTime = Date.now();
       this.lastTime = Date.now();
     }

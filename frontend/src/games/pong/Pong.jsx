@@ -63,8 +63,7 @@ const Pong = ({
     if (!ready) return;
 
     const MobileEventListener = (event) => {
-      if (isSpectator)
-        return;
+      if (isSpectator) return;
       if (event.x > 0.5) {
         keyboard.current["ArrowRight"] = true;
         keyboard.current["ArrowLeft"] = false;
@@ -172,8 +171,7 @@ const Pong = ({
 
     const messageHandler = (event) => {
       const msg = JSON.parse(event.data);
-      if (isSpectator)
-      {
+      if (isSpectator) {
         if (
           !tableRef.current ||
           !netRef.current ||
@@ -188,8 +186,7 @@ const Pong = ({
         const scores = JSON.parse(msg.message.scores);
         const score1 = Number(scores["1"]);
         const score2 = Number(scores["2"]);
-        if (!isSpectator)
-        {
+        if (!isSpectator) {
           if (Math.abs(score1 - score2) === 4) {
             if (score1 > score2 && sm.current.RemontadaPlayer === -1)
               sm.current.RemontadaChance = true;
@@ -222,11 +219,12 @@ const Pong = ({
           ballRef.current.serve(netRef.current, -1);
         }
       } else if (msg.type === "update") {
-        if (isSpectator && (msg.message.content == "paddle" || msg.message.content == "rotating"))
-        {
+        if (
+          isSpectator &&
+          (msg.message.content == "paddle" || msg.message.content == "rotating")
+        ) {
           opp = msg.message.player;
-          if (opp === -1)
-            opp = 2;
+          if (opp === -1) opp = 2;
         }
         if (msg.message.content == "paddle") {
           playersRef.current[opp - 1].rotating = false;
@@ -397,8 +395,7 @@ const Pong = ({
         );
         simulatedTime += fixedStep;
       }
-      if (!isSpectator)
-      {
+      if (!isSpectator) {
         if (ball.scoreboard[0] !== 7 && ball.scoreboard[1] !== 7) {
           if (ball.serving && !ball.timeout && !ball.sendLock) {
             if (
@@ -518,7 +515,8 @@ const Pong = ({
             </div>
           </div>
         </div>
-      )}{/*
+      )}
+      {/*
       {/* Spectator Section 
       {isSpectator && !ready && (
         <div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">

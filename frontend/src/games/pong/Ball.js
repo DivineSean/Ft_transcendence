@@ -123,14 +123,23 @@ class Ball {
     send(JSON.stringify(data));
   }
 
-  update(net, table, player1, send, dt, player, keyboard, globalMessage, isSpectator) {
+  update(
+    net,
+    table,
+    player1,
+    send,
+    dt,
+    player,
+    keyboard,
+    globalMessage,
+    isSpectator,
+  ) {
     if (this.sendLock && this.serving && this.count >= 2) return;
     this.dy -= G;
     let flag = false;
     //serve
 
-    if (isSpectator)
-    {
+    if (isSpectator) {
       if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
         this.y = table.boundingBoxTable.max.y + 1;
         this.dy *= -0.6;

@@ -388,11 +388,11 @@ export const UserProvider = ({ children }) => {
       });
     }
   };
-  
+
   // --------- start home functions --------- //
   const getOnlineMatches = async () => {
     try {
-      const res = await FetchData.get('api/matches/');
+      const res = await FetchData.get("api/matches/");
       if (res.ok) {
         const data = await res.json();
         setOnlineMatches(data);
@@ -401,7 +401,7 @@ export const UserProvider = ({ children }) => {
       authContextData.setGlobalMessage({
         message: error.message,
         isError: true,
-      })
+      });
     }
   };
   // --------- end home functions --------- //

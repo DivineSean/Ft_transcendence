@@ -14,14 +14,13 @@ const Home = () => {
   const friends = [];
   useEffect(() => {
     userContextData.getFriends();
-    userContextData.getOnlineMatches()
+    userContextData.getOnlineMatches();
 
     return () =>
       authContextData.setGlobalMessage({ message: "", isError: false });
   }, []);
 
-  useEffect(() => {
-  }, [userContextData.onlineMatches])
+  useEffect(() => {}, [userContextData.onlineMatches]);
 
   if (userContextData.userFriends && userContextData.userFriends.friends) {
     userContextData.userFriends.friends.map((friend) => {
@@ -67,8 +66,8 @@ const Home = () => {
                     />
                   </div>
                   <div className="grid lg:grid-cols-[1fr_1.1fr] lg:gap-32 gap-16">
-                    <OnlineMatches data={userContextData.onlineMatches}/>
-                    <OnlineMatches data={userContextData.onlineMatches}/>
+                    <OnlineMatches data={userContextData.onlineMatches} />
+                    <OnlineMatches data={userContextData.onlineMatches} />
                   </div>
                   <div className="primary-glass"></div>
                 </article>

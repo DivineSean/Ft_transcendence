@@ -21,6 +21,7 @@ r = redis.Redis(
 MAX_ALLOWED_TIMEOUTS = 2
 TIMEOUT_DURATION = 30
 
+
 class GameConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()
@@ -39,7 +40,9 @@ class GameConsumer(WebsocketConsumer):
             self.group_name, self.channel_name
         )
         if not self.error:
-            self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
+            self.players = json.loads(
+                r.hget(f"game_room_data:{self.game_uuid}", "players")
+            )
             for player in self.players:
                 if str(player["user"]["id"]) == str(self.user_id):
                     player["ready"] = False
