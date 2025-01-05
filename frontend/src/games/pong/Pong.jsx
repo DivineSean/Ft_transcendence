@@ -23,7 +23,6 @@ const Pong = ({
   isSpectator,
   started_at,
 }) => {
-  console.log("manyTimes", isSpectator);
   const sm = useRef(null);
   const loaderRef = useRef(null);
   const loaderTRef = useRef(null);
