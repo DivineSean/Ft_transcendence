@@ -28,4 +28,5 @@ urlpatterns = [
     path("silk/", include("silk.urls", namespace="silk")),
     path("", include("notification.urls")),
     path("", include("tournament.urls")),
+    path("", include("games.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

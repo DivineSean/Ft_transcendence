@@ -23,6 +23,9 @@ def mark_game_abandoned(game_room_id, user_id):
     if not game_room_data:
         return f"GameRoom {game_room_id} state not found."
 
+    if game_room_data["status"] == GameRoom.Status.COMPLETED:
+        return f"GameRoom {game_room_id} has already concluded."
+
     try:
         game_room = GameRoom.objects.get(id=game_room_id)
     except GameRoom.DoesNotExist:
