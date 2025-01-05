@@ -26,7 +26,7 @@ const InputFieled = ({ ...props }) => {
             className={`
 				absolute top-1/2 -translate-y-1/2
 				${props.formData ? "top-[-12px] left-0 text-txt-lg" : "left-16 text-txt-md"}
-				${props.error ? "text-red" : "text-white"}
+				${props.error ? "text-red" : "text-white"} z-[-1]
 				transition-all peer-focus:left-0 peer-focus:text-txt-md peer-focus:top-[-12px]
 			`}
           >
@@ -64,7 +64,7 @@ const InputFieled = ({ ...props }) => {
             className={`
 					absolute top-1/2 -translate-y-1/2
 					${props.formData ? "top-[-12px] left-0 text-txt-lg" : "left-16 text-txt-md"}
-					${props.error ? "text-red" : "text-white"}
+					${props.error ? "text-red" : "text-white"} z-[-1]
 					transition-all peer-focus:left-0 peer-focus:text-txt-md peer-focus:top-[-12px]
 				`}
           >

@@ -17,6 +17,7 @@ from .serializers import ConversationSerializer, UserSerializerOne
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from notification.models import Notifications
+from rest_framework.decorators import api_view
 
 
 class ChatConversation(APIView):
@@ -235,3 +236,58 @@ class getMessages(APIView):
         }
 
         return response
+
+
+from django.contrib.postgres.search import (
+    SearchQuery,
+    SearchVector,
+    SearchRank,
+    TrigramSimilarity,
+)
+
+
+@api_view(["GET"])
+def search_conversations(request):
+    try:
+        query = request.GET.get("query").strip()
+
+        if not query:
+            return Response(
+                {"error": "no query provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        conversations = (
+            Conversation.objects.annotate(
+                total_similarity=(
+                    TrigramSimilarity("Sender__username", query)
+                    + TrigramSimilarity("Sender__first_name", query)
+                    + TrigramSimilarity("Sender__last_name", query)
+                    + TrigramSimilarity("Receiver__username", query)
+                    + TrigramSimilarity("Receiver__first_name", query)
+                    + TrigramSimilarity("Receiver__last_name", query)
+                )
+            )
+            .filter(
+                Q(Sender=request._user) | Q(Receiver=request._user),
+                total_similarity__gt=0.1,
+            )
+            .order_by("-total_similarity")
+        )
+
+        serializer = ConversationSerializer(
+            conversations,
+            exclude_fields=[
+                "latest_message",
+                "latest_message_timestamp",
+                "is_read_message",
+            ],
+            context={"request": request},
+            many=True,
+        )
+
+        print(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e, flush=True)
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

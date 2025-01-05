@@ -8,6 +8,8 @@ const FriendsChat = ({ uid, friendInfo }) => {
   const navigate = useNavigate();
   const notifContextData = useContext(NotifContext);
 
+  //   console.log('friendInfo', friendInfo);
+
   const sendReadMessage = (friendInfo) => {
     if (notifContextData.wsHook) {
       notifContextData.wsHook.send(

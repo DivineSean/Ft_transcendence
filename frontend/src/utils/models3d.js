@@ -7,7 +7,7 @@ const manager = new THREE.LoadingManager(() => {
   if (loading) loading.addEventListener("transtionend", loading.remove());
 });
 
-export const create3DModel = (canvas, modelFolderName) => {
+export const create3DModel = async (canvas, modelFolderName) => {
   const canvasHeight = canvas.clientHeight;
   const canvasWidth = canvas.clientWidth;
 
@@ -34,14 +34,15 @@ export const create3DModel = (canvas, modelFolderName) => {
 
   //controls
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.enablePan = false;
-  controls.minDistance = 2.5;
-  controls.maxDistance = 2.4;
-  controls.minPolarAngle = 0.5;
-  controls.maxPolarAngle = Math.PI / 2;
-  controls.autoRotate = true;
-  controls.target = new THREE.Vector3(0, 0, 0);
+  // controls.enableDamping = true;
+  // controls.enablePan = false;
+  // controls.minDistance = 2.5;
+  // controls.maxDistance = 2.4;
+  // controls.minPolarAngle = 0.5;
+  // controls.maxPolarAngle = Math.PI / 2;
+  controls.enabled = false;
+  // controls.autoRotate = true;
+  // controls.target = new THREE.Vector3(0, 0, 0);
 
   //lights
   // const light = new THREE.AmbientLight(0xffffff, 2)
@@ -62,17 +63,22 @@ export const create3DModel = (canvas, modelFolderName) => {
   leftBehindLight.position.set(-25, 0, -25);
   scene.add(leftBehindLight);
 
-  const loader = new GLTFLoader(manager).setPath(modelFolderName);
-  loader.load("scene.gltf", (gltf) => {
-    const mesh = gltf.scene;
-    scene.add(mesh);
-  });
+  const loader = new GLTFLoader(manager);
+
+  loader
+    .loadAsync(`https://${window.location.hostname}:3000/planet/scene.gltf`)
+    .then((gltf) => {
+      const mesh = gltf.scene;
+      scene.add(mesh);
+    })
+    .catch((error) => {});
 
   function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
+    // requestAnimationFrame(animate);
     renderer.render(scene, camera);
+    controls.update();
   }
+  renderer.setAnimationLoop(animate);
 
-  animate();
+  // animate();
 };

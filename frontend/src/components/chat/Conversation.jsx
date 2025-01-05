@@ -42,12 +42,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
     if (uid) {
       setAllMessages(false);
       setChunkedData(0);
-      notifContextData.getMessages(
-        uid,
-        notifContextData.setMessages,
-        setOffsetMssg,
-        navigate,
-      );
+      notifContextData.getMessages(uid, setOffsetMssg);
     }
   }, [uid]);
 
@@ -87,7 +82,6 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
 
         notifContextData.getChunkedMessages(
           uid,
-          notifContextData.setMessages,
           offsetMssg,
           setOffsetMssg,
           setIsChunked,
@@ -377,7 +371,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
       )}
       {friendInfo.isBlocked && (
         <div className="cursor-not-allowed text-txt-sm text-center p-16 text-stroke-sc lowercase bg-black/20 rounded-md">
-          sorry you cannot send any message because this conversatoin is blocked
+          sorry you cannot send any message because this conversation is blocked
         </div>
       )}
     </div>
