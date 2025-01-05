@@ -89,6 +89,7 @@ const Game = memo(
     removeMessageHandler,
     players,
     turn,
+    started_at,
   }) => {
     const data = players.current?.find(
       (player) => player.user.username === userInfo.username,
@@ -99,18 +100,24 @@ const Game = memo(
       console.log("Game component renered");
     }, []);
 
+    const overideSend = () => {
+      return;
+    };
+
     switch (game) {
       case "pong":
         return (
           <Pong
+            send={data ? send : overideSend}
             ready={ready}
             setReady={setReady}
-            playersData={players.current}
-            turn={turn}
-            player={data.role}
-            send={send}
             addMessageHandler={addMessageHandler}
             removeMessageHandler={removeMessageHandler}
+            player={data ? data.role : 1}
+            turn={turn}
+            playersData={players.current}
+            isSpectator={data ? false : true}
+            started_at={started_at}
           />
         );
     }
@@ -164,6 +171,7 @@ const GameManager = () => {
           removeMessageHandler={removeMessageHandler}
           players={playersRef}
           turn={data.turn}
+          started_at={data.started_at}
         />
       )}
       {!ready && data && (

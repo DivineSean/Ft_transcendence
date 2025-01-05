@@ -7,4 +7,5 @@ urlpatterns = [
         views.inviteFriend,
         name="getFr",
     ),
+    path("api/matches/", views.getOnlineMatches, name="online matches"),
 ]

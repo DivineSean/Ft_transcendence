@@ -107,6 +107,7 @@ class Paddle {
         type: "update",
         message: {
           content: "rotating",
+          player: this.player,
           paddle: {
             rotX: this.rotationX,
             rotY: this.rotationY,
@@ -120,6 +121,7 @@ class Paddle {
         type: "update",
         message: {
           content: "paddle",
+          player: this.player,
           paddle: {
             x: this.x,
             y: this.y,

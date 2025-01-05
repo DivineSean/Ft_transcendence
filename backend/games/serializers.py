@@ -160,6 +160,9 @@ class GameRoomSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.status = validated_data.get("status", instance.status)
         instance.state = validated_data.get("state", instance.state)
+        instance.turn = validated_data.get("turn", instance.turn)
+        instance.started_at = validated_data.get("started_at", instance.started_at)
+        instance.paused_at = validated_data.get("paused_at", instance.paused_at)
         instance.save()
 
         players_data = validated_data.get("players", [])
