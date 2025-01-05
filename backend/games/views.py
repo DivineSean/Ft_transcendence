@@ -16,26 +16,19 @@ def getOnlineMatches(request):
         serialized["game"] = game.name
         serialized["players"] = json.loads(serialized["players"])
         players = serialized["players"]
-
-        # Prepare the game data for gamestowatch
         game_data = {
             "game": serialized["game"],
             "id": serialized["id"],
             "started_at": serialized["started_at"],
             "players": []
         }
-
-        # Loop through all players and add their information
         for player_data in players:
             player = player_data["user"]
             game_data["players"].append({
                 "username": player["username"],
                 "profile_image": player["profile_image"],
-                "user_id": player["id"],
                 "score": player_data["score"]
             })
-
-        # Append the current game data to gamestowatch
         gamestowatch.append(game_data)
 
     return Response(
