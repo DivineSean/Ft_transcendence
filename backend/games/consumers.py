@@ -24,6 +24,7 @@ TIMEOUT_DURATION = 30
 class GameConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()
+        self.error = False
         self.user = self.scope.get("user")
         self.user_id = str(self.scope["user"].id)
         self.game_name = self.scope["url_route"]["kwargs"]["game_name"]
@@ -37,7 +38,14 @@ class GameConsumer(WebsocketConsumer):
         async_to_sync(self.channel_layer.group_discard)(
             self.group_name, self.channel_name
         )
-        self.handle_timeout()
+        if not self.error:
+            self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
+            for player in self.players:
+                if str(player["user"]["id"]) == str(self.user_id):
+                    player["ready"] = False
+                    self.save_game_data(players=json.dumps(self.players))
+                    break
+            self.handle_timeout()
 
     def receive(self, text_data):
         isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
@@ -76,8 +84,9 @@ class GameConsumer(WebsocketConsumer):
             self.user.status = status
             self.user.save()
         except Exception as e:
+            self.error = True
             self.close(
-                code=1006, reason=f"Unexpected error while saving user status: {str(e)}"
+                code=4006, reason=f"Unexpected error while saving user status: {str(e)}"
             )
             return
 
@@ -92,15 +101,24 @@ class GameConsumer(WebsocketConsumer):
             self.players = game_data["players"] = json.loads(game_data["players"])
             game_data["state"] = json.loads(game_data["state"])
         except Exception as e:
-            self.close(code=1006, reason=e)
+            self.close(code=4004, reason=str(e))
             return
 
         if game_data["status"] == "paused":
             self.handle_reconnect(game_data)
 
-        isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
-        if isPlayer:
+        player = None
+        for p in self.players:
+            if p["user"]["id"] == self.user_id:
+                player = p
+                break
+        if player:
             self.update_status(self.user.Status.IN_GAME)
+            if player["ready"] is True:
+                # Player connecting twice
+                self.error = True
+                self.close(code=4001, reason="Already connected from another client")
+                return
 
         self.send(text_data=json.dumps({"type": "game_manager", "message": game_data}))
 
