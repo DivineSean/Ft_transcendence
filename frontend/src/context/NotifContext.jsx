@@ -24,7 +24,7 @@ export const NotifProvider = ({ children }) => {
   const [displayTyping, setDisplayTyping] = useState(null);
   const [readedMessages, setReadedMessages] = useState(null);
   const [refresh, setRefresh] = useState(false);
-	const [friendsData, setFriendsData] = useState(null);
+  const [friendsData, setFriendsData] = useState(null);
 
   const wsHook = useWebsocket(
     `wss://${window.location.hostname}:8000/ws/chat/`,
@@ -70,11 +70,11 @@ export const NotifProvider = ({ children }) => {
           } else if (messageData.type === "acceptFriendRequest") {
             getNotfications();
           } else if (messageData.type === "gameInvite") {
-						getNotfications();
-						authContextData.setGlobalMessage({
-							message: `you get invited by @${messageData.senderUsername} to play ${messageData.game} game`
-						})
-					} 
+            getNotfications();
+            authContextData.setGlobalMessage({
+              message: `you get invited by @${messageData.senderUsername} to play ${messageData.game} game`,
+            });
+          }
         }
       },
     },
@@ -147,14 +147,13 @@ export const NotifProvider = ({ children }) => {
         offset: 0,
       });
 
-			if (res.status === 200) {
-				const data = await res.json();
-				if (data.messages.length === 20) setOffsetMssg(20);
-				setMessages(data.messages);
-			} else {
-				navigate("/chat");
-			}
-
+      if (res.status === 200) {
+        const data = await res.json();
+        if (data.messages.length === 20) setOffsetMssg(20);
+        setMessages(data.messages);
+      } else {
+        navigate("/chat");
+      }
     } catch (error) {
       authContextData.setGlobalMessage({
         message: error.message,
@@ -176,18 +175,17 @@ export const NotifProvider = ({ children }) => {
         offset: offsetMssg,
       });
 
-			if (res.status === 200) {
-				const data = await res.json();
-				setMessages((prevMessages) => [...data.messages, ...prevMessages]);
-				if (data.next_offset === null) {
-					setOfssetMssg(0);
-					setAllMessages(true);
-				} else {
-					setOfssetMssg(data.next_offset);
-					setIsChunked(true);
-				}
-			}
-
+      if (res.status === 200) {
+        const data = await res.json();
+        setMessages((prevMessages) => [...data.messages, ...prevMessages]);
+        if (data.next_offset === null) {
+          setOfssetMssg(0);
+          setAllMessages(true);
+        } else {
+          setOfssetMssg(data.next_offset);
+          setIsChunked(true);
+        }
+      }
     } catch (error) {
       authContextData.setGlobalMessage({
         message: error.message,
@@ -196,36 +194,36 @@ export const NotifProvider = ({ children }) => {
     }
   };
 
-	const inviteFriend = async (friendId, gameName, convId) => {
-		try {
-			const res = await FetchData.post(`api/games/${gameName}/invite/`, {
-				friend_id: friendId,
-				conversation_id: convId,
-			});
-			if (res.ok) {
-				const data = await res.json();
-				authContextData.setGlobalMessage({
-					message: 'invite sent successfully',
-					isError: false,
-				});
-			} else if (res.status === 400) {
-				const data = await res.json();
-				authContextData.setGlobalMessage({
-					message: data.error,
-					isError: true,
-				})
-			}
-		} catch (error) {
-			authContextData.setGlobalMessage({
-				message: error.message,
-				isError: true,
-			})
-		}
-	}
+  const inviteFriend = async (friendId, gameName, convId) => {
+    try {
+      const res = await FetchData.post(`api/games/${gameName}/invite/`, {
+        friend_id: friendId,
+        conversation_id: convId,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        authContextData.setGlobalMessage({
+          message: "invite sent successfully",
+          isError: false,
+        });
+      } else if (res.status === 400) {
+        const data = await res.json();
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
+      }
+    } catch (error) {
+      authContextData.setGlobalMessage({
+        message: error.message,
+        isError: true,
+      });
+    }
+  };
   // ----------- end chat functions ----------- //
 
   const contextData = {
-		friendsData,
+    friendsData,
     updatedConversation,
     tempMessages,
     messages,
@@ -254,8 +252,8 @@ export const NotifProvider = ({ children }) => {
     getConversations,
     getMessages,
     getChunkedMessages,
-		inviteFriend,
-		setFriendsData,
+    inviteFriend,
+    setFriendsData,
   };
 
   return (

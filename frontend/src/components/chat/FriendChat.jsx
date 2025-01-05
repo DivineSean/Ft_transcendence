@@ -8,7 +8,6 @@ const FriendsChat = ({ uid, friendInfo }) => {
   const navigate = useNavigate();
   const notifContextData = useContext(NotifContext);
 
-
   const sendReadMessage = (friendInfo) => {
     if (notifContextData.wsHook) {
       notifContextData.wsHook.send(
@@ -74,16 +73,16 @@ const FriendsChat = ({ uid, friendInfo }) => {
           {(!notifContextData.displayTyping ||
             (notifContextData.displayTyping &&
               notifContextData.displayTyping.convId !==
-							friendInfo.conversationId)) && (
-								<div
-									className={`text-txt-xs text-stroke-sc max-w-[140px] truncate ${!friendInfo.isRead && !friendInfo.sender && "font-semibold text-white"}`}
-								>
-									{!friendInfo.lastMessage ? 
-										<p className="text-stroke-sc font-normal">new conversation</p>
-										: 
-										friendInfo.lastMessage
-									}
-								</div>
+                friendInfo.conversationId)) && (
+            <div
+              className={`text-txt-xs text-stroke-sc max-w-[140px] truncate ${!friendInfo.isRead && !friendInfo.sender && "font-semibold text-white"}`}
+            >
+              {!friendInfo.lastMessage ? (
+                <p className="text-stroke-sc font-normal">new conversation</p>
+              ) : (
+                friendInfo.lastMessage
+              )}
+            </div>
           )}
 
           {notifContextData.displayTyping &&

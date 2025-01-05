@@ -6,20 +6,19 @@ import { useContext } from "react";
 import NotifContext from "../../context/NotifContext";
 
 const ProfileOptions = ({
-	uid,
+  uid,
   displayCoversation,
   hideSelf,
   isVisible,
   friendInfo,
 }) => {
-
   const goToProfileSide = () => {
     displayCoversation(true);
     hideSelf(false);
   };
 
   const navigate = useNavigate();
-	const notifContextData = useContext(NotifContext);
+  const notifContextData = useContext(NotifContext);
 
   return (
     <div
@@ -55,8 +54,11 @@ const ProfileOptions = ({
         <>
           <div className="flex gap-8 justify-center">
             <button
-							onClick={() => notifContextData.inviteFriend(friendInfo.id, 'pong', uid)}
-							className="secondary-glass grow lg:w-full p-8 transition-all hover:bg-green/60 hover:text-black rounded-md text-green font-semibold">
+              onClick={() =>
+                notifContextData.inviteFriend(friendInfo.id, "pong", uid)
+              }
+              className="secondary-glass grow lg:w-full p-8 transition-all hover:bg-green/60 hover:text-black rounded-md text-green font-semibold"
+            >
               invite to play
             </button>
             <button

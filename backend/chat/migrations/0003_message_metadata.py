@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chat', '0002_enable_trigram'),
+        ("chat", "0002_enable_trigram"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='message',
-            name='metadata',
+            model_name="message",
+            name="metadata",
             field=models.JSONField(blank=True, default=dict, null=True),
         ),
     ]

@@ -192,7 +192,13 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
 
   if (notifContextData.messages && notifContextData.messages.length) {
     notifContextData.messages.map((message) => {
-      conversation.push(<Message friendInfo={friendInfo} message={message} key={message.messageId} />);
+      conversation.push(
+        <Message
+          friendInfo={friendInfo}
+          message={message}
+          key={message.messageId}
+        />,
+      );
     });
   } else {
     conversation.push(
@@ -207,7 +213,13 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
 
   if (notifContextData.tempMessages && notifContextData.tempMessages.length) {
     notifContextData.tempMessages.map((message) => {
-      conversation.push(<Message friendInfo={friendInfo} message={message} key={message.messageId} />);
+      conversation.push(
+        <Message
+          friendInfo={friendInfo}
+          message={message}
+          key={message.messageId}
+        />,
+      );
     });
   }
 

@@ -15,22 +15,14 @@ const OptionsSection = ({ data, type, reference }) => {
 
   const handleReadNotif = (item) => {
     if (item.notifType === "FR" || item.notifType === "AF") {
-
       navigate(`/profile/overview/${item.senderId.username}`);
       contextData.setRefresh(true);
-
     } else if (item.notifType === "IG") {
-
-			navigate(`/chat/${item.targetId}`);
-
-    } else if (item.notifType === "IT") {
-
-      console.log("had khouna invitak tl3eb tournaments am3lm");
-
-    } else if (item.notifType === "CC") {
-
       navigate(`/chat/${item.targetId}`);
-			
+    } else if (item.notifType === "IT") {
+      console.log("had khouna invitak tl3eb tournaments am3lm");
+    } else if (item.notifType === "CC") {
+      navigate(`/chat/${item.targetId}`);
     }
 
     notifContext.readNotification(item.notificationId);

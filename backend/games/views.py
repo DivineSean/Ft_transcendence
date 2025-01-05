@@ -23,133 +23,122 @@ from .models import GameRoom, Game
 from .serializers import GameRoomSerializer
 import json
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 def inviteFriend(request, game_name=None):
 
-	if not game_name:
-		return Response(
-			{"error": "not game name provided"},
-			status=status.HTTP_400_BAD_REQUEST
-		)
-	
-	friend_id = request.data.get('friend_id')
-	if not friend_id:
-		return Response(
-			{"error": "no friend id provided"},
-			status=status.HTTP_400_BAD_REQUEST
-		)
-	
-	conversation_id = request.data.get('conversation_id')
-	if not conversation_id:
-		return Response(
-			{"error": "no conversatoin id provided"},
-			status=status.HTTP_400_BAD_REQUEST
-		)
-	
-	try:
-		game = Game.objects.get(name=game_name)
-		conversation = Conversation.objects.get(ConversationId=conversation_id)
-		if conversation.isBlocked:
-			return Response(
-				{"error": "this conversation is blocked you cannot invite this user"},
-				status=status.HTTP_400_BAD_REQUEST
-			)
-		
-		player = Player.objects.filter(
-			user=request._user,
-			game_room__status__in=[GameRoom.Status.WAITING, GameRoom.Status.ONGOING]
-		)
+    if not game_name:
+        return Response(
+            {"error": "not game name provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
-		if player:
-			return Response(
-			{"error": "you are already associated with another game you cannot send the invite"},
-			status=status.HTTP_400_BAD_REQUEST
-		)
+    friend_id = request.data.get("friend_id")
+    if not friend_id:
+        return Response(
+            {"error": "no friend id provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
-		players_data = [
-			{
-				"user": request._user.id,
-				"role": 1
-			},
-			{
-				"user": friend_id,
-				"role": 2
-			},
-		]
+    conversation_id = request.data.get("conversation_id")
+    if not conversation_id:
+        return Response(
+            {"error": "no conversatoin id provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
-		game_data = {"game": game.id, "players": players_data}
+    try:
+        game = Game.objects.get(name=game_name)
+        conversation = Conversation.objects.get(ConversationId=conversation_id)
+        if conversation.isBlocked:
+            return Response(
+                {"error": "this conversation is blocked you cannot invite this user"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-		serializer = GameRoomSerializer(data=game_data)
+        player = Player.objects.filter(
+            user=request._user,
+            game_room__status__in=[GameRoom.Status.WAITING, GameRoom.Status.ONGOING],
+        )
 
-		game_room = None
-		if serializer.is_valid(raise_exception=True):
-				game_room = serializer.create(serializer.validated_data)
-				mark_game_room_as_expired.apply_async(
-						args=[game_room.id], countdown=GAME_EXPIRATION
-				)
+        if player:
+            return Response(
+                {
+                    "error": "you are already associated with another game you cannot send the invite"
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-		message = Message.objects.create(
-			ConversationName=conversation,
-			sender=request._user,
-			message="game invite",
-			metadata={
-				"type": "invite", 
-				"status": "waiting", 
-				"game": game_name,
-				"gameRoomId": str(game_room.id)
-			}
-		)
-		
-		user = User.objects.get(id=friend_id)
-		notification = Notifications.objects.create(
-				notifType="IG",
-				userId=user,
-				senderId=request._user,
-				senderUsername=request._user.username,
-				targetId=conversation_id
-		)
+        players_data = [
+            {"user": request._user.id, "role": 1},
+            {"user": friend_id, "role": 2},
+        ]
 
-		user_data = UserSerializer(request._user).data
-		channel_layer = get_channel_layer()
-		group_name = f"conv-{conversation_id}"
-		async_to_sync(channel_layer.group_send)(
-			group_name,
-			{
-				"type": "chat_message",
-				"convId": conversation_id,
-				"message": message.message,
-				"metadata": message.metadata,
-				"isRead": message.isRead,
-				"isSent": True,
-				"messageId": str(message.MessageId),
-				"sender": user_data,
-				"timestamp": str(
-						message.timestamp.strftime("%b %d, %H:%M")
-				),
-			},
-		)
+        game_data = {"game": game.id, "players": players_data}
 
-		group_name = f"notifications_{friend_id}"
-		async_to_sync(channel_layer.group_send)(
-			group_name,
-			{
-				"type": "send_invite_to_notification",
-				"sender_username": request._user.username,
-				"game": game_name,
-			}
-		)
+        serializer = GameRoomSerializer(data=game_data)
 
-		return Response(
-			{"message": "invite sent successfully"},
-			status=status.HTTP_200_OK
-		)
-		
-	except Exception as e:
-		print(e, flush=True)
-		return Response(
-			{"error": str(e)},
-			status=status.HTTP_400_BAD_REQUEST
-		)
+        game_room = None
+        if serializer.is_valid(raise_exception=True):
+            game_room = serializer.create(serializer.validated_data)
+            mark_game_room_as_expired.apply_async(
+                args=[game_room.id], countdown=GAME_EXPIRATION
+            )
+
+        message = Message.objects.create(
+            ConversationName=conversation,
+            sender=request._user,
+            message="game invite",
+            metadata={
+                "type": "invite",
+                "status": "waiting",
+                "game": game_name,
+                "gameRoomId": str(game_room.id),
+            },
+        )
+
+        user = User.objects.get(id=friend_id)
+        notification = Notifications.objects.create(
+            notifType="IG",
+            userId=user,
+            senderId=request._user,
+            senderUsername=request._user.username,
+            targetId=conversation_id,
+        )
+
+        user_data = UserSerializer(request._user).data
+        channel_layer = get_channel_layer()
+        group_name = f"conv-{conversation_id}"
+        async_to_sync(channel_layer.group_send)(
+            group_name,
+            {
+                "type": "chat_message",
+                "convId": conversation_id,
+                "message": message.message,
+                "metadata": message.metadata,
+                "isRead": message.isRead,
+                "isSent": True,
+                "messageId": str(message.MessageId),
+                "sender": user_data,
+                "timestamp": str(message.timestamp.strftime("%b %d, %H:%M")),
+            },
+        )
+
+        group_name = f"notifications_{friend_id}"
+        async_to_sync(channel_layer.group_send)(
+            group_name,
+            {
+                "type": "send_invite_to_notification",
+                "sender_username": request._user.username,
+                "game": game_name,
+            },
+        )
+
+        return Response(
+            {"message": "invite sent successfully"}, status=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        print(e, flush=True)
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["GET"])
 def getOnlineMatches(request):

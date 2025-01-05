@@ -31,7 +31,9 @@ const Friends = ({ friend }) => {
           <div className="text-txt-xs font-bold cursor-pointer truncate max-w-[160px]">
             {`${friend.first_name} ${friend.last_name}`}
           </div>
-          <div className="text-txt-xs text-gray max-w-[120px] truncate">@{friend.username}</div>
+          <div className="text-txt-xs text-gray max-w-[120px] truncate">
+            @{friend.username}
+          </div>
         </div>
       </div>
       <div className="flex gap-16">
