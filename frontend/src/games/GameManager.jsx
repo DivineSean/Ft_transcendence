@@ -1,82 +1,47 @@
 import { useState, useEffect, memo, useContext, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Pong from "./pong/Pong";
 import useWebSocket from "../customHooks/useWebsocket";
 import UserContext from "../context/UserContext.jsx";
+import GamePaused from "../components/game/GamePaused.jsx";
+import WaitingGame from "../components/game/WaitingGame.jsx";
+import GameStatus from "../components/game/GameStatus.jsx";
 import AuthContext from "../context/AuthContext.jsx";
-import { useNavigate } from "react-router-dom";
 
-const Counter = ({ createdAt }) => {
-  const endTime = new Date(createdAt).getTime() + 60 * 1000;
-  const [count, setCount] = useState(endTime - Date.now());
+const GameOverlay = ({ data, send, game }) => {
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const updateTime = () => {
-      if (endTime > Date.now())
-        setCount(Math.floor((endTime - Date.now()) / 1000));
-    };
-    const intervalId = setInterval(updateTime, 1000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
-  return <div>{count}</div>;
-};
-
-const GameOverlay = ({ data, send }) => {
-  console.log("data: ", data);
   switch (data.status) {
     case "waiting":
-      return (
-        <div className="flex flex-col gap-16 w-full justify-center items-center">
-          <div className="flex gap-16">
-            <span
-              className={`normal-case ${data.players[0].ready ? "text-green" : "text-red"}`}
-            >
-              @{data.players[0].user.username}
-            </span>
-            <span className="normal-case">vs</span>
-            <span
-              className={`normal-case ${data.players[1].ready ? "text-green" : "text-red"}`}
-            >
-              @{data.players[1].user.username}
-            </span>
-          </div>
-          <div className="flex gap-32">
-            <span className="normal-case">
-              +{data.players[0].rating_gain} -{data.players[0].rating_gain}
-            </span>
-            <span className="normal-case">
-              +{data.players[0].rating_gain} -{data.players[0].rating_gain}
-            </span>
-          </div>
-          <Counter createdAt={data.created_at} />
-          <div className="flex justify-center">
-            <button
-              onClick={() => {
-                send(
-                  JSON.stringify({
-                    type: "ready",
-                    message: {},
-                  }),
-                );
-              }}
-            >
-              Accept
-            </button>
-          </div>
-        </div>
-      );
+      return <WaitingGame game={game} data={data} send={send} />;
     case "expired":
-      return <div>Game invite expired</div>;
+      return (
+        <GameStatus
+          game={game}
+          title={"this game has been expired"}
+          image={"/images/gameOver.png"}
+        />
+      );
     case "ongoing":
-      return <div>Game starting soon ...</div>;
+      return (
+        <GameStatus
+          game={game}
+          title={"this game is ongoing"}
+          image={"/images/gameOngoing.jpeg"}
+        />
+      );
     case "paused":
-      return <div>Game paused</div>;
+      return <GamePaused game={game} />;
     case "completed":
-      return <div>Game concluded</div>;
+      return (
+        <GameStatus
+          game={game}
+          title={"this game has been concluded"}
+          image={"/images/gameOver.png"}
+        />
+      );
     default:
-      return <>nn hh</>;
+      navigate("/games/");
   }
 };
 
@@ -178,6 +143,7 @@ const GameManager = () => {
     contextData.getUserInfo();
   }, []);
 
+  console.log(game);
   return (
     <div className="relative w-full">
       {contextData.userInfo && playersRef.current && (
@@ -194,13 +160,7 @@ const GameManager = () => {
           started_at={data.started_at}
         />
       )}
-      {!ready && data && (
-        <div className="absolute inset-0 backdrop-blur-sm container justify-center items-center">
-          <div className="primary-glass p-32">
-            <GameOverlay data={data} send={send} />
-          </div>
-        </div>
-      )}
+      {!ready && data && <GameOverlay data={data} send={send} game={game} />}
     </div>
   );
 };
