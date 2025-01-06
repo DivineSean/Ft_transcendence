@@ -7,6 +7,10 @@ env
 .DS_Store
 .bash_history
 
+# Ignore log files
+logs/
+*.log
+
 # Ignore static files
 static/
 media/

@@ -30,6 +30,7 @@ services:
     user: root # WARNING: For development only
     volumes:
       - ./backend/:/home/app:rw
+      - ./logs/uvicorn.log:/var/log/uvicorn/uvicorn.log
 
   db:
     build:
@@ -81,7 +82,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./backend/static:/home/app/static
-      - ./elk/nginx/access.log:/var/log/nginx/access.log
+      - ./logs/nginx_access.log:/var/log/nginx/access.log
 
 volumes:
   data:

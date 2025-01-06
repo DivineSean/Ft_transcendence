@@ -7,6 +7,9 @@ app: build
 	docker-compose -f docker-compose.yml up -d
 	docker-compose -f elk/docker-compose.yml up -d
 
+elk-down:
+	docker-compose -f elk/docker-compose.yml down
+
 down:
 	docker-compose -f docker-compose.yml down
 
@@ -19,7 +22,7 @@ start:
 build:
 	clear
 	docker-compose -f docker-compose.yml build
-	docker-compose -f elk/docker-compose.yml build
+	# docker-compose -f elk/docker-compose.yml build
 
 clean: stop
 	docker stop $$(docker ps -qa) || true

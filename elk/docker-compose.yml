@@ -78,7 +78,7 @@ services:
     restart: unless-stopped
     volumes:
       - certs:/usr/share/logstash/config/certs
-      - ./nginx/access.log:/usr/share/logstash/nginx/access.log
+      - ../logs/:/usr/share/logstash/logs
     env_file:
       - .env
     networks:
