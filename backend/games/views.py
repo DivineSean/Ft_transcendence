@@ -55,7 +55,7 @@ def inviteFriend(request, game_name=None):
 
         player = Player.objects.filter(
             user=request._user,
-            game_room__status__in=[GameRoom.Status.WAITING, GameRoom.Status.ONGOING],
+            game_room__status__in=[GameRoom.Status.WAITING, GameRoom.Status.ONGOING, GameRoom.Status.PAUSED],
         )
 
         if player:

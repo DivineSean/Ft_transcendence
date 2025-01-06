@@ -10,6 +10,76 @@ import AuthContext from "../../context/AuthContext";
 import GameToast from "../../components/GameToast";
 import JoystickController from "joystick-controller";
 import { PiPingPongFill } from "react-icons/pi";
+import { useNavigate } from "react-router-dom";
+import UserContext from "../../context/UserContext";
+import { BACKENDURL } from "../../utils/fetchWrapper";
+
+export const GameResult = ({ playersData, isWon }) => {
+	const navigte = useNavigate();
+	const userContextData = useContext(UserContext);
+	let me = 0;
+	if (userContextData.userInfo.username !== playersData[0].user.username)
+		me = 1;
+	console.log('player', playersData, me);
+
+	return (
+		<div className="absolute top-0 left-0 h-full w-full bg-black/50 flex justify-center items-center">
+			<div className="container h-full flex justify-center items-center">
+				<div className="h-[90%] w-[90%] primary-glass flex flex-col gap-32 p-16 justify-center items-center">
+					<fieldset className={`flex flex-col border-[0.5px] ${isWon ? 'border-green/50' : 'border-red'} rounded-lg md:p-32 md:px-64 px-32 p-16 items-center justify-center`}>
+						<legend className="text-center px-16">
+							<div className="flex gap-16 items-center">
+								<h1 className={`md:text-h-lg-xl text-h-sm-md font-bold ${isWon ? 'text-green' : 'text-red'}`}>
+									{isWon ? 'victory' : 'defeat'}
+									
+								</h1>
+								<div className="w-64 h-64 flex shadow-inner-2xl">
+									<img
+										className="object-cover grow"
+										src={isWon ? "/images/eto.gif" : "/images/bmo.gif"}
+										alt="Victory Dance"
+									/>
+								</div>
+							</div>
+						</legend>
+						<div className="flex flex-col gap-32 items-center">
+							<p className="text-txt-lg text-gray normal-case text-center">
+								{isWon ? 'congratulations you won the game!' : 'you lose the game!!'}
+							</p>
+							<div className="flex flex-col gap-8 items-center">
+								<div className="w-[120px] h-[120px] relative">
+									{isWon && 
+										<div className="w-64 h-64  absolute z-10 flex justify-center items-center -bottom-8 -right-16">
+											<img src="/images/badges/victoryBadge.png" alt="victory badge" className="object-cover" />
+										</div>
+									}
+									<div className={`w-full h-full relative rounded-full overflow-hidden flex border-2 ${isWon ? 'border-[#DAA520]' : 'border-red'}`}>
+										<img
+											src={
+												playersData[me].user.profile_image
+												? `${BACKENDURL}${playersData[me].user.profile_image}?t=${new Date().getTime()}`
+												: "/images/default.jpeg"
+											}
+											alt=""
+										/>
+									</div>
+								</div>
+								<span className={`${isWon ? 'text-[#DAA520]' : 'text-red'}  font-semibold tracking-wider`}>@{playersData[me].user.username}</span>
+							</div>
+							<button
+								className="secondary-glass p-8 px-32 transition-all flex gap-4 justify-center items-center
+								hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
+								onClick={() => navigte('/games/pong/online/')}
+							>
+								play again
+							</button>
+						</div>
+					</fieldset>
+				</div>
+			</div>
+		</div>
+	)
+}
 
 const Pong = ({
   send,
@@ -490,85 +560,11 @@ const Pong = ({
       <canvas id="pong" className="block"></canvas>
       {/* Victory Section */}
       {isWon && !isSpectator && (
-        <div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">
-          <div className="text-center transform scale-110">
-            <img
-              className="w-[250px] h-[250px] mx-auto transition-all transform hover:scale-110"
-              src="/images/eto.gif"
-              alt="Victory Dance"
-            />
-            <div className="mb-6 mt-8">
-              <p className="text-5xl font-extrabold text-white animate__animated animate__bounceIn animate__delay-2000ms">
-                Victory
-              </p>
-              <p className="text-2xl font-semibold mt-4 text-white animate__animated animate__fadeIn animate__delay-4000ms">
-                You Won Like a Ping Pong Champion!
-              </p>
-              <button
-                className="relative mt-16 inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
-                onClick={handleExitGame}
-              >
-                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
-                <span className="z-10">Continue</span>
-              </button>
-            </div>
-          </div>
-        </div>
+				<GameResult playersData={playersData} isWon={true} />
       )}
-      {/*
-      {/* Spectator Section 
-      {isSpectator && !ready && (
-        <div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">
-          <div className="text-center transform scale-110">
-            <img
-              className="w-[250px] h-[250px] mx-auto transition-all transform hover:scale-110"
-              src="/images/eto.gif"
-              alt="Victory Dance"
-            />
-            <div className="mb-6 mt-8">
-              <p className="text-5xl font-extrabold text-white animate__animated animate__bounceIn animate__delay-2000ms">
-                Game Over!
-              </p>
-              <p className="text-2xl font-semibold mt-4 text-white animate__animated animate__fadeIn animate__delay-4000ms">
-                The Game is Over Champion !
-              </p>
-              <button
-                className="relative mt-16 inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
-                onClick={handleExitGame}
-              >
-                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
-                <span className="z-10">Quit Spectate Mode</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}*/}
       {/* Defeat Section */}
       {islost && !isSpectator && (
-        <div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">
-          <div className="text-center transform scale-110">
-            <img
-              className="w-[250px] h-[250px] mx-auto transition-all transform hover:scale-110"
-              src="/images/bmo.gif"
-              alt="Defeat"
-            />
-            <div className="mb-6 mt-8">
-              <p className="text-5xl font-extrabold text-white animate__animated animate__bounceIn animate__delay-2000ms">
-                Defeat
-              </p>
-              <p className="text-2xl font-semibold mt-4 text-white animate__animated animate__fadeIn animate__delay-4000ms">
-                Good Luck Next Time Champion!
-              </p>
-              <button
-                className="relative mt-16 inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
-                onClick={handleExitGame}
-              >
-                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
-                <span className="z-10">Continue</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <GameResult playersData={playersData} isWon={false} />
       )}
     </div>
   );
