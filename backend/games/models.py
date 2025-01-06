@@ -150,6 +150,7 @@ class PlayerAchievement(models.Model):
     def upgrade_level(self, increment):
         if self.progress < self.threshold:
             self.progress += increment
+            self.save()
             return
 
         next_level = self.achievement.next_level(self.level)
