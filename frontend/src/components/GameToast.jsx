@@ -51,7 +51,7 @@ const GameToast = ({ duration = 3000, title, message, onClose }) => {
         <div className="flex flex-col gap-16">
           {/* Toast Message */}
           <p className="text-gray text-lg normal-case text-center tracking-wide md:text-txt-md text-txt-xs">
-            {message} hello
+            {message}
           </p>
 
           {/* Progress Bar */}
