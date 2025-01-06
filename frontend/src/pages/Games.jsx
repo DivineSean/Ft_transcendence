@@ -1,6 +1,6 @@
 import OnlineGame from "../games/OnlineGame";
 import Header from "../components/Header";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { ImArrowUp } from "react-icons/im";
 import {
   Routes,
@@ -9,6 +9,8 @@ import {
   useNavigate,
   useLocation,
 } from "react-router-dom";
+import AuthContext from "../context/AuthContext";
+import Toast from "../components/Toast";
 
 const CrossButtons = () => {
   return (
@@ -274,6 +276,7 @@ const BmoScreen = ({ games }) => {
 };
 
 const Games = () => {
+  const authContextData = useContext(AuthContext);
   const games = [
     {
       id: 0,
@@ -288,9 +291,16 @@ const Games = () => {
     },
   ];
 
+  // useEffect(() => { #Enabling This Make the toast Error message from the game dissapear also by
+  //                   # Not enabling it make the toast stay when switching between tournament and games
+  //   return () =>
+  //     authContextData.setGlobalMessage({ message: "", isError: false });
+  // }, []);
+
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="games" />
+      {authContextData.globalMessage && <Toast position="bottomCenter" />}
       <div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
       <div className="container md:px-16 px-0">
         <div className="primary-glass p-16 md:p-32 min-h-[570px] h-full bmo-height">

@@ -6,6 +6,7 @@ import UserContext from "../context/UserContext.jsx";
 import GamePaused from "../components/game/GamePaused.jsx";
 import WaitingGame from "../components/game/WaitingGame.jsx";
 import GameStatus from "../components/game/GameStatus.jsx";
+import AuthContext from "../context/AuthContext.jsx";
 
 const GameOverlay = ({ data, send, game }) => {
   const navigate = useNavigate();
@@ -95,6 +96,14 @@ const GameManager = () => {
   const [data, setData] = useState(null);
   const { game, uuid } = useParams();
   const playersRef = useRef(null);
+  const authContextData = useContext(AuthContext);
+  const navigate = useNavigate();
+  function strictGreaterThanOrEqual(a, b) {
+    if (typeof a !== "number" || typeof b !== "number") {
+      return false;
+    }
+    return a >= b;
+  }
   const { send, addMessageHandler, removeMessageHandler } = useWebSocket(
     `wss://${window.location.hostname}:8000/ws/games/${game}/${uuid}`,
     {
@@ -110,6 +119,16 @@ const GameManager = () => {
             ...prevData,
             ...msg.message,
           }));
+        }
+      },
+      onClose: (event) => {
+        if (strictGreaterThanOrEqual(event.code, 4000)) {
+          console.log("Navigating...");
+          navigate(`/games/${game}/online`);
+          authContextData.setGlobalMessage({
+            message: event.reason,
+            isError: true,
+          });
         }
       },
     },

@@ -147,8 +147,9 @@ class PlayerAchievement(models.Model):
     class Meta:
         unique_together = ("user", "game", "achievement", "level")
 
-    def upgrade_level(self):
+    def upgrade_level(self, increment):
         if self.progress < self.threshold:
+            self.progress += increment
             return
 
         next_level = self.achievement.next_level(self.level)
@@ -160,7 +161,7 @@ class PlayerAchievement(models.Model):
                 game=self.game,
                 achievement=self.achievement,
                 level=next_level,
-                progress=self.progress - self.threshold,
+                progress=(self.progress - self.threshold) + increment,
                 threshold=self.achievement.get_threshold_for_level(next_level),
             )
         else:
@@ -188,8 +189,7 @@ class PlayerAchievement(models.Model):
                 threshold=achievement.get_threshold_for_level("bronze"),
             )
         else:
-            current_level.progress += increment
-            current_level.upgrade_level()
+            current_level.upgrade_level(increment)
 
 
 @receiver(post_save, sender=Game)
