@@ -15,71 +15,86 @@ import UserContext from "../../context/UserContext";
 import { BACKENDURL } from "../../utils/fetchWrapper";
 
 export const GameResult = ({ playersData, isWon }) => {
-	const navigte = useNavigate();
-	const userContextData = useContext(UserContext);
-	let me = 0;
-	if (userContextData.userInfo.username !== playersData[0].user.username)
-		me = 1;
-	console.log('player', playersData, me);
+  const navigte = useNavigate();
+  const userContextData = useContext(UserContext);
+  let me = 0;
+  if (userContextData.userInfo.username !== playersData[0].user.username)
+    me = 1;
+  console.log("player", playersData, me);
 
-	return (
-		<div className="absolute top-0 left-0 h-full w-full bg-black/50 flex justify-center items-center">
-			<div className="container h-full flex justify-center items-center">
-				<div className="h-[90%] w-[90%] primary-glass flex flex-col gap-32 p-16 justify-center items-center">
-					<fieldset className={`flex flex-col border-[0.5px] ${isWon ? 'border-green/50' : 'border-red'} rounded-lg md:p-32 md:px-64 px-32 p-16 items-center justify-center`}>
-						<legend className="text-center px-16">
-							<div className="flex gap-16 items-center">
-								<h1 className={`md:text-h-lg-xl text-h-sm-md font-bold ${isWon ? 'text-green' : 'text-red'}`}>
-									{isWon ? 'victory' : 'defeat'}
-									
-								</h1>
-								<div className="w-64 h-64 flex shadow-inner-2xl">
-									<img
-										className="object-cover grow"
-										src={isWon ? "/images/eto.gif" : "/images/bmo.gif"}
-										alt="Victory Dance"
-									/>
-								</div>
-							</div>
-						</legend>
-						<div className="flex flex-col gap-32 items-center">
-							<p className="text-txt-lg text-gray normal-case text-center">
-								{isWon ? 'congratulations you won the game!' : 'you lose the game!!'}
-							</p>
-							<div className="flex flex-col gap-8 items-center">
-								<div className="w-[120px] h-[120px] relative">
-									{isWon && 
-										<div className="w-64 h-64  absolute z-10 flex justify-center items-center -bottom-8 -right-16">
-											<img src="/images/badges/victoryBadge.png" alt="victory badge" className="object-cover" />
-										</div>
-									}
-									<div className={`w-full h-full relative rounded-full overflow-hidden flex border-2 ${isWon ? 'border-[#DAA520]' : 'border-red'}`}>
-										<img
-											src={
-												playersData[me].user.profile_image
-												? `${BACKENDURL}${playersData[me].user.profile_image}?t=${new Date().getTime()}`
-												: "/images/default.jpeg"
-											}
-											alt=""
-										/>
-									</div>
-								</div>
-								<span className={`${isWon ? 'text-[#DAA520]' : 'text-red'}  font-semibold tracking-wider`}>@{playersData[me].user.username}</span>
-							</div>
-							<button
-								className="secondary-glass p-8 px-32 transition-all flex gap-4 justify-center items-center
+  return (
+    <div className="absolute top-0 left-0 h-full w-full bg-black/50 flex justify-center items-center">
+      <div className="container h-full flex justify-center items-center">
+        <div className="h-[90%] w-[90%] primary-glass flex flex-col gap-32 p-16 justify-center items-center">
+          <fieldset
+            className={`flex flex-col border-[0.5px] ${isWon ? "border-green/50" : "border-red"} rounded-lg md:p-32 md:px-64 px-32 p-16 items-center justify-center`}
+          >
+            <legend className="text-center px-16">
+              <div className="flex gap-16 items-center">
+                <h1
+                  className={`md:text-h-lg-xl text-h-sm-md font-bold ${isWon ? "text-green" : "text-red"}`}
+                >
+                  {isWon ? "victory" : "defeat"}
+                </h1>
+                <div className="w-64 h-64 flex shadow-inner-2xl">
+                  <img
+                    className="object-cover grow"
+                    src={isWon ? "/images/eto.gif" : "/images/bmo.gif"}
+                    alt="Victory Dance"
+                  />
+                </div>
+              </div>
+            </legend>
+            <div className="flex flex-col gap-32 items-center">
+              <p className="text-txt-lg text-gray normal-case text-center">
+                {isWon
+                  ? "congratulations you won the game!"
+                  : "you lose the game!!"}
+              </p>
+              <div className="flex flex-col gap-8 items-center">
+                <div className="w-[120px] h-[120px] relative">
+                  {isWon && (
+                    <div className="w-64 h-64  absolute z-10 flex justify-center items-center -bottom-8 -right-16">
+                      <img
+                        src="/images/badges/victoryBadge.png"
+                        alt="victory badge"
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                  <div
+                    className={`w-full h-full relative rounded-full overflow-hidden flex border-2 ${isWon ? "border-[#DAA520]" : "border-red"}`}
+                  >
+                    <img
+                      src={
+                        playersData[me].user.profile_image
+                          ? `${BACKENDURL}${playersData[me].user.profile_image}?t=${new Date().getTime()}`
+                          : "/images/default.jpeg"
+                      }
+                      alt=""
+                    />
+                  </div>
+                </div>
+                <span
+                  className={`${isWon ? "text-[#DAA520]" : "text-red"}  font-semibold tracking-wider`}
+                >
+                  @{playersData[me].user.username}
+                </span>
+              </div>
+              <button
+                className="secondary-glass p-8 px-32 transition-all flex gap-4 justify-center items-center
 								hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
-								onClick={() => navigte('/games/pong/online/')}
-							>
-								play again
-							</button>
-						</div>
-					</fieldset>
-				</div>
-			</div>
-		</div>
-	)
-}
+                onClick={() => navigte("/games/pong/online/")}
+              >
+                play again
+              </button>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Pong = ({
   send,
@@ -560,7 +575,7 @@ const Pong = ({
       <canvas id="pong" className="block"></canvas>
       {/* Victory Section */}
       {isWon && !isSpectator && (
-				<GameResult playersData={playersData} isWon={true} />
+        <GameResult playersData={playersData} isWon={true} />
       )}
       {/* Defeat Section */}
       {islost && !isSpectator && (

@@ -7,24 +7,40 @@ import GamePaused from "../components/game/GamePaused.jsx";
 import WaitingGame from "../components/game/WaitingGame.jsx";
 import GameStatus from "../components/game/GameStatus.jsx";
 
-
-
 const GameOverlay = ({ data, send, game }) => {
-	const navigate = useNavigate();
+  const navigate = useNavigate();
 
   switch (data.status) {
     case "waiting":
       return <WaitingGame game={game} data={data} send={send} />;
     case "expired":
-      return <GameStatus game={game} title={'this game has been expired'} image={'/images/gameOver.png'} />;
+      return (
+        <GameStatus
+          game={game}
+          title={"this game has been expired"}
+          image={"/images/gameOver.png"}
+        />
+      );
     case "ongoing":
-      return <GameStatus game={game} title={'this game is ongoing'} image={'/images/gameOngoing.jpeg'} />;
+      return (
+        <GameStatus
+          game={game}
+          title={"this game is ongoing"}
+          image={"/images/gameOngoing.jpeg"}
+        />
+      );
     case "paused":
       return <GamePaused game={game} />;
     case "completed":
-      return <GameStatus game={game} title={'this game has been concluded'} image={'/images/gameOver.png'} />;
+      return (
+        <GameStatus
+          game={game}
+          title={"this game has been concluded"}
+          image={"/images/gameOver.png"}
+        />
+      );
     default:
-      navigate('/games/');
+      navigate("/games/");
   }
 };
 
@@ -108,7 +124,7 @@ const GameManager = () => {
     contextData.getUserInfo();
   }, []);
 
-	console.log(game);
+  console.log(game);
   return (
     <div className="relative w-full">
       {contextData.userInfo && playersRef.current && (
@@ -125,9 +141,7 @@ const GameManager = () => {
           started_at={data.started_at}
         />
       )}
-      {!ready && data && (
-				<GameOverlay data={data} send={send} game={game} />
-      )}
+      {!ready && data && <GameOverlay data={data} send={send} game={game} />}
     </div>
   );
 };
