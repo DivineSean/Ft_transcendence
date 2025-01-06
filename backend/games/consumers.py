@@ -39,16 +39,15 @@ class GameConsumer(WebsocketConsumer):
         async_to_sync(self.channel_layer.group_discard)(
             self.group_name, self.channel_name
         )
-        if not self.error:
-            self.players = json.loads(
-                r.hget(f"game_room_data:{self.game_uuid}", "players")
-            )
-            for player in self.players:
-                if str(player["user"]["id"]) == str(self.user_id):
-                    player["ready"] = False
-                    self.save_game_data(players=json.dumps(self.players))
-                    break
-            self.handle_timeout()
+
+        try:
+            # Remove the player from the Redis list
+            if (self.error == False):
+                r.lrem(f"game_room_data:{self.game_uuid}:players", 0, self.user_id)
+        except Exception as e:
+            print(f"Error while disconnecting player: {e}")
+
+        self.handle_timeout()
 
     def receive(self, text_data):
         isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
@@ -87,7 +86,6 @@ class GameConsumer(WebsocketConsumer):
             self.user.status = status
             self.user.save()
         except Exception as e:
-            self.error = True
             self.close(
                 code=4006, reason=f"Unexpected error while saving user status: {str(e)}"
             )
@@ -95,6 +93,11 @@ class GameConsumer(WebsocketConsumer):
 
     def connect_player(self):
         try:
+            existing_players = r.lrange(f"game_room_data:{self.game_uuid}:players", 0, -1)
+            if str(self.user_id) in existing_players:
+                self.error = True
+                self.close(code=4001, reason="Already connected from another client")
+                return
             game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
             if not game_data:
                 game = GameRoom.objects.get(pk=self.game_uuid)
@@ -107,21 +110,11 @@ class GameConsumer(WebsocketConsumer):
             self.close(code=4004, reason=str(e))
             return
 
+        # Add the player to the Redis list
+        r.rpush(f"game_room_data:{self.game_uuid}:players", self.user_id)
+
         if game_data["status"] == "paused":
             self.handle_reconnect(game_data)
-
-        player = None
-        for p in self.players:
-            if p["user"]["id"] == self.user_id:
-                player = p
-                break
-        if player:
-            self.update_status(self.user.Status.IN_GAME)
-            if player["ready"] is True:
-                # Player connecting twice
-                self.error = True
-                self.close(code=4001, reason="Already connected from another client")
-                return
 
         self.send(text_data=json.dumps({"type": "game_manager", "message": game_data}))
 
