@@ -151,7 +151,7 @@ class PlayerAchievement(models.Model):
         if self.progress < self.threshold:
             self.progress += increment
             return
-        
+
         next_level = self.achievement.next_level(self.level)
         if next_level:
             self.earned_at = self.earned_at or now()

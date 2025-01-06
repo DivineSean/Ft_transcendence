@@ -300,7 +300,7 @@ const Games = () => {
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="games" />
-      {authContextData.globalMessage && <Toast position="bottomCenter"/>}
+      {authContextData.globalMessage && <Toast position="bottomCenter" />}
       <div className="backdrop-blur-sm w-full h-full absolute top-0 right-0"></div>
       <div className="container md:px-16 px-0">
         <div className="primary-glass p-16 md:p-32 min-h-[570px] h-full bmo-height">

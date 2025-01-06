@@ -42,7 +42,7 @@ class GameConsumer(WebsocketConsumer):
 
         try:
             # Remove the player from the Redis list
-            if (self.error == False):
+            if self.error == False:
                 r.lrem(f"game_room_data:{self.game_uuid}:players", 0, self.user_id)
         except Exception as e:
             print(f"Error while disconnecting player: {e}")
@@ -93,7 +93,9 @@ class GameConsumer(WebsocketConsumer):
 
     def connect_player(self):
         try:
-            existing_players = r.lrange(f"game_room_data:{self.game_uuid}:players", 0, -1)
+            existing_players = r.lrange(
+                f"game_room_data:{self.game_uuid}:players", 0, -1
+            )
             if str(self.user_id) in existing_players:
                 self.error = True
                 self.close(code=4001, reason="Already connected from another client")

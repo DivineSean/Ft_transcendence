@@ -134,11 +134,11 @@ const GameManager = () => {
   const authContextData = useContext(AuthContext);
   const navigate = useNavigate();
   function strictGreaterThanOrEqual(a, b) {
-    if (typeof a !== 'number' || typeof b !== 'number') {
-        return false;
+    if (typeof a !== "number" || typeof b !== "number") {
+      return false;
     }
     return a >= b;
-  } 
+  }
   const { send, addMessageHandler, removeMessageHandler } = useWebSocket(
     `wss://${window.location.hostname}:8000/ws/games/${game}/${uuid}`,
     {
@@ -160,10 +160,13 @@ const GameManager = () => {
         if (strictGreaterThanOrEqual(event.code, 4000)) {
           console.log("Navigating...");
           navigate(`/games/${game}/online`);
-          authContextData.setGlobalMessage({ message: event.reason, isError: true });
+          authContextData.setGlobalMessage({
+            message: event.reason,
+            isError: true,
+          });
         }
       },
-    }    
+    },
   );
 
   useEffect(() => {
