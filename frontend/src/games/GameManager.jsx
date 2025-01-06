@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import Pong from "./pong/Pong";
 import useWebSocket from "../customHooks/useWebsocket";
 import UserContext from "../context/UserContext.jsx";
+import AuthContext from "../context/AuthContext.jsx";
+import { useNavigate } from "react-router-dom";
 
 const Counter = ({ createdAt }) => {
   const endTime = new Date(createdAt).getTime() + 60 * 1000;
@@ -129,6 +131,14 @@ const GameManager = () => {
   const [data, setData] = useState(null);
   const { game, uuid } = useParams();
   const playersRef = useRef(null);
+  const authContextData = useContext(AuthContext);
+  const navigate = useNavigate();
+  function strictGreaterThanOrEqual(a, b) {
+    if (typeof a !== 'number' || typeof b !== 'number') {
+        return false;
+    }
+    return a >= b;
+  } 
   const { send, addMessageHandler, removeMessageHandler } = useWebSocket(
     `wss://${window.location.hostname}:8000/ws/games/${game}/${uuid}`,
     {
@@ -146,7 +156,14 @@ const GameManager = () => {
           }));
         }
       },
-    },
+      onClose: (event) => {
+        if (strictGreaterThanOrEqual(event.code, 4000)) {
+          console.log("Navigating...");
+          navigate(`/games/${game}/online`);
+          authContextData.setGlobalMessage({ message: event.reason, isError: true });
+        }
+      },
+    }    
   );
 
   useEffect(() => {
