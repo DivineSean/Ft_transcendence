@@ -124,8 +124,7 @@ class Achievement(models.Model):
         try:
             current_index = levels.index(current_level)
             return (
-                levels[current_index + 1] if current_index +
-                1 < len(levels) else None
+                levels[current_index + 1] if current_index + 1 < len(levels) else None
             )
         except ValueError:
             return None

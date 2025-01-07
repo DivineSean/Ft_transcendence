@@ -16,16 +16,35 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Game',
+            name="Game",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=20, unique=True)),
-                ('min_players', models.PositiveSmallIntegerField(default=2, help_text='Minimum number of players required to start the game')),
-                ('max_players', models.PositiveSmallIntegerField(default=2, help_text='Maximum players allowed in the game')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=20, unique=True)),
+                (
+                    "min_players",
+                    models.PositiveSmallIntegerField(
+                        default=2,
+                        help_text="Minimum number of players required to start the game",
+                    ),
+                ),
+                (
+                    "max_players",
+                    models.PositiveSmallIntegerField(
+                        default=2, help_text="Maximum players allowed in the game"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='GameRoom',
+            name="GameRoom",
             fields=[
                 (
                     "id",
@@ -61,41 +80,102 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='PlayerRating',
+            name="PlayerRating",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('rating', models.PositiveIntegerField(default=951)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('game', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='games.game')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("rating", models.PositiveIntegerField(default=951)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "game",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, to="games.game"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Player',
+            name="Player",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('rating_gain', models.PositiveSmallIntegerField()),
-                ('rating_loss', models.PositiveSmallIntegerField()),
-                ('role', models.PositiveSmallIntegerField()),
-                ('ready', models.BooleanField(default=False)),
-                ('score', models.PositiveIntegerField(default=0)),
-                ('timeouts', models.PositiveSmallIntegerField(default=3)),
-                ('result', models.CharField(blank=True, choices=[('win', 'Win'), ('loss', 'Loss'), ('draw', 'Draw')], max_length=10, null=True)),
-                ('game_room', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='games.gameroom')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("rating_gain", models.PositiveSmallIntegerField()),
+                ("rating_loss", models.PositiveSmallIntegerField()),
+                ("role", models.PositiveSmallIntegerField()),
+                ("ready", models.BooleanField(default=False)),
+                ("score", models.PositiveIntegerField(default=0)),
+                ("timeouts", models.PositiveSmallIntegerField(default=3)),
+                (
+                    "result",
+                    models.CharField(
+                        blank=True,
+                        choices=[("win", "Win"), ("loss", "Loss"), ("draw", "Draw")],
+                        max_length=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "game_room",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="games.gameroom"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Achievement',
+            name="Achievement",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True)),
-                ('description', models.TextField(blank=True)),
-                ('game', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='achievements', to='games.game')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, unique=True)),
+                ("description", models.TextField(blank=True)),
+                (
+                    "game",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="achievements",
+                        to="games.game",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='PlayerAchievement',
+            name="PlayerAchievement",
             fields=[
                 (
                     "id",
@@ -133,7 +213,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                'unique_together': {('user', 'game', 'achievement', 'level')},
+                "unique_together": {("user", "game", "achievement", "level")},
             },
         ),
     ]
