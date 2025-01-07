@@ -1,7 +1,8 @@
 from celery import shared_task
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from games.models import GameRoom, Player
+from authentication.models import User
+from games.models import Game, GameRoom, Player, PlayerRating
 from games.serializers import GameRoomSerializer
 from django.conf import settings
 import redis
@@ -22,6 +23,9 @@ def mark_game_abandoned(game_room_id, user_id):
     if not game_room_data:
         return f"GameRoom {game_room_id} state not found."
 
+    if game_room_data["status"] == GameRoom.Status.COMPLETED:
+        return f"GameRoom {game_room_id} has already concluded."
+
     try:
         game_room = GameRoom.objects.get(id=game_room_id)
     except GameRoom.DoesNotExist:
@@ -31,10 +35,18 @@ def mark_game_abandoned(game_room_id, user_id):
     game_room_data["players"] = json.loads(game_room_data["players"])
 
     for player in game_room_data["players"]:
+        user = User.objects.get(pk=player["user"]["id"])
         if player["user"]["id"] == user_id:
             player["result"] = Player.Result.LOSS
         else:
             player["result"] = Player.Result.WIN
+            user.exp += 250
+        # Back to Be Online Again
+        PlayerRating.handle_rating(
+            user, Game.objects.get(pk=game_room_data["game"]), player
+        )
+        user.status = User.Status.ONLINE
+        user.save()
 
     game_room_data["status"] = GameRoom.Status.COMPLETED
     serializer = GameRoomSerializer(game_room, data=game_room_data, partial=True)

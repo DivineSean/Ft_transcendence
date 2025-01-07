@@ -1,7 +1,71 @@
 from rest_framework import serializers
-from .models import Game, GameRoom, Player, PlayerRating
+from .models import Game, GameRoom, Player, PlayerRating, Achievement, PlayerAchievement
 from authentication.models import User as User
 import json
+
+
+class UserAchievementSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PlayerAchievement
+        fields = "__all__"
+
+
+class AchievementSerializer(serializers.ModelSerializer):
+    user_achievements = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Achievement
+        fields = ["id", "name", "description", "game", "user_achievements"]
+
+    def get_user_achievements(self, obj):
+        user = self.context.get("user")
+        if not user:
+            return []
+
+        levels = ["bronze", "silver", "gold", "diamond", "platinium", "titanium"]
+
+        player_achievements = PlayerAchievement.objects.filter(
+            achievement=obj, user=user
+        )
+
+        serializer_data = UserAchievementSerializer(player_achievements, many=True).data
+
+        result = []
+
+        for level in levels:
+            existing_achievement = next(
+                (
+                    player_achievement
+                    for player_achievement in serializer_data
+                    if player_achievement["level"] == level
+                ),
+                None,
+            )
+
+            if existing_achievement:
+                result.append(existing_achievement)
+            else:
+                result.append(
+                    {
+                        "id": None,
+                        "level": level,
+                        "progress": 0,
+                        "threshold": 0,
+                        "user": str(user.id),
+                        "game": obj.game.id if obj.game else None,
+                        "achivement": obj.id,
+                    }
+                )
+        return result
+
+
+class GameAchievementSerializer(serializers.ModelSerializer):
+    achievements = AchievementSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Game
+        fields = ["id", "name", "achievements"]
 
 
 class GameSerializer(serializers.ModelSerializer):
@@ -96,6 +160,9 @@ class GameRoomSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.status = validated_data.get("status", instance.status)
         instance.state = validated_data.get("state", instance.state)
+        instance.turn = validated_data.get("turn", instance.turn)
+        instance.started_at = validated_data.get("started_at", instance.started_at)
+        instance.paused_at = validated_data.get("paused_at", instance.paused_at)
         instance.save()
 
         players_data = validated_data.get("players", [])

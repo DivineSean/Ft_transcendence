@@ -9,6 +9,7 @@ python manage.py migrate
 
 # Populate the Database with available Games
 python manage.py add_games
+python manage.py add_achievements
 
 celery -A backend.celery:app worker --loglevel=debug &
 

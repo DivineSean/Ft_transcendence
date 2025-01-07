@@ -453,7 +453,6 @@ export const AuthProvider = ({ children }) => {
         ) {
           setLoading(false);
           setProfileReturn(true);
-          console.log("rye7 hna akhouna hhh");
         } else if (window.location.pathname.search("forgotpassword") === -1)
           navigate("/home");
       } else setLoading(false);

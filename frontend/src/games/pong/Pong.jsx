@@ -10,6 +10,91 @@ import AuthContext from "../../context/AuthContext";
 import GameToast from "../../components/GameToast";
 import JoystickController from "joystick-controller";
 import { PiPingPongFill } from "react-icons/pi";
+import { useNavigate } from "react-router-dom";
+import UserContext from "../../context/UserContext";
+import { BACKENDURL } from "../../utils/fetchWrapper";
+
+export const GameResult = ({ playersData, isWon }) => {
+  const navigte = useNavigate();
+  const userContextData = useContext(UserContext);
+  let me = 0;
+  if (userContextData.userInfo.username !== playersData[0].user.username)
+    me = 1;
+  console.log("player", playersData, me);
+
+  return (
+    <div className="absolute top-0 left-0 h-full w-full bg-black/50 flex justify-center items-center">
+      <div className="container h-full flex justify-center items-center">
+        <div className="h-[90%] w-[90%] primary-glass flex flex-col gap-32 p-16 justify-center items-center">
+          <fieldset
+            className={`flex flex-col border-[0.5px] ${isWon ? "border-green/50" : "border-red"} rounded-lg md:p-32 md:px-64 px-32 p-16 items-center justify-center`}
+          >
+            <legend className="text-center px-16">
+              <div className="flex gap-16 items-center">
+                <h1
+                  className={`md:text-h-lg-xl text-h-sm-md font-bold ${isWon ? "text-green" : "text-red"}`}
+                >
+                  {isWon ? "victory" : "defeat"}
+                </h1>
+                <div className="w-64 h-64 flex shadow-inner-2xl">
+                  <img
+                    className="object-cover grow"
+                    src={isWon ? "/images/eto.gif" : "/images/bmo.gif"}
+                    alt="Victory Dance"
+                  />
+                </div>
+              </div>
+            </legend>
+            <div className="flex flex-col gap-32 items-center">
+              <p className="text-txt-lg text-gray normal-case text-center">
+                {isWon
+                  ? "congratulations you won the game!"
+                  : "you lose the game!!"}
+              </p>
+              <div className="flex flex-col gap-8 items-center">
+                <div className="w-[120px] h-[120px] relative">
+                  {isWon && (
+                    <div className="w-64 h-64  absolute z-10 flex justify-center items-center -bottom-8 -right-16">
+                      <img
+                        src="/images/badges/victoryBadge.png"
+                        alt="victory badge"
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                  <div
+                    className={`w-full h-full relative rounded-full overflow-hidden flex border-2 ${isWon ? "border-[#DAA520]" : "border-red"}`}
+                  >
+                    <img
+                      src={
+                        playersData[me].user.profile_image
+                          ? `${BACKENDURL}${playersData[me].user.profile_image}?t=${new Date().getTime()}`
+                          : "/images/default.jpeg"
+                      }
+                      alt=""
+                    />
+                  </div>
+                </div>
+                <span
+                  className={`${isWon ? "text-[#DAA520]" : "text-red"}  font-semibold tracking-wider`}
+                >
+                  @{playersData[me].user.username}
+                </span>
+              </div>
+              <button
+                className="secondary-glass p-8 px-32 transition-all flex gap-4 justify-center items-center
+								hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
+                onClick={() => navigte("/games/pong/online/")}
+              >
+                play again
+              </button>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Pong = ({
   send,
@@ -20,6 +105,8 @@ const Pong = ({
   player,
   turn,
   playersData,
+  isSpectator,
+  started_at,
 }) => {
   const sm = useRef(null);
   const loaderRef = useRef(null);
@@ -38,7 +125,7 @@ const Pong = ({
 
   useEffect(() => {
     isMobile.current = /android|iphone|ipad|ipod/i.test(
-      navigator.userAgent || navigator.vendor || window.opera,
+      navigator.userAgent || window.opera,
     );
 
     if (!isMobile.current) return;
@@ -60,6 +147,7 @@ const Pong = ({
     if (!ready) return;
 
     const MobileEventListener = (event) => {
+      if (isSpectator) return;
       if (event.x > 0.5) {
         keyboard.current["ArrowRight"] = true;
         keyboard.current["ArrowLeft"] = false;
@@ -158,7 +246,7 @@ const Pong = ({
       ),
     ];
 
-    sm.current.render();
+    sm.current.render(started_at);
     tableRef.current.render();
     netRef.current.render();
     ballRef.current.render(sm.current);
@@ -167,28 +255,46 @@ const Pong = ({
 
     const messageHandler = (event) => {
       const msg = JSON.parse(event.data);
-      const opp = player == 1 ? 2 : 1;
+      if (isSpectator) {
+        if (
+          !tableRef.current ||
+          !netRef.current ||
+          !ballRef.current ||
+          !playersRef.current ||
+          !sm.current
+        )
+          return;
+      }
+      let opp = player == 1 ? 2 : 1;
       if (msg.type === "score") {
         const scores = JSON.parse(msg.message.scores);
         const score1 = Number(scores["1"]);
         const score2 = Number(scores["2"]);
-        if (Math.abs(score1 - score2) === 4) {
-          if (score1 > score2 && sm.current.RemontadaPlayer === -1)
-            sm.current.RemontadaChance = true;
-          else if (score1 < score2 && sm.current.RemontadaPlayer === 1)
-            sm.current.RemontadaChance = true;
-        }
-        if (Math.abs(score1 - score2) === 0 && sm.current.RemontadaChance) {
-          if (!ballRef.current.Achievement.isPlaying) {
-            ballRef.current.Achievement.currentTime = 0;
-            ballRef.current.Achievement.play();
+        if (!isSpectator) {
+          if (Math.abs(score1 - score2) === 4) {
+            if (score1 > score2 && sm.current.RemontadaPlayer === -1)
+              sm.current.RemontadaChance = true;
+            else if (score1 < score2 && sm.current.RemontadaPlayer === 1)
+              sm.current.RemontadaChance = true;
           }
-          authContextData.setGlobalMessage({
-            message:
-              "From the brink of defeat to total domination. Truly inspiring!",
-            title: "The Bounceback Boss Achieved",
-          });
-          sm.current.RemontadaChance = false;
+          if (Math.abs(score1 - score2) === 0 && sm.current.RemontadaChance) {
+            if (!ballRef.current.Achievement.isPlaying) {
+              ballRef.current.Achievement.currentTime = 0;
+              ballRef.current.Achievement.play();
+            }
+            authContextData.setGlobalMessage({
+              message:
+                "From the brink of defeat to total domination. Truly inspiring!",
+              title: "The Bounceback Boss",
+            });
+            send(
+              JSON.stringify({
+                type: "Achievements",
+                message: "The Bounceback Boss",
+              }),
+            );
+            sm.current.RemontadaChance = false;
+          }
         }
         sm.current.scoreUpdate(send, scores, msg.message.role, ballRef.current);
         if (msg.message.role === 1) {
@@ -197,6 +303,13 @@ const Pong = ({
           ballRef.current.serve(netRef.current, -1);
         }
       } else if (msg.type === "update") {
+        if (
+          isSpectator &&
+          (msg.message.content == "paddle" || msg.message.content == "rotating")
+        ) {
+          opp = msg.message.player;
+          if (opp === -1) opp = 2;
+        }
         if (msg.message.content == "paddle") {
           playersRef.current[opp - 1].rotating = false;
           playersRef.current[opp - 1].x = msg.message.paddle.x;
@@ -257,7 +370,7 @@ const Pong = ({
 
     addMessageHandler(messageHandler);
     const handleKeyDown = (event) => {
-      if (playersRef.current[player - 1].rotating) return;
+      if (playersRef.current[player - 1].rotating || isSpectator) return;
       keyboard.current[event.code] = true;
     };
 
@@ -341,6 +454,7 @@ const Pong = ({
         !ball.Defeat ||
         !ball.Victory
       ) {
+        ball.div.textContent = "";
         ball.startTime = Date.now();
         return;
       }
@@ -361,29 +475,32 @@ const Pong = ({
           player,
           keyboard.current,
           authContextData.setGlobalMessage,
+          isSpectator,
         );
         simulatedTime += fixedStep;
       }
-      if (ball.scoreboard[0] !== 7 && ball.scoreboard[1] !== 7) {
-        if (ball.serving && !ball.timeout && !ball.sendLock) {
-          if (
-            (player === 1 && ball.lastshooter === 1) ||
-            (player === 2 && ball.lastshooter === -1)
-          ) {
-            ball.CheckTimer(send);
-            ball.labelRenderer.render(sm.current.scene, sm.current.camera);
+      if (!isSpectator) {
+        if (ball.scoreboard[0] !== 7 && ball.scoreboard[1] !== 7) {
+          if (ball.serving && !ball.timeout && !ball.sendLock) {
+            if (
+              (player === 1 && ball.lastshooter === 1) ||
+              (player === 2 && ball.lastshooter === -1)
+            ) {
+              ball.CheckTimer(send);
+              ball.labelRenderer.render(sm.current.scene, sm.current.camera);
+            }
           }
         }
-        if (Math.floor((Date.now() - sm.current.lastTime) / 1000) > 0)
-          sm.current.TimerCSS(ball);
       }
+      if (Math.floor((Date.now() - sm.current.lastTime) / 1000) > 0)
+        sm.current.TimerCSS(send, ball);
 
       const alpha = (timeNow - simulatedTime) / fixedStep;
       ball.x += ball.dx * alpha * fixedStep;
       ball.y += ball.dy * alpha * fixedStep;
       ball.z += ball.dz * alpha * fixedStep;
-
-      players[player - 1].update(keyboard.current, ball, send, dt);
+      if (!isSpectator)
+        players[player - 1].update(keyboard.current, ball, send, dt);
       const cameraDirection = sm.current.camera.position;
       sm.current.renderer.render(sm.current.scene, sm.current.camera);
       if (cameraDirection != sm.current.camera.position)
@@ -457,59 +574,12 @@ const Pong = ({
       )}
       <canvas id="pong" className="block"></canvas>
       {/* Victory Section */}
-      {isWon && (
-        <div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">
-          <div className="text-center transform scale-110">
-            <img
-              className="w-[250px] h-[250px] mx-auto transition-all transform hover:scale-110"
-              src="/images/eto.gif"
-              alt="Victory Dance"
-            />
-            <div className="mb-6 mt-8">
-              <p className="text-5xl font-extrabold text-white animate__animated animate__bounceIn animate__delay-2000ms">
-                Victory
-              </p>
-              <p className="text-2xl font-semibold mt-4 text-white animate__animated animate__fadeIn animate__delay-4000ms">
-                You Won Like a Ping Pong Champion!
-              </p>
-              <button
-                className="relative mt-16 inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
-                onClick={handleExitGame}
-              >
-                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
-                <span className="z-10">Continue</span>
-              </button>
-            </div>
-          </div>
-        </div>
+      {isWon && !isSpectator && (
+        <GameResult playersData={playersData} isWon={true} />
       )}
-
       {/* Defeat Section */}
-      {islost && (
-        <div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">
-          <div className="text-center transform scale-110">
-            <img
-              className="w-[250px] h-[250px] mx-auto transition-all transform hover:scale-110"
-              src="/images/bmo.gif"
-              alt="Defeat"
-            />
-            <div className="mb-6 mt-8">
-              <p className="text-5xl font-extrabold text-white animate__animated animate__bounceIn animate__delay-2000ms">
-                Defeat
-              </p>
-              <p className="text-2xl font-semibold mt-4 text-white animate__animated animate__fadeIn animate__delay-4000ms">
-                Good Luck Next Time Champion!
-              </p>
-              <button
-                className="relative mt-16 inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
-                onClick={handleExitGame}
-              >
-                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
-                <span className="z-10">Continue</span>
-              </button>
-            </div>
-          </div>
-        </div>
+      {islost && !isSpectator && (
+        <GameResult playersData={playersData} isWon={false} />
       )}
     </div>
   );

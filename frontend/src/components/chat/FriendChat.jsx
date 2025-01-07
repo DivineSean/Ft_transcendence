@@ -66,20 +66,8 @@ const FriendsChat = ({ uid, friendInfo }) => {
 
       <div className="grow lg:flex flex justify-between gap-16 md:hidden">
         <div className="flex flex-col justify-center gap-8">
-          <div className="text-h-sm-xs font-semibold normal-case">
-            {!friendInfo.messageDate
-              ? `${friendInfo.first_name} ${friendInfo.last_name}`.length > 30
-                ? `${friendInfo.first_name} ${friendInfo.last_name}`.substring(
-                    0,
-                    30,
-                  ) + "..."
-                : `${friendInfo.first_name} ${friendInfo.last_name}`
-              : `${friendInfo.first_name} ${friendInfo.last_name}`.length > 15
-                ? `${friendInfo.first_name} ${friendInfo.last_name}`.substring(
-                    0,
-                    15,
-                  ) + "..."
-                : `${friendInfo.first_name} ${friendInfo.last_name}`}
+          <div className="text-h-sm-xs font-semibold normal-case max-w-[140px] truncate">
+            {friendInfo.first_name} {friendInfo.last_name}
           </div>
 
           {(!notifContextData.displayTyping ||
@@ -87,11 +75,9 @@ const FriendsChat = ({ uid, friendInfo }) => {
               notifContextData.displayTyping.convId !==
                 friendInfo.conversationId)) && (
             <div
-              className={`text-txt-xs text-stroke-sc ${!friendInfo.isRead && !friendInfo.sender && "font-semibold text-white"}`}
+              className={`text-txt-xs text-stroke-sc max-w-[140px] truncate ${!friendInfo.isRead && !friendInfo.sender && "font-semibold text-white"}`}
             >
-              {friendInfo.lastMessage && friendInfo.lastMessage.length > 16 ? (
-                friendInfo.lastMessage.substring(0, 16) + "..."
-              ) : !friendInfo.lastMessage ? (
+              {!friendInfo.lastMessage ? (
                 <p className="text-stroke-sc font-normal">new conversation</p>
               ) : (
                 friendInfo.lastMessage

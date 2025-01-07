@@ -76,6 +76,23 @@ class PlayerRating(models.Model):
     rating = models.PositiveIntegerField(default=951)
     updated_at = models.DateTimeField(auto_now=True)
 
+    @classmethod
+    def handle_rating(cls, user, game, player):
+        try:
+            player_rating, created = cls.objects.get_or_create(user=user, game=game)
+            if created:
+                player_rating = created
+        except Exception as e:
+            return
+        if player["result"] == "win":
+            player_rating.rating += player["rating_gain"]
+        elif player["result"] == "loss":
+            if player_rating.rating < player["rating_loss"]:
+                player_rating.rating = 0
+            else:
+                player_rating.rating -= player["rating_loss"]
+        player_rating.save()
+
 
 class Achievement(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -85,12 +102,12 @@ class Achievement(models.Model):
     description = models.TextField(blank=True)
 
     LEVELS = {
-        "iron": 1,
-        "bronze": 3,
-        "silver": 10,
-        "gold": 25,
-        "platinum": 50,
-        "diamond": 100,
+        "bronze": 1,
+        "silver": 3,
+        "gold": 10,
+        "diamond": 25,
+        "platinium": 50,
+        "titanium": 100,
     }
 
     @classmethod
@@ -124,36 +141,36 @@ class PlayerAchievement(models.Model):
     game = models.ForeignKey(Game, on_delete=models.PROTECT)
     achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)
     level = models.CharField(max_length=20)
-    progress = models.PositiveIntegerField(default=1)
+    progress = models.PositiveIntegerField(default=0)
     threshold = models.PositiveIntegerField()
-    earned_at = models.DateTimeField(null=True, blank=True)
+    earned_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ("user", "game", "achievement", "level")
 
-    def save(self, *args, **kwargs):
-        if self.progress >= self.threshold:
-            self.upgrade_level()
-        super().save(*args, **kwargs)
+    def upgrade_level(self, increment):
+        if self.progress < self.threshold:
+            self.progress += increment
+            self.save()
+            return
 
-    def upgrade_level(self):
         next_level = self.achievement.next_level(self.level)
-
         if next_level:
             self.earned_at = self.earned_at or now()
-            self.save()
 
             PlayerAchievement.objects.create(
                 user=self.user,
                 game=self.game,
                 achievement=self.achievement,
                 level=next_level,
-                progress=self.progress - self.threshold,
+                progress=(self.progress - self.threshold) + increment,
                 threshold=self.achievement.get_threshold_for_level(next_level),
             )
         else:
             self.progress = self.threshold
             self.earned_at = self.earned_at or now()
+
+        self.save()
 
     @classmethod
     def add_progress(cls, user, game, achievement_name, increment=1):
@@ -174,8 +191,7 @@ class PlayerAchievement(models.Model):
                 threshold=achievement.get_threshold_for_level("bronze"),
             )
         else:
-            current_level.progress += increment
-            current_level.save()
+            current_level.upgrade_level(increment)
 
 
 @receiver(post_save, sender=Game)

@@ -31,17 +31,17 @@ const GameToast = ({ duration = 3000, title, message, onClose }) => {
     message && (
       <fieldset
         className={`
-          fixed top-1/3 left-1/2 transform -translate-x-1/2
-          flex flex-col z-10 p-16 rounded-md shadow-2xl
-          border-[0.5px] border-green animate-pulse
+          fixed md:top-[100px] top-32 left-1/2 transform -translate-x-1/2
+          flex flex-col z-10 md:p-16 p-8 px-16 rounded-md shadow-2xl
+          border-[0.5px] border-green
         `}
       >
         {/* Bot Image in Legend */}
-        <legend className="px-8 text-left flex gap-4 items-center">
+        <legend className="md:px-8 text-left flex gap-4 items-center">
           <img
             src="/images/bot.png"
             alt="Bot"
-            className="animate-wiggle w-[40px] h-[40px]"
+            className="w-[40px] h-[40px] md:block hidden"
           />
           <p className="text-white text-md font-bold text-center tracking-wide">
             {title}
@@ -50,12 +50,12 @@ const GameToast = ({ duration = 3000, title, message, onClose }) => {
 
         <div className="flex flex-col gap-16">
           {/* Toast Message */}
-          <p className="text-gray text-lg normal-case text-center tracking-wide">
+          <p className="text-gray text-lg normal-case text-center tracking-wide md:text-txt-md text-txt-xs">
             {message}
           </p>
 
           {/* Progress Bar */}
-          <div className="w-full h-4 bg-gray-700 rounded-full overflow-hidden bg-black/70">
+          <div className="w-full md:h-4 h-2 bg-gray-700 rounded-full overflow-hidden bg-black/70">
             <div
               className="h-full bg-green transition-all"
               style={{ width: `${progress}%` }}

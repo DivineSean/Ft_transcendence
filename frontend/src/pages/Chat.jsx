@@ -1,58 +1,50 @@
 import ProfileOptions from "../components/chat/ProfileOptions";
 import Conversation from "../components/chat/Conversation";
-import { useParams, useLocation } from "react-router-dom";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
 import Header from "../components/Header";
 import { IoSearchOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-
 import AuthContext from "../context/AuthContext";
 import ChatFriends from "../components/chat/ChatFriends";
 import LoadingPage from "./LoadingPage";
 import NotifContext from "../context/NotifContext";
 import Toast from "../components/Toast";
+import SearchForConversation from "../components/chat/SearchForConversationl";
 
 const Chat = () => {
   const { uid } = useParams();
   const navigate = useNavigate();
   const authContextData = useContext(AuthContext);
   const notifContextData = useContext(NotifContext);
-  const location = useLocation();
 
   // states
-  const [friendsData, setFriendsData] = useState(null);
+  // const [notifContextData.friendsData, setFriendsData] = useState(null);
   const [conversationSide, setConversationSide] = useState(true);
   const [profileSide, setProfileSide] = useState(
     window.innerWidth <= 768 ? false : true,
   );
 
+  // conversation search
+  const [displaySearch, setDisplaySearch] = useState(false);
+
   useEffect(() => {
     // first time fetch conversation message from the database to render them to the user
-    notifContextData.getConversations(
-      setFriendsData,
-      authContextData.setGlobalMessage,
-      navigate,
-    );
+    notifContextData.getConversations();
+    return () => {
+      authContextData.setGlobalMessage({ message: "", isError: false });
+    };
   }, []);
 
   useEffect(() => {
     if (!uid) {
-      notifContextData.getConversations(
-        setFriendsData,
-        authContextData.setGlobalMessage,
-        navigate,
-      );
+      notifContextData.getConversations();
     }
   }, [uid]);
 
   useEffect(() => {
     if (notifContextData.refresh) {
-      console.log("hello");
-      notifContextData.getConversations(
-        setFriendsData,
-        authContextData.setGlobalMessage,
-        navigate,
-      );
+      notifContextData.getConversations();
       notifContextData.setRefresh(false);
     }
   }, [notifContextData.refresh]);
@@ -100,12 +92,10 @@ const Chat = () => {
           messageData.type === "createConv" &&
           window.location.pathname.search("chat") !== -1
         ) {
-          notifContextData.getConversations(
-            setFriendsData,
-            authContextData.setGlobalMessage,
-            navigate,
-          );
+          notifContextData.getConversations();
           notifContextData.readNotification(messageData.notifId);
+        } else if (messageData.type === "expiredInvite") {
+          notifContextData.getMessages(uid, 0);
         }
       }
     };
@@ -118,8 +108,14 @@ const Chat = () => {
   });
 
   let friendInfo = []; // get the conversation that have the same uid that we have in the url
-  if (friendsData && friendsData.users && friendsData.users.length) {
-    friendInfo = friendsData.users.filter((u) => u.conversationId === uid)[0];
+  if (
+    notifContextData.friendsData &&
+    notifContextData.friendsData.users &&
+    notifContextData.friendsData.users.length
+  ) {
+    friendInfo = notifContextData.friendsData.users.filter(
+      (u) => u.conversationId === uid,
+    )[0];
   }
 
   // this event listener just for the small media if the window is resized the profileOption component will disappear
@@ -131,9 +127,9 @@ const Chat = () => {
 
   useEffect(() => {
     // if the updatedConversation is updated thats mean we need to update chat friend component
-    if (notifContextData.updatedConversation && friendsData) {
+    if (notifContextData.updatedConversation && notifContextData.friendsData) {
       // find the conversation that we are already entered into it
-      const findConv = friendsData.users.filter(
+      const findConv = notifContextData.friendsData.users.filter(
         (user) =>
           user.conversationId === notifContextData.updatedConversation.convId,
       )[0];
@@ -149,14 +145,14 @@ const Chat = () => {
       }
 
       // get all other conversation
-      const newFriendsData = friendsData.users.filter(
+      const newFriendsData = notifContextData.friendsData.users.filter(
         (user) =>
           user.conversationId !== notifContextData.updatedConversation.convId,
       );
 
       // then resort them to make the updated conversation the first one
-      setFriendsData({
-        ...friendsData,
+      notifContextData.setFriendsData({
+        ...notifContextData.friendsData,
         users: [findConv, ...newFriendsData],
       });
     }
@@ -165,23 +161,33 @@ const Chat = () => {
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="chat" />
+
       {authContextData.globalMessage.message && <Toast position="topCenter" />}
-      {!friendsData && <LoadingPage />}
-      {friendsData && (
+      {!notifContextData.friendsData && <LoadingPage />}
+
+      {notifContextData.friendsData && (
         <div className="container md:px-16 px-0">
+          {displaySearch && (
+            <SearchForConversation setDisplaySearch={setDisplaySearch} />
+          )}
+
           <div className="primary-glass p-16 flex gap-16 grow">
             <div
               className={`lg:w-[320px] md:w-[72px] w-full flex-col gap-32 ${uid ? "md:flex hidden" : "flex"}`}
             >
-              <div className="lg:flex md:hidden flex items-center relative w-full">
-                <input
-                  type="text"
-                  placeholder="find users"
-                  className="search-glass text-txt-xs px-32 py-8 outline-none text-white w-full"
-                />
-                <IoSearchOutline className="text-gray absolute left-8 text-txt-md" />
+              <div
+                onClick={() => setDisplaySearch(true)}
+                className="flex items-center relative py-8 search-glass w-full justify-center gap-8 cursor-pointer"
+              >
+                <IoSearchOutline className="text-gray text-txt-md" />
+                <p className="text-txt-xs text-stroke-sc cursor-pointer md:hidden lg:flex flex">
+                  find conversation
+                </p>
               </div>
-              <ChatFriends friendsData={friendsData} uid={uid} />
+              <ChatFriends
+                friendsData={notifContextData.friendsData}
+                uid={uid}
+              />
             </div>
 
             <div className="w-[0.5px] bg-stroke-sc md:block hidden"></div>

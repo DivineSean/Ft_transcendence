@@ -29,33 +29,81 @@ def callableDict():
 
 
 class User(AbstractUser):
+    class Status(models.TextChoices):
+        ONLINE = "online", "Online"
+        OFFLINE = "offline", "Offline"
+        IN_GAME = "in-game", "In Game"
 
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
     email = models.EmailField(max_length=255, unique=True)
     password = models.CharField(max_length=255, blank=True, null=True)
-    first_name = models.CharField(max_length=255, blank=True, null=True)
-    last_name = models.CharField(max_length=255, blank=True, null=True)
-    username = models.CharField(max_length=255, null=True, blank=True)
+    first_name = models.CharField(max_length=12, blank=True, null=True)
+    last_name = models.CharField(max_length=12, blank=True, null=True)
+    username = models.CharField(max_length=12, null=True, blank=True)
 
+    status = models.CharField(
+        max_length=8, choices=Status.choices, default=Status.OFFLINE
+    )
     isOnline = models.BooleanField(default=False)
     isTwoFa = models.BooleanField(default=False)
     about = models.TextField(blank=True)
     profile_image = models.ImageField(
         upload_to="profile_images/", blank=True, null=True
     )
-
+    exp = models.PositiveBigIntegerField(default=0)
     blockedUsers = models.JSONField(default=callableDict, null=True, blank=True)
 
     last_update = models.DateTimeField(auto_now=True)
-
-    # Friends  = models.ManyToManyField("User", blank = True)
 
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+
+    def get_levels(self):
+        if self.exp >= 45000:
+            return 10
+        elif self.exp >= 36000:
+            return 9
+        elif self.exp >= 28000:
+            return 8
+        elif self.exp >= 21000:
+            return 7
+        elif self.exp >= 15000:
+            return 6
+        elif self.exp >= 10000:
+            return 5
+        elif self.exp >= 6000:
+            return 4
+        elif self.exp >= 3000:
+            return 3
+        elif self.exp >= 1000:
+            return 2
+        elif self.exp >= 0:
+            return 1
+
+    def get_percentage(self):
+        levels = {
+            1: (0, 1000),
+            2: (1000, 3000),
+            3: (3000, 6000),
+            4: (6000, 10000),
+            5: (10000, 15000),
+            6: (15000, 21000),
+            7: (21000, 28000),
+            8: (28000, 36000),
+            9: (36000, 45000),
+            10: (45000, float("inf")),
+        }
+
+        lower_bound, upper_bound = levels[self.get_levels()]
+
+        if upper_bound == float("inf"):
+            return 100
+
+        return ((self.exp - lower_bound) / (upper_bound - lower_bound)) * 100
 
 
 class TwoFactorCode(models.Model):

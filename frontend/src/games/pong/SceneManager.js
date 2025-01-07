@@ -15,6 +15,14 @@ export class SceneManager {
   ) {
     this.player = player;
     this.playersData = playersData;
+    if (playersData[0].user.username.length > 10) {
+      this.playersData[0].user.username =
+        playersData[0].user.username.slice(0, 10) + "...";
+    }
+    if (playersData[1].user.username.length > 10) {
+      this.playersData[1].user.username =
+        playersData[1].user.username.slice(0, 10) + "...";
+    }
     this.Marathoner = false;
     this.globalMessage = globalMessage;
     this.RemontadaPlayer = player;
@@ -111,7 +119,7 @@ export class SceneManager {
     this.scene.add(light);
   }
 
-  TimerCSS(ball) {
+  TimerCSS(send, ball) {
     this.lastTime = Date.now();
     const elapsedTimeInSeconds = Math.floor(
       (this.lastTime - this.startTime) / 1000,
@@ -124,8 +132,14 @@ export class SceneManager {
       }
       this.globalMessage({
         message: "The game doesnt just need you—it thrives because of you!",
-        title: "The Marathoner Achieved",
+        title: "The Marathoner",
       });
+      send(
+        JSON.stringify({
+          type: "Achievements",
+          message: "The Marathoner",
+        }),
+      );
       this.Marathoner = true;
     }
     const seconds = elapsedTimeInSeconds % 60;
@@ -243,6 +257,26 @@ export class SceneManager {
       this.addTextToPlane(this.P2MatchPoint, "Match Point", -0.25, 0, 0xffffff);
     }
     if (
+      (P["1"] === "0" && P["2"] === "7" && this.player === -1) ||
+      (P["1"] === "7" && P["2"] === "0" && this.player === 1)
+    ) {
+      if (!ball.Achievement.isPlaying) {
+        ball.Achievement.currentTime = 0;
+        ball.Achievement.play();
+      }
+      console.log("Hello");
+      this.globalMessage({
+        message: "You didnt just win—you sent a message to everyone watching!",
+        title: "The Dominator",
+      });
+      send(
+        JSON.stringify({
+          type: "Achievements",
+          message: "The Dominator",
+        }),
+      );
+    }
+    if (
       (this.player === -1 && P["1"] === "6") ||
       (this.player === 1 && P["2"] === "6")
     ) {
@@ -269,17 +303,6 @@ export class SceneManager {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
-            if (P["2"] === 0) {
-              if (!ball.Achievement.isPlaying) {
-                ball.Achievement.currentTime = 0;
-                ball.Achievement.play();
-              }
-              this.globalMessage({
-                message:
-                  "You didnt just win—you sent a message to everyone watching!",
-                title: "The Dominator Achieved",
-              });
-            }
             this.setIsWon(true);
             send(
               JSON.stringify({
@@ -318,17 +341,6 @@ export class SceneManager {
           if (!ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
-            if (P["1"] === 0) {
-              if (!ball.Achievement.isPlaying) {
-                ball.Achievement.currentTime = 0;
-                ball.Achievement.play();
-              }
-              this.globalMessage({
-                message:
-                  "You didnt just win—you sent a message to everyone watching!",
-                title: "The Dominator Achieved",
-              });
-            }
             this.setIsWon(true);
             send(
               JSON.stringify({
@@ -606,7 +618,7 @@ export class SceneManager {
       this.updateTextOnPlane(this.timerDiv, "00:00", -0.095, 0, 0.05, 0xffffff);
   }
 
-  render() {
+  render(started_at) {
     // Optional: Adding a point light for more localized highlights or for lighting specific areas (like the center of the room)
     this.pointLight = new THREE.PointLight(0xffffff, 100000, 500); // Low intensity, limited range
     this.pointLight.position.set(0, -150, 0); // Placing in the center of the room
@@ -623,8 +635,13 @@ export class SceneManager {
       playerData.score.toString(),
     );
     this.scoreRender(scores, this.changeServe);
-    this.startTime = Date.now();
-    this.lastTime = Date.now();
+    if (started_at > 0) {
+      this.startTime = started_at;
+      this.lastTime = Date.now();
+    } else {
+      this.startTime = Date.now();
+      this.lastTime = Date.now();
+    }
     this.TimeRender(true);
   }
 

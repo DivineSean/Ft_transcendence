@@ -1,80 +1,47 @@
 import { useState, useEffect, memo, useContext, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Pong from "./pong/Pong";
 import useWebSocket from "../customHooks/useWebsocket";
 import UserContext from "../context/UserContext.jsx";
+import GamePaused from "../components/game/GamePaused.jsx";
+import WaitingGame from "../components/game/WaitingGame.jsx";
+import GameStatus from "../components/game/GameStatus.jsx";
+import AuthContext from "../context/AuthContext.jsx";
 
-const Counter = ({ createdAt }) => {
-  const endTime = new Date(createdAt).getTime() + 60 * 1000;
-  const [count, setCount] = useState(endTime - Date.now());
+const GameOverlay = ({ data, send, game }) => {
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const updateTime = () => {
-      if (endTime > Date.now())
-        setCount(Math.floor((endTime - Date.now()) / 1000));
-    };
-    const intervalId = setInterval(updateTime, 1000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
-  return <div>{count}</div>;
-};
-
-const GameOverlay = ({ data, send }) => {
-  console.log("data: ", data);
   switch (data.status) {
     case "waiting":
-      return (
-        <div className="flex flex-col gap-16 w-full justify-center items-center">
-          <div className="flex gap-16">
-            <span
-              className={`normal-case ${data.players[0].ready ? "text-green" : "text-red"}`}
-            >
-              @{data.players[0].user.username}
-            </span>
-            <span className="normal-case">vs</span>
-            <span
-              className={`normal-case ${data.players[1].ready ? "text-green" : "text-red"}`}
-            >
-              @{data.players[1].user.username}
-            </span>
-          </div>
-          <div className="flex gap-32">
-            <span className="normal-case">
-              +{data.players[0].rating_gain} -{data.players[0].rating_gain}
-            </span>
-            <span className="normal-case">
-              +{data.players[0].rating_gain} -{data.players[0].rating_gain}
-            </span>
-          </div>
-          <Counter createdAt={data.created_at} />
-          <div className="flex justify-center">
-            <button
-              onClick={() => {
-                send(
-                  JSON.stringify({
-                    type: "ready",
-                    message: {},
-                  }),
-                );
-              }}
-            >
-              Accept
-            </button>
-          </div>
-        </div>
-      );
+      return <WaitingGame game={game} data={data} send={send} />;
     case "expired":
-      return <div>Game invite expired</div>;
+      return (
+        <GameStatus
+          game={game}
+          title={"this game has been expired"}
+          image={"/images/gameOver.png"}
+        />
+      );
     case "ongoing":
-      return <div>Game starting soon ...</div>;
+      return (
+        <GameStatus
+          game={game}
+          title={"this game is ongoing"}
+          image={"/images/gameOngoing.jpeg"}
+        />
+      );
     case "paused":
-      return <div>Game paused</div>;
+      return <GamePaused game={game} />;
     case "completed":
-      return <div>Game concluded</div>;
+      return (
+        <GameStatus
+          game={game}
+          title={"this game has been concluded"}
+          image={"/images/gameOver.png"}
+        />
+      );
     default:
-      return <>nn hh</>;
+      navigate("/games/");
   }
 };
 
@@ -89,6 +56,7 @@ const Game = memo(
     removeMessageHandler,
     players,
     turn,
+    started_at,
   }) => {
     const data = players.current?.find(
       (player) => player.user.username === userInfo.username,
@@ -99,18 +67,24 @@ const Game = memo(
       console.log("Game component renered");
     }, []);
 
+    const overideSend = () => {
+      return;
+    };
+
     switch (game) {
       case "pong":
         return (
           <Pong
+            send={data ? send : overideSend}
             ready={ready}
             setReady={setReady}
-            playersData={players.current}
-            turn={turn}
-            player={data.role}
-            send={send}
             addMessageHandler={addMessageHandler}
             removeMessageHandler={removeMessageHandler}
+            player={data ? data.role : 1}
+            turn={turn}
+            playersData={players.current}
+            isSpectator={data ? false : true}
+            started_at={started_at}
           />
         );
     }
@@ -122,8 +96,16 @@ const GameManager = () => {
   const [data, setData] = useState(null);
   const { game, uuid } = useParams();
   const playersRef = useRef(null);
+  const authContextData = useContext(AuthContext);
+  const navigate = useNavigate();
+  function strictGreaterThanOrEqual(a, b) {
+    if (typeof a !== "number" || typeof b !== "number") {
+      return false;
+    }
+    return a >= b;
+  }
   const { send, addMessageHandler, removeMessageHandler } = useWebSocket(
-    `wss://${window.location.hostname}:8000/ws/games/${uuid}`,
+    `wss://${window.location.hostname}:8000/ws/games/${game}/${uuid}`,
     {
       onMessage: (event) => {
         const msg = JSON.parse(event.data);
@@ -139,6 +121,16 @@ const GameManager = () => {
           }));
         }
       },
+      onClose: (event) => {
+        if (strictGreaterThanOrEqual(event.code, 4000)) {
+          console.log("Navigating...");
+          navigate(`/games/${game}/online`);
+          authContextData.setGlobalMessage({
+            message: event.reason,
+            isError: true,
+          });
+        }
+      },
     },
   );
 
@@ -151,6 +143,7 @@ const GameManager = () => {
     contextData.getUserInfo();
   }, []);
 
+  console.log(game);
   return (
     <div className="relative w-full">
       {contextData.userInfo && playersRef.current && (
@@ -164,15 +157,10 @@ const GameManager = () => {
           removeMessageHandler={removeMessageHandler}
           players={playersRef}
           turn={data.turn}
+          started_at={data.started_at}
         />
       )}
-      {!ready && data && (
-        <div className="absolute inset-0 backdrop-blur-sm container justify-center items-center">
-          <div className="primary-glass p-32">
-            <GameOverlay data={data} send={send} />
-          </div>
-        </div>
-      )}
+      {!ready && data && <GameOverlay data={data} send={send} game={game} />}
     </div>
   );
 };

@@ -9,7 +9,7 @@ import AuthContext from "../context/AuthContext";
 import OptionsSection from "./OptionsSection";
 import { TbLogout2 } from "react-icons/tb";
 import { SlMenu } from "react-icons/sl";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Menu from "./Menu";
 import FetchWrapper from "../utils/fetchWrapper";
 import { BACKENDURL } from "../utils/fetchWrapper";
@@ -26,12 +26,19 @@ const navLinks = [
 ];
 
 const Header = ({ ...props }) => {
-  const { displayMenuGl, setDisplayMenuGl } = useContext(AuthContext);
+  const authContextData = useContext(AuthContext);
   const [displayOptions, setDisplayOptions] = useState(false);
   const [displayNotification, setDisplayNotification] = useState(false);
   const [readNotif, setReadNotif] = useState(false);
   const contextData = useContext(UserContext);
   const notifContext = useContext(NotifContext);
+  const [searchResult, setSearchResult] = useState(false);
+  const searchResultRef = useRef(null);
+  const searchBarRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const FetchData = new FetchWrapper();
+  const [foundUsers, setFoundUsers] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     notifContext.getNotfications();
@@ -48,7 +55,7 @@ const Header = ({ ...props }) => {
   const toggleOptionsRef = useRef([]);
 
   const toggleMenu = () => {
-    setDisplayMenuGl(!displayMenuGl);
+    authContextData.setDisplayMenuGl(!authContextData.displayMenuGl);
   };
 
   const toggleNotification = () => {
@@ -77,13 +84,22 @@ const Header = ({ ...props }) => {
         setDisplayNotification(false);
       }
     }
+
+    if (
+      searchResultRef.current &&
+      !searchResultRef.current.contains(event.target) &&
+      searchBarRef.current &&
+      !searchBarRef.current.contains(event.target)
+    ) {
+      setSearchResult(false);
+    }
   };
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     contextData.getUserInfo();
     return () => {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -120,9 +136,53 @@ const Header = ({ ...props }) => {
     }
   });
 
+  const searchForUsers = async () => {
+    try {
+      const res = await FetchData.get(
+        `api/users/search/?query=${encodeURIComponent(searchQuery)}`,
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setFoundUsers(data);
+      } else {
+        const data = await res.json();
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
+      }
+    } catch (error) {
+      authContextData.setGlobalMessage({
+        message: error.message,
+        isError: true,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (searchQuery) {
+      searchForUsers();
+    } else {
+      setFoundUsers([]);
+    }
+  }, [searchQuery]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!searchQuery) setSearchQuery(e.target.value);
+    setTimeout(() => {
+      setSearchQuery(e.target.value);
+    }, 500);
+  };
+
+  const handleNavigate = (user) => {
+    setSearchResult(false);
+    navigate(`/profile/overview/${user.username}`);
+  };
+
   return (
     <>
-      {displayMenuGl && <Menu link={props.link} />}
+      {authContextData.displayMenuGl && <Menu link={props.link} />}
       <div className="items-center w-full max-w-[1440px] z-[10000] fixed top-0 left-1/2 transform -translate-x-1/2">
         <div className="relative w-full">
           {displayOptions && (
@@ -153,13 +213,62 @@ const Header = ({ ...props }) => {
             <ul className="flex lg:gap-32 gap-16 itmes-center"> {linkes} </ul>
           </nav>
           <div className="flex grow justify-center">
-            <div className="flex items-center relative lg:w-full md:w-[60%] w-[90%]">
+            <div className="flex items-center relative lg:w-full md:w-[60%] w-full">
               <input
+                ref={searchBarRef}
                 type="text"
+                onFocus={() => setSearchResult(true)}
+                onChange={handleSearch}
                 placeholder="find users"
-                className="search-glass text-txt-xs px-32 py-8 outline-none text-white w-full"
+                className="search-glass text-txt-sm px-32 py-8 outline-none text-white w-full"
               />
               <IoSearchOutline className="text-gray absolute left-8 text-txt-md" />
+              {searchResult && (
+                <>
+                  <div className="absolute top-[44px] bg-[url(/images/background.png)] bg-cover bg-top left-0 right-0 max-h-[300px] rounded-md">
+                    <ul
+                      ref={searchResultRef}
+                      className="w-full max-h-[300px] bg-black/30 backdrop-blur-xl overflow-y-scroll no-scrollbar
+												rounded-md border-[0.5px] border-stroke-sc p-8 flex flex-col gap-8"
+                    >
+                      {foundUsers.length !== 0 ? (
+                        foundUsers.map((user) => (
+                          <li
+                            onClick={() => handleNavigate(user)}
+                            key={user.id}
+                            className="bg-gray/5 py-8 px-12 hover:bg-gray/15 overflow-hidden cursor-pointer
+															transition-all rounded-md grid grid-cols-[48px,1fr] gap-12 items-center shrink-0"
+                          >
+                            <div className="w-48 h-48 rounded-full overflow-hidden flex border-[0.5px] border-stroke-sc">
+                              <img
+                                src={
+                                  user.profile_image
+                                    ? `${BACKENDURL}${user.profile_image}?t=${new Date().getTime()}`
+                                    : "/images/default.jpeg"
+                                }
+                                alt="img"
+                                className="grow object-cover"
+                              />
+                            </div>
+                            <section className="flex flex-col justify-center normal-case">
+                              <h1 className="tracking-wider text-txt-sm font-semibold truncate">
+                                {user.first_name} {user.last_name}
+                              </h1>
+                              <p className="text-txt-xs text-gray tracking-wide">
+                                @{user.username}
+                              </p>
+                            </section>
+                          </li>
+                        ))
+                      ) : (
+                        <p className="text-stroke-sc text-txt-md grow flex justify-center items-center py-8">
+                          no user founded
+                        </p>
+                      )}
+                    </ul>
+                  </div>
+                </>
+              )}
             </div>
           </div>
           <div

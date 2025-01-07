@@ -42,12 +42,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
     if (uid) {
       setAllMessages(false);
       setChunkedData(0);
-      notifContextData.getMessages(
-        uid,
-        notifContextData.setMessages,
-        setOffsetMssg,
-        navigate,
-      );
+      notifContextData.getMessages(uid, setOffsetMssg);
     }
   }, [uid]);
 
@@ -87,7 +82,6 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
 
         notifContextData.getChunkedMessages(
           uid,
-          notifContextData.setMessages,
           offsetMssg,
           setOffsetMssg,
           setIsChunked,
@@ -143,7 +137,6 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
     if (!notifContextData.isWsConnected) return;
 
     const sendTyping = setTimeout(() => {
-      console.log("ljkshdfgjkhgfdjhdsf");
       if (notifContextData.typing.length)
         // send typing because the typing state is not empty
         notifContextData.wsHook.send(
@@ -199,7 +192,13 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
 
   if (notifContextData.messages && notifContextData.messages.length) {
     notifContextData.messages.map((message) => {
-      conversation.push(<Message message={message} key={message.messageId} />);
+      conversation.push(
+        <Message
+          friendInfo={friendInfo}
+          message={message}
+          key={message.messageId}
+        />,
+      );
     });
   } else {
     conversation.push(
@@ -214,7 +213,13 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
 
   if (notifContextData.tempMessages && notifContextData.tempMessages.length) {
     notifContextData.tempMessages.map((message) => {
-      conversation.push(<Message message={message} key={message.messageId} />);
+      conversation.push(
+        <Message
+          friendInfo={friendInfo}
+          message={message}
+          key={message.messageId}
+        />,
+      );
     });
   }
 
@@ -288,7 +293,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
             />
           </div>
           <div className="flex flex-col justify-between h-full">
-            <h2 className="md:text-h-sm-md text-h-sm-sm font-bold">{`${friendInfo.first_name} ${friendInfo.last_name}`}</h2>
+            <h2 className="md:text-h-sm-md text-h-sm-sm font-bold max-w-[200px] truncate">{`${friendInfo.first_name} ${friendInfo.last_name}`}</h2>
             {friendInfo.isOnline && !friendInfo.isBlocked && (
               <p className="md:text-txt-md text-txt-xs text-green">online</p>
             )}
@@ -377,7 +382,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
       )}
       {friendInfo.isBlocked && (
         <div className="cursor-not-allowed text-txt-sm text-center p-16 text-stroke-sc lowercase bg-black/20 rounded-md">
-          sorry you cannot send any message because this conversatoin is blocked
+          sorry you cannot send any message because this conversation is blocked
         </div>
       )}
     </div>
