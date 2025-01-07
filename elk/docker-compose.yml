@@ -15,7 +15,7 @@ networks:
 services:
   setup:
     container_name: setup
-    build: ./ssl-setup
+    build: ./setup
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
       - /var/run/docker.sock:/var/run/docker.sock

@@ -83,6 +83,7 @@ services:
     volumes:
       - ./backend/static:/home/app/static
       - ./logs/nginx_access.log:/var/log/nginx/access.log
+      - ./logs/nginx_errors.log:/var/log/nginx/error.log
 
 volumes:
   data:
