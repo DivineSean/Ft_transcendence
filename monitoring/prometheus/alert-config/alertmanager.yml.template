@@ -1,21 +1,25 @@
 global:
-  resolve_timeout: 1h
+  resolve_timeout: 5m
+  smtp_smarthost: '${EMAIL_HOST}:${EMAIL_PORT}'
+  smtp_from: 'alertmanager@charikat-dajaj.ma'
+  smtp_auth_username: '${EMAIL_HOST_USER}'
+  smtp_auth_password: '${EMAIL_HOST_PASSWORD}'
 
 route:
-  receiver: 'email'
-  group_by: ['alertsname']
-  group_wait: 20s
-  group_interval: 2m
-  repeat_interval: 30m
+  receiver: 'email-alerts'
+  group_by: ['alertname']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
 
 receivers:
-  - name: 'email'
+  - name: 'email-alerts'
     email_configs:
-      - send_resolved: true
-        to: '${EMAIL_ALERT}'
-        from: 'alertmanager@gmail.com'
-        smarthost: '${EMAIL_HOST}:${EMAIL_PORT}'
-        auth_username: '${EMAIL_HOST_USER}'
-        auth_identity: '${EMAIL_HOST_USER}'
-        auth_password: '${EMAIL_HOST_PASSWORD}'
-        require_tls: true
+      - to: '${EMAIL_ALERT}'
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance']
