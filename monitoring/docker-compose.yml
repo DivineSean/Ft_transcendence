@@ -58,7 +58,7 @@ services:
       #     - ft_transcendence
 
     # Exporters
-    nginx_exporter:
+    nginx-exporter:
       image: nginx/nginx-prometheus-exporter:1.4.0
       container_name: nginx-exporter
       # depends_on:

@@ -12,7 +12,7 @@ receivers:
   - name: 'email'
     email_configs:
       - send_resolved: true
-        to: '${EMAIL_HOST_USER}'
+        to: '${EMAIL_ALERT}'
         from: 'alertmanager@gmail.com'
         smarthost: '${EMAIL_HOST}:${EMAIL_PORT}'
         auth_username: '${EMAIL_HOST_USER}'
