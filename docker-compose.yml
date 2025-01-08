@@ -1,3 +1,10 @@
+volumes:
+  data:
+
+networks:
+  ft_transcendence:
+    name: ft_transcendence
+
 services:
   frontend:
     build:
@@ -13,6 +20,8 @@ services:
     volumes:
       - ./frontend/public/:/home/app/public:rw
       - ./frontend/src/:/home/app/src:rw
+    networks:
+        - ft_transcendence
 
   backend:
     build: 
@@ -31,6 +40,8 @@ services:
     volumes:
       - ./backend/:/home/app:rw
       - ./logs/uvicorn.log:/var/log/uvicorn/uvicorn.log
+    networks:
+        - ft_transcendence
 
   db:
     build:
@@ -48,6 +59,8 @@ services:
     restart: unless-stopped
     volumes:
       - data:/var/lib/postgresql/data
+    networks:
+        - ft_transcendence
 
   redis:
     build:
@@ -69,6 +82,8 @@ services:
         reservations:
           memory: 256m  # Set the minimum guaranteed memory
     restart: unless-stopped
+    networks:
+        - ft_transcendence
 
   nginx:
     build: 
@@ -84,6 +99,5 @@ services:
       - ./backend/static:/home/app/static
       - ./logs/nginx_access.log:/var/log/nginx/access.log
       - ./logs/nginx_errors.log:/var/log/nginx/error.log
-
-volumes:
-  data:
+    networks:
+        - ft_transcendence
