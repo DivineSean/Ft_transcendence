@@ -114,7 +114,7 @@ const WaitingGame = ({ data, send, game }) => {
             <div className="flex justify-center items-center gap-8">
               <h2 className="font-semibold tracking-wide text-gray">defeat:</h2>
               <h1 className="font-bold text-txt-2xl tracking-wider text-red">
-                -{data.players[me].rating_gain}
+                -{data.players[me].rating_loss}
               </h1>
             </div>
           </div>

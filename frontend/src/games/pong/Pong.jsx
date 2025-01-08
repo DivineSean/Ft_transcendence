@@ -107,6 +107,10 @@ const Pong = ({
   playersData,
   isSpectator,
   started_at,
+  isWon,
+  setIsWon,
+  islost,
+  setIslost,
 }) => {
   const sm = useRef(null);
   const loaderRef = useRef(null);
@@ -120,8 +124,6 @@ const Pong = ({
   const isMobile = useRef(false);
   const authContextData = useContext(AuthContext);
   const [isPortrait, setIsPortrait] = useState(false);
-  const [isWon, setIsWon] = useState(false);
-  const [islost, setIslost] = useState(false);
 
   useEffect(() => {
     isMobile.current = /android|iphone|ipad|ipod/i.test(
@@ -512,11 +514,6 @@ const Pong = ({
     return () => sm.current.renderer.setAnimationLoop(null);
   }, [ready, isWon, islost]);
 
-  function handleExitGame() {
-    window.location.href = "/games/pong/online";
-    window.close();
-  }
-
   return (
     <div id="message" className="relative w-full h-screen overflow-hidden">
       {isMobile.current && ready && (
@@ -573,14 +570,6 @@ const Pong = ({
         </div>
       )}
       <canvas id="pong" className="block"></canvas>
-      {/* Victory Section */}
-      {isWon && !isSpectator && (
-        <GameResult playersData={playersData} isWon={true} />
-      )}
-      {/* Defeat Section */}
-      {islost && !isSpectator && (
-        <GameResult playersData={playersData} isWon={false} />
-      )}
     </div>
   );
 };

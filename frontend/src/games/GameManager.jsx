@@ -1,5 +1,6 @@
 import { useState, useEffect, memo, useContext, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { GameResult } from "./pong/Pong";
 import Pong from "./pong/Pong";
 import useWebSocket from "../customHooks/useWebsocket";
 import UserContext from "../context/UserContext.jsx";
@@ -8,7 +9,7 @@ import WaitingGame from "../components/game/WaitingGame.jsx";
 import GameStatus from "../components/game/GameStatus.jsx";
 import AuthContext from "../context/AuthContext.jsx";
 
-const GameOverlay = ({ data, send, game }) => {
+const GameOverlay = ({ data, send, game, isS ,islost ,isWon}) => {
   const navigate = useNavigate();
 
   switch (data.status) {
@@ -22,23 +23,38 @@ const GameOverlay = ({ data, send, game }) => {
           image={"/images/gameOver.png"}
         />
       );
-    case "ongoing":
-      return (
-        <GameStatus
-          game={game}
-          title={"this game is ongoing"}
-          image={"/images/gameOngoing.jpeg"}
-        />
-      );
+    // case "ongoing":
+    //   return (
+    //     <GameStatus
+    //       game={game}
+    //       title={"this game is ongoing"}
+    //       image={"/images/gameOngoing.jpeg"}
+    //     />
+    //   );
     case "paused":
       return <GamePaused game={game} />;
     case "completed":
       return (
-        <GameStatus
-          game={game}
-          title={"this game has been concluded"}
-          image={"/images/gameOver.png"}
-        />
+        <>
+        {isS || (!isWon && !islost) ? 
+          <GameStatus
+            game={game}
+            title={"this game has been concluded"}
+            image={"/images/gameOver.png"}
+          />
+          :
+          <>
+            {/* Victory Section */}
+            {isWon && (
+              <GameResult playersData={data.players} isWon={true} />
+            )}
+            {/* Defeat Section */}
+            {islost && (
+              <GameResult playersData={data.players} isWon={false} />
+            )}
+          </>
+        }
+        </>
       );
     default:
       navigate("/games/");
@@ -57,11 +73,17 @@ const Game = memo(
     players,
     turn,
     started_at,
+    setisS,
+    isWon,
+    islost,
+    setIsWon,
+    setIslost,
   }) => {
     const data = players.current?.find(
       (player) => player.user.username === userInfo.username,
     );
     console.log("hadi hya data dyali hhhh", userInfo?.username, players, data);
+    setisS(data ? false : true);
 
     useEffect(() => {
       console.log("Game component renered");
@@ -85,6 +107,10 @@ const Game = memo(
             playersData={players.current}
             isSpectator={data ? false : true}
             started_at={started_at}
+            isWon={isWon}
+            setIsWon={setIsWon}
+            islost={islost}
+            setIslost={setIslost}
           />
         );
     }
@@ -93,6 +119,9 @@ const Game = memo(
 
 const GameManager = () => {
   const [ready, setReady] = useState(false);
+  const [isWon, setIsWon] = useState(false);
+  const [islost, setIslost] = useState(false);
+  const [isS, setisS] = useState(true);
   const [data, setData] = useState(null);
   const { game, uuid } = useParams();
   const playersRef = useRef(null);
@@ -136,6 +165,7 @@ const GameManager = () => {
 
   useEffect(() => {
     console.log("this nigga's readiness: ", ready);
+    console.log("this wonlost is : ==> ", isS);
   }, [ready]);
 
   const contextData = useContext(UserContext);
@@ -158,9 +188,14 @@ const GameManager = () => {
           players={playersRef}
           turn={data.turn}
           started_at={data.started_at}
+          setisS={setisS}
+          isWon={isWon}
+          islost={islost}
+          setIsWon={setIsWon}
+          setIslost={setIslost}
         />
       )}
-      {!ready && data && <GameOverlay data={data} send={send} game={game} />}
+      {!ready && data && <GameOverlay data={data} send={send} game={game} isS={isS} islost={islost} isWon={isWon}/>}
     </div>
   );
 };
