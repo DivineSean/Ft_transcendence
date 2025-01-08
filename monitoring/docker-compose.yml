@@ -37,25 +37,25 @@ services:
       networks:
           - ft_transcendence
 
-    # grafana:
-    #   image: grafana
-    #   build: ./grafana
-    #   container_name: grafana
-    #   # depends_on:
-    #   #   nginx:
-    #   #     condition: service_healthy
-    #   ports:
-    #     - 3000:3000
-    #   env_file:
-    #     - .env
-    #   volumes:
-    #     - grafana:/var/lib/grafana
-    #   # networks:
-    #   #   - prom-graf 
-    #   #   - ft_transcendence
-    #   restart: unless-stopped
+    grafana:
+      image: grafana
+      build: ./grafana
+      container_name: grafana
+      # depends_on:
+      #   nginx:
+      #     condition: service_healthy
+      ports:
+        - 5000:5000
+      env_file:
+        - .env
+      volumes:
+        - grafana:/var/lib/grafana
       # networks:
-      #     - ft_transcendence
+      #   - prom-graf 
+      #   - ft_transcendence
+      restart: unless-stopped
+      networks:
+          - ft_transcendence
 
     # Exporters
     nginx-exporter:

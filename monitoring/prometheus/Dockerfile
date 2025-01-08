@@ -12,7 +12,7 @@ RUN			addgroup -S prometheus && adduser -S -G prometheus prometheus \
 RUN			openssl req -x509 -nodes -days 365 \
 			-keyout /etc/prometheus/prometheus.key \
 			-out /etc/prometheus/prometheus.crt \
-			-subj "/C=MA/S=Khouribga/L=KH/O=1337/OU=42/CN=localhost/UID=prometheus" && \
+			-subj "/C=MA/S=Khouribga/L=KH/O=1337/OU=42/CN=prometheus/UID=prometheus" && \
 			cp /etc/prometheus/prometheus.key /etc/alertmanager/alertmanager.key && \
 			cp /etc/prometheus/prometheus.crt /etc/alertmanager/alertmanager.crt
 
