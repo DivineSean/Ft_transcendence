@@ -9,7 +9,16 @@ import WaitingGame from "../components/game/WaitingGame.jsx";
 import GameStatus from "../components/game/GameStatus.jsx";
 import AuthContext from "../context/AuthContext.jsx";
 
-const GameOverlay = ({ data, send, game, isS ,islost ,isWon, userInfo, players }) => {
+const GameOverlay = ({
+  data,
+  send,
+  game,
+  isS,
+  islost,
+  isWon,
+  userInfo,
+  players,
+}) => {
   const navigate = useNavigate();
 
   let TimeoutWin = isWon;
@@ -37,30 +46,28 @@ const GameOverlay = ({ data, send, game, isS ,islost ,isWon, userInfo, players }
         />
       );
     case "paused":
-      return <GamePaused 
-              game={game}
-              image={"/images/gamePaused.jpeg"}
-              isS={isS}
-              />;
+      return (
+        <GamePaused game={game} image={"/images/gamePaused.jpeg"} isS={isS} />
+      );
     case "completed":
       return (
         <>
-        {isS ? 
-          <GameStatus
-            game={game}
-            title={"this game has been concluded"}
-            image={"/images/gameOver.png"}
-          />
-          :
-          <>
-            {TimeoutWin && (
-              <GameResult playersData={data.players} isWon={true} />
-            )}
-            {TimeoutLoss && (
-              <GameResult playersData={data.players} isWon={false} />
-            )}
-          </>
-        }
+          {isS ? (
+            <GameStatus
+              game={game}
+              title={"this game has been concluded"}
+              image={"/images/gameOver.png"}
+            />
+          ) : (
+            <>
+              {TimeoutWin && (
+                <GameResult playersData={data.players} isWon={true} />
+              )}
+              {TimeoutLoss && (
+                <GameResult playersData={data.players} isWon={false} />
+              )}
+            </>
+          )}
         </>
       );
     default:
@@ -86,7 +93,6 @@ const Game = memo(
     setIsWon,
     setIslost,
   }) => {
-
     const data = players.current?.find(
       (player) => player.user.username === userInfo.username,
     );
@@ -201,7 +207,18 @@ const GameManager = () => {
           setIslost={setIslost}
         />
       )}
-      {!ready && data && <GameOverlay data={data} send={send} game={game} isS={isS} islost={islost} isWon={isWon} userInfo={contextData.userInfo} players={playersRef}/>}
+      {!ready && data && (
+        <GameOverlay
+          data={data}
+          send={send}
+          game={game}
+          isS={isS}
+          islost={islost}
+          isWon={isWon}
+          userInfo={contextData.userInfo}
+          players={playersRef}
+        />
+      )}
     </div>
   );
 };
