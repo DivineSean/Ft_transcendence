@@ -12,27 +12,19 @@ networks:
   ft_transcendence:
     external: true
 
-
 services:
     prometheus:
       image: prometheus
       build: ./prometheus
       container_name: prometheus
-      # depends_on:
-      #   nginx:
-      #     condition: service_healthy
       ports:
         - 9090:9090
         - 9093:9093
-      # hostname: localhost
       env_file:
         - .env
       volumes:
         - prometheus:/var/lib/prometheus
         - alertmanager:/var/lib/alertmanager
-      # networks:
-      #   - prom-graf
-      #   - ft_transcendence
       restart: unless-stopped
       networks:
           - ft_transcendence
@@ -41,18 +33,12 @@ services:
       image: grafana
       build: ./grafana
       container_name: grafana
-      # depends_on:
-      #   nginx:
-      #     condition: service_healthy
       ports:
         - 5000:5000
       env_file:
         - .env
       volumes:
         - grafana:/var/lib/grafana
-      # networks:
-      #   - prom-graf 
-      #   - ft_transcendence
       restart: unless-stopped
       networks:
           - ft_transcendence
@@ -61,16 +47,10 @@ services:
     nginx-exporter:
       image: nginx/nginx-prometheus-exporter:1.4.0
       container_name: nginx-exporter
-      # depends_on:
-      #   nginx:
-      #     condition: service_healthy
       env_file:
         - .env
       command:
         - --nginx.scrape-uri=${NGINX_SCRAPE_URI}
-      # networks:
-      #   - prom-graf
-      #   - ft_transcendence
       restart: unless-stopped
       networks:
           - ft_transcendence
@@ -78,14 +58,8 @@ services:
     redis-exporter:
       image: oliver006/redis_exporter
       container_name: redis-exporter
-      # depends_on:
-      #   nginx:
-      #     condition: service_healthy
       env_file:
         - .env
-      # networks:
-      #   - prom-graf
-      #   - ft_transcendence
       command:
         - --redis.addr=${REDIS_ADDR}
         - --redis.password=${REDIS_PASSWORD}
@@ -96,14 +70,8 @@ services:
     postgres-exporter:
       image: prometheuscommunity/postgres-exporter
       container_name: postgres-exporter
-      # depends_on:
-      #   nginx:
-      #     condition: service_healthy
       env_file:
         - .env
-      # networks:
-      #   - prom-graf
-      #   - ft_transcendence
       restart: unless-stopped
       networks:
           - ft_transcendence
@@ -111,12 +79,6 @@ services:
     node-exporter:
       image: prom/node-exporter
       container_name: node-exporter
-      # depends_on:
-      #   nginx:
-      #     condition: service_healthy
-      # networks:
-      #   - prom-graf
-      #   - ft_transcendence
       restart: unless-stopped
       networks:
           - ft_transcendence
