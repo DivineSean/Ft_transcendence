@@ -1,73 +1,92 @@
 from django.db import models
 from authentication.models import User
+from games.models import GameRoom, Player, Game
 import uuid
 
 
-class Lobby(models.Model):
+class Tournament(models.Model):
     lobbyID = models.UUIDField(default=uuid.uuid4, unique=True)
     creator = models.ForeignKey(
         User, related_name="created_tournaments", on_delete=models.CASCADE
     )
+    # game = models.ForeignKey(Game, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now=True)
     maxPlayers = models.PositiveIntegerField()
     currentPlayerCount = models.PositiveIntegerField(default=0)
+    current_round = models.PositiveIntegerField(default=1)
+    total_rounds = models.PositiveIntegerField()
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
     isCompleted = models.BooleanField(default=False)
+    isStarted = models.BooleanField(default=False)
+    isCanceled = models.BooleanField(default=False)
     winner = models.ForeignKey(
-        "Player",
+        User,
         null=True,
         blank=True,
-        related_name="TNwinner",
+        related_name="tournaments_won",
         on_delete=models.SET_NULL,
     )
-
-    def addPlayer(self, player):
-        if Player.objects.filter(tournament=self, user=player).exists():
-            return ["Player already in tournament", 400]
-
-        if self.currentPlayerCount >= self.maxPlayers:
+    
+    
+    def addPlayer(self, user):
+        
+        if self.currentPlayerCount >= self.maxPlayers: #4 / 8 / 16
             return ["Tournament is full", 400]
 
-        Player.objects.create(tournament=self, user=player)
+      
+        if tournamentPlayer.objects.filter(tournament=self, user=user).exists():
+            return ["Player already in tournament", 400]
+        
+        tournamentPlayer.objects.create(
+            tournament = self,
+            user = user,
+        )
         self.currentPlayerCount += 1
         self.save()
 
-        return ["Player added to the tournament", 201]
+        
+        if self.currentPlayerCount == self.maxPlayers: 
+            self.createBracket(self.current_round)
 
+        return ["Player successfully added", 201]
+    
 
-class Player(models.Model):
-    tournament = models.ForeignKey(
-        Lobby, related_name="players", on_delete=models.CASCADE
-    )
-    user = models.ForeignKey(
-        User, related_name="tournamentParticipations", on_delete=models.CASCADE
-    )
-    isEliminated = models.BooleanField(default=False)
-    # isActive = models.BooleanField(default=True)
+    def createBracket(self, round_number):
+        return Bracket.objects.create(
+            tournament=self,
+            round_number=round_number
+        )
+        
 
-    class Meta:
-        unique_together = ["tournament", "user"]
+    def advanceRound(self):
+        print("Im in advanceRound")
+        if self.current_round < self.total_rounds:
+            self.current_round += 1
+            self.save()
+            return self.createBracket(self.current_round)
+        return None
+class tournamentPlayer(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
 
+class Bracket(models.Model):
+    tournament = models.ForeignKey(Tournament, related_name="brackets", on_delete=models.CASCADE)
+    round_number = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
-class Match(models.Model):
-    lobby = models.ForeignKey(Lobby, related_name="matches", on_delete=models.CASCADE)
-    player1 = models.ForeignKey(
-        Player, related_name="matches_p1", on_delete=models.CASCADE
-    )
-    player2 = models.ForeignKey(
-        Player, related_name="matches_p2", on_delete=models.CASCADE, null=True
-    )  # ma3rftch wach ghaykoun 3ndna byes situations
-    winner = models.ForeignKey(
-        Player,
-        related_name="matches_won",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-    )
-    tnRound = models.PositiveIntegerField()
-    # maxRounds = models.PositiveIntegerField()
-    completed = models.BooleanField(default=False)
+    def getWinners(self):
+        return Player.objects.filter(
+            game_room__bracket=self,
+            result=Player.Result.WIN # or disconected #DISCONECTEDflag
+        ).select_related('user').order_by('id')
+    
+    def isComplete(self):
+        game_rooms = GameRoom.objects.filter(bracket=self)
 
-
-# class LocalPlayers:
-#     # imaginary
-# textField
+        for game_room in game_rooms:
+            print(f"GameRoom ID: {game_room.id}, Status: {game_room.status}", flush=True)
+        
+        return not GameRoom.objects.filter(
+            bracket=self,
+            status__in=[GameRoom.Status.WAITING, GameRoom.Status.ONGOING, GameRoom.Status.PAUSED]
+        ).exists() 

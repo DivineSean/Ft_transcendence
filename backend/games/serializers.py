@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Game, GameRoom, Player, PlayerRating, Achievement, PlayerAchievement
+from tournament.models import Bracket
 from authentication.models import User as User
 import json
 
@@ -112,6 +113,7 @@ class GameRoomSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(format="hex_verbose", read_only=True)
     game = serializers.PrimaryKeyRelatedField(queryset=Game.objects.all())
     players = serializers.ListField(child=serializers.DictField(), required=False)
+    bracket = serializers.PrimaryKeyRelatedField(queryset=Bracket.objects.all(), required=False)
 
     class Meta:
         model = GameRoom
@@ -122,6 +124,7 @@ class GameRoomSerializer(serializers.ModelSerializer):
             "state",
             "turn",
             "players",
+            "bracket",
             "started_at",
             "created_at",
         ]
