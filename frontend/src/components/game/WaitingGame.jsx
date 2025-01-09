@@ -47,6 +47,7 @@ const WaitingGame = ({ data, send, game }) => {
                       ? `${BACKENDURL}${data.players[me].user.profile_image}?t=${new Date().getTime()}`
                       : "/images/default.jpeg"
                   }
+                  className="object-cover"
                   alt="player 1 image"
                 />
               </div>
@@ -75,6 +76,7 @@ const WaitingGame = ({ data, send, game }) => {
                       : "/images/default.jpeg"
                   }
                   alt="player 1 image"
+                  className="object-cover"
                 />
               </div>
               <div className="flex flex-col items-center">
@@ -114,7 +116,7 @@ const WaitingGame = ({ data, send, game }) => {
             <div className="flex justify-center items-center gap-8">
               <h2 className="font-semibold tracking-wide text-gray">defeat:</h2>
               <h1 className="font-bold text-txt-2xl tracking-wider text-red">
-                -{data.players[me].rating_gain}
+                -{data.players[me].rating_loss}
               </h1>
             </div>
           </div>
@@ -133,7 +135,7 @@ const WaitingGame = ({ data, send, game }) => {
             className="secondary-glass p-8 px-32 transition-all flex gap-4 justify-center items-center
 							hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
           >
-            Accept
+            accept
           </button>
           <button
             onClick={() => navigate("/games/")}
