@@ -9,8 +9,21 @@ import WaitingGame from "../components/game/WaitingGame.jsx";
 import GameStatus from "../components/game/GameStatus.jsx";
 import AuthContext from "../context/AuthContext.jsx";
 
-const GameOverlay = ({ data, send, game, isS ,islost ,isWon}) => {
+const GameOverlay = ({ data, send, game, isS ,islost ,isWon, userInfo, players }) => {
   const navigate = useNavigate();
+
+  let TimeoutWin = isWon;
+  let TimeoutLoss = islost;
+
+  const dats = players.current?.find(
+    (player) => player.user.username === userInfo.username,
+  );
+
+  if (dats && dats.result === "win") {
+    TimeoutWin = true;
+  } else if (dats && dats.result === "loss") {
+    TimeoutLoss = true;
+  }
 
   switch (data.status) {
     case "waiting":
@@ -23,20 +36,16 @@ const GameOverlay = ({ data, send, game, isS ,islost ,isWon}) => {
           image={"/images/gameOver.png"}
         />
       );
-    // case "ongoing":
-    //   return (
-    //     <GameStatus
-    //       game={game}
-    //       title={"this game is ongoing"}
-    //       image={"/images/gameOngoing.jpeg"}
-    //     />
-    //   );
     case "paused":
-      return <GamePaused game={game} />;
+      return <GamePaused 
+              game={game}
+              image={"/images/gamePaused.jpeg"}
+              isS={isS}
+              />;
     case "completed":
       return (
         <>
-        {isS || (!isWon && !islost) ? 
+        {isS ? 
           <GameStatus
             game={game}
             title={"this game has been concluded"}
@@ -44,12 +53,10 @@ const GameOverlay = ({ data, send, game, isS ,islost ,isWon}) => {
           />
           :
           <>
-            {/* Victory Section */}
-            {isWon && (
+            {TimeoutWin && (
               <GameResult playersData={data.players} isWon={true} />
             )}
-            {/* Defeat Section */}
-            {islost && (
+            {TimeoutLoss && (
               <GameResult playersData={data.players} isWon={false} />
             )}
           </>
@@ -79,15 +86,14 @@ const Game = memo(
     setIsWon,
     setIslost,
   }) => {
+
     const data = players.current?.find(
       (player) => player.user.username === userInfo.username,
     );
-    console.log("hadi hya data dyali hhhh", userInfo?.username, players, data);
-    setisS(data ? false : true);
 
     useEffect(() => {
-      console.log("Game component renered");
-    }, []);
+      setisS(data ? false : true);
+    }, [players, userInfo.username]);
 
     const overideSend = () => {
       return;
@@ -195,7 +201,7 @@ const GameManager = () => {
           setIslost={setIslost}
         />
       )}
-      {!ready && data && <GameOverlay data={data} send={send} game={game} isS={isS} islost={islost} isWon={isWon}/>}
+      {!ready && data && <GameOverlay data={data} send={send} game={game} isS={isS} islost={islost} isWon={isWon} userInfo={contextData.userInfo} players={playersRef}/>}
     </div>
   );
 };

@@ -72,6 +72,7 @@ export const GameResult = ({ playersData, isWon }) => {
                           : "/images/default.jpeg"
                       }
                       alt=""
+                      className="object-cover"
                     />
                   </div>
                 </div>
