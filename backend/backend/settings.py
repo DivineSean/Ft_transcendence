@@ -145,10 +145,13 @@ SIMPLE_JWT = {
 CSRF_TRUSTED_ORIGINS = [
     "https://localhost:3000",
     "https://localhost:8000",
+    "https://192.168.1.9:3000",
+    "https://192.168.1.9:8000",
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "https://localhost:3000",
+    "https://192.168.1.9:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True

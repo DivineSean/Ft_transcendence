@@ -143,7 +143,21 @@ const Pong = ({
       }
     };
 
+    
     handleOrientation();
+    try {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      } else if (document.documentElement.mozRequestFullScreen) { // Firefox
+        document.documentElement.mozRequestFullScreen();
+      } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari
+        document.documentElement.webkitRequestFullscreen();
+      } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+        document.documentElement.msRequestFullscreen();
+      }
+    } catch (error) {
+      console.error("Failed to enter fullscreen: ", error);
+    }
     window.addEventListener("resize", handleOrientation);
     window.addEventListener("orientationchange", handleOrientation);
 
@@ -514,7 +528,6 @@ const Pong = ({
 
     return () => sm.current.renderer.setAnimationLoop(null);
   }, [ready, isWon, islost]);
-
   return (
     <div id="message" className="relative w-full h-screen overflow-hidden">
       {isMobile.current && ready && (
