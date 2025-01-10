@@ -16,12 +16,24 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
-    user: root # WARNING: For development only
+    user: root
     volumes:
       - ./frontend/public/:/home/app/public:rw
       - ./frontend/src/:/home/app/src:rw
     networks:
         - ft_transcendence
+    profiles:
+      - dev
+  frontend-prod:
+    build:
+      context: ./
+      dockerfile: ./frontend/Dockerfile
+      target: prod
+    container_name: frontend
+    volumes:
+      - ./frontend/dist/:/home/app/dist:w
+    profiles:
+      - prod
 
   backend:
     build: 
@@ -42,6 +54,9 @@ services:
       - ./logs/uvicorn.log:/var/log/uvicorn/uvicorn.log
     networks:
         - ft_transcendence
+    profiles:
+      - dev
+      - prod
 
   db:
     build:
@@ -61,6 +76,9 @@ services:
       - data:/var/lib/postgresql/data
     networks:
         - ft_transcendence
+    profiles:
+      - dev
+      - prod
 
   redis:
     build:
@@ -84,8 +102,13 @@ services:
     restart: unless-stopped
     networks:
         - ft_transcendence
+    profiles:
+      - dev
+      - prod
 
-  nginx:
+      #TODO: serve media files
+      #FIX: fix the fetching port on the frontend for prod
+  nginx-dev:
     build: 
       context: ./
       dockerfile: ./nginx/Dockerfile
@@ -101,3 +124,28 @@ services:
       - ./logs/nginx_errors.log:/var/log/nginx/error.log
     networks:
         - ft_transcendence
+    profiles:
+      - dev
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./nginx/Dockerfile
+      target: prod
+    ports:
+      # - 443:443
+      # - 80:80
+      - 3000:443
+    container_name: nginx
+    depends_on:
+      - backend
+    restart: unless-stopped
+    volumes:
+      - ./backend/static:/home/app/static
+      - ./logs/nginx_access.log:/var/log/nginx/access.log
+      - ./logs/nginx_errors.log:/var/log/nginx/error.log
+      # - ./certs/:/etc/certs
+      - ./frontend/dist/:/home/app/dist
+    networks:
+        - ft_transcendence
+    profiles:
+      - prod

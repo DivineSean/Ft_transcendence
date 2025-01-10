@@ -474,7 +474,6 @@ export const AuthProvider = ({ children }) => {
     error,
     globalMessage,
     displayMenuGl,
-    displayMenuGl,
 
     register,
     login,
