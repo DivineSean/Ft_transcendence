@@ -6,10 +6,11 @@ networks:
     name: ft_transcendence
 
 services:
-  frontend:
+  frontend-dev:
     build:
       context: ./
       dockerfile: ./frontend/Dockerfile
+      target: dev
     ports:
       - 3000:3000
     container_name: frontend
@@ -24,7 +25,7 @@ services:
         - ft_transcendence
     profiles:
       - dev
-  frontend-prod:
+  frontend:
     build:
       context: ./
       dockerfile: ./frontend/Dockerfile
@@ -35,8 +36,8 @@ services:
     profiles:
       - prod
 
-  backend:
-    build: 
+  backend-dev:
+    build:
       context: ./
       dockerfile: ./backend/Dockerfile
     container_name: backend
@@ -56,6 +57,24 @@ services:
         - ft_transcendence
     profiles:
       - dev
+  backend:
+    build:
+      context: ./
+      dockerfile: ./backend/Dockerfile
+    container_name: backend
+    env_file:
+        - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./logs/uvicorn.log:/var/log/uvicorn/uvicorn.log
+    networks:
+        - ft_transcendence
+    profiles:
       - prod
 
   db:
@@ -107,11 +126,11 @@ services:
       - prod
 
       #TODO: serve media files
-      #FIX: fix the fetching port on the frontend for prod
   nginx-dev:
-    build: 
+    build:
       context: ./
       dockerfile: ./nginx/Dockerfile
+      target: dev
     ports:
       - 8000:8000
     container_name: nginx

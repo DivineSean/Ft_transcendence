@@ -27,7 +27,7 @@ export const NotifProvider = ({ children }) => {
   const [friendsData, setFriendsData] = useState(null);
 
   const wsHook = useWebsocket(
-    `wss://${window.location.hostname}:8000/ws/chat/`,
+    `ws/chat/`,
     {
       onOpen: () => {
         setIsWsConnected(true);

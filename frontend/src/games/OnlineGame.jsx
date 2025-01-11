@@ -7,7 +7,7 @@ const OnlineGame = ({ game = "" }) => {
   const [inQueue, setInQueue] = useState(false);
   const navigate = useNavigate();
   const { send } = useWebSocket(
-    `wss://${window.location.hostname}:8000/ws/matchmaking/${game}`,
+    `ws/matchmaking/${game}`,
     {
       onMessage: (event) => {
         const data = JSON.parse(event.data);
