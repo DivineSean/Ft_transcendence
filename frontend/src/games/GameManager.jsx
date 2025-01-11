@@ -20,7 +20,7 @@ const GameOverlay = ({
   players,
 }) => {
   const navigate = useNavigate();
-
+  return <WaitingGame game={game} data={data} send={send} />;
   let TimeoutWin = isWon;
   let TimeoutLoss = islost;
 

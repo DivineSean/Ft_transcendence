@@ -3,146 +3,171 @@ import { useNavigate } from "react-router-dom";
 import UserContext from "../../context/UserContext";
 import { BACKENDURL } from "../../utils/fetchWrapper.js";
 
-const Counter = ({ createdAt }) => {
+const CountdownTimer = ({ createdAt }) => {
   const endTime = new Date(createdAt).getTime() + 60 * 1000;
   const [count, setCount] = useState(endTime - Date.now());
+  const [timeLeft, setTimeLeft] = useState(count);
 
   useEffect(() => {
     const updateTime = () => {
-      if (endTime > Date.now())
-        setCount(Math.floor((endTime - Date.now()) / 1000));
+      const remainingTime = endTime - Date.now();
+      if (remainingTime > 0) {
+        setCount(Math.floor(remainingTime / 1000));
+        setTimeLeft(remainingTime);
+      } else {
+        setCount(0);
+        setTimeLeft(0);
+      }
     };
-    const intervalId = setInterval(updateTime, 1000);
+
+    const intervalId = setInterval(updateTime, 50); // More frequent updates for smoother animation
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [endTime]);
 
-  return count > 0 ? count : 0;
+  // Calculate the percentage of time left (reversed for fill effect)
+  const timePercentage = 100 - ((timeLeft / (60 * 1000)) * 100);
+
+  return (
+    <div className="relative w-52 h-52 flex items-center justify-center">
+      {/* Background circle */}
+      <div className="absolute inset-0 rounded-lg bg-gray-200" />
+      
+      {/* Animated border */}
+      <div
+        className="absolute inset-0 rounded-lg"
+        style={{
+          background: `conic-gradient(
+            from 0deg,
+            #3b82f6 ${timePercentage}%,
+            transparent ${timePercentage}%
+          )`,
+          clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
+          padding: '4px',
+          maskImage: 'linear-gradient(#fff 0 0)',
+          maskComposite: 'exclude',
+          WebkitMaskComposite: 'xor'
+        }}
+      >
+        {/* Inner content container */}
+        <div className="w-full h-full bg-white rounded-lg" />
+      </div>
+
+      {/* Timer display */}
+      <div className="absolute text-3xl font-bold text-gray-800">
+        {count > 0 ? count : 0}s
+      </div>
+    </div>
+  );
 };
 
 const WaitingGame = ({ data, send, game }) => {
   const navigate = useNavigate();
-  const userContextData = useContext(UserContext);
+  const { userInfo } = useContext(UserContext);
 
-  let me = 0;
-  let other = 0;
-  if (userContextData.userInfo.username === data.players[0].user.username) {
-    me = 0;
-    other = 1;
-  } else {
-    me = 1;
-    other = 0;
-  }
+  const me = userInfo.username === data.players[0].user.username ? 0 : 1;
+  const other = me === 0 ? 1 : 0;
+
+  const playerInfo = (playerIndex) => {
+    const player = data.players[playerIndex];
+    return {
+      username: player.user.username,
+      profileImage: player.user.profile_image
+        ? `${BACKENDURL}${player.user.profile_image}?t=${new Date().getTime()}`
+        : "/images/default.jpeg",
+      status: player.ready ? "Accepted" : "Pending",
+      statusClass: player.ready ? "text-green" : "text-red",
+    };
+  };
+
+  const meInfo = playerInfo(me);
+  const otherInfo = playerInfo(other);
 
   return (
     <div className="bg-black/50 absolute top-0 left-0 flex justify-center items-center w-full h-full">
-      <div className="primary-glass lg:w-[60%] md:w-[80%] w-[90%] justify-center flex flex-col overflow-hidden gap-64 p-16 md:p-32">
+      <div className="primary-glass lg:w-[60%] md:w-[80%] w-[90%] justify-center flex flex-col overflow-hidden p-16 md:p-32">
+
         <div className="flex flex-col gap-16">
           <div className="flex md:gap-32 gap-16 items-center justify-center">
-            <div className="justify-center items-center flex gap-8 grow">
-              <div className="md:!w-64 md:!h-64 !w-40 !h-40 bg-green flex rounded-full overflow-hidden border border-stroke-sc">
-                <img
-                  src={
-                    data.players[me].user.profile_image
-                      ? `${BACKENDURL}${data.players[me].user.profile_image}?t=${new Date().getTime()}`
-                      : "/images/default.jpeg"
-                  }
-                  className="object-cover"
-                  alt="player 1 image"
-                />
+            {/* Player 1 */}
+            <div className="flex justify-center items-center gap-8 grow">
+              <div className="md:w-64 md:h-64 w-40 h-40 bg-green flex rounded-full overflow-hidden border border-stroke-sc">
+                <img src={meInfo.profileImage} className="object-cover" alt={`@${meInfo.username}`} />
               </div>
               <div className="flex flex-col items-center">
                 <h2 className="font-bold tracking-wider md:text-txl-md text-txt-xs">
-                  @{data.players[me].user.username}
+                  @{meInfo.username}
                 </h2>
-                <h2
-                  className={`tracking-wider md:text-txt-sm text-txt-xs
-										${data.players[me].ready ? "text-green" : "text-red"}
-									`}
-                >
-                  {data.players[me].ready ? "accepted" : "pending!"}
+                <h2 className={`tracking-wider md:text-txt-sm text-txt-xs ${meInfo.statusClass}`}>
+                  {meInfo.status}
                 </h2>
               </div>
             </div>
+
+            {/* VS text */}
             <div className="font-bold uppercase text-green/80 md:text-h-lg-lg text-h-sm-sm">
               vs
             </div>
-            <div className="justify-center items-center flex gap-8 grow">
-              <div className="md:!w-64 md:!h-64 !w-40 !h-40 bg-green flex rounded-full overflow-hidden border border-stroke-sc">
-                <img
-                  src={
-                    data.players[other].user.profile_image
-                      ? `${BACKENDURL}${data.players[other].user.profile_image}?t=${new Date().getTime()}`
-                      : "/images/default.jpeg"
-                  }
-                  alt="player 1 image"
-                  className="object-cover"
-                />
+
+            {/* Player 2 */}
+            <div className="flex justify-center items-center gap-8 grow">
+              <div className="md:w-64 md:h-64 w-40 h-40 bg-green flex rounded-full overflow-hidden border border-stroke-sc">
+                <img src={otherInfo.profileImage} className="object-cover" alt={`@${otherInfo.username}`} />
               </div>
               <div className="flex flex-col items-center">
                 <h2 className="font-bold tracking-wider md:text-txl-md text-txt-xs">
-                  @{data.players[other].user.username}
+                  @{otherInfo.username}
                 </h2>
-                <h2
-                  className={`tracking-wider md:text-txt-sm text-txt-xs
-										${data.players[other].ready ? "text-green" : "text-red"}
-									`}
-                >
-                  {data.players[other].ready ? "accepted" : "pending!"}
+                <h2 className={`tracking-wider md:text-txt-sm text-txt-xs ${otherInfo.statusClass}`}>
+                  {otherInfo.status}
                 </h2>
               </div>
             </div>
           </div>
-          <div className="flex justify-center text-gray tracking-wide lowercase gap-2">
-            <Counter createdAt={data.created_at} />s
-          </div>
-        </div>
 
-        <div className="flex flex-col gap-16">
+          {/* Game Information */}
           <div className="font-semibold tracking-wider justify-center items-center flex gap-16">
             <div className="w-64 h-[1px] bg-gray"></div>
-            <h2>{game} game</h2>
+            <h2>{game} Game</h2>
             <div className="w-64 h-[1px] bg-gray"></div>
           </div>
-          <div className="flex flex-col">
-            <div className="flex justify-center items-center gap-8">
-              <h2 className="font-semibold tracking-wide text-gray">
-                victory:
-              </h2>
-              <h1 className="font-bold text-txt-2xl tracking-wider text-green">
-                +{data.players[me].rating_gain}
-              </h1>
-            </div>
-            <div className="flex justify-center items-center gap-8">
-              <h2 className="font-semibold tracking-wide text-gray">defeat:</h2>
-              <h1 className="font-bold text-txt-2xl tracking-wider text-red">
-                -{data.players[me].rating_loss}
-              </h1>
-            </div>
+
+          {/* Countdown Timer */}
+          <div className="flex justify-center text-gray tracking-wide">
+            GameExpire in : <CountdownTimer createdAt={data.created_at} />
           </div>
         </div>
 
-        <div className="flex gap-16 justify-center">
+        {/* Rating Information */}
+        <div className="flex flex-col">
+          <div className="flex justify-center items-center gap-8">
+            <h2 className="font-semibold text-sm text-gray">Victory:</h2>
+            <h1 className="font-bold text-xl text-green">+{data.players[me].rating_gain}</h1>
+            <h2 className="font-semibold text-sm text-gray">Defeat:</h2>
+            <h1 className="font-bold text-xl text-red">-{data.players[me].rating_loss}</h1>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-8 justify-center mt-8">
           <button
             onClick={() => {
               send(
                 JSON.stringify({
                   type: "ready",
                   message: {},
-                }),
+                })
               );
             }}
-            className="secondary-glass p-8 px-32 transition-all flex gap-4 justify-center items-center
-							hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
+            className="secondary-glass py-4 px-16 md:px-32 transition-all flex justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold"
           >
-            accept
+            Accept
           </button>
           <button
-            onClick={() => navigate("/games/")}
-            className="secondary-glass p-8 px-16 transition-all flex gap-4 justify-center items-center
-							hover:bg-red/60 hover:text-white rounded-md text-red tracking-wide"
+            onClick={() => navigate(`/games/${game}/online`)}
+            className="secondary-glass py-4 px-16 md:px-32 transition-all flex justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold"
           >
-            find another game
+            Decline
           </button>
         </div>
       </div>
