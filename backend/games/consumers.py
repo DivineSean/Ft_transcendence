@@ -11,11 +11,11 @@ import redis
 import time
 
 r = redis.Redis(
-    host=settings.REDIS_CONNECTION["host"],
-    port=settings.REDIS_CONNECTION["port"],
-    password=settings.REDIS_CONNECTION["password"],
-    db=settings.REDIS_CONNECTION["db"],
-    decode_responses=True,
+		host=settings.REDIS_CONNECTION["host"],
+		port=settings.REDIS_CONNECTION["port"],
+		password=settings.REDIS_CONNECTION["password"],
+		db=settings.REDIS_CONNECTION["db"],
+		decode_responses=True,
 )
 
 MAX_ALLOWED_TIMEOUTS = 2
@@ -23,44 +23,43 @@ TIMEOUT_DURATION = 30
 
 
 class GameConsumer(WebsocketConsumer):
-    def connect(self):
-        self.accept()
-        self.error = False
-        self.user = self.scope.get("user")
-        self.user_id = str(self.scope["user"].id)
-        self.game_name = self.scope["url_route"]["kwargs"]["game_name"]
-        self.game_uuid = self.scope["url_route"]["kwargs"]["room_uuid"]
-        self.group_name = f"game_room_{self.game_uuid}"
+		def connect(self):
+				self.accept()
+				self.error = False
+				self.user = self.scope.get("user")
+				self.user_id = str(self.scope["user"].id)
+				self.game_name = self.scope["url_route"]["kwargs"]["game_name"]
+				self.game_uuid = self.scope["url_route"]["kwargs"]["room_uuid"]
+				self.group_name = f"game_room_{self.game_uuid}"
 
-        async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
-        self.connect_player()
+				async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
+				self.connect_player()
 
-    def disconnect(self, code):
-        async_to_sync(self.channel_layer.group_discard)(
-            self.group_name, self.channel_name
-        )
+		def disconnect(self, code):
+				async_to_sync(self.channel_layer.group_discard)(
+						self.group_name, self.channel_name
+				)
 
-        try:
-            # Remove the player from the Redis list
-            if self.error == False:
-                r.lrem(f"game_room_data:{self.game_uuid}:players", 0, self.user_id)
-        except Exception as e:
-            print(f"Error while disconnecting player: {e}")
+				try:
+						# Remove the player from the Redis list
+						if self.error == False:
+								r.lrem(f"game_room_data:{self.game_uuid}:players", 0, self.user_id)
+				except Exception as e:
+						print(f"Error while disconnecting player: {e}")
 
-        self.handle_timeout()
+				self.handle_timeout()
 
-    def receive(self, text_data):
-        isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
-        if not isPlayer:
-            return
+		def receive(self, text_data):
+				isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
+				if not isPlayer:
+						return
 
-        try:
-            data = json.loads(text_data)
-            type = data["type"]
-            message = data["message"]
-        except (json.JSONDecodeError, KeyError):
-            return
-
+				try:
+						data = json.loads(text_data)
+						type = data["type"]
+						message = data["message"]
+				except (json.JSONDecodeError, KeyError):
+						return
         match type:
             case "score":
                 self.update_score()
@@ -83,106 +82,107 @@ class GameConsumer(WebsocketConsumer):
             case "Achievements":
                 self.update_achievements(message)
 
-    def update_status(self, status):
-        try:
-            self.user.status = status
-            self.user.save()
-        except Exception as e:
-            self.close(
-                code=4006, reason=f"Unexpected error while saving user status: {str(e)}"
-            )
-            return
+		def update_status(self, status):
+				try:
+						self.user.status = status
+						self.user.save()
+				except Exception as e:
+						self.close(
+								code=4006, reason=f"Unexpected error while saving user status: {str(e)}"
+						)
+						return
 
-    def connect_player(self):
-        try:
-            existing_players = r.lrange(
-                f"game_room_data:{self.game_uuid}:players", 0, -1
-            )
-            if str(self.user_id) in existing_players:
-                self.error = True
-                self.close(code=4001, reason="Already connected from another client")
-                return
-            game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
-            if not game_data:
-                game = GameRoom.objects.get(pk=self.game_uuid)
-                serializer = GameRoomSerializer(game)
-                game_data = serializer.data
-                r.hset(f"game_room_data:{self.game_uuid}", mapping=game_data)
-            self.players = game_data["players"] = json.loads(game_data["players"])
-            game_data["state"] = json.loads(game_data["state"])
-        except Exception as e:
-            self.close(code=4004, reason=str(e))
-            return
+		def connect_player(self):
+				try:
+						existing_players = r.lrange(
+								f"game_room_data:{self.game_uuid}:players", 0, -1
+						)
+						if str(self.user_id) in existing_players:
+								self.error = True
+								self.close(code=4001, reason="Already connected from another client")
+								return
+						game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
+						if not game_data:
+								game = GameRoom.objects.get(pk=self.game_uuid)
+								serializer = GameRoomSerializer(game)
+								game_data = serializer.data
+								r.hset(f"game_room_data:{self.game_uuid}", mapping=game_data)
+						self.players = game_data["players"] = json.loads(game_data["players"])
+						game_data["state"] = json.loads(game_data["state"])
+				except Exception as e:
+						self.close(code=4004, reason=str(e))
+						return
 
-        # Add the player to the Redis list
-        r.rpush(f"game_room_data:{self.game_uuid}:players", self.user_id)
+				# Add the player to the Redis list
+				r.rpush(f"game_room_data:{self.game_uuid}:players", self.user_id)
 
-        if game_data["status"] == "paused":
-            self.handle_reconnect(game_data)
+				if game_data["status"] == "paused":
+						self.handle_reconnect(game_data)
 
-        self.send(text_data=json.dumps({"type": "game_manager", "message": game_data}))
+				self.send(text_data=json.dumps({"type": "game_manager", "message": game_data}))
 
-    def update_result(self, message):
-        # update the game status to 'completed'
-        # update the result field on the player
-        # notify players
-        self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
-        for player in self.players:
-            if player["user"]["id"] == self.user_id:
-                player["result"] = message
-                PlayerRating.handle_rating(
-                    self.user, Game.objects.get(name=self.game_name), player
-                )
-                self.user.status = User.Status.ONLINE
-                # check if tournament or normal game
-                self.user.exp += 250
-                self.user.save()
-                break
-        self.save_game_data(players=json.dumps(self.players), status="completed")
-        async_to_sync(self.channel_layer.group_send)(
-            self.group_name,
-            {
-                "type": "broadcast",
-                "info": "game_manager",
-                "message": {
-                    "status": "completed",
-                },
-            },
-        )
+		def update_result(self, message):
+				# update the game status to 'completed'
+				# update the result field on the player
+				# notify players
+				self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
+				for player in self.players:
+						if player["user"]["id"] == self.user_id:
+								player["result"] = message
+								PlayerRating.handle_rating(
+										self.user, Game.objects.get(name=self.game_name), player
+								)
+								self.user.status = User.Status.ONLINE
+								# check if tournament or normal game
+								self.user.exp += 250
+								self.user.increase_exp(250)
+								self.user.save()
+								break
+				self.save_game_data(players=json.dumps(self.players), status="completed")
+				async_to_sync(self.channel_layer.group_send)(
+						self.group_name,
+						{
+								"type": "broadcast",
+								"info": "game_manager",
+								"message": {
+										"status": "completed",
+								},
+						},
+				)
 
-    def update_achievements(self, message):
-        # Handle Achievements
-        try:
-            PlayerAchievement.add_progress(
-                user=self.user,
-                game=Game.objects.get(name=self.game_name),
-                achievement_name=message,
-            )
-        except Exception as e:
-            print(e, flush=True)
+		def update_achievements(self, message):
+				# Handle Achievements
+				try:
+						PlayerAchievement.add_progress(
+								user=self.user,
+								game=Game.objects.get(name=self.game_name),
+								achievement_name=message,
+						)
+				except Exception as e:
+						print(e, flush=True)
 
-    def update_score(self):
-        role = None
-        self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
-        for player in self.players:
-            if str(player["user"]["id"]) == str(self.user_id):
-                player["score"] += 1
-                role = player["role"]
-                break
-        scores = {player["role"]: str(player["score"]) for player in self.players}
+		def update_score(self):
+				role = None
+				self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
+				for player in self.players:
+						if str(player["user"]["id"]) == str(self.user_id):
+								player["score"] += 1
+								role = player["role"]
+								break
+				scores = {player["role"]: str(player["score"]) for player in self.players}
 
-        self.save_game_data(turn=role, players=json.dumps(self.players))
-        async_to_sync(self.channel_layer.group_send)(
-            self.group_name,
-            {
-                "type": "broadcast",
-                "info": "score",
-                "message": {
-                    "role": role,
-                    "scores": json.dumps(scores),
-                },
-            },
-        )
+				self.save_game_data(turn=role, players=json.dumps(self.players))
+				async_to_sync(self.channel_layer.group_send)(
+						self.group_name,
+						{
+								"type": "broadcast",
+								"info": "score",
+								"message": {
+										"role": role,
+										"scores": json.dumps(scores),
+								},
+						},
+				)
 
     def sending_decline(self):
         async_to_sync(self.channel_layer.group_send)(
@@ -220,66 +220,66 @@ class GameConsumer(WebsocketConsumer):
                 )
                 break
 
-        self.save_game_data(players=json.dumps(self.players))
-        all_ready = all(player.get("ready", False) for player in self.players)
-        if all_ready:
-            start_time = int(time.time() * 1000)
-            self.save_game_data(status="ongoing", started_at=start_time, countdown=0)
-            async_to_sync(self.channel_layer.group_send)(
-                self.group_name,
-                {
-                    "type": "broadcast",
-                    "info": "game_manager",
-                    "message": {
-                        "status": "ongoing",
-                        "players": self.players,
-                    },
-                },
-            )
-            async_to_sync(self.channel_layer.group_send)(
-                self.group_name,
-                {"type": "broadcast", "info": "time", "message": start_time},
-            )
+				self.save_game_data(players=json.dumps(self.players))
+				all_ready = all(player.get("ready", False) for player in self.players)
+				if all_ready:
+						start_time = int(time.time() * 1000)
+						self.save_game_data(status="ongoing", started_at=start_time, countdown=0)
+						async_to_sync(self.channel_layer.group_send)(
+								self.group_name,
+								{
+										"type": "broadcast",
+										"info": "game_manager",
+										"message": {
+												"status": "ongoing",
+												"players": self.players,
+										},
+								},
+						)
+						async_to_sync(self.channel_layer.group_send)(
+								self.group_name,
+								{"type": "broadcast", "info": "time", "message": start_time},
+						)
 
-    def handle_reconnect(self, game_data):
-        # remove the current player since they are reconnecting
-        leaver = game_data["state"].pop(self.user_id, None)
-        if leaver:
-            task = AsyncResult(leaver["task_id"])
-            task.revoke(terminate=True)
+		def handle_reconnect(self, game_data):
+				# remove the current player since they are reconnecting
+				leaver = game_data["state"].pop(self.user_id, None)
+				if leaver:
+						task = AsyncResult(leaver["task_id"])
+						task.revoke(terminate=True)
 
-        # check if all players have reconnected, and resume the game
-        if not game_data["state"]:
-            game_data["status"] = "ongoing"
-            start_time = int(game_data["started_at"])
-            game_data["started_at"] = (
-                int(time.time() * 1000) - int(game_data["paused_at"])
-            ) + start_time
-            async_to_sync(self.channel_layer.group_send)(
-                self.group_name,
-                {
-                    "type": "whisper",
-                    "info": "game_manager",
-                    "sender": self.channel_name,
-                    "message": game_data,
-                },
-            )
-            async_to_sync(self.channel_layer.group_send)(
-                self.group_name,
-                {
-                    "type": "broadcast",
-                    "info": "time",
-                    "message": game_data["started_at"],
-                },
-            )
-            self.save_game_data(
-                state=json.dumps(game_data["state"]),
-                status="ongoing",
-                started_at=game_data["started_at"],
-                countdown=0,
-            )
-        else:
-            self.save_game_data(state=json.dumps(game_data["state"]))
+				# check if all players have reconnected, and resume the game
+				if not game_data["state"]:
+						game_data["status"] = "ongoing"
+						start_time = int(game_data["started_at"])
+						game_data["started_at"] = (
+								int(time.time() * 1000) - int(game_data["paused_at"])
+						) + start_time
+						async_to_sync(self.channel_layer.group_send)(
+								self.group_name,
+								{
+										"type": "whisper",
+										"info": "game_manager",
+										"sender": self.channel_name,
+										"message": game_data,
+								},
+						)
+						async_to_sync(self.channel_layer.group_send)(
+								self.group_name,
+								{
+										"type": "broadcast",
+										"info": "time",
+										"message": game_data["started_at"],
+								},
+						)
+						self.save_game_data(
+								state=json.dumps(game_data["state"]),
+								status="ongoing",
+								started_at=game_data["started_at"],
+								countdown=0,
+						)
+				else:
+						self.save_game_data(state=json.dumps(game_data["state"]))
 
     def handle_timeout(self):
         isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
@@ -326,22 +326,22 @@ class GameConsumer(WebsocketConsumer):
                 },
             )
 
-    def save_game_data(self, countdown=30, **kwargs):
-        r.hset(f"game_room_data:{self.game_uuid}", mapping=kwargs)
-        if countdown == 0:
-            sync_game_room_data.delay(self.game_uuid)
-        else:
-            sync_game_room_data.apply_async(args=[self.game_uuid], countdown=countdown)
+		def save_game_data(self, countdown=30, **kwargs):
+				r.hset(f"game_room_data:{self.game_uuid}", mapping=kwargs)
+				if countdown == 0:
+						sync_game_room_data.delay(self.game_uuid)
+				else:
+						sync_game_room_data.apply_async(args=[self.game_uuid], countdown=countdown)
 
-    def whisper(self, event):
-        if event["sender"] != self.channel_name:
-            self.send(
-                text_data=json.dumps(
-                    {"type": event["info"], "message": event["message"]}
-                )
-            )
+		def whisper(self, event):
+				if event["sender"] != self.channel_name:
+						self.send(
+								text_data=json.dumps(
+										{"type": event["info"], "message": event["message"]}
+								)
+						)
 
-    def broadcast(self, event):
-        self.send(
-            text_data=json.dumps({"type": event["info"], "message": event["message"]})
-        )
+		def broadcast(self, event):
+				self.send(
+						text_data=json.dumps({"type": event["info"], "message": event["message"]})
+				)

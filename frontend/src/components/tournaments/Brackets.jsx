@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import Tournament from "../utils/tournaments";
+import Tournament from "../../utils/tournaments";
 
 let region = null;
 
