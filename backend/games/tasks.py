@@ -51,7 +51,8 @@ def mark_game_abandoned(game_room_id, user_id):
         user.save()
 
     game_room_data["status"] = GameRoom.Status.COMPLETED
-    serializer = GameRoomSerializer(game_room, data=game_room_data, partial=True)
+    serializer = GameRoomSerializer(
+        game_room, data=game_room_data, partial=True)
     if serializer.is_valid():
         serializer.save()
         r.hset(f"game_room_data:{game_room_id}", mapping=serializer.data)
@@ -65,7 +66,7 @@ def mark_game_abandoned(game_room_id, user_id):
             },
         )
 
-        if game_room.bracket != None:
+        if game_room.bracket is not None:
             processGameResult.delay(game_room_id)
 
         return f"GameRoom {game_room_id} marked as abandoned"
@@ -83,7 +84,7 @@ def mark_game_room_as_expired(game_room_id):
             game_room.status = "expired"
             players = Player.objects.filter(game_room=game_room)
             for player in players:
-                if player.ready == True:
+                if player.ready is True:
                     player.result = Player.Result.WIN
                 else:
                     player.result = Player.Result.DISCONNECTED
@@ -103,7 +104,7 @@ def mark_game_room_as_expired(game_room_id):
                 },
             )
 
-            if game_room.bracket != None:
+            if game_room.bracket is not None:
                 processGameResult.delay(game_room_id)
             return f"GameRoom {game_room_id} marked as expired."
     except GameRoom.DoesNotExist:
@@ -124,7 +125,8 @@ def sync_game_room_data(game_room_id):
 
     game_room_data["state"] = json.loads(game_room_data["state"])
     game_room_data["players"] = json.loads(game_room_data["players"])
-    serializer = GameRoomSerializer(game_room, data=game_room_data, partial=True)
+    serializer = GameRoomSerializer(
+        game_room, data=game_room_data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return f"GameRoom {game_room_id} synched successfully"

@@ -58,7 +58,8 @@ class Matchmaker:
             raise
 
         r.zadd(f"{game_name}_{QUEUE_KEY}", {player_id: rating})
-        r.hset(f"{game_name}:players_channel_names", mapping={player_id: channel_name})
+        r.hset(f"{game_name}:players_channel_names",
+               mapping={player_id: channel_name})
         await self.start_loop()
 
     async def remove_player(self, player_id, game_name):
@@ -174,6 +175,7 @@ class Matchmaker:
                 role += 1
 
             game_room = await self.create_game(game["id"], match)
+            print(f"HHHHHHHHHHHHHHH:\t{game_room}", flush=True)
             if game_room:
                 r.hset(f"game_room_data:{game_room['id']}", mapping=game_room)
                 # Notify all players
@@ -193,14 +195,16 @@ class Matchmaker:
         # FIX: need to prevent players that are already involved in a game from queing again
         while len(self.queues):
             for _, game in self.queues.items():
-                print(f"{game['name']} --> {game['rating_tolerance']}", flush=True)
+                print(
+                    f"{game['name']} --> {game['rating_tolerance']}", flush=True)
                 players = r.zrange(
                     f"{game['name']}_{QUEUE_KEY}", 0, -1, withscores=True
                 )
                 if len(players) == 0:
                     del self.queues[game["name"]]
                     break
-                batches = self.create_batches(players, game["rating_tolerance"])
+                batches = self.create_batches(
+                    players, game["rating_tolerance"])
                 matches = self.find_matches(batches, game)
                 await self.create_matches(channel_layer, game, matches)
 
