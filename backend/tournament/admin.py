@@ -6,5 +6,4 @@ admin.site.register(tournamentPlayer)
 admin.site.register(Bracket)
 
 
-
 # Register your models here.

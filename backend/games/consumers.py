@@ -139,9 +139,11 @@ class GameConsumer(WebsocketConsumer):
                 self.user.increase_exp(250)
                 self.user.save()
                 break
-        self.save_game_data(players=json.dumps(self.players), status="completed", countdown=0)
+        self.save_game_data(
+            players=json.dumps(self.players), status="completed", countdown=0
+        )
         is_tournament = r.hget(f"game_room_data:{self.game_uuid}", "bracket")
-        print("----------------------------->",is_tournament, flush=True)
+        print("----------------------------->", is_tournament, flush=True)
         if is_tournament:
             processGameResult.delay(self.game_uuid)
             print("Hahoua l3zwa d5el l hna", flush=True)

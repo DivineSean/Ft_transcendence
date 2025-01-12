@@ -7,14 +7,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tournament', '0003_tournament_iscanceled'),
-        ('games', '0017_alter_gameroom_started_at'),
+        ("tournament", "0003_tournament_iscanceled"),
+        ("games", "0017_alter_gameroom_started_at"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='gameroom',
-            name='bracket',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='tournament.bracket'),
+            model_name="gameroom",
+            name="bracket",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="tournament.bracket",
+            ),
         ),
     ]

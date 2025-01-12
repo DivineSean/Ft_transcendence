@@ -41,7 +41,9 @@ class GameRoom(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     game = models.ForeignKey(Game, on_delete=models.PROTECT)
-    bracket = models.ForeignKey("tournament.Bracket", on_delete=models.CASCADE, null=True, blank=True)
+    bracket = models.ForeignKey(
+        "tournament.Bracket", on_delete=models.CASCADE, null=True, blank=True
+    )
     status = models.CharField(
         max_length=20, choices=Status.choices, default=Status.WAITING
     )
@@ -58,6 +60,7 @@ class Player(models.Model):
         LOSS = "loss", "Loss"
         DRAW = "draw", "Draw"
         DISCONNECTED = "Disconnected", "Disconnected"
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     game_room = models.ForeignKey(GameRoom, on_delete=models.CASCADE)
     rating_gain = models.PositiveSmallIntegerField()

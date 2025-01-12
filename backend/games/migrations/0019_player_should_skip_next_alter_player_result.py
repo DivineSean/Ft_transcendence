@@ -6,18 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('games', '0018_gameroom_bracket'),
+        ("games", "0018_gameroom_bracket"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='player',
-            name='should_skip_next',
+            model_name="player",
+            name="should_skip_next",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='player',
-            name='result',
-            field=models.CharField(blank=True, choices=[('win', 'Win'), ('loss', 'Loss'), ('draw', 'Draw'), ('Disconnected', 'Disconnected')], max_length=12, null=True),
+            model_name="player",
+            name="result",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("win", "Win"),
+                    ("loss", "Loss"),
+                    ("draw", "Draw"),
+                    ("Disconnected", "Disconnected"),
+                ],
+                max_length=12,
+                null=True,
+            ),
         ),
     ]
