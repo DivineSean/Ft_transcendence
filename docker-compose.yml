@@ -1,5 +1,6 @@
 volumes:
   data:
+  certs:
   media:
   static:
   logs:
@@ -18,12 +19,13 @@ services:
       - 3000:3000
     container_name: frontend
     depends_on:
-      - backend-dev
+      - nginx-dev
     restart: unless-stopped
     user: root
     volumes:
       - ./frontend/public/:/home/app/public:rw
       - ./frontend/src/:/home/app/src:rw
+      - certs:/home/certs
     networks:
         - ft_transcendence
     profiles:
@@ -54,7 +56,7 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
-    user: root # WARNING: For development only
+    user: root
     volumes:
       - ./backend/:/home/app:rw
       - logs:/var/log/uvicorn/
@@ -146,6 +148,7 @@ services:
     volumes:
       - static:/home/app/static:ro
       - logs:/var/log/nginx
+      - certs:/etc/certs
     networks:
         - ft_transcendence
     profiles:
@@ -167,7 +170,6 @@ services:
       - static:/home/app/static:ro
       - media:/home/app/media:ro
       - logs:/var/log/nginx/
-      # - ./certs/:/etc/certs
       - ./frontend/dist/:/home/app/dist:ro
     networks:
         - ft_transcendence
