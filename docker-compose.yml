@@ -126,12 +126,7 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
-    deploy:
-      resources:
-        limits:
-          memory: 512m  # Set the max memory for this container
-        reservations:
-          memory: 256m  # Set the minimum guaranteed memory
+    mem_limit: ${REDIS_MAXMEMORY}
     restart: unless-stopped
     networks:
         - ft_transcendence
