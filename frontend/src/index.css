@@ -3,7 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   :root {
     --chart-1: 12 76% 61%;
@@ -21,7 +20,6 @@
     --chart-5: 340 75% 55%;
   }
 }
-
 
 * {
   padding: 0;
@@ -231,9 +229,9 @@ input:-webkit-autofill:active {
       height: calc(100vh - 98px);
     }
   }
-	.tournaments-height {
-		height: calc(100% - 200px);
-	}
+  .tournaments-height {
+    height: calc(100% - 200px);
+  }
   .right-message::before {
     content: "";
     position: absolute;
