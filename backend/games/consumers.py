@@ -76,6 +76,8 @@ class GameConsumer(WebsocketConsumer):
                 )
             case "ready":
                 self.update_readiness()
+            case "notready":
+                self.sending_decline()
             case "result":
                 self.update_result(message)
             case "Achievements":
@@ -182,6 +184,26 @@ class GameConsumer(WebsocketConsumer):
             },
         )
 
+    def sending_decline(self):
+        self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
+        for player in self.players:
+            if player["user"]["id"] == self.user_id and not player["ready"]:
+                player["ready"] = False
+                async_to_sync(self.channel_layer.group_send)(
+                    self.group_name,
+                    {
+                        "type": "broadcast",
+                        "info": "game_manager",
+                        "message": {
+                            "players": self.players,
+                            "r": "no",
+                        },
+                    },
+                )
+                break
+
+        self.save_game_data(players=json.dumps(self.players))
+
     def update_readiness(self):
         self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
         for player in self.players:
@@ -194,6 +216,7 @@ class GameConsumer(WebsocketConsumer):
                         "info": "game_manager",
                         "message": {
                             "players": self.players,
+                            "r": "yes",
                         },
                     },
                 )

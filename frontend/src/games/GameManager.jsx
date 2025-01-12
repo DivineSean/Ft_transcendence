@@ -18,9 +18,10 @@ const GameOverlay = ({
   isWon,
   userInfo,
   players,
+  decline,
 }) => {
   const navigate = useNavigate();
-  return <WaitingGame game={game} data={data} send={send} />;
+  return <WaitingGame game={game} data={data} send={send} decline={decline.current}/>;
   let TimeoutWin = isWon;
   let TimeoutLoss = islost;
 
@@ -137,6 +138,7 @@ const GameManager = () => {
   const [data, setData] = useState(null);
   const { game, uuid } = useParams();
   const playersRef = useRef(null);
+  const declineRef = useRef("no");
   const authContextData = useContext(AuthContext);
   const navigate = useNavigate();
   function strictGreaterThanOrEqual(a, b) {
@@ -156,6 +158,7 @@ const GameManager = () => {
           if (msg.message.status) setReady(msg.message.status === "ongoing");
           console.log(msg);
           if (msg.message.players) playersRef.current = msg.message.players;
+          if (msg.message.r && msg.message.r === "no") declineRef.current = "yes";
           setData((prevData) => ({
             ...prevData,
             ...msg.message,
@@ -217,6 +220,7 @@ const GameManager = () => {
           isWon={isWon}
           userInfo={contextData.userInfo}
           players={playersRef}
+          decline={declineRef}
         />
       )}
     </div>
