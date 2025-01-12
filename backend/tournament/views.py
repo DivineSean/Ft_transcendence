@@ -16,11 +16,15 @@ def CreateTournament(request):
         return Response(
             {"error": "maxPlayers not specified or not a digit"}, status=400
         )
-
+    
     maxPlayers = int(maxPlayers)
     if maxPlayers not in [4, 8, 16]:
         return Response({"error": "maxPlayers khas ykon 4, 8, wla 16"}, status=400)
 
+    tournamentName = request.data.get("TournamentName")
+    if not tournamentName:
+        return Response({"error" : "Tournament Name not specified"}, status = 400)
+    
     existingLobby = Tournament.objects.filter(
         creator=request._user, isCompleted=False
     ).first()
