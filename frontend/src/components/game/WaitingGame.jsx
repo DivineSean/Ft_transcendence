@@ -106,7 +106,7 @@ const WaitingGame = ({ data, send, game, decline, setGlobalMessage }) => {
           <GameInfo game={game} flag={data.players[me].rating_gain} />
         </div>
 
-        {data.players[me].rating_gain && (
+        {data.players[me].rating_gain !== 0 && (
           <RatingInformation data={data} me={me} />
         )}
         <ActionButtons game={game} send={send} navigate={navigate} />
@@ -145,7 +145,7 @@ const GameInfo = ({ game, flag }) => (
       <h2 className="text-xs md:text-sm text-white font-medium">{game} Game</h2>
     </span>
     <span className="px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-emerald-400/10 backdrop-blur-sm border border-emerald-400/20">
-      {flag ? (
+      {flag !==0 ? (
         <span className="text-xs md:text-sm text-emerald-400 font-medium">
           Ranked Match
         </span>
