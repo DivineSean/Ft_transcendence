@@ -174,7 +174,6 @@ class Matchmaker:
                 role += 1
 
             game_room = await self.create_game(game["id"], match)
-            print(f"HHHHHHHHHHHHHHH:\t{game_room}", flush=True)
             if game_room:
                 r.hset(f"game_room_data:{game_room['id']}", mapping=game_room)
                 # Notify all players
