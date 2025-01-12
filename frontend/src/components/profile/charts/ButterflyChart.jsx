@@ -1,6 +1,6 @@
-"use client"
-import { TrendingUp } from "lucide-react"
-import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts"
+"use client";
+import { TrendingUp } from "lucide-react";
+import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 import {
   Card,
   CardContent,
@@ -8,14 +8,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
-
+} from "@/components/ui/chart";
 
 const chartData = [
   { month: "January", desktop: 186 },
@@ -24,17 +23,17 @@ const chartData = [
   { month: "April", desktop: 273 },
   { month: "May", desktop: 209 },
   { month: "June", desktop: 214 },
-]
+];
 const chartConfig = {
   desktop: {
     label: "Desktop",
     color: "#31E78B",
   },
-}
+};
 
 const ButterflyChart = () => {
-	return (
-		<Card className="grow bg-black/30 border-stroke-sc text-white" >
+  return (
+    <Card className="grow bg-black/30 border-stroke-sc text-white">
       <CardHeader className="items-center pb-4">
         <CardTitle>Radar Chart</CardTitle>
         <CardDescription>
@@ -43,12 +42,10 @@ const ButterflyChart = () => {
       </CardHeader>
 
       <CardContent className="pb-0">
-
         <ChartContainer
           config={chartConfig}
           className="mx-auto aspect-square max-h-[250px]"
         >
-
           <RadarChart data={chartData}>
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
 
@@ -61,15 +58,11 @@ const ButterflyChart = () => {
               fill="var(--color-desktop)"
               fillOpacity={0.6}
             />
-
           </RadarChart>
-
         </ChartContainer>
-
       </CardContent>
 
       <CardFooter className="flex-col gap-2 text-sm">
-
         <div className="flex items-center gap-2 font-medium leading-none">
           Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
         </div>
@@ -77,10 +70,9 @@ const ButterflyChart = () => {
         <div className="flex items-center gap-2 leading-none text-muted-foreground">
           January - June 2024
         </div>
-
       </CardFooter>
     </Card>
-	)
-}
+  );
+};
 
 export default ButterflyChart;

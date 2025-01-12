@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { TrendingUp } from "lucide-react"
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
+import { TrendingUp } from "lucide-react";
+import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
 
 import {
   Card,
@@ -10,12 +10,12 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/components/ui/chart";
 const chartData = [
   { date: "January", exp: 0 },
   { date: "dec 10", exp: 400 },
@@ -23,11 +23,11 @@ const chartData = [
   { date: "April", exp: 800 },
   { date: "May", exp: 850 },
   { date: "June", exp: 900 },
-]
+];
 
 const chartConfig = {
   xp: { label: "xp" },
-}
+};
 
 const XPChart = ({ data }) => {
   return (
@@ -38,10 +38,7 @@ const XPChart = ({ data }) => {
 
       <CardContent className="text-black">
         <ChartContainer config={chartConfig}>
-          <LineChart
-            accessibilityLayer
-            data={data}
-          >
+          <LineChart accessibilityLayer data={data}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="date"
@@ -50,10 +47,7 @@ const XPChart = ({ data }) => {
               tickMargin={8}
               tickFormatter={(value) => value.slice(0, 6)}
             />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent />}
-            />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <Line
               dataKey="exp"
               type="step"
@@ -65,7 +59,7 @@ const XPChart = ({ data }) => {
         </ChartContainer>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
 export default XPChart;

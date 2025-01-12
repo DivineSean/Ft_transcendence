@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { TrendingUp } from "lucide-react"
+import { TrendingUp } from "lucide-react";
 import {
   Label,
   PolarGrid,
   PolarRadiusAxis,
   RadialBar,
   RadialBarChart,
-} from "recharts"
+} from "recharts";
 
 import {
   Card,
@@ -16,11 +16,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { ChartContainer } from "@/components/ui/chart"
-const chartData = [
-  { browser: "safari", visitors: 200, fill: "#31E78B" },
-]
+} from "@/components/ui/card";
+import { ChartContainer } from "@/components/ui/chart";
+const chartData = [{ browser: "safari", visitors: 200, fill: "#31E78B" }];
 
 const chartConfig = {
   visitors: {
@@ -30,7 +28,7 @@ const chartConfig = {
     label: "Safari",
     color: "hsl(var(--chart-2))",
   },
-}
+};
 
 const MatchesChart = () => {
   return (
@@ -51,9 +49,8 @@ const MatchesChart = () => {
             endAngle={320}
             innerRadius={80}
             outerRadius={110}
-						className=""
+            className=""
           >
-
             <PolarGrid
               gridType="circle"
               radialLines={false}
@@ -64,7 +61,6 @@ const MatchesChart = () => {
             <RadialBar dataKey="visitors" background cornerRadius={10} />
 
             <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
-
               <Label
                 content={({ viewBox }) => {
                   if (viewBox && "cx" in viewBox && "cy" in viewBox) {
@@ -75,15 +71,12 @@ const MatchesChart = () => {
                         textAnchor="middle"
                         dominantBaseline="middle"
                       >
-
                         <tspan
                           x={viewBox.cx}
                           y={viewBox.cy}
                           className="fill-foreground text-4xl font-bold fill-white"
                         >
-
                           {chartData[0].visitors.toLocaleString()}
-
                         </tspan>
 
                         <tspan
@@ -91,12 +84,10 @@ const MatchesChart = () => {
                           y={(viewBox.cy || 0) + 24}
                           className="fill-gray/80"
                         >
-
                           matches
-
                         </tspan>
                       </text>
-                    )
+                    );
                   }
                 }}
               />
@@ -113,7 +104,7 @@ const MatchesChart = () => {
         </div> */}
       </CardFooter>
     </Card>
-  )
-}
+  );
+};
 
 export default MatchesChart;
