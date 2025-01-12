@@ -9,20 +9,23 @@ import fs from "fs";
 // })
 
 export default defineConfig({
-	base: "/",
-	plugins: [react()],
-	preview: {
-		port: 3000,
-		strictPort: true,
-	},
-	server: {
-		https: process.env.NODE_ENV === "development" ? {
-			key: fs.readFileSync("/home/certs/server-key.pem"),
-			cert: fs.readFileSync("/home/certs/server.pem"),
-		} : false,
-		port: 3000,
-		strictPort: true,
-		host: true,
-		origin: "http://0.0.0.0:3000",
-	},
+  base: "/",
+  plugins: [react()],
+  preview: {
+    port: 3000,
+    strictPort: true,
+  },
+  server: {
+    https:
+      process.env.NODE_ENV === "development"
+        ? {
+            key: fs.readFileSync("/home/certs/server-key.pem"),
+            cert: fs.readFileSync("/home/certs/server.pem"),
+          }
+        : false,
+    port: 3000,
+    strictPort: true,
+    host: true,
+    origin: "http://0.0.0.0:3000",
+  },
 });

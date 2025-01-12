@@ -26,59 +26,55 @@ export const NotifProvider = ({ children }) => {
   const [refresh, setRefresh] = useState(false);
   const [friendsData, setFriendsData] = useState(null);
 
-  const wsHook = useWebsocket(
-    `ws/chat/`,
-    {
-      onOpen: () => {
-        setIsWsConnected(true);
-      },
-      onMessage: (e) => {
-        const messageData = JSON.parse(e.data); // parse the event data
-
-        if (messageData) {
-          if (messageData.type === "read") {
-            // if we received the read event
-            setReadedMessages(messageData); // set readed message with the message we received from the socket to update all unreaded messages
-          } else if (messageData.type === "typing") {
-            // if we received the typing event
-            setDisplayTyping(messageData); // increment the display typing state to know that the uer is still typing
-          } else if (messageData.type === "stopTyping") {
-            // if we received the stop typing event
-            setDisplayTyping(null); // reset display typing, to remove the typing message from the conversation
-            setTyping("");
-          } else if (messageData.type === "friendRequest") {
-            getNotfications();
-          } else if (messageData.type === "createConv") {
-            if (window.location.pathname.search("chat") === -1)
-              getNotfications();
-          } else if (
-            messageData.type === "messageNotif" &&
-            window.location.pathname.search("chat") === -1
-          ) {
-            authContextData.setGlobalMessage({
-              message: messageData.message,
-              isError: false,
-              icon: <AiFillMessage className="text-green text-txt-md" />,
-              username: messageData.username,
-            });
-          } else if (messageData.type === "convBlocked") {
-            setRefresh(true);
-            authContextData.setGlobalMessage({
-              message: messageData.message,
-              isError: true,
-            });
-          } else if (messageData.type === "acceptFriendRequest") {
-            getNotfications();
-          } else if (messageData.type === "gameInvite") {
-            getNotfications();
-            authContextData.setGlobalMessage({
-              message: `you get invited by @${messageData.senderUsername} to play ${messageData.game} game`,
-            });
-          }
-        }
-      },
+  const wsHook = useWebsocket(`ws/chat/`, {
+    onOpen: () => {
+      setIsWsConnected(true);
     },
-  );
+    onMessage: (e) => {
+      const messageData = JSON.parse(e.data); // parse the event data
+
+      if (messageData) {
+        if (messageData.type === "read") {
+          // if we received the read event
+          setReadedMessages(messageData); // set readed message with the message we received from the socket to update all unreaded messages
+        } else if (messageData.type === "typing") {
+          // if we received the typing event
+          setDisplayTyping(messageData); // increment the display typing state to know that the uer is still typing
+        } else if (messageData.type === "stopTyping") {
+          // if we received the stop typing event
+          setDisplayTyping(null); // reset display typing, to remove the typing message from the conversation
+          setTyping("");
+        } else if (messageData.type === "friendRequest") {
+          getNotfications();
+        } else if (messageData.type === "createConv") {
+          if (window.location.pathname.search("chat") === -1) getNotfications();
+        } else if (
+          messageData.type === "messageNotif" &&
+          window.location.pathname.search("chat") === -1
+        ) {
+          authContextData.setGlobalMessage({
+            message: messageData.message,
+            isError: false,
+            icon: <AiFillMessage className="text-green text-txt-md" />,
+            username: messageData.username,
+          });
+        } else if (messageData.type === "convBlocked") {
+          setRefresh(true);
+          authContextData.setGlobalMessage({
+            message: messageData.message,
+            isError: true,
+          });
+        } else if (messageData.type === "acceptFriendRequest") {
+          getNotfications();
+        } else if (messageData.type === "gameInvite") {
+          getNotfications();
+          authContextData.setGlobalMessage({
+            message: `you get invited by @${messageData.senderUsername} to play ${messageData.game} game`,
+          });
+        }
+      }
+    },
+  });
 
   const getNotfications = async () => {
     try {

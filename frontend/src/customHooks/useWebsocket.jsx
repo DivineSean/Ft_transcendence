@@ -38,7 +38,7 @@ const useWebSocket = (
 
   const connect = useCallback(() => {
     if (connectedRef.current) return;
-	const url = `wss://${window.location.hostname}:${BACKENDPORT}/${uri}`
+    const url = `wss://${window.location.hostname}:${BACKENDPORT}/${uri}`;
     debugLog(`Connecting to WebSocket at ${url}`);
 
     const ws = new WebSocket(url);

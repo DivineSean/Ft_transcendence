@@ -1,4 +1,5 @@
-export const BACKENDPORT = process.env.NODE_ENV === "development" ? "8000" : window.location.port;
+export const BACKENDPORT =
+  process.env.NODE_ENV === "development" ? "8000" : window.location.port;
 export const BACKENDURL = `https://${window.location.hostname}:${BACKENDPORT}`;
 
 class FetchWrapper {
