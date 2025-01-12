@@ -22,13 +22,9 @@ const GameOverlay = ({
   setGlobalMessage
 }) => {
   const navigate = useNavigate();
-  return (
-    <GameStatus
-    game={game}
-    title={"this game has been concluded"}
-    image={"/images/gameOver.png"}
-  />
-  );
+  // return (
+  //   <GameResult playersData={data.players} isWon={true} />
+  // );
   let TimeoutWin = isWon;
   let TimeoutLoss = islost;
 
@@ -44,7 +40,7 @@ const GameOverlay = ({
 
   switch (data.status) {
     case "waiting":
-      return <WaitingGame game={game} data={data} send={send} />;
+      return <WaitingGame game={game} data={data} send={send} decline={decline.current} setGlobalMessage={setGlobalMessage}/>;
     case "expired":
       return (
         <GameStatus

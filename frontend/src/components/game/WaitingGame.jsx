@@ -34,7 +34,7 @@ const WaitingGame = ({ data, send, game, decline, setGlobalMessage}) => {
       const remainingTime = endTime - Date.now();
       setTimeLeft(Math.max(remainingTime, 0));
       
-      if (remainingTime <= 0 || decline === "yes") {
+      if (remainingTime <= 0 || decline === 'yes') {
         setGlobalMessage({
           message: "The match was either not accepted in time or was declined. You have been removed from the queue.",
           isError: true,
