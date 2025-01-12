@@ -1,6 +1,5 @@
 import { useState, useEffect, memo, useContext, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { GameResult } from "./pong/Pong";
 import Pong from "./pong/Pong";
 import useWebSocket from "../customHooks/useWebsocket";
 import UserContext from "../context/UserContext.jsx";
@@ -8,6 +7,7 @@ import GamePaused from "../components/game/GamePaused.jsx";
 import WaitingGame from "../components/game/WaitingGame.jsx";
 import GameStatus from "../components/game/GameStatus.jsx";
 import AuthContext from "../context/AuthContext.jsx";
+import GameResult from "../components/game/GameResult.jsx";
 
 const GameOverlay = ({
   data,
@@ -22,9 +22,7 @@ const GameOverlay = ({
   setGlobalMessage
 }) => {
   const navigate = useNavigate();
-  // return (
-  //   <GameResult playersData={data.players} isWon={true} />
-  // );
+
   let TimeoutWin = isWon;
   let TimeoutLoss = islost;
 

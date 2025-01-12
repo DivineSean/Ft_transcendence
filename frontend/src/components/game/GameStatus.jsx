@@ -10,7 +10,7 @@ const GameStatus = ({ game, title, image }) => {
           <div className="grid lg:grid-cols-[1fr_520px] grid-cols-1 min-h-[200px] lg:min-h-[500px]">
             <div className="flex flex-col justify-center items-center p-8 md:p-16 gap-8 md:gap-12">
               <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent">
-                {game} game
+              Uh Oh! What Happened to the {game}?
               </h1>
               
               <div className="text-center text-white/90 text-sm md:text-base lg:text-lg max-w-[80%]">
