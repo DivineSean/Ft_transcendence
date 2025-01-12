@@ -3,15 +3,15 @@ import { FaFire } from "react-icons/fa6";
 
 const ProfileOverview = () => {
   return (
-    <div className="flex gap-32 grow overflow-y-scroll no-scrollbar">
-      <div className="flex flex-col h-[288px] w-[100px] grow xl:grow rounded-[8px] border-[0.5px] border-stroke-sc overflow-hidden">
-        <div className='md:p-32 p-16 relative h-[150px] overflow-hidden flex items-end bg-[url("/images/pong-overview.webp")] bg-cover bg-center'>
+    <div className="flex flex-col gap-16 grow overflow-y-scroll no-scrollbar">
+      <div className="flex flex-col rounded-[8px] border-[0.5px] border-stroke-sc overflow-hidden shrink-0">
+        <div className='md:p-32 p-16 relative h-[220px] overflow-hidden flex items-end bg-[url("/images/pong-overview.webp")] bg-cover bg-center'>
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden cover-gradient"></div>
           <h2 className="absolute font-bold md:text-h-lg-lg text-h-sm-lg">
             ping pong
           </h2>
         </div>
-        <div className="flex md:px-32 px-16 py-16 gap-32 h-[69px] items-center">
+        <div className="flex md:px-32 px-16 py-16 gap-32 items-center">
           <MdGames className="text-green text-txt-3xl" />
           <div className="flex gap-40 justify-between grow">
             <div className="flex flex-col items-start">
@@ -28,7 +28,7 @@ const ProfileOverview = () => {
             </div>
           </div>
         </div>
-        <div className="flex sc-overview-glass md:px-32 px-16 py-16 gap-32 h-[69px] items-center">
+        <div className="flex sc-overview-glass md:px-32 px-16 py-16 gap-32 items-center">
           <FaFire className="text-red text-txt-3xl" />
           <div className="flex gap-40 justify-between grow">
             <div className="flex flex-col items-start">

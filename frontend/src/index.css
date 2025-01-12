@@ -231,6 +231,9 @@ input:-webkit-autofill:active {
       height: calc(100vh - 98px);
     }
   }
+	.tournaments-height {
+		height: calc(100% - 200px);
+	}
   .right-message::before {
     content: "";
     position: absolute;

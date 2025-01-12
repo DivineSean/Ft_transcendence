@@ -35,7 +35,6 @@ const MainChart = () => {
 		<Card className="bg-black/30 border-stroke-sc w-full text-white" >
 			<CardHeader>
 				<CardTitle>Line Chart</CardTitle>
-				<CardDescription>January - June 2024</CardDescription>
 			</CardHeader>
 			<CardContent  >
 				<ChartContainer config={{}}>
