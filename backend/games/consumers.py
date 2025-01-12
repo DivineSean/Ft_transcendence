@@ -61,7 +61,6 @@ class GameConsumer(WebsocketConsumer):
             message = data["message"]
         except (json.JSONDecodeError, KeyError):
             return
-
         match type:
             case "score":
                 self.update_score()
@@ -77,6 +76,8 @@ class GameConsumer(WebsocketConsumer):
                 )
             case "ready":
                 self.update_readiness()
+            case "notready":
+                self.sending_decline()
             case "result":
                 self.update_result(message)
             case "Achievements":
@@ -135,6 +136,7 @@ class GameConsumer(WebsocketConsumer):
                 self.user.status = User.Status.ONLINE
                 # check if tournament or normal game
                 self.user.exp += 250
+                self.user.increase_exp(250)
                 self.user.save()
                 break
         self.save_game_data(players=json.dumps(self.players), status="completed", countdown=0)
@@ -188,6 +190,24 @@ class GameConsumer(WebsocketConsumer):
             },
         )
 
+    def sending_decline(self):
+        async_to_sync(self.channel_layer.group_send)(
+            self.group_name,
+            {
+                "type": "broadcast",
+                "info": "game_manager",
+                "message": {
+                    "r": "no",
+                },
+            },
+        )
+
+        try:
+            GameRoom.objects.filter(pk=self.game_uuid).delete()
+            r.delete(f"game_room_data:{self.game_uuid}")
+        except Exception as e:
+            print("Failed To Delete GameRoom", str(e), flush=True)
+
     def update_readiness(self):
         self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
         for player in self.players:
@@ -200,6 +220,7 @@ class GameConsumer(WebsocketConsumer):
                         "info": "game_manager",
                         "message": {
                             "players": self.players,
+                            "r": "yes",
                         },
                     },
                 )
@@ -271,6 +292,8 @@ class GameConsumer(WebsocketConsumer):
         if not isPlayer:
             return
         game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
+        if not game_data:
+            return
         self.players = json.loads(game_data["players"])
         if game_data["status"] in ("ongoing", "paused"):
             leavers = json.loads(game_data["state"])

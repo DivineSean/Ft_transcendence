@@ -55,6 +55,31 @@ class User(AbstractUser):
     exp = models.PositiveBigIntegerField(default=0)
     blockedUsers = models.JSONField(default=callableDict, null=True, blank=True)
 
+    exp_history = models.JSONField(default=list)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.exp_history:
+            creation_date = timezone.now().strftime("%b %d")
+            self.exp_history = [{"date": creation_date, "exp": 0}]
+
+    def increase_exp(self, added_exp):
+        creation_date = timezone.now().strftime("%b %d")
+
+        if self.exp_history:
+            last_exp = self.exp_history[-1]["exp"]
+        else:
+            last_exp = 0
+
+        new_exp = last_exp + added_exp
+
+        self.exp_history.append({"date": creation_date, "exp": new_exp})
+        self.save()
+
+    def total_exp(self):
+        total_exp = self.exp_history[-1]["exp"] if self.exp_history else 0
+        return total_exp
+
     last_update = models.DateTimeField(auto_now=True)
 
     objects = CustomUserManager()

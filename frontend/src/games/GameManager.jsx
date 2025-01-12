@@ -7,13 +7,46 @@ import GamePaused from "../components/game/GamePaused.jsx";
 import WaitingGame from "../components/game/WaitingGame.jsx";
 import GameStatus from "../components/game/GameStatus.jsx";
 import AuthContext from "../context/AuthContext.jsx";
+import GameResult from "../components/game/GameResult.jsx";
 
-const GameOverlay = ({ data, send, game }) => {
+const GameOverlay = ({
+  data,
+  send,
+  game,
+  isS,
+  islost,
+  isWon,
+  userInfo,
+  players,
+  decline,
+  setGlobalMessage,
+}) => {
   const navigate = useNavigate();
+
+  let TimeoutWin = isWon;
+  let TimeoutLoss = islost;
+
+  const dats = players.current?.find(
+    (player) => player.user.username === userInfo.username,
+  );
+
+  if (dats && dats.result === "win") {
+    TimeoutWin = true;
+  } else if (dats && dats.result === "loss") {
+    TimeoutLoss = true;
+  }
 
   switch (data.status) {
     case "waiting":
-      return <WaitingGame game={game} data={data} send={send} />;
+      return (
+        <WaitingGame
+          game={game}
+          data={data}
+          send={send}
+          decline={decline.current}
+          setGlobalMessage={setGlobalMessage}
+        />
+      );
     case "expired":
       return (
         <GameStatus
@@ -22,26 +55,33 @@ const GameOverlay = ({ data, send, game }) => {
           image={"/images/gameOver.png"}
         />
       );
-    case "ongoing":
-      return (
-        <GameStatus
-          game={game}
-          title={"this game is ongoing"}
-          image={"/images/gameOngoing.jpeg"}
-        />
-      );
     case "paused":
-      return <GamePaused game={game} />;
+      return (
+        <GamePaused game={game} image={"/images/gamePaused.jpeg"} isS={isS} />
+      );
     case "completed":
       return (
-        <GameStatus
-          game={game}
-          title={"this game has been concluded"}
-          image={"/images/gameOver.png"}
-        />
+        <>
+          {isS ? (
+            <GameStatus
+              game={game}
+              title={"this game has been concluded"}
+              image={"/images/gameOver.png"}
+            />
+          ) : (
+            <>
+              {TimeoutWin && (
+                <GameResult playersData={data.players} isWon={true} />
+              )}
+              {TimeoutLoss && (
+                <GameResult playersData={data.players} isWon={false} />
+              )}
+            </>
+          )}
+        </>
       );
     default:
-      navigate("/games/");
+      navigate(`/games/${game}/online`);
   }
 };
 
@@ -57,15 +97,19 @@ const Game = memo(
     players,
     turn,
     started_at,
+    setisS,
+    isWon,
+    islost,
+    setIsWon,
+    setIslost,
   }) => {
     const data = players.current?.find(
       (player) => player.user.username === userInfo.username,
     );
-    console.log("hadi hya data dyali hhhh", userInfo?.username, players, data);
 
     useEffect(() => {
-      console.log("Game component renered");
-    }, []);
+      setisS(data ? false : true);
+    }, [players, userInfo.username]);
 
     const overideSend = () => {
       return;
@@ -85,6 +129,10 @@ const Game = memo(
             playersData={players.current}
             isSpectator={data ? false : true}
             started_at={started_at}
+            isWon={isWon}
+            setIsWon={setIsWon}
+            islost={islost}
+            setIslost={setIslost}
           />
         );
     }
@@ -93,9 +141,13 @@ const Game = memo(
 
 const GameManager = () => {
   const [ready, setReady] = useState(false);
+  const [isWon, setIsWon] = useState(false);
+  const [islost, setIslost] = useState(false);
+  const [isS, setisS] = useState(true);
   const [data, setData] = useState(null);
   const { game, uuid } = useParams();
   const playersRef = useRef(null);
+  const declineRef = useRef("no");
   const authContextData = useContext(AuthContext);
   const navigate = useNavigate();
   function strictGreaterThanOrEqual(a, b) {
@@ -105,7 +157,7 @@ const GameManager = () => {
     return a >= b;
   }
   const { send, addMessageHandler, removeMessageHandler } = useWebSocket(
-    `wss://${window.location.hostname}:8000/ws/games/${game}/${uuid}`,
+    `ws/games/${game}/${uuid}`,
     {
       onMessage: (event) => {
         const msg = JSON.parse(event.data);
@@ -115,6 +167,8 @@ const GameManager = () => {
           if (msg.message.status) setReady(msg.message.status === "ongoing");
           console.log(msg);
           if (msg.message.players) playersRef.current = msg.message.players;
+          if (msg.message.r && msg.message.r === "no")
+            declineRef.current = "yes";
           setData((prevData) => ({
             ...prevData,
             ...msg.message,
@@ -136,6 +190,7 @@ const GameManager = () => {
 
   useEffect(() => {
     console.log("this nigga's readiness: ", ready);
+    console.log("this wonlost is : ==> ", isS);
   }, [ready]);
 
   const contextData = useContext(UserContext);
@@ -158,9 +213,27 @@ const GameManager = () => {
           players={playersRef}
           turn={data.turn}
           started_at={data.started_at}
+          setisS={setisS}
+          isWon={isWon}
+          islost={islost}
+          setIsWon={setIsWon}
+          setIslost={setIslost}
         />
       )}
-      {!ready && data && <GameOverlay data={data} send={send} game={game} />}
+      {!ready && data && (
+        <GameOverlay
+          data={data}
+          send={send}
+          game={game}
+          isS={isS}
+          islost={islost}
+          isWon={isWon}
+          userInfo={contextData.userInfo}
+          players={playersRef}
+          decline={declineRef}
+          setGlobalMessage={authContextData.setGlobalMessage}
+        />
+      )}
     </div>
   );
 };

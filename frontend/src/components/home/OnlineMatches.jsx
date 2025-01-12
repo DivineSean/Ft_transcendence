@@ -84,8 +84,8 @@ const OnlineMatches = ({ data }) => {
   return (
     <div className="glass-component flex-col md:gap-32 gap-16 ">
       <h3 className="md:text-h-lg-md text-h-sm-md">Online Matches</h3>
-      <div className="secondary-glass py-8 flex-col flex lg:max-h-[500px] max-h-[400px]">
-        <div className="overflow-y-scroll md:px-16 px-8 flex flex-col custom-scrollbar gap-16">
+      <div className="bg-gray/5 rounded-lg py-8 border-[0.5px] border-stroke-sc flex-col flex lg:max-h-[500px] lg:h-[500px] max-h-[400px] h-[400px]">
+        <div className="overflow-y-auto md:px-16 px-8 flex flex-col custom-scrollbar gap-16">
           <div className="grid md:grid-cols-[20px_1fr_1fr_1fr_1fr] grid-cols-[20px_1fr_1fr_1fr] gap-32 items-center text-center font-bold py-8 bg-gray/5 rounded-lg">
             <IoGameController className="md:ml-16 ml-8" />
             <p>players</p>

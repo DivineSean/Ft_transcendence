@@ -57,6 +57,7 @@ function App() {
                 <Route path="chat/:uid" element={<Chat />} />
                 <Route path="rankings" element={<Rankings />} />
                 <Route path="tournaments/" element={<Tournaments />} />
+                <Route path="tournaments/:uid" element={<Tournaments />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </UserProvider>
