@@ -4,7 +4,7 @@ from asgiref.sync import async_to_sync
 from games.serializers import GameRoomSerializer
 from games.models import GameRoom
 from notification.models import Notifications
-
+from games.models import Player
 from tournament.models import Tournament,tournamentPlayer, Bracket
 import random
 
@@ -83,23 +83,23 @@ class TournamentManager:
     def handle_game_completion(self, gameRoomID):
         print("I m in HGC")
         game_room = GameRoom.objects.select_related('bracket').get(id=gameRoomID)
-        print("Game Room ==> ", game_room, flush=True)
         current_bracket = game_room.bracket
-        print("currentBracket =>" , current_bracket, flush=True)
+        
         if current_bracket.isComplete():
             print("im in complete")
-            winners = list(current_bracket.getWinners()) # hadi makhshach tdmes since advance tournament, rab7a mn game khaso yti7 m3a rab7a li f game 2, tn system
-            print("winners len  = ", len(winners))
-
-
-            if len(winners) % 2 == 1 :
-                pass
+            winners = list(current_bracket.getWinners())
+            print("winners len = ", len(winners))
             
-            if len(winners) == 0: #last case , 2 players li b9aw khrjo mn tn => tn cancelled 
+            skippedPlayerss = Player.objects.filter( # normally hadi makhshach trowi error
+                    game_room__bracket__round_number=current_bracket.round_number - 1,
+                    should_skip_next=True
+                ).select_related('user')
+            # totalPlayers = len(winners) + len(skippedPlayerss) #maybe nchecki bhadi not sure
+            if len(winners) == 0: #maybe khsni n checki 3la skipped players hna
                 self.tournament.isCanceled = True
                 self.tournament.save()
                 return
-            elif len(winners) == 1:
+            elif len(winners) == 1: # w ta hna not sure
                 self.tournament.winner = winners[0].user
                 self.tournament.isCompleted = True
                 self.tournament.save()
@@ -107,11 +107,54 @@ class TournamentManager:
 
             next_bracket = self.tournament.advanceRound()
             if next_bracket:
-                print("I m in next Bracket")
-                for i in range(0, len(winners), 2):
-                    if i + 1 < len(winners):
-                        self.create_game_pair( 
-                            [winners[i].user, winners[i + 1].user],
-                            next_bracket
-                        )
+                allPlayers = list(winners)
+                for skipped in skippedPlayerss:
+                    
+                    skipped.should_skip_next = False
+                    skipped.save()
+                    allPlayers.append(skipped)
+                    print("I m in next Bracket")
+                self.createNextBracketGames(allPlayers, next_bracket)
+    
+    def PlayerSkip(self, winners):
+        pattern = ['W' if w.result == Player.Result.WIN else 'D' for w in winners] #kan converti lista 
+        
+        for i in range(len(pattern) - 1):
+            if pattern[i:i+2] == ['D', 'D']:  #  l9it joj li deconectaw 
                 
+                if i > 0 and pattern[i-1] == 'W': # la kan l winner 9bel dissconnected game
+                    skipIndex = i - 1
+                
+                elif i + 2 < len(pattern) and pattern[i+2] == 'W': # la kan l winner mn b3d dissconnected game
+                    skipIndex = i + 2
+                else:
+                    continue
+                    
+                # kanakhed ga3 l winners ila li khshom yt skipaw 
+                activePlayers = [w for w in winners 
+                                if w.result == Player.Result.WIN and winners.index(w) != skipIndex]
+                return skipIndex, activePlayers
+                
+        return None, winners
+
+    def createNextBracketGames(self, winners, next_bracket):
+        skipIndex, activePlayerss = self.PlayerSkip(winners)
+        
+        if skipIndex is not None:
+            # khona li khso ytskipa (hadi bach ntfker nzid skipp player f player model)
+            skippingPlayer = winners[skipIndex]
+            skippingPlayer.should_skip_next = True
+            skippingPlayer.save()
+            playersToMatch = activePlayerss
+        else:
+            playersToMatch = winners
+
+        # hadi la makan tawahed khso ytskipa
+        for i in range(0, len(playersToMatch), 2):
+            if i + 1 < len(playersToMatch):
+                self.create_game_pair(
+                    [playersToMatch[i].user, playersToMatch[i + 1].user],
+                    next_bracket
+                )
+
+    

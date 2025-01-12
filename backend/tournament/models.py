@@ -70,23 +70,18 @@ class tournamentPlayer(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
 
 class Bracket(models.Model):
-    tournament = models.ForeignKey(Tournament, related_name="brackets", on_delete=models.CASCADE)
+    tournament = models.ForeignKey('Tournament', related_name="brackets", on_delete=models.CASCADE)
     round_number = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def getWinners(self):
         return Player.objects.filter(
             game_room__bracket=self,
-            result=Player.Result.WIN # or disconected #DISCONECTEDflag
+            result__in=[Player.Result.WIN, Player.Result.DISCONNECTED]
         ).select_related('user').order_by('id')
     
     def isComplete(self):
-        game_rooms = GameRoom.objects.filter(bracket=self)
-
-        for game_room in game_rooms:
-            print(f"GameRoom ID: {game_room.id}, Status: {game_room.status}", flush=True)
-        
         return not GameRoom.objects.filter(
             bracket=self,
             status__in=[GameRoom.Status.WAITING, GameRoom.Status.ONGOING, GameRoom.Status.PAUSED]
-        ).exists() 
+        ).exists()
