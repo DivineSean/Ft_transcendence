@@ -21,7 +21,7 @@ build_base:
 	@echo "Building services in $(BASE_DIR) with profile: $(PROFILE)"
 	docker-compose -f $(BASE_DIR)/$(COMPOSE_FILE) --profile $(PROFILE) build
 
-up_base:
+up_base: build_base
 	@echo "Starting services in $(BASE_DIR) with profile: $(PROFILE)"
 	docker-compose -f $(BASE_DIR)/$(COMPOSE_FILE) --profile $(PROFILE) up -d
 
@@ -29,7 +29,7 @@ build_elk:
 	@echo "Building services in $(ELK_DIR)"
 	docker-compose -f $(ELK_DIR)/$(COMPOSE_FILE) build
 
-up_elk:
+up_elk: build_elk
 	@echo "Starting services in $(ELK_DIR)"
 	docker-compose -f $(ELK_DIR)/$(COMPOSE_FILE) up -d
 
@@ -41,7 +41,7 @@ build_monitoring:
 	@echo "Building services in $(MONITORING_DIR)"
 	docker-compose -f $(MONITORING_DIR)/$(COMPOSE_FILE) build
 
-up_monitoring:
+up_monitoring: build_monitoring
 	@echo "Starting services in $(MONITORING_DIR)"
 	docker-compose -f $(MONITORING_DIR)/$(COMPOSE_FILE) up -d
 
