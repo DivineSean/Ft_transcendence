@@ -39,7 +39,7 @@ const GameResult = ({ playersData, isWon }) => {
           }`}>
             <div className="flex items-center gap-6">
               <div className="relative">
-                <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-2 ${
+                <div className={`w-20 h-20 rounded-full overflow-hidden border-2 ${
                   isWon 
                     ? "border-emerald-500"
                     : "border-rose-500"
