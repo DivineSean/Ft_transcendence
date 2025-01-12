@@ -3,15 +3,13 @@ import { useNavigate } from "react-router-dom";
 import UserContext from "../../context/UserContext";
 import { BACKENDURL } from "../../utils/fetchWrapper.js";
 
-const WaitingGame = ({ data, send, game, decline }) => {
+const WaitingGame = ({ data, send, game, decline, setGlobalMessage}) => {
   const navigate = useNavigate();
   const { userInfo } = useContext(UserContext);
 
-  // Determine player indices
   const me = userInfo.username === data.players[0].user.username ? 0 : 1;
   const other = me === 0 ? 1 : 0;
 
-  // Function to retrieve player info
   const playerInfo = (playerIndex) => {
     const player = data.players[playerIndex];
     return {
@@ -37,6 +35,10 @@ const WaitingGame = ({ data, send, game, decline }) => {
       setTimeLeft(Math.max(remainingTime, 0));
       
       if (remainingTime <= 0 || decline === "yes") {
+        setGlobalMessage({
+          message: "The match was either not accepted in time or was declined. You have been removed from the queue.",
+          isError: true,
+        });
         navigate(`/games/${game}/online`);
       }
     }, 60);

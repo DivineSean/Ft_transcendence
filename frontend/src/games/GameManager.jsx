@@ -19,9 +19,10 @@ const GameOverlay = ({
   userInfo,
   players,
   decline,
+  setGlobalMessage
 }) => {
   const navigate = useNavigate();
-  return <WaitingGame game={game} data={data} send={send} decline={decline.current}/>;
+  return <WaitingGame game={game} data={data} send={send} decline={decline.current} setGlobalMessage={setGlobalMessage}/>;
   let TimeoutWin = isWon;
   let TimeoutLoss = islost;
 
@@ -221,6 +222,7 @@ const GameManager = () => {
           userInfo={contextData.userInfo}
           players={playersRef}
           decline={declineRef}
+          setGlobalMessage={authContextData.setGlobalMessage}
         />
       )}
     </div>
