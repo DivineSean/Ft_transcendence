@@ -27,7 +27,6 @@ const Pong = ({
   islost,
   setIslost,
 }) => {
-
   const sm = useRef(null);
   const loaderRef = useRef(null);
   const loaderTRef = useRef(null);
@@ -58,16 +57,18 @@ const Pong = ({
       }
     };
 
-    
     handleOrientation();
     try {
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen();
-      } else if (document.documentElement.mozRequestFullScreen) { // Firefox
+      } else if (document.documentElement.mozRequestFullScreen) {
+        // Firefox
         document.documentElement.mozRequestFullScreen();
-      } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari
+      } else if (document.documentElement.webkitRequestFullscreen) {
+        // Chrome, Safari
         document.documentElement.webkitRequestFullscreen();
-      } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+      } else if (document.documentElement.msRequestFullscreen) {
+        // IE/Edge
         document.documentElement.msRequestFullscreen();
       }
     } catch (error) {

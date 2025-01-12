@@ -19,7 +19,7 @@ const GameOverlay = ({
   userInfo,
   players,
   decline,
-  setGlobalMessage
+  setGlobalMessage,
 }) => {
   const navigate = useNavigate();
 
@@ -38,7 +38,15 @@ const GameOverlay = ({
 
   switch (data.status) {
     case "waiting":
-      return <WaitingGame game={game} data={data} send={send} decline={decline.current} setGlobalMessage={setGlobalMessage}/>;
+      return (
+        <WaitingGame
+          game={game}
+          data={data}
+          send={send}
+          decline={decline.current}
+          setGlobalMessage={setGlobalMessage}
+        />
+      );
     case "expired":
       return (
         <GameStatus
@@ -159,7 +167,8 @@ const GameManager = () => {
           if (msg.message.status) setReady(msg.message.status === "ongoing");
           console.log(msg);
           if (msg.message.players) playersRef.current = msg.message.players;
-          if (msg.message.r && msg.message.r === "no") declineRef.current = "yes";
+          if (msg.message.r && msg.message.r === "no")
+            declineRef.current = "yes";
           setData((prevData) => ({
             ...prevData,
             ...msg.message,

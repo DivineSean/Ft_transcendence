@@ -24,22 +24,25 @@ const OnlineGame = ({ game = "" }) => {
     const isMobile = /android|iphone|ipad|ipod/i.test(
       navigator.userAgent || window.opera,
     );
-  
+
     if (!isMobile) return;
-  
+
     const exitFullscreen = () => {
       if (document.fullscreenElement) {
         // Exit fullscreen for browsers that support the Fullscreen API
         document.exitFullscreen().catch(() => {}); // Silently catch errors
-      } else if (document.webkitFullscreenElement) { // Safari/Chrome
+      } else if (document.webkitFullscreenElement) {
+        // Safari/Chrome
         document.webkitExitFullscreen();
-      } else if (document.mozFullScreenElement) { // Firefox
+      } else if (document.mozFullScreenElement) {
+        // Firefox
         document.mozCancelFullScreen();
-      } else if (document.msFullscreenElement) { // IE/Edge
+      } else if (document.msFullscreenElement) {
+        // IE/Edge
         document.msExitFullscreen();
       }
     };
-  
+
     const unlockOrientation = () => {
       if (screen.orientation?.unlock) {
         screen.orientation.unlock();
@@ -52,13 +55,11 @@ const OnlineGame = ({ game = "" }) => {
     } catch {
       // No action needed, errors are silently caught
     }
-  
+
     return () => {
       unlockOrientation();
     };
   }, []);
-  
-  
 
   const handleStartQueue = () => {
     setInQueue(true);
