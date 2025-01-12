@@ -264,11 +264,6 @@ export class SceneManager {
         ball.Achievement.currentTime = 0;
         ball.Achievement.play();
       }
-      console.log("Hello");
-      this.globalMessage({
-        message: "You didnt just win—you sent a message to everyone watching!",
-        title: "The Dominator",
-      });
       send(
         JSON.stringify({
           type: "Achievements",

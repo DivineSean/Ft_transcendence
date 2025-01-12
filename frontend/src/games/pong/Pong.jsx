@@ -27,6 +27,7 @@ const Pong = ({
   islost,
   setIslost,
 }) => {
+
   const sm = useRef(null);
   const loaderRef = useRef(null);
   const loaderTRef = useRef(null);
@@ -462,7 +463,7 @@ const Pong = ({
           </button>
         </div>
       )}
-      {authContextData.globalMessage.message && !isWon && !islost && (
+      {authContextData.globalMessage?.message && !isWon && !islost && (
         <GameToast
           duration={4000}
           message={authContextData.globalMessage.message}

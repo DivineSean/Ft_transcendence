@@ -1,69 +1,86 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Trophy } from "lucide-react";
 
-const GameToast = ({ duration = 3000, title, message, onClose }) => {
+const GameToast = ({
+  title,
+  message,
+  duration = 100000,
+  onClose
+}) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
     if (message) {
       setIsVisible(true);
-      setProgress(0);
+      setTimeout(() => setShowContent(true), 100);
+
+      const timer = setTimeout(() => {
+        setShowContent(false);
+        setTimeout(() => setIsVisible(false), 300);
+        if (onClose) onClose();
+      }, duration);
+
+      return () => clearTimeout(timer);
     }
-  }, [message]);
+  }, [message, duration, onClose]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prev) => (prev < 100 ? prev + 1 : 100));
-    }, duration / 100);
-    const timeout = setTimeout(() => {
-      setIsVisible(false);
-      if (onClose) onClose({ message: "", title: "" });
-    }, duration);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [duration, onClose]);
+  if (!isVisible || !message) return null;
 
   return (
-    isVisible &&
-    message && (
-      <fieldset
-        className={`
-          fixed md:top-[100px] top-32 left-1/2 transform -translate-x-1/2
-          flex flex-col z-10 md:p-16 p-8 px-16 rounded-md shadow-2xl
-          border-[0.5px] border-green
-        `}
-      >
-        {/* Bot Image in Legend */}
-        <legend className="md:px-8 text-left flex gap-4 items-center">
-          <img
-            src="/images/bot.png"
-            alt="Bot"
-            className="w-[40px] h-[40px] md:block hidden"
-          />
-          <p className="text-white text-md font-bold text-center tracking-wide">
-            {title}
-          </p>
-        </legend>
-
-        <div className="flex flex-col gap-16">
-          {/* Toast Message */}
-          <p className="text-gray text-lg normal-case text-center tracking-wide md:text-txt-md text-txt-xs">
-            {message}
-          </p>
-
+    <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full px-4 md:px-0 md:w-auto">
+      <div className={`
+        transform transition-all duration-300 ease-out
+        ${showContent ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}
+      `}>
+        {/* Main Container */}
+        <div className="bg-gray-900/95 backdrop-blur rounded-lg shadow-2xl 
+                      border border-white/10 overflow-hidden w-full md:w-80">
+          {/* Top Accent Line */}
+          <div className="h-1 bg-gradient-to-r from-blue-500 to-purple-500" />
+          
+          <div className="p-4">
+            {/* Icon & Title */}
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 animate-pulse">
+                {/* <Trophy className="w-5 h-5 text-white" /> */}
+                <img 
+                  src={`/images/achievement/icons/${title}.png`}
+                  alt="achievemet icon"
+                  className="w-56 h-56"
+                />
+              </div>
+              
+              <div>
+                <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">
+                achievement triggered
+                </p>
+                <h3 className="text-white font-bold mt-0.5">
+                  {title}
+                </h3>
+              </div>
+            </div>
+            
+            {/* Message */}
+            <p className="text-gray-300 text-sm mt-2">
+              {message}
+            </p>
+          </div>
+          
           {/* Progress Bar */}
-          <div className="w-full md:h-4 h-2 bg-gray-700 rounded-full overflow-hidden bg-black/70">
-            <div
-              className="h-full bg-green transition-all"
-              style={{ width: `${progress}%` }}
-            ></div>
+          <div className="relative h-1 bg-gray-800">
+            <div 
+              className="absolute left-0 top-0 h-full bg-gradient-to-r 
+                         from-blue-500 to-purple-500 transition-all duration-200"
+              style={{
+                width: showContent ? '100%' : '0%',
+                transitionDuration: `${duration}ms`
+              }}
+            />
           </div>
         </div>
-      </fieldset>
-    )
+      </div>
+    </div>
   );
 };
 
