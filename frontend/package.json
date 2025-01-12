@@ -29,7 +29,6 @@
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.169.0"
-    "lucide-react": "^0.300.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

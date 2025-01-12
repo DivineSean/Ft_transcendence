@@ -60,27 +60,27 @@ class GameConsumer(WebsocketConsumer):
 						message = data["message"]
 				except (json.JSONDecodeError, KeyError):
 						return
-        match type:
-            case "score":
-                self.update_score()
-            case "update":
-                async_to_sync(self.channel_layer.group_send)(
-                    self.group_name,
-                    {
-                        "type": "whisper",
-                        "info": "update",
-                        "sender": self.channel_name,
-                        "message": message,
-                    },
-                )
-            case "ready":
-                self.update_readiness()
-            case "notready":
-                self.sending_decline()
-            case "result":
-                self.update_result(message)
-            case "Achievements":
-                self.update_achievements(message)
+				match type:
+						case "score":
+								self.update_score()
+						case "update":
+								async_to_sync(self.channel_layer.group_send)(
+										self.group_name,
+										{
+												"type": "whisper",
+												"info": "update",
+												"sender": self.channel_name,
+												"message": message,
+										},
+								)
+						case "ready":
+								self.update_readiness()
+						case "notready":
+								self.sending_decline()
+						case "result":
+								self.update_result(message)
+						case "Achievements":
+								self.update_achievements(message)
 
 		def update_status(self, status):
 				try:
@@ -184,41 +184,41 @@ class GameConsumer(WebsocketConsumer):
 						},
 				)
 
-    def sending_decline(self):
-        async_to_sync(self.channel_layer.group_send)(
-            self.group_name,
-            {
-                "type": "broadcast",
-                "info": "game_manager",
-                "message": {
-                    "r": "no",
-                },
-            },
-        )
+		def sending_decline(self):
+				async_to_sync(self.channel_layer.group_send)(
+						self.group_name,
+						{
+								"type": "broadcast",
+								"info": "game_manager",
+								"message": {
+										"r": "no",
+								},
+						},
+				)
 
-        try:
-            GameRoom.objects.filter(pk=self.game_uuid).delete()
-            r.delete(f"game_room_data:{self.game_uuid}")
-        except Exception as e:
-            print("Failed To Delete GameRoom", str(e), flush=True)
+				try:
+						GameRoom.objects.filter(pk=self.game_uuid).delete()
+						r.delete(f"game_room_data:{self.game_uuid}")
+				except Exception as e:
+						print("Failed To Delete GameRoom", str(e), flush=True)
 
-    def update_readiness(self):
-        self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
-        for player in self.players:
-            if player["user"]["id"] == self.user_id and not player["ready"]:
-                player["ready"] = True
-                async_to_sync(self.channel_layer.group_send)(
-                    self.group_name,
-                    {
-                        "type": "broadcast",
-                        "info": "game_manager",
-                        "message": {
-                            "players": self.players,
-                            "r": "yes",
-                        },
-                    },
-                )
-                break
+		def update_readiness(self):
+				self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
+				for player in self.players:
+						if player["user"]["id"] == self.user_id and not player["ready"]:
+								player["ready"] = True
+								async_to_sync(self.channel_layer.group_send)(
+										self.group_name,
+										{
+												"type": "broadcast",
+												"info": "game_manager",
+												"message": {
+														"players": self.players,
+														"r": "yes",
+												},
+										},
+								)
+								break
 
 				self.save_game_data(players=json.dumps(self.players))
 				all_ready = all(player.get("ready", False) for player in self.players)
@@ -281,50 +281,50 @@ class GameConsumer(WebsocketConsumer):
 				else:
 						self.save_game_data(state=json.dumps(game_data["state"]))
 
-    def handle_timeout(self):
-        isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
-        if not isPlayer:
-            return
-        game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
-        if not game_data:
-            return
-        self.players = json.loads(game_data["players"])
-        if game_data["status"] in ("ongoing", "paused"):
-            leavers = json.loads(game_data["state"])
-            for player in self.players:
-                if player["user"]["id"] == self.user_id:
-                    if player["timeouts"] > 0:
-                        task = mark_game_abandoned.apply_async(
-                            args=[self.game_uuid, self.user_id],
-                            countdown=TIMEOUT_DURATION,
-                        )
-                        leavers[self.user_id] = {
-                            "task_id": task.id,
-                            "disconnect_at": datetime.now().isoformat(),
-                        }
-                        player["timeouts"] -= 1
-                        paused_at = int(time.time() * 1000)
-                        self.save_game_data(
-                            status="paused",
-                            paused_at=paused_at,
-                            state=json.dumps(leavers),
-                            players=json.dumps(self.players),
-                            countdown=0,
-                        )
-                    else:
-                        task = mark_game_abandoned.delay(self.game_uuid, self.user_id)
-                    break
-            async_to_sync(self.channel_layer.group_send)(
-                self.group_name,
-                {
-                    "type": "broadcast",
-                    "info": "game_manager",
-                    "message": {
-                        "status": "paused",
-                        "players": self.players,
-                    },
-                },
-            )
+		def handle_timeout(self):
+				isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
+				if not isPlayer:
+						return
+				game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
+				if not game_data:
+						return
+				self.players = json.loads(game_data["players"])
+				if game_data["status"] in ("ongoing", "paused"):
+						leavers = json.loads(game_data["state"])
+						for player in self.players:
+								if player["user"]["id"] == self.user_id:
+										if player["timeouts"] > 0:
+												task = mark_game_abandoned.apply_async(
+														args=[self.game_uuid, self.user_id],
+														countdown=TIMEOUT_DURATION,
+												)
+												leavers[self.user_id] = {
+														"task_id": task.id,
+														"disconnect_at": datetime.now().isoformat(),
+												}
+												player["timeouts"] -= 1
+												paused_at = int(time.time() * 1000)
+												self.save_game_data(
+														status="paused",
+														paused_at=paused_at,
+														state=json.dumps(leavers),
+														players=json.dumps(self.players),
+														countdown=0,
+												)
+										else:
+												task = mark_game_abandoned.delay(self.game_uuid, self.user_id)
+										break
+						async_to_sync(self.channel_layer.group_send)(
+								self.group_name,
+								{
+										"type": "broadcast",
+										"info": "game_manager",
+										"message": {
+												"status": "paused",
+												"players": self.players,
+										},
+								},
+						)
 
 		def save_game_data(self, countdown=30, **kwargs):
 				r.hset(f"game_room_data:{self.game_uuid}", mapping=kwargs)
