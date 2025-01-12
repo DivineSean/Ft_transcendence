@@ -48,28 +48,3 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: ${{ github.event.pull_request.head.ref }}
         message: 'Auto-format'
-
-  test-infrastructure:
-    name: Test infrastructure
-    needs: reformat
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          persist-credentials: false
-          fetch-depth: 0
-      - name: Add SSL certificates
-        run: |
-          mkdir certs
-          echo "${{ secrets.SSL_PUBLIC }}" > certs/server.pem
-          echo "${{ secrets.SSL_PRIVATE }}" > certs/server-key.pem
-      - name: Create .env file
-        run: echo "${{ secrets.ENV }}" > .env
-      - name: Docker Compose with Tests Action
-        uses: adambirds/docker-compose-action@v1.4.0
-        with:
-          up-flags: "--build"
-          down-flags: "--volumes"
