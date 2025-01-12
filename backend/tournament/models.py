@@ -75,10 +75,15 @@ class Bracket(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def getWinners(self):
+        
         return Player.objects.filter(
             game_room__bracket=self,
-            result__in=[Player.Result.WIN, Player.Result.DISCONNECTED]
+            result = Player.Result.WIN
+        ).select_related('user').order_by('id'), Player.objects.filter(
+            game_room__bracket=self,
+            result = Player.Result.DISCONNECTED
         ).select_related('user').order_by('id')
+
     
     def isComplete(self):
         return not GameRoom.objects.filter(

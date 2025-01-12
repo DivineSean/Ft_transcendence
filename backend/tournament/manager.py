@@ -6,6 +6,8 @@ from games.models import GameRoom
 from notification.models import Notifications
 from games.models import Player
 from tournament.models import Tournament,tournamentPlayer, Bracket
+from games.tasks import mark_game_room_as_expired
+from matchmaking.matchmaker import GAME_EXPIRATION
 import random
 
 class TournamentManager:
@@ -37,7 +39,7 @@ class TournamentManager:
     def create_game_pair(self, users, bracket):
         data = {
             "game": self.tournament.game.id,
-            "bracket": bracket.id, #new one 
+            "bracket": bracket.id, 
             "players": [
                 {"user": users[0].id, "role": 1},
                 {"user": users[1].id, "role": 2}
@@ -48,6 +50,10 @@ class TournamentManager:
 
         if serializer.is_valid():
             game_room = serializer.create(serializer.validated_data)
+            mark_game_room_as_expired.apply_async(
+                args=[game_room.id], countdown=GAME_EXPIRATION
+            )
+            
             # self.notify_players(users, game_room) mn b3d
         else:
             #chi wahed y dir chi raise wygol hada li lah 3aza wa jal
@@ -86,15 +92,15 @@ class TournamentManager:
         current_bracket = game_room.bracket
         
         if current_bracket.isComplete():
-            print("im in complete")
-            winners = list(current_bracket.getWinners())
+            print("im in complete") # WINNERS = DISCONNECTED + WINNERS
+            winners, disconnected = list(current_bracket.getWinners())
             print("winners len = ", len(winners))
             
-            skippedPlayerss = Player.objects.filter( # normally hadi makhshach trowi error
+            skippedPlayerss = Player.objects.filter( # normalement hadi makhshach trowi error
                     game_room__bracket__round_number=current_bracket.round_number - 1,
                     should_skip_next=True
                 ).select_related('user')
-            # totalPlayers = len(winners) + len(skippedPlayerss) #maybe nchecki bhadi not sure
+            # totalPlayers = len(winners) + len(skippedPlayerss) #maybe khsni nchecki bhadi not sure
             if len(winners) == 0: #maybe khsni n checki 3la skipped players hna
                 self.tournament.isCanceled = True
                 self.tournament.save()
@@ -105,16 +111,18 @@ class TournamentManager:
                 self.tournament.save()
                 return
 
-            next_bracket = self.tournament.advanceRound()
-            if next_bracket:
-                allPlayers = list(winners)
-                for skipped in skippedPlayerss:
+            nextBrackeet = self.tournament.advanceRound()
+            if nextBrackeet:
+                print("Im in next Bracket")
+                if len(skippedPlayerss) > 0: 
+                    for skipped in skippedPlayerss:
+                        
+                        skipped.should_skip_next = False
+                        skipped.save()
+                        winners.append(skipped)
+                        print("I m in next skipped")
                     
-                    skipped.should_skip_next = False
-                    skipped.save()
-                    allPlayers.append(skipped)
-                    print("I m in next Bracket")
-                self.createNextBracketGames(allPlayers, next_bracket)
+                self.createNextBracketGames(winners + disconnected, nextBrackeet)
     
     def PlayerSkip(self, winners):
         pattern = ['W' if w.result == Player.Result.WIN else 'D' for w in winners] #kan converti lista 
@@ -133,11 +141,10 @@ class TournamentManager:
                 # kanakhed ga3 l winners ila li khshom yt skipaw 
                 activePlayers = [w for w in winners 
                                 if w.result == Player.Result.WIN and winners.index(w) != skipIndex]
-                return skipIndex, activePlayers
-                
+                return skipIndex, activePlayers                
         return None, winners
 
-    def createNextBracketGames(self, winners, next_bracket):
+    def createNextBracketGames(self, winners, nextBrackeet):
         skipIndex, activePlayerss = self.PlayerSkip(winners)
         
         if skipIndex is not None:
@@ -149,12 +156,12 @@ class TournamentManager:
         else:
             playersToMatch = winners
 
-        # hadi la makan tawahed khso ytskipa
+        # kan creati l games normally
         for i in range(0, len(playersToMatch), 2):
             if i + 1 < len(playersToMatch):
                 self.create_game_pair(
                     [playersToMatch[i].user, playersToMatch[i + 1].user],
-                    next_bracket
+                    nextBrackeet
                 )
 
     

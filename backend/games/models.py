@@ -57,7 +57,7 @@ class Player(models.Model):
         WIN = "win", "Win"
         LOSS = "loss", "Loss"
         DRAW = "draw", "Draw"
-
+        DISCONNECTED = "Disconnected", "Disconnected"
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     game_room = models.ForeignKey(GameRoom, on_delete=models.CASCADE)
     rating_gain = models.PositiveSmallIntegerField()
@@ -67,8 +67,9 @@ class Player(models.Model):
     score = models.PositiveIntegerField(default=0)
     timeouts = models.PositiveSmallIntegerField(default=3)
     result = models.CharField(
-        max_length=10, choices=Result.choices, blank=True, null=True
+        max_length=12, choices=Result.choices, blank=True, null=True
     )
+    should_skip_next = models.BooleanField(default=False)
 
 
 class PlayerRating(models.Model):

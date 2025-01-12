@@ -7,7 +7,6 @@ import math
 from .tasks import  manageTournament
 from .serializers import TournamentSerializer
 from games.models import Game
-# from django.http import HttpResponse
 
 
 @api_view(["POST"])
@@ -61,8 +60,6 @@ def addPlayerToLobby(request):
     except:
         return Response("No Tournament with this lobbyID", status=400)
 
-    # managerObj = TournamentManager(lobby).startGame()
-
     playerObj = lobby.addPlayer(request.user)
     
     response = Response({"message": f"{playerObj[0]}"}, status=int(playerObj[1]))
@@ -76,13 +73,7 @@ def addPlayerToLobby(request):
         manageTournament.delay(tournamentID)
         lobby.isStarted = True
         lobby.save()
-
-        # print("Condition OUT")
-        # managerObj = TournamentManager(lobby)
-        # createBracket(lobby)
-
-     
-
+        
     return response
 
 

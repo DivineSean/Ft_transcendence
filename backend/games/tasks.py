@@ -19,6 +19,7 @@ r = redis.Redis(
 
 @shared_task
 def mark_game_abandoned(game_room_id, user_id):
+    from tournament.tasks import processGameResult
     game_room_data = r.hgetall(f"game_room_data:{game_room_id}")
     if not game_room_data:
         return f"GameRoom {game_room_id} state not found."
@@ -62,6 +63,10 @@ def mark_game_abandoned(game_room_id, user_id):
                 "message": game_room_data,
             },
         )
+
+        if game_room.bracket != None:
+            processGameResult.delay(game_room_id)
+        
         return f"GameRoom {game_room_id} marked as abandoned"
     else:
         return f"GameRoom {game_room_id} synching failed: {serializer.errors}"
@@ -69,10 +74,18 @@ def mark_game_abandoned(game_room_id, user_id):
 
 @shared_task
 def mark_game_room_as_expired(game_room_id):
+    from tournament.tasks import processGameResult
     try:
         game_room = GameRoom.objects.get(id=game_room_id)
         if game_room.status == "waiting":
             game_room.status = "expired"
+            players = Player.objects.filter(game_room = game_room)
+            for player in players: 
+                if player.ready == True: 
+                    player.result = Player.Result.WIN
+                else:
+                    player.result = Player.Result.DISCONNECTED
+                player.save()
             game_room.save()
 
             channel_layer = get_channel_layer()
@@ -87,6 +100,9 @@ def mark_game_room_as_expired(game_room_id):
                     },
                 },
             )
+
+            if game_room.bracket != None:
+                processGameResult.delay(game_room_id)
             return f"GameRoom {game_room_id} marked as expired."
     except GameRoom.DoesNotExist:
         return f"GameRoom {game_room_id} does not exist."
