@@ -1,9 +1,14 @@
 volumes:
   data:
+    name: data
   certs:
+    name: certs
   media:
+    name: media
   static:
+    name: static
   logs:
+    name: logs
 
 networks:
   ft_transcendence:
