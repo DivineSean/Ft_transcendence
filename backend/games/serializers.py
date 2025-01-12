@@ -134,9 +134,11 @@ class GameRoomSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         state = representation.get("state", {})
+        bracket = representation.get("bracket", None)
         players_data = PlayerSerializer(instance.player_set, many=True).data
         representation["players"] = json.dumps(players_data)
         representation["state"] = json.dumps(state)
+        representation["bracket"] = json.dumps(bracket)
         return representation
 
     def validate_players(self, value):

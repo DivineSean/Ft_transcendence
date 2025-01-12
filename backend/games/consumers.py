@@ -43,7 +43,7 @@ class GameConsumer(WebsocketConsumer):
 
         try:
             # Remove the player from the Redis list
-            if self.error == False:
+            if self.error is False:
                 r.lrem(f"game_room_data:{self.game_uuid}:players", 0, self.user_id)
         except Exception as e:
             print(f"Error while disconnecting player: {e}")
@@ -142,7 +142,9 @@ class GameConsumer(WebsocketConsumer):
         self.save_game_data(
             players=json.dumps(self.players), status="completed", countdown=0
         )
-        is_tournament = r.hget(f"game_room_data:{self.game_uuid}", "bracket")
+        is_tournament = json.loads(
+            r.hget(f"game_room_data:{self.game_uuid}", "bracket")
+        )
         print("----------------------------->", is_tournament, flush=True)
         if is_tournament:
             processGameResult.delay(self.game_uuid)
