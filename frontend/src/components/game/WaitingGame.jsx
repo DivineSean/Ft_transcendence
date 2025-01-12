@@ -145,7 +145,7 @@ const GameInfo = ({ game, flag }) => (
       <h2 className="text-xs md:text-sm text-white font-medium">{game} Game</h2>
     </span>
     <span className="px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-emerald-400/10 backdrop-blur-sm border border-emerald-400/20">
-      {flag !==0 ? (
+      {flag !== 0 ? (
         <span className="text-xs md:text-sm text-emerald-400 font-medium">
           Ranked Match
         </span>
