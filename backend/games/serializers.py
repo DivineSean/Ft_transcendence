@@ -24,15 +24,13 @@ class AchievementSerializer(serializers.ModelSerializer):
         if not user:
             return []
 
-        levels = ["bronze", "silver", "gold",
-                  "diamond", "platinium", "titanium"]
+        levels = ["bronze", "silver", "gold", "diamond", "platinium", "titanium"]
 
         player_achievements = PlayerAchievement.objects.filter(
             achievement=obj, user=user
         )
 
-        serializer_data = UserAchievementSerializer(
-            player_achievements, many=True).data
+        serializer_data = UserAchievementSerializer(player_achievements, many=True).data
 
         result = []
 
@@ -114,8 +112,7 @@ class PlayerRatingSerializer(serializers.ModelSerializer):
 class GameRoomSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(format="hex_verbose", read_only=True)
     game = serializers.PrimaryKeyRelatedField(queryset=Game.objects.all())
-    players = serializers.ListField(
-        child=serializers.DictField(), required=False)
+    players = serializers.ListField(child=serializers.DictField(), required=False)
     bracket = serializers.PrimaryKeyRelatedField(
         queryset=Bracket.objects.all(), required=False
     )
@@ -171,10 +168,8 @@ class GameRoomSerializer(serializers.ModelSerializer):
         instance.status = validated_data.get("status", instance.status)
         instance.state = validated_data.get("state", instance.state)
         instance.turn = validated_data.get("turn", instance.turn)
-        instance.started_at = validated_data.get(
-            "started_at", instance.started_at)
-        instance.paused_at = validated_data.get(
-            "paused_at", instance.paused_at)
+        instance.started_at = validated_data.get("started_at", instance.started_at)
+        instance.paused_at = validated_data.get("paused_at", instance.paused_at)
         instance.save()
 
         players_data = validated_data.get("players", [])
