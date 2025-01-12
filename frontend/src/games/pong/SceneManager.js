@@ -188,7 +188,7 @@ export class SceneManager {
     const loader = new FontLoader();
 
     loader.load(
-      `https://${window.location.hostname}:3000/src/games/pong/Font.json`,
+      `https://${window.location.hostname}:3000/public/games/Fonts/Font.json`,
       (font) => {
         plane.children.forEach((child) => {
           if (child.isMesh && child.geometry instanceof TextGeometry) {
@@ -264,11 +264,6 @@ export class SceneManager {
         ball.Achievement.currentTime = 0;
         ball.Achievement.play();
       }
-      console.log("Hello");
-      this.globalMessage({
-        message: "You didnt just win—you sent a message to everyone watching!",
-        title: "The Dominator",
-      });
       send(
         JSON.stringify({
           type: "Achievements",
@@ -582,7 +577,7 @@ export class SceneManager {
   addTextToPlane(plane, text, x, y, color) {
     const loader = new FontLoader();
     loader.load(
-      `https://${window.location.hostname}:3000/src/games/pong/Font.json`,
+      `https://${window.location.hostname}:3000/public/games/Fonts/Font.json`,
       (font) => {
         const textGeometry = new TextGeometry(text, {
           font: font,

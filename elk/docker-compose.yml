@@ -2,11 +2,10 @@
 
 volumes:
   certs:
-    name: certs
   elasticsearch:
-    name: elasticsearch
   kibana:
-    name: kibana
+  logs:
+    external: true
 
 networks:
   elk-stack:
@@ -78,7 +77,7 @@ services:
     restart: unless-stopped
     volumes:
       - certs:/usr/share/logstash/config/certs
-      - ../logs/:/usr/share/logstash/logs
+      - logs:/usr/share/logstash/logs
     env_file:
       - .env
     networks:

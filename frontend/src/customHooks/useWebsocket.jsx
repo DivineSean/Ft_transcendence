@@ -1,8 +1,9 @@
 import { useEffect, useRef, useCallback, useContext } from "react";
+import { BACKENDPORT } from "../utils/fetchWrapper";
 import AuthContext from "../context/AuthContext";
 
 const useWebSocket = (
-  url,
+  uri,
   {
     reconnectInterval = 2000,
     maxReconnectAttempts = 10,
@@ -37,6 +38,7 @@ const useWebSocket = (
 
   const connect = useCallback(() => {
     if (connectedRef.current) return;
+    const url = `wss://${window.location.hostname}:${BACKENDPORT}/${uri}`;
     debugLog(`Connecting to WebSocket at ${url}`);
 
     const ws = new WebSocket(url);
@@ -93,7 +95,7 @@ const useWebSocket = (
       onClose?.(event);
     };
   }, [
-    url,
+    uri,
     reconnectInterval,
     maxReconnectAttempts,
     onOpen,

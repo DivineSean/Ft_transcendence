@@ -1,4 +1,4 @@
-FROM	python:3.11.4-slim-buster as builder
+FROM	python:3.11.4-slim-buster AS builder
 
 # Set working directory
 WORKDIR	/app/backend
@@ -32,6 +32,10 @@ RUN		pip install --upgrade pip
 RUN		pip install --no-cache /wheels/*
 
 COPY	./backend/ .
+
+RUN		mkdir -p /var/log/uvicorn/ && \
+		touch /var/log/uvicorn/uvicorn.log && \
+		chown -R app:app /var/log/uvicorn
 
 RUN		chmod +x /home/app/entrypoint.sh
 RUN		chown -R app:app /home/app/

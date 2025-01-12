@@ -1,0 +1,81 @@
+# Monitoring system docker compose
+
+volumes:
+  prometheus:
+  alertmanager:
+  grafana:
+
+networks:
+  ft_transcendence:
+    external: true
+
+services:
+    prometheus:
+      image: prometheus
+      build: ./prometheus
+      container_name: prometheus
+      ports:
+        - 9090:9090
+        - 9093:9093
+      env_file:
+        - .env
+      volumes:
+        - prometheus:/var/lib/prometheus
+        - alertmanager:/var/lib/alertmanager
+      restart: unless-stopped
+      networks:
+          - ft_transcendence
+
+    grafana:
+      image: grafana
+      build: ./grafana
+      container_name: grafana
+      ports:
+        - 5000:5000
+      env_file:
+        - .env
+      volumes:
+        - grafana:/var/lib/grafana
+      restart: unless-stopped
+      networks:
+          - ft_transcendence
+
+    # Exporters
+    nginx-exporter:
+      image: nginx/nginx-prometheus-exporter:1.4.0
+      container_name: nginx-exporter
+      env_file:
+        - .env
+      command:
+        - --nginx.scrape-uri=${NGINX_SCRAPE_URI}
+      restart: unless-stopped
+      networks:
+          - ft_transcendence
+
+    redis-exporter:
+      image: oliver006/redis_exporter
+      container_name: redis-exporter
+      env_file:
+        - .env
+      command:
+        - --redis.addr=${REDIS_ADDR}
+        - --redis.password=${REDIS_PASSWORD}
+      restart: unless-stopped
+      networks:
+          - ft_transcendence
+
+    postgres-exporter:
+      image: prometheuscommunity/postgres-exporter
+      container_name: postgres-exporter
+      env_file:
+        - .env
+      restart: unless-stopped
+      networks:
+          - ft_transcendence
+
+    node-exporter:
+      image: prom/node-exporter
+      container_name: node-exporter
+      restart: unless-stopped
+      networks:
+          - ft_transcendence
