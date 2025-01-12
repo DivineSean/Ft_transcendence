@@ -320,7 +320,7 @@ class Paddle {
   async render() {
     this.model = await this.loader
       .loadAsync(
-        `https://${window.location.hostname}:3000/src/games/pong/paddle.glb`,
+        `https://${window.location.hostname}:3000/public/games/models/paddle.glb`,
       )
       .then((data) => data.scene.children[0]);
     this.model.position.set(this.x, this.y, this.z);
