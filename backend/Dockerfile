@@ -33,6 +33,10 @@ RUN		pip install --no-cache /wheels/*
 
 COPY	./backend/ .
 
+RUN		mkdir -p /var/log/uvicorn/ && \
+		touch /var/log/uvicorn/uvicorn.log && \
+		chown -R app:app /var/log/uvicorn
+
 RUN		chmod +x /home/app/entrypoint.sh
 RUN		chown -R app:app /home/app/
 

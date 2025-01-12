@@ -1,5 +1,8 @@
 volumes:
   data:
+  media:
+  static:
+  logs:
 
 networks:
   ft_transcendence:
@@ -15,7 +18,7 @@ services:
       - 3000:3000
     container_name: frontend
     depends_on:
-      - backend
+      - backend-dev
     restart: unless-stopped
     user: root
     volumes:
@@ -33,6 +36,8 @@ services:
     container_name: frontend
     volumes:
       - ./frontend/dist/:/home/app/dist:w
+    networks:
+        - ft_transcendence
     profiles:
       - prod
 
@@ -52,7 +57,7 @@ services:
     user: root # WARNING: For development only
     volumes:
       - ./backend/:/home/app:rw
-      - ./logs/uvicorn.log:/var/log/uvicorn/uvicorn.log
+      - logs:/var/log/uvicorn/
     networks:
         - ft_transcendence
     profiles:
@@ -71,7 +76,9 @@ services:
         condition: service_healthy
     restart: unless-stopped
     volumes:
-      - ./logs/uvicorn.log:/var/log/uvicorn/uvicorn.log
+      - media:/home/app/media/
+      - static:/home/app/static/
+      - logs:/var/log/uvicorn/
     networks:
         - ft_transcendence
     profiles:
@@ -125,7 +132,6 @@ services:
       - dev
       - prod
 
-      #TODO: serve media files
   nginx-dev:
     build:
       context: ./
@@ -135,12 +141,11 @@ services:
       - 8000:8000
     container_name: nginx
     depends_on:
-      - backend
+      - backend-dev
     restart: unless-stopped
     volumes:
-      - ./backend/static:/home/app/static
-      - ./logs/nginx_access.log:/var/log/nginx/access.log
-      - ./logs/nginx_errors.log:/var/log/nginx/error.log
+      - static:/home/app/static:ro
+      - logs:/var/log/nginx
     networks:
         - ft_transcendence
     profiles:
@@ -159,11 +164,11 @@ services:
       - backend
     restart: unless-stopped
     volumes:
-      - ./backend/static:/home/app/static
-      - ./logs/nginx_access.log:/var/log/nginx/access.log
-      - ./logs/nginx_errors.log:/var/log/nginx/error.log
+      - static:/home/app/static:ro
+      - media:/home/app/media:ro
+      - logs:/var/log/nginx/
       # - ./certs/:/etc/certs
-      - ./frontend/dist/:/home/app/dist
+      - ./frontend/dist/:/home/app/dist:ro
     networks:
         - ft_transcendence
     profiles:
