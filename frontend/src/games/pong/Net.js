@@ -14,7 +14,7 @@ export class Net {
   async render() {
     this.model = await this.loader
       .loadAsync(
-        `https://${window.location.hostname}:3000/src/games/pong/net.glb`,
+        `https://${window.location.hostname}:3000/public/games/models/net.glb`,
       )
       .then((data) => data.scene.children[0]);
 

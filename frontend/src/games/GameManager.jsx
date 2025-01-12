@@ -1,6 +1,5 @@
 import { useState, useEffect, memo, useContext, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { GameResult } from "./pong/Pong";
 import Pong from "./pong/Pong";
 import useWebSocket from "../customHooks/useWebsocket";
 import UserContext from "../context/UserContext.jsx";
@@ -8,6 +7,7 @@ import GamePaused from "../components/game/GamePaused.jsx";
 import WaitingGame from "../components/game/WaitingGame.jsx";
 import GameStatus from "../components/game/GameStatus.jsx";
 import AuthContext from "../context/AuthContext.jsx";
+import GameResult from "../components/game/GameResult.jsx";
 
 const GameOverlay = ({
   data,
@@ -18,6 +18,8 @@ const GameOverlay = ({
   isWon,
   userInfo,
   players,
+  decline,
+  setGlobalMessage,
 }) => {
   const navigate = useNavigate();
 
@@ -36,7 +38,15 @@ const GameOverlay = ({
 
   switch (data.status) {
     case "waiting":
-      return <WaitingGame game={game} data={data} send={send} />;
+      return (
+        <WaitingGame
+          game={game}
+          data={data}
+          send={send}
+          decline={decline.current}
+          setGlobalMessage={setGlobalMessage}
+        />
+      );
     case "expired":
       return (
         <GameStatus
@@ -71,7 +81,7 @@ const GameOverlay = ({
         </>
       );
     default:
-      navigate("/games/");
+      navigate(`/games/${game}/online`);
   }
 };
 
@@ -137,6 +147,7 @@ const GameManager = () => {
   const [data, setData] = useState(null);
   const { game, uuid } = useParams();
   const playersRef = useRef(null);
+  const declineRef = useRef("no");
   const authContextData = useContext(AuthContext);
   const navigate = useNavigate();
   function strictGreaterThanOrEqual(a, b) {
@@ -156,6 +167,8 @@ const GameManager = () => {
           if (msg.message.status) setReady(msg.message.status === "ongoing");
           console.log(msg);
           if (msg.message.players) playersRef.current = msg.message.players;
+          if (msg.message.r && msg.message.r === "no")
+            declineRef.current = "yes";
           setData((prevData) => ({
             ...prevData,
             ...msg.message,
@@ -217,6 +230,8 @@ const GameManager = () => {
           isWon={isWon}
           userInfo={contextData.userInfo}
           players={playersRef}
+          decline={declineRef}
+          setGlobalMessage={authContextData.setGlobalMessage}
         />
       )}
     </div>

@@ -20,12 +20,12 @@ const GamePaused = ({ game, image, isS }) => {
   }, []);
 
   const handleQuitClick = () => {
-    if (isS) navigate("/games/");
+    if (isS) navigate(`/games/${game}/online`);
     else setIsQuitConfirmed(true);
   };
 
   const handleConfirmQuit = () => {
-    navigate("/games/");
+    navigate(`/games/${game}/online`);
   };
 
   const handleCancelQuit = () => {
@@ -35,7 +35,7 @@ const GamePaused = ({ game, image, isS }) => {
   return (
     <div className="bg-black/50 absolute top-0 left-0 flex justify-center items-center w-full h-full overflow-y-auto no-scroll">
       <div className="container h-full flex justify-center items-center">
-        <div className="primary-glass w-full lg:h-[50%] h-[70%] lg:grid flex lg:grid-cols-[1fr_520px] overflow-hidden gap-16 items-center justify-center">
+        <div className="primary-glass rounded-lg lg:w-full w-[70%] lg:h-[50%] h-[70%] lg:grid flex lg:grid-cols-[1fr_520px] overflow-hidden gap-16 items-center justify-center">
           <div className="p-16 flex flex-col gap-32 h-full justify-center items-center">
             <h1 className="font-bold text-h-lg-lg">
               {game} game {countdown > 0 ? "Paused" : "Completed"}
@@ -76,7 +76,7 @@ const GamePaused = ({ game, image, isS }) => {
                       rating.
                     </>
                   ) : (
-                    "You're Patient been rewarded, Congratulation You Won!"
+                    "You're Patient been rewarded, Congratulations You Won!"
                   )}
                 </p>
               )}
