@@ -22,7 +22,13 @@ const GameOverlay = ({
   setGlobalMessage
 }) => {
   const navigate = useNavigate();
-  return <WaitingGame game={game} data={data} send={send} decline={decline.current} setGlobalMessage={setGlobalMessage}/>;
+  return (
+    <GameStatus
+    game={game}
+    title={"this game has been concluded"}
+    image={"/images/gameOver.png"}
+  />
+  );
   let TimeoutWin = isWon;
   let TimeoutLoss = islost;
 
@@ -73,7 +79,7 @@ const GameOverlay = ({
         </>
       );
     default:
-      navigate("/games/");
+      navigate(`/games/${game}/online`);
   }
 };
 
