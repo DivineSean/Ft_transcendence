@@ -1,30 +1,55 @@
 volumes:
   data:
+    name: data
+  certs:
+    name: certs
+  media:
+    name: media
+  static:
+    name: static
+  logs:
+    name: logs
 
 networks:
   ft_transcendence:
     name: ft_transcendence
 
 services:
-  frontend:
+  frontend-dev:
     build:
       context: ./
       dockerfile: ./frontend/Dockerfile
+      target: dev
     ports:
       - 3000:3000
     container_name: frontend
     depends_on:
-      - backend
+      - nginx-dev
     restart: unless-stopped
-    user: root # WARNING: For development only
+    user: root
     volumes:
       - ./frontend/public/:/home/app/public:rw
       - ./frontend/src/:/home/app/src:rw
+      - certs:/home/certs
     networks:
         - ft_transcendence
+    profiles:
+      - dev
+  frontend:
+    build:
+      context: ./
+      dockerfile: ./frontend/Dockerfile
+      target: prod
+    container_name: frontend
+    volumes:
+      - ./frontend/dist/:/home/app/dist:w
+    networks:
+        - ft_transcendence
+    profiles:
+      - prod
 
-  backend:
-    build: 
+  backend-dev:
+    build:
       context: ./
       dockerfile: ./backend/Dockerfile
     container_name: backend
@@ -36,12 +61,35 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
-    user: root # WARNING: For development only
+    user: root
     volumes:
       - ./backend/:/home/app:rw
-      - ./logs/uvicorn.log:/var/log/uvicorn/uvicorn.log
+      - logs:/var/log/uvicorn/
     networks:
         - ft_transcendence
+    profiles:
+      - dev
+  backend:
+    build:
+      context: ./
+      dockerfile: ./backend/Dockerfile
+    container_name: backend
+    env_file:
+        - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - media:/home/app/media/
+      - static:/home/app/static/
+      - logs:/var/log/uvicorn/
+    networks:
+        - ft_transcendence
+    profiles:
+      - prod
 
   db:
     build:
@@ -61,6 +109,9 @@ services:
       - data:/var/lib/postgresql/data
     networks:
         - ft_transcendence
+    profiles:
+      - dev
+      - prod
 
   redis:
     build:
@@ -75,29 +126,52 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
-    deploy:
-      resources:
-        limits:
-          memory: 512m  # Set the max memory for this container
-        reservations:
-          memory: 256m  # Set the minimum guaranteed memory
+    mem_limit: ${REDIS_MAXMEMORY}
     restart: unless-stopped
     networks:
         - ft_transcendence
+    profiles:
+      - dev
+      - prod
 
-  nginx:
-    build: 
+  nginx-dev:
+    build:
       context: ./
       dockerfile: ./nginx/Dockerfile
+      target: dev
     ports:
       - 8000:8000
+    container_name: nginx
+    depends_on:
+      - backend-dev
+    restart: unless-stopped
+    volumes:
+      - static:/home/app/static:ro
+      - logs:/var/log/nginx
+      - certs:/etc/certs
+    networks:
+        - ft_transcendence
+    profiles:
+      - dev
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./nginx/Dockerfile
+      target: prod
+    ports:
+      # - 443:443
+      # - 80:80
+      - 3000:443
     container_name: nginx
     depends_on:
       - backend
     restart: unless-stopped
     volumes:
-      - ./backend/static:/home/app/static
-      - ./logs/nginx_access.log:/var/log/nginx/access.log
-      - ./logs/nginx_errors.log:/var/log/nginx/error.log
+      - static:/home/app/static:ro
+      - media:/home/app/media:ro
+      - logs:/var/log/nginx/
+      - ./frontend/dist/:/home/app/dist:ro
     networks:
         - ft_transcendence
+    profiles:
+      - prod

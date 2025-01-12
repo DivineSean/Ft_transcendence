@@ -6,19 +6,16 @@ const OnlineGame = ({ game = "" }) => {
   const [playerCount, setPlayerCount] = useState(0);
   const [inQueue, setInQueue] = useState(false);
   const navigate = useNavigate();
-  const { send } = useWebSocket(
-    `wss://${window.location.hostname}:8000/ws/matchmaking/${game}`,
-    {
-      onMessage: (event) => {
-        const data = JSON.parse(event.data);
-        console.log(data);
-        if (data.type == "update") setPlayerCount(data.message);
-        else if (data.type == "match_found") {
-          navigate(`${data.message.room_id}`);
-        }
-      },
+  const { send } = useWebSocket(`ws/matchmaking/${game}`, {
+    onMessage: (event) => {
+      const data = JSON.parse(event.data);
+      console.log(data);
+      if (data.type == "update") setPlayerCount(data.message);
+      else if (data.type == "match_found") {
+        navigate(`${data.message.room_id}`);
+      }
     },
-  );
+  });
 
   useEffect(() => {
     const isMobile = /android|iphone|ipad|ipod/i.test(

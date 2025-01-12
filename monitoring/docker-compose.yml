@@ -2,11 +2,8 @@
 
 volumes:
   prometheus:
-    name: prometheus
   alertmanager:
-    name: alertmanager
   grafana:
-    name: grafana
 
 networks:
   ft_transcendence:
