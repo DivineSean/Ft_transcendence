@@ -104,14 +104,14 @@ const GameSelector = ({ currentGame, onGameChange }) => {
         </div>
         
         <div>
-          <span className="block text-emerald-500 text-xs font-bold tracking-[0.2em] mb-1">GAME RANKED</span>
+          <span className="block text-emerald-500 text-xs font-bold tracking-[0.2em] mb-1">RANKED SYSTEM</span>
           <label className="block text-white text-2xl font-bold">
             Select Game
           </label>
         </div>
       </div>
 
-      <div className="relative min-w-[300px]">
+      <div className="relative min-w-[200px]">
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="relative w-full bg-black/30 hover:bg-black/40 backdrop-blur-xl rounded-2xl border border-white/5 hover:border-emerald-500/30 text-white py-4 px-6 transition-all duration-300"
@@ -170,14 +170,14 @@ const Rankings = () => {
 
   }, [selectedGame]);
 
-  if (!Rankings || !Rankings.rankings) {
+  if (!Rankings || !Rankings.rankings) {//using BMO Running maybe a better idea
     return (
       <div className="flex flex-col grow lg:gap-20 gap-12">
         <Header link="rankings" />
         <div className="container mx-auto px-4 md:px-8 lg:px-16">
           <div className="primary-glass grow flex flex-col justify-center items-center md:p-20 p-8 rounded-lg shadow-lg">
             <p className="text-center text-xl font-semibold text-gray-700 animate-pulse">
-              Nobody Has Been Ranking Yet...
+              Loading Data From The Server...
             </p>
           </div>
         </div>
