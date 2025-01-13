@@ -218,7 +218,6 @@ def get_rankings(request, game_name=None):
 
         response_data = {
             "game": game_name,
-            "total_players": len(rankings),
             "rankings": rankings,
         }
 
