@@ -217,24 +217,6 @@ def get_rankings(request, game_name=None):
                 "is_self": user.id == current_user_id,
             })
         
-        # Add fake players for testing ==============================================================================================================================
-        fake_players = [
-            {
-                "rank": len(rankings) + idx + 1,
-                "user_id": f"fake-{idx}",
-                "username": random_username(),
-                "rating": 400 - idx * 10,
-                "exp": random.randint(0, 10),
-                "profile_image": None,
-                "ranked": "Bronze",
-                "demote": 350,
-                "promote": 651,
-                "is_self": False,
-            }
-            for idx in range(40)  # Add n fake players
-        ]
-        rankings.extend(fake_players)
-        #ended here ==================================================================================================================================================
         response_data = {
             "game": game_name,
             "total_players": len(rankings),
