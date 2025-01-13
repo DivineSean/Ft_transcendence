@@ -89,7 +89,7 @@ class PlayerRating(models.Model):
         (1251, 1550, "Platinum"),
         (1551, 1850, "Diamond"),
         (1851, 2150, "Master"),
-        (2151, float('inf'), "Grandmaster"),
+        (2151, float('inf'), "Elite"),
     ]
 
     @classmethod

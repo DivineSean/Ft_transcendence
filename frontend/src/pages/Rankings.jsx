@@ -11,15 +11,18 @@ const RankedUsers = ({ rank, username, demote, rating, promote, lvl, ranked }) =
   };
 
   return (
-    <div className="grid grid-cols-5 gap-32 text-center items-center hover:bg-white/5 rounded-lg py-2 transition-all duration-200">
+    <div className="grid lg:grid-cols-5 grid-cols-4 gap-32 text-center items-center hover:bg-white/5 rounded-lg py-2 transition-all duration-200">
       <p>{rank}</p>
       <p className="cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>{username}</p>
-      <p className="cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>{lvl}</p>
-      <p className="cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>{demote}/{rating}/{promote}</p>
+      <p className="hidden lg:block cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>{lvl}</p>
+      <p className="cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>
+        {demote}/{rating}/{promote}
+      </p>
       <p className="cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>{ranked}</p>
     </div>
   );
 };
+
 
 const TopThreePlayers = ({ players }) => {
   const navigate = useNavigate();
@@ -144,10 +147,10 @@ const Rankings = () => {
                   {currentUserRank && (
                     <>
                       <h3 className="text-white/60 font-medium z-10">Your Ranking</h3>
-                      <div className="grid grid-cols-5 gap-32 hover-secondary rounded-lg text-center py-4 z-10">
+                      <div className="grid lg:grid-cols-5 grid-cols-4 gap-32 hover-secondary rounded-lg text-center py-4 z-10">
                         <p>{currentUserRank.rank}</p>
                         <p className="font-bold">you</p>
-                        <p>{currentUserRank.exp}</p>
+                        <p className="hidden lg:block">{currentUserRank.exp}</p>
                         <p>{currentUserRank.demote}/{currentUserRank.rating}/{currentUserRank.promote}</p>
                         <p>{currentUserRank.ranked}</p>
                       </div>
@@ -155,10 +158,10 @@ const Rankings = () => {
                     </>
                   )}
 
-                  <div className="grid grid-cols-5 gap-32 text-center font-bold py-4 z-10">
+                  <div className="grid lg:grid-cols-5 grid-cols-4 gap-32 text-center font-bold py-4 z-10">
                     <p>Rank</p>
                     <p>Player</p>
-                    <p>Account Level</p>
+                    <p className="hidden lg:block">Account Level</p>
                     <p>
                       <span title="Demote">D/</span>
                       <span title="MMR">M/</span>

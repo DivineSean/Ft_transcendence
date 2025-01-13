@@ -207,7 +207,7 @@ def get_rankings(request, game_name=None):
             rankings.append({
                 "rank": idx,
                 "user_id": str(user.id),
-                "username": user.username,
+                "username": user.username[:10],
                 "rating": player.rating,
                 "exp": user.get_levels(),
                 "profile_image": user.profile_image.url if user.profile_image else None,
