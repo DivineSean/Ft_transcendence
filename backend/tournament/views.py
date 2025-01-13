@@ -16,17 +16,16 @@ def CreateTournament(request):
         return Response(
             {"error": "maxPlayers not specified or not a digit"}, status=400
         )
-    
+
     maxPlayers = int(maxPlayers)
     if maxPlayers not in [4, 8, 16]:
         return Response({"error": "maxPlayers khas ykon 4, 8, wla 16"}, status=400)
 
     tournamentName = request.data.get("TournamentName")
     if not tournamentName:
-        return Response({"error" : "Tournament Name not specified"}, status = 400)
-    if Tournament.objects.filter(TournamentTitle = tournamentName): 
-        return Response({"error": "This Tournament Already exists"}, status = 400)
-
+        return Response({"error": "Tournament Name not specified"}, status=400)
+    if Tournament.objects.filter(TournamentTitle=tournamentName):
+        return Response({"error": "This Tournament Already exists"}, status=400)
 
     existingLobby = Tournament.objects.filter(
         creator=request._user, isCompleted=False
@@ -34,9 +33,12 @@ def CreateTournament(request):
 
     if existingLobby:
         return Response(
-            {"message": "User already has active tournament",
-                "lobbyID": str(existingLobby.lobbyID)},status = 400
-        ) 
+            {
+                "message": "User already has active tournament",
+                "lobbyID": str(existingLobby.lobbyID),
+            },
+            status=400,
+        )
     try:
         newLobby = Tournament.objects.create(
             creator=request._user,
