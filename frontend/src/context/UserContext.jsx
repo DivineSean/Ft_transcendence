@@ -22,7 +22,7 @@ export const UserProvider = ({ children }) => {
   const [refresh, setRefresh] = useState(false);
   const [blockedUsers, setBlockedUsers] = useState(null);
   const [onlineMatches, setOnlineMatches] = useState(null);
-  const [Rankings, setRankings] = useState(null);
+  const [rankings, setRankings] = useState(null);
   const [profileAchievements, setProfileAchievements] = useState(null);
 
   const getUserInfo = async () => {
@@ -422,7 +422,7 @@ export const UserProvider = ({ children }) => {
 
   const contextData = {
     onlineMatches,
-    Rankings,
+    rankings,
     profileAchievements,
     blockedUsers,
     refresh,

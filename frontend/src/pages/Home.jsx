@@ -31,7 +31,8 @@ const Home = () => {
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="home" />
-      {authContextData.globalMessage.message && <Toast position="topCenter" />}
+      {authContextData.globalMessage &&
+        authContextData.globalMessage.message && <Toast position="topCenter" />}
       {userContextData.generalLoading && <LoadingPage />}
       {!userContextData.generalLoading && (
         <>
