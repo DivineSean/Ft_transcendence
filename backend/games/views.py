@@ -143,6 +143,7 @@ def inviteFriend(request, game_name=None):
         print(e, flush=True)
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(["GET"])
 def getOnlineMatches(request):
     games = GameRoom.objects.exclude(
@@ -175,6 +176,7 @@ def getOnlineMatches(request):
         gamestowatch.append(game_data)
 
     return Response(gamestowatch, status=status.HTTP_200_OK)
+
 
 @api_view(["GET"])
 def get_rankings(request, game_name=None):
