@@ -23,6 +23,7 @@ from .serializers import GameRoomSerializer
 import json
 from django.core.exceptions import ObjectDoesNotExist
 
+
 @api_view(["POST"])
 def inviteFriend(request, game_name=None):
 
@@ -176,13 +177,18 @@ def getOnlineMatches(request):
 
     return Response(gamestowatch, status=status.HTTP_200_OK)
 
-#remove later {
+
+# remove later {
 import random
 import string
 
+
 def random_username(length=8):
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
-#}
+    return "".join(random.choices(string.ascii_letters + string.digits, k=length))
+
+
+# }
+
 
 @api_view(["GET"])
 def get_rankings(request, game_name=None):
@@ -190,48 +196,50 @@ def get_rankings(request, game_name=None):
         return Response(
             {"error": "No game name provided"}, status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     try:
         game = Game.objects.get(name=game_name)
-        players = PlayerRating.objects.filter(game=game)\
-            .select_related('user')\
-            .order_by('-rating')
-        
+        players = (
+            PlayerRating.objects.filter(game=game)
+            .select_related("user")
+            .order_by("-rating")
+        )
+
         rankings = []
         current_user_id = request.user.id
 
         for idx, player in enumerate(players, 1):
             user = player.user
             lower, upper, rank = player.get_rank(player.rating)
-            
-            rankings.append({
-                "rank": idx,
-                "user_id": str(user.id),
-                "username": user.username,
-                "rating": player.rating,
-                "exp": user.get_levels(),
-                "profile_image": user.profile_image.url if user.profile_image else None,
-                "ranked": rank,
-                "demote": lower,
-                "promote": upper,
-                "is_self": user.id == current_user_id,
-            })
-        
+
+            rankings.append(
+                {
+                    "rank": idx,
+                    "user_id": str(user.id),
+                    "username": user.username,
+                    "rating": player.rating,
+                    "exp": user.get_levels(),
+                    "profile_image": (
+                        user.profile_image.url if user.profile_image else None
+                    ),
+                    "ranked": rank,
+                    "demote": lower,
+                    "promote": upper,
+                    "is_self": user.id == current_user_id,
+                }
+            )
+
         response_data = {
             "game": game_name,
             "total_players": len(rankings),
             "rankings": rankings,
         }
-        
+
         return Response(response_data, status=status.HTTP_200_OK)
-    
+
     except ObjectDoesNotExist:
         return Response(
-            {"error": f"Game '{game_name}' not found"}, 
-            status=status.HTTP_404_NOT_FOUND
+            {"error": f"Game '{game_name}' not found"}, status=status.HTTP_404_NOT_FOUND
         )
     except Exception as e:
-        return Response(
-            {"error": str(e)}, 
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

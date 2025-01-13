@@ -89,16 +89,19 @@ class PlayerRating(models.Model):
         (1251, 1550, "Platinum"),
         (1551, 1850, "Diamond"),
         (1851, 2150, "Master"),
-        (2151, float('inf'), "Elite"),
+        (2151, float("inf"), "Elite"),
     ]
 
     @classmethod
     def get_rank(cls, rating):
         for lower, upper, rank in cls.RANKS:
             if lower <= rating <= upper:
-                return lower - 1 if lower != 0 else 0, upper + 1 if upper != float('inf') else '+inf', rank
+                return (
+                    lower - 1 if lower != 0 else 0,
+                    upper + 1 if upper != float("inf") else "+inf",
+                    rank,
+                )
         return 0, 351, "Iron"
-
 
     @classmethod
     def handle_rating(cls, user, game, player):
