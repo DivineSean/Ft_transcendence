@@ -64,6 +64,7 @@ services:
     user: root
     volumes:
       - ./backend/:/home/app:rw
+      - static:/home/app/static
       - logs:/var/log/uvicorn/
     networks:
         - ft_transcendence
