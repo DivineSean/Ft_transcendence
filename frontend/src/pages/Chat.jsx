@@ -162,7 +162,7 @@ const Chat = () => {
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="chat" />
 
-      {authContextData.globalMessage.message && <Toast position="topCenter" />}
+      {authContextData.globalMessage && authContextData.globalMessage.message && <Toast position="topCenter" />}
       {!notifContextData.friendsData && <LoadingPage />}
 
       {notifContextData.friendsData && (
