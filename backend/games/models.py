@@ -96,7 +96,7 @@ class PlayerRating(models.Model):
     def get_rank(cls, rating):
         for lower, upper, rank in cls.RANKS:
             if lower <= rating <= upper:
-                return lower - 1, upper if upper != float('inf') else '+inf', rank
+                return lower - 1 if lower != 0 else 0, upper + 1 if upper != float('inf') else '+inf', rank
         return 0, 351, "Iron"
 
 

@@ -13,11 +13,12 @@ const RankedUsers = ({ rank, username, demote, rating, promote, lvl, ranked }) =
   return (
     <div className="grid lg:grid-cols-5 grid-cols-4 gap-32 text-center items-center hover:bg-white/5 rounded-lg py-2 transition-all duration-200">
       <p>{rank}</p>
-      <p className="cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>{username}</p>
+      <p className="cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>{username.length > 10 ? `${username.substring(0, 10)}...` : username}</p>
       <p className="hidden lg:block cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>{lvl}</p>
-      <p className="cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>
+      <p className="lg:block hidden cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>
         {demote}/{rating}/{promote}
       </p>
+      <p className="lg:hidden block">{rating}</p>
       <p className="cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>{ranked}</p>
     </div>
   );
@@ -151,7 +152,8 @@ const Rankings = () => {
                         <p>{currentUserRank.rank}</p>
                         <p className="font-bold">you</p>
                         <p className="hidden lg:block">{currentUserRank.exp}</p>
-                        <p>{currentUserRank.demote}/{currentUserRank.rating}/{currentUserRank.promote}</p>
+                        <p className="lg:block hidden">{currentUserRank.demote}/{currentUserRank.rating}/{currentUserRank.promote}</p>
+                        <p className="lg:hidden block">{currentUserRank.rating}</p>
                         <p>{currentUserRank.ranked}</p>
                       </div>
                       <div className="h-[0.5px] bg-stroke-sc mt-4"></div>
@@ -162,10 +164,13 @@ const Rankings = () => {
                     <p>Rank</p>
                     <p>Player</p>
                     <p className="hidden lg:block">Account Level</p>
-                    <p>
+                    <p className="lg:block hidden">
                       <span title="Demote">D/</span>
                       <span title="MMR">M/</span>
                       <span title="Promote">P</span>
+                    </p>
+                    <p className="lg:hidden block">
+                      <span>MMR</span>
                     </p>
                     <p>Elo</p>
                   </div>
