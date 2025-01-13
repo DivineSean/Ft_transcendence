@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import UserContext from "../context/UserContext";
+import AuthContext from "../context/AuthContext";
 
 const RankedUsers = ({
   rank,
@@ -203,10 +204,13 @@ const GameSelector = ({ currentGame, onGameChange }) => {
 
 const Rankings = () => {
   const { Rankings, get_rankings } = useContext(UserContext);
+  const authContextData = useContext(AuthContext);
   const [selectedGame, setSelectedGame] = useState("pong");
 
   useEffect(() => {
     get_rankings(selectedGame);
+    return () =>
+      authContextData.setGlobalMessage({ message: "", isError: false });
   }, [selectedGame]);
 
   if (!Rankings || !Rankings.rankings) {
