@@ -5,8 +5,8 @@ import AuthContext from "@/context/AuthContext";
 import FetchWrapper from "@/utils/fetchWrapper";
 
 const CreateTournament = ({ setDisplayCreateTournament }) => {
-	const authContextData = useContext(AuthContext);
-	const FetchData = new FetchWrapper();
+  const authContextData = useContext(AuthContext);
+  const FetchData = new FetchWrapper();
   const [formData, setFormData] = useState({
     tournament_name: "",
     games: "pong",
@@ -25,35 +25,31 @@ const CreateTournament = ({ setDisplayCreateTournament }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-		try {
-			const res = await FetchData.post('api/tournament/create/', {
-				maxPlayers: formData.players,
-				tournamentName: formData.tournament_name
-			});
-			console.log(res);
-			if (res.ok) {
-
-				const data = await res.json();
-				authContextData.setGlobalMessage({
-					message: data.message,
-					isError: true,
-				});
-
-			} else if (res.status === 400) {
-
-				const data = await res.json();
-				authContextData.setGlobalMessage({
-					message: data.error,
-					isError: true,
-				});
-
-			}
-		} catch (error) {
-			authContextData.setGlobalMessage({
-				message: error.message,
-				isError: true,
-			});
-		}
+    try {
+      const res = await FetchData.post("api/tournament/create/", {
+        maxPlayers: formData.players,
+        tournamentName: formData.tournament_name,
+      });
+      console.log(res);
+      if (res.ok) {
+        const data = await res.json();
+        authContextData.setGlobalMessage({
+          message: data.message,
+          isError: true,
+        });
+      } else if (res.status === 400) {
+        const data = await res.json();
+        authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
+      }
+    } catch (error) {
+      authContextData.setGlobalMessage({
+        message: error.message,
+        isError: true,
+      });
+    }
     console.log(formData);
   };
 

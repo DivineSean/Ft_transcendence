@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tournament', '0003_tournament_iscanceled'),
+        ("tournament", "0003_tournament_iscanceled"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='tournament',
-            name='tournamentTitle',
-            field=models.TextField(default='', max_length=15),
+            model_name="tournament",
+            name="tournamentTitle",
+            field=models.TextField(default="", max_length=15),
             preserve_default=False,
         ),
     ]

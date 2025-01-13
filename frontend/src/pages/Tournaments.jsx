@@ -7,7 +7,7 @@ import Toast from "@/components/Toast";
 import AuthContext from "@/context/AuthContext";
 
 const Tournaments = () => {
-	const authContextData = useContext(AuthContext);
+  const authContextData = useContext(AuthContext);
   const { uid } = useParams();
   const navigate = useNavigate();
   const [displayCreateTournament, setDisplayCreateTournament] = useState(false);
@@ -37,17 +37,17 @@ const Tournaments = () => {
     );
   }
 
-	useEffect(() => {
-		return () => {
-			authContextData.setGlobalMessage({message: '', isError: false});
-		}
-	}, []);
+  useEffect(() => {
+    return () => {
+      authContextData.setGlobalMessage({ message: "", isError: false });
+    };
+  }, []);
 
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="tournaments" />
 
-			{authContextData.globalMessage &&
+      {authContextData.globalMessage &&
         authContextData.globalMessage.message && <Toast position="topCenter" />}
 
       {displayCreateTournament && (
