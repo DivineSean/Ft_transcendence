@@ -177,6 +177,7 @@ def getOnlineMatches(request):
 
     return Response(gamestowatch, status=status.HTTP_200_OK)
 
+
 @api_view(["GET"])
 def get_rankings(request, game_name=None):
     if not game_name:
