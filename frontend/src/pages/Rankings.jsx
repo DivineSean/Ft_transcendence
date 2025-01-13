@@ -31,7 +31,7 @@ const Rankings = () => {
   const currentUserRank = rankings.rankings.find((player) => player.is_self);
   const otherPlayers = rankings.rankings.filter(
     (player) =>
-      !player.is_self && !rankings.rankings.slice(0, 2).includes(player),
+      !rankings.rankings.slice(0, 2).includes(player),
   );
 
   return (
@@ -77,7 +77,7 @@ const Rankings = () => {
 									</div>
 
 									<div className="flex flex-col gap-8 lg:overflow-y-scroll no-scrollbar z-10">
-										{otherPlayers.map((player, index) => (
+										{otherPlayers.map((player) => (
 											<RankedUsers
 												key={player.user_id}
 												rank={player.rank}
@@ -87,6 +87,7 @@ const Rankings = () => {
 												promote={player.promote}
 												lvl={player.exp}
 												ranked={player.ranked}
+												isSelf={player.is_self}
 											/>
 										))}
 									</div>
