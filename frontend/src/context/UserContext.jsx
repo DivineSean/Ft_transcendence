@@ -22,6 +22,7 @@ export const UserProvider = ({ children }) => {
   const [refresh, setRefresh] = useState(false);
   const [blockedUsers, setBlockedUsers] = useState(null);
   const [onlineMatches, setOnlineMatches] = useState(null);
+  const [Rankings, setRankings] = useState(null);
   const [profileAchievements, setProfileAchievements] = useState(null);
 
   const getUserInfo = async () => {
@@ -389,7 +390,6 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  // --------- start home functions --------- //
   const getOnlineMatches = async () => {
     try {
       const res = await FetchData.get("api/matches/");
@@ -404,10 +404,25 @@ export const UserProvider = ({ children }) => {
       });
     }
   };
-  // --------- end home functions --------- //
+
+  const get_rankings = async (game) => {
+    try {
+      const res = await FetchData.get(`api/rankings/${game}`);
+      if (res.ok) {
+        const data = await res.json();
+        setRankings(data);
+      }
+    } catch (error) {
+      authContextData.setGlobalMessage({
+        message: error.message,
+        isError: true,
+      });
+    }
+  };
 
   const contextData = {
     onlineMatches,
+    Rankings,
     profileAchievements,
     blockedUsers,
     refresh,
@@ -438,6 +453,7 @@ export const UserProvider = ({ children }) => {
     getBlockedUsers,
 
     getOnlineMatches,
+    get_rankings,
     getProfileAchievements,
   };
 

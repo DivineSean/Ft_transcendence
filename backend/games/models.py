@@ -81,6 +81,25 @@ class PlayerRating(models.Model):
     rating = models.PositiveIntegerField(default=951)
     updated_at = models.DateTimeField(auto_now=True)
 
+    RANKS = [
+        (0, 350, "Iron"),
+        (351, 650, "Bronze"),
+        (651, 950, "Silver"),
+        (951, 1250, "Gold"),
+        (1251, 1550, "Platinum"),
+        (1551, 1850, "Diamond"),
+        (1851, 2150, "Master"),
+        (2151, float('inf'), "Grandmaster"),
+    ]
+
+    @classmethod
+    def get_rank(cls, rating):
+        for lower, upper, rank in cls.RANKS:
+            if lower <= rating <= upper:
+                return lower - 1, upper if upper != float('inf') else '+inf', rank
+        return 0, 351, "Iron"
+
+
     @classmethod
     def handle_rating(cls, user, game, player):
         try:

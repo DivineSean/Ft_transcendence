@@ -1,110 +1,194 @@
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
+import UserContext from "../context/UserContext";
 
-const RankedUsers = ({ rank, player, won, winRate, status }) => {
+const RankedUsers = ({ rank, username, demote, rating, promote, lvl, ranked }) => {
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    navigate(`/profile/overview/${username}`);
+  };
+
   return (
-    <div className="grid grid-cols-5 gap-32 text-center">
+    <div className="grid grid-cols-5 gap-32 text-center items-center hover:bg-white/5 rounded-lg py-2 transition-all duration-200">
       <p>{rank}</p>
-      <p>{player}</p>
-      <p>{won}</p>
-      <p>{winRate}</p>
-      <p>{status}</p>
+      <p className="cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>{username}</p>
+      <p className="cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>{lvl}</p>
+      <p className="cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>{demote}/{rating}/{promote}</p>
+      <p className="cursor-pointer hover:text-green transition-colors duration-200" onClick={handleProfileClick}>{ranked}</p>
     </div>
   );
 };
 
+const TopThreePlayers = ({ players }) => {
+  const navigate = useNavigate();
+  const visualOrder = [1, 0, 2];
+  const heights = ["h-[120px]", "h-[160px]", "h-[80px]"];
+  const imgSizes = [
+    "md:w-[80px] md:h-[80px] w-[56px] h-[56px]",
+    "md:w-[96px] w-[64px] md:h-[96px] h-[64px]",
+    "md:w-[80px] w-[56px] md:h-[80px] h-[56px]"
+  ];
+  const textSizes = [
+    "text-h-lg-2xl",
+    "text-h-lg-4xl text-green",
+    "text-h-lg-xl"
+  ];
+
+  const handleProfileClick = (username) => {
+    navigate(`/profile/overview/${username}`);
+  };
+
+  return (
+    <div className="grid grid-cols-3 md:gap-32 gap-16 items-end justify-center lg:px-64 md:px-16 px-8">
+      {visualOrder.map((playerIndex, visualIndex) => {
+        const player = players[playerIndex];
+        if (!player) return null;
+
+        return (
+          <div key={playerIndex} className="flex flex-col gap-16">
+            <div 
+              className="flex flex-col items-center gap-8 cursor-pointer" 
+              onClick={() => handleProfileClick(player.username)}
+            >
+              <img
+                src={player.profile_image || "/images/default.jpeg"}
+                className={`${imgSizes[visualIndex]} object-cover grow rounded-full`}
+                alt={player.username}
+                draggable="false"
+              />
+              <h2 className={visualIndex === 1 ? "md:text-txt-md text-txt-xs" : "text-txt-xs"}>
+                {player.username}
+              </h2>
+            </div>
+            <div className={`${heights[visualIndex]} bg-[url('/images/background.png')] bg-top bg-cover norepeat overflow-hidden relative flex justify-center items-center rounded-t-lg`}>
+              <div className="absolute hover-secondary backdrop-blur-2xl w-full h-full"></div>
+              <p className={`${textSizes[visualIndex]} font-bold z-10`}>{player.rank}</p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const GameSelector = ({ currentGame, onGameChange }) => {
+  const games = ["pong"];
+
+  return (
+    <>
+    <label className="text-white mb-4">Games:</label>
+    <div className="flex justify-start mb-8">
+      <select 
+        value={currentGame} 
+        onChange={(e) => onGameChange(e.target.value)}
+        className="bg-black/10 backdrop-blur rounded-lg border border-white/10 hover:border-white/20 text-white font-medium text-md py-2 px-4 pr-8 cursor-pointer focus:outline-none"
+      >
+        {games.map(game => (
+          <option key={game} value={game} className="bg-black/10 text-white">
+            {game}
+          </option>
+        ))}
+      </select>
+    </div>
+    </>
+  );
+};
+
+
 const Rankings = () => {
-  const { displayMenuGl } = useContext(AuthContext);
-  const rankedUsers = [];
-  for (let i = 1; i < 100; i++) {
-    rankedUsers.push(
-      <RankedUsers
-        key={i}
-        rank={i}
-        player={"si mhammed"}
-        won={i}
-        winRate={Math.floor(Math.random() * 100)}
-        status={"online"}
-      />,
+
+  const { Rankings, get_rankings } = useContext(UserContext);
+  const [selectedGame, setSelectedGame] = useState("pong");
+
+  useEffect(() => {
+    get_rankings(selectedGame);
+
+  }, [selectedGame]);
+
+  if (!Rankings || !Rankings.rankings) {
+    return (
+      <div className="flex flex-col grow lg:gap-20 gap-12">
+        <Header link="rankings" />
+        <div className="container mx-auto px-4 md:px-8 lg:px-16">
+          <div className="primary-glass grow flex flex-col justify-center items-center md:p-20 p-8 rounded-lg shadow-lg">
+            <p className="text-center text-xl font-semibold text-gray-700 animate-pulse">
+              Nobody Has Been Ranking Yet...
+            </p>
+          </div>
+        </div>
+      </div>
     );
   }
+
+  const currentUserRank = Rankings.rankings.find(player => player.is_self);
+  const otherPlayers = Rankings.rankings.filter(player => !player.is_self && !Rankings.rankings.slice(0, 3).includes(player));
+
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="rankings" />
-      {!displayMenuGl && (
         <div className="container md:px-16 px-0">
-          <div className="primary-glass grow flex flex-col md:p-32 p-16 gap-32 get-height">
+          <div className="primary-glass grow flex flex-col md:p-32 p-16 gap-16 get-height">
             <div className="flex flex-col overflow-hidden">
-              <div className="grid grid-cols-3 md:gap-32 gap-16 items-end justify-center lg:px-64 md:px-16 px-8">
-                <div className="flex flex-col gap-16">
-                  <div className="flex flex-col items-center gap-8">
-                    <img
-                      src="/images/profile.png"
-                      className="md:w-[80px] md:h-[80px] w-[56px] h-[56px] rounded-full"
-                    />
-                    <h2 className="text-txt-xs">simohammed</h2>
-                  </div>
-                  <div className="h-[120px] bg-[url('/images/background.png')] bg-top bg-cover norepeat overflow-hidden relative flex justify-center items-center rounded-t-lg">
-                    <div className="absolute hover-secondary backdrop-blur-2xl w-full h-full"></div>
-                    <p className="text-h-lg-2xl font-bold z-10">2</p>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-16">
-                  <div className="flex flex-col items-center gap-8">
-                    <img
-                      src="/images/profile.png"
-                      className="md:w-[96px] w-[64px] md:h-[96px] h-[64px] rounded-full"
-                    />
-                    <h2 className="md:text-txt-md text-txt-xs">simohammed</h2>
-                  </div>
-                  <div className="h-[160px] bg-[url('/images/background.png')] bg-top bg-cover norepeat overflow-hidden relative flex justify-center items-center rounded-t-lg">
-                    <div className="absolute hover-secondary backdrop-blur-2xl w-full h-full"></div>
-                    <p className="text-h-lg-4xl text-green font-bold z-10">1</p>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-16">
-                  <div className="flex flex-col items-center gap-8">
-                    <img
-                      src="/images/profile.png"
-                      className="md:w-[80px] w-[56px] md:h-[80px] h-[56px] rounded-full"
-                    />
-                    <h2 className="text-txt-xs">simohammed</h2>
-                  </div>
-                  <div className="h-[80px] bg-[url('/images/background.png')] bg-center bg-cover norepeat overflow-hidden relative flex justify-center items-center rounded-t-lg">
-                    <div className="absolute hover-secondary backdrop-blur-2xl w-full h-full"></div>
-                    <p className="text-h-lg-xl font-bold z-10">3</p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-[url('/images/background.png')] norepeat relative flex flex-col p-32 gap-16 overflow-hidden rounded-md bg-cover bg-center bg-fixed">
+              <GameSelector 
+
+                currentGame={selectedGame} 
+                onGameChange={setSelectedGame}
+              />
+              
+              <TopThreePlayers players={Rankings.rankings.slice(0, 3)} />
+              
+              <div className="bg-[url('/images/background.png')] relative flex flex-col p-32 gap-8 overflow-hidden rounded-md bg-cover bg-center bg-fixed mt-16">
                 <div className="absolute w-full h-full secondary-glass top-0 left-0"></div>
-                <div className="grid grid-cols-5 gap-32 hover-secondary rounded-lg text-center py-8 z-10">
-                  <p>22</p>
-                  <p className="font-bold">you</p>
-                  <p>426</p>
-                  <p>20%</p>
-                  <p className="text-green">Online</p>
+                
+                {currentUserRank && (
+                  <>
+                    <h3 className="text-white/60 font-medium z-10">Your Ranking</h3>
+                    <div className="grid grid-cols-5 gap-32 hover-secondary rounded-lg text-center py-4 z-10">
+                      <p>{currentUserRank.rank}</p>
+                      <p className="font-bold">you</p>
+                      <p>{currentUserRank.exp}</p>
+                      <p>{currentUserRank.demote}/{currentUserRank.rating}/{currentUserRank.promote}</p>
+                      <p>{currentUserRank.ranked}</p>
+                    </div>
+                    <div className="h-[0.5px] bg-stroke-sc mt-4"></div>
+                  </>
+                )}
+
+                <div className="grid grid-cols-5 gap-32 text-center font-bold py-4 z-10">
+                  <p>Rank</p>
+                  <p>Player</p>
+                  <p>Account Level</p>
+                  <p>
+                    <span title="Demote">D/</span>
+                    <span title="MMR">M/</span>
+                    <span title="Promote">P</span>
+                  </p>
+                  <p>Elo</p>
                 </div>
-                <div className="flex flex-col gap-8 mt-16 z-10">
-                  <div className="h-[0.5px] bg-stroke-sc"></div>
-                  <div className="grid grid-cols-5 gap-32 text-center font-bold py-8">
-                    <p>rank</p>
-                    <p>player</p>
-                    <p>won</p>
-                    <p>win rate</p>
-                    <p>status</p>
-                  </div>
-                  <div className="h-[0.5px] bg-stroke-sc"></div>
-                </div>
-                <div className="flex flex-col gap-16 overflow-y-scroll no-scrollbar z-10">
-                  {rankedUsers}
+
+                <div className="h-[0.5px] bg-stroke-sc"></div>
+
+                <div className="flex flex-col gap-2 overflow-y-scroll no-scrollbar z-10">
+                  {otherPlayers.map((player) => (
+                    <RankedUsers
+                      key={player.user_id}
+                      rank={player.rank}
+                      username={player.username}
+                      demote={player.demote}
+                      rating={player.rating}
+                      promote={player.promote}
+                      lvl={player.exp}
+                      ranked={player.ranked}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
           </div>
         </div>
-      )}
     </div>
   );
 };
