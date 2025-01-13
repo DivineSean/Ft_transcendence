@@ -78,28 +78,87 @@ const TopThreePlayers = ({ players }) => {
 };
 
 const GameSelector = ({ currentGame, onGameChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
   const games = ["pong"];
 
   return (
-    <>
-    <label className="text-white mb-4">Games:</label>
-    <div className="flex justify-start mb-8">
-      <select 
-        value={currentGame} 
-        onChange={(e) => onGameChange(e.target.value)}
-        className="bg-black/10 backdrop-blur rounded-lg border border-white/10 hover:border-white/20 text-white font-medium text-md py-2 px-4 pr-8 cursor-pointer focus:outline-none"
-      >
-        {games.map(game => (
-          <option key={game} value={game} className="bg-black/10 text-white">
-            {game}
-          </option>
-        ))}
-      </select>
+    <div className="flex items-center gap-6 mb-8">
+      <div className="flex items-center gap-4">
+        {/* Animated Game controller icon with glow effect */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-emerald-500/30 blur-xl rounded-full animate-pulse"></div>
+          <svg 
+            className="relative w-7 h-7 text-emerald-400"
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="1.5" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6Z"/>
+            <circle cx="17" cy="12" r="1" fill="currentColor"/>
+            <circle cx="14" cy="12" r="1" fill="currentColor"/>
+            <path d="M8 10v4M6 12h4"/>
+          </svg>
+        </div>
+        
+        <div>
+          <span className="block text-emerald-500 text-xs font-bold tracking-[0.2em] mb-1">GAME RANKED</span>
+          <label className="block text-white text-2xl font-bold">
+            Select Game
+          </label>
+        </div>
+      </div>
+
+      <div className="relative min-w-[300px]">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="relative w-full bg-black/30 hover:bg-black/40 backdrop-blur-xl rounded-2xl border border-white/5 hover:border-emerald-500/30 text-white py-4 px-6 transition-all duration-300"
+        >
+          <div className="absolute inset-y-0 left-0 w-1 bg-emerald-500/50 rounded-l-2xl"></div>
+          
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+              <span className="text-lg font-semibold tracking-wide capitalize">{currentGame}</span>
+            </div>
+            <svg 
+              className={`w-5 h-5 text-emerald-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+              fill="none" 
+              stroke="currentColor"
+              strokeWidth="2.5" 
+              viewBox="0 0 24 24"
+            >
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </div>
+        </button>
+
+        {isOpen && (
+          <div className="absolute top-full left-0 w-full mt-2 bg-black/30 backdrop-blur-xl border border-emerald-500/20 rounded-2xl shadow-lg shadow-emerald-500/10">
+            {games.map(game => (
+              <button
+                key={game}
+                onClick={() => {
+                  onGameChange(game);
+                  setIsOpen(false);
+                }}
+                className="relative w-full px-6 py-4 text-white hover:bg-emerald-500/10 transition-all duration-200 group"
+              >
+                <div className="absolute inset-y-0 left-0 w-1 bg-emerald-500/0 group-hover:bg-emerald-500/50 transition-all duration-200"/>
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-emerald-500/0 group-hover:bg-emerald-500 transition-all duration-200 rounded-full"/>
+                  <span className="text-lg font-semibold tracking-wide capitalize">{game}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
-    </>
   );
 };
-
 
 const Rankings = () => {
 
