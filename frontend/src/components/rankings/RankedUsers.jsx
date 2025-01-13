@@ -8,7 +8,7 @@ const RankedUsers = ({
   promote,
   lvl,
   ranked,
-	isSelf,
+  isSelf,
 }) => {
   const navigate = useNavigate();
 
@@ -16,9 +16,10 @@ const RankedUsers = ({
     navigate(`/profile/overview/${username}`);
   };
 
-
   return (
-    <div className={`${isSelf ? 'bg-green/10' : 'bg-gray/5'} grid lg:grid-cols-5 grid-cols-4 gap-32 text-center items-center hover:bg-white/10 rounded-lg py-8 transition-all duration-200`}>
+    <div
+      className={`${isSelf ? "bg-green/10" : "bg-gray/5"} grid lg:grid-cols-5 grid-cols-4 gap-32 text-center items-center hover:bg-white/10 rounded-lg py-8 transition-all duration-200`}
+    >
       <p>{rank}</p>
       <p
         className="cursor-pointer hover:text-green transition-colors duration-200"
