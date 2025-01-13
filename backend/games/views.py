@@ -177,19 +177,6 @@ def getOnlineMatches(request):
 
     return Response(gamestowatch, status=status.HTTP_200_OK)
 
-
-# remove later {
-import random
-import string
-
-
-def random_username(length=8):
-    return "".join(random.choices(string.ascii_letters + string.digits, k=length))
-
-
-# }
-
-
 @api_view(["GET"])
 def get_rankings(request, game_name=None):
     if not game_name:
