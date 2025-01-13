@@ -21,10 +21,10 @@ def CreateTournament(request):
     if maxPlayers not in [4, 8, 16]:
         return Response({"error": "maxPlayers khas ykon 4, 8, wla 16"}, status=400)
 
-    tournamentName = request.data.get("TournamentName")
+    tournamentName = request.data.get("tournamentName")
     if not tournamentName:
         return Response({"error": "Tournament Name not specified"}, status=400)
-    if Tournament.objects.filter(TournamentTitle=tournamentName):
+    if Tournament.objects.filter(tournamentTitle=tournamentName):
         return Response({"error": "This Tournament Already exists"}, status=400)
 
     existingLobby = Tournament.objects.filter(
@@ -34,7 +34,7 @@ def CreateTournament(request):
     if existingLobby:
         return Response(
             {
-                "message": "User already has active tournament",
+                "error": "User already has active tournament",
                 "lobbyID": str(existingLobby.lobbyID),
             },
             status=400,
@@ -47,7 +47,7 @@ def CreateTournament(request):
             game=Game.objects.get(name="pong"),
         )
     except:
-        return Response({"message": "Probably pong game doesn't exists"}, status=400)
+        return Response({"error": "Probably pong game doesn't exists"}, status=400)
     newLobby.addPlayer(request._user)
 
     return Response(

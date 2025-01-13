@@ -18,7 +18,7 @@ class Tournament(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     isCompleted = models.BooleanField(default=False)
     isStarted = models.BooleanField(default=False)
-    TournamentTitle = models.TextField(max_length=15)
+    tournamentTitle = models.TextField(max_length=15)
     isCanceled = models.BooleanField(default=False)
     winner = models.ForeignKey(
         User,

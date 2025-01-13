@@ -58,9 +58,9 @@ const Toast = ({ duration = 3000, error = true, position = "topCenter" }) => {
 			${position === "bottomLeft" && "bottom-32 left-32"}
 			${position === "bottomRight" && "bottom-32 right-32"}
 			justify-between
-			py-8 px-16 fixed z-[100] overflow-hidden
+			py-8 px-16 fixed z-[1000] overflow-hidden
 			flex gap-8 items-center rounded-lg
-			border-[0.5px] border-stroke-sc max-w-[400px] min-w-[10px] transition-opacity
+			border-[0.5px] border-stroke-sc md:max-w-[400px] max-w-[90%] min-w-[10px] transition-opacity
 			duration-800 ${opacity ? "opacity-100" : "opacity-0"}
 		`}
       >
