@@ -7,13 +7,15 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tournament', '0004_tournament_tournamenttitle'),
+        ("tournament", "0004_tournament_tournamenttitle"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='tournament',
-            name='id',
-            field=models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False, unique=True),
+            model_name="tournament",
+            name="id",
+            field=models.UUIDField(
+                default=uuid.uuid4, primary_key=True, serialize=False, unique=True
+            ),
         ),
     ]

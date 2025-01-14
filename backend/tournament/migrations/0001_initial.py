@@ -19,7 +19,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Tournament",
             fields=[
-                ("id", models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True)),
+                (
+                    "id",
+                    models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True),
+                ),
                 ("created_at", models.DateTimeField(auto_now=True)),
                 ("maxPlayers", models.PositiveIntegerField()),
                 ("currentPlayerCount", models.PositiveIntegerField(default=0)),

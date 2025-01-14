@@ -17,18 +17,28 @@ def CreateTournament(request):
     maxPlayers = request.data.get("maxPlayers")
     if not maxPlayers or not str(maxPlayers).isdigit():
         return Response(
-            {"error": "maxPlayers not specified or not a digit"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "maxPlayers not specified or not a digit"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     maxPlayers = int(maxPlayers)
     if maxPlayers not in [4, 8, 16]:
-        return Response({"error": "maxPlayers khas ykon 4, 8, wla 16"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "maxPlayers khas ykon 4, 8, wla 16"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     tournamentName = request.data.get("tournamentName")
     if not tournamentName:
-        return Response({"error": "Tournament Name not specified"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Tournament Name not specified"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     if Tournament.objects.filter(tournamentTitle=tournamentName):
-        return Response({"error": "This Tournament Already exists"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "This Tournament Already exists"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     existingLobby = Tournament.objects.filter(
         creator=request._user, isCompleted=False
@@ -50,7 +60,10 @@ def CreateTournament(request):
             game=Game.objects.get(name="pong"),
         )
     except:
-        return Response({"error": "Probably pong game doesn't exists"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Probably pong game doesn't exists"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     newLobby.addPlayer(request._user)
 
     return Response(
@@ -76,7 +89,9 @@ def addPlayerToLobby(request):
     try:
         lobby = Tournament.objects.get(id=id)
     except:
-        return Response("No Tournament with this id", status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            "No Tournament with this id", status=status.HTTP_400_BAD_REQUEST
+        )
 
     playerObj = lobby.addPlayer(request.user)
     if int(playerObj[1]) == 400:
@@ -87,7 +102,10 @@ def addPlayerToLobby(request):
     if lobby.currentPlayerCount == lobby.maxPlayers:
 
         if lobby.isStarted == True:
-            return Response({"error": "Player already in Tournament"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Player already in Tournament"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         tournamentID = TournamentSerializer(lobby).data
         manageTournament.delay(tournamentID)
         lobby.isStarted = True
@@ -101,32 +119,47 @@ def deleteTournament(request):
     try:
         lobby = Tournament.objects.get(creator=request._user)
     except:
-        return Response("No Tournament created by this Uuser", status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            "No Tournament created by this Uuser", status=status.HTTP_400_BAD_REQUEST
+        )
     lobby.delete()
     lobby.save()
     return Response({"Tournament Deleted"}, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
-def getTournaments(request): 
-   
+def getTournaments(request):
+
     try:
-        tournamentsData = getTournamentSerializer(Tournament.objects.all().order_by("-created_at"), many=True, context=request._user).data
+        tournamentsData = getTournamentSerializer(
+            Tournament.objects.all().order_by("-created_at"),
+            many=True,
+            context=request._user,
+        ).data
     except Exception as e:
-        return Response({"error": str(e)}, status= status.HTTP_400_BAD_REQUEST)
-    
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     paginator = PageNumberPagination()
     try:
         offset = int(request.data.get("offset", 0))
         paginator.page_size = int(request.data.get("limit", 20))
 
     except ValueError:
-        return Response({"Error": "Either Offeset or limit is not a Number"}, status = status.HTTP_400_BAD_REQUEST)
-    
+        return Response(
+            {"Error": "Either Offeset or limit is not a Number"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     paginatedTournaments = tournamentsData[offset : offset + paginator.page_size]
-    
-    return Response({"tournaments" : paginatedTournaments, "nextOffset" : (offset  + paginator.page_size if len(paginatedTournaments) == paginator.page_size else None )} , status = status.HTTP_200_OK)
-    
-   
-    
+
+    return Response(
+        {
+            "tournaments": paginatedTournaments,
+            "nextOffset": (
+                offset + paginator.page_size
+                if len(paginatedTournaments) == paginator.page_size
+                else None
+            ),
+        },
+        status=status.HTTP_200_OK,
+    )

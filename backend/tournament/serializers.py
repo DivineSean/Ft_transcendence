@@ -11,16 +11,24 @@ class TournamentSerializer(serializers.ModelSerializer):
         fields = ["id"]
 
 
-
-class getTournamentSerializer(serializers.ModelSerializer): 
+class getTournamentSerializer(serializers.ModelSerializer):
     isCreator = serializers.SerializerMethodField()
-    gameData = GameSerializer(source = "game",read_only=True)
+    gameData = GameSerializer(source="game", read_only=True)
     created_at = serializers.DateTimeField(format="%b %d, %Y")
-    
+
     class Meta:
         model = Tournament
-        fields = ["id","isCreator","tournamentTitle", "created_at", "maxPlayers", "currentPlayerCount", "isCanceled", "gameData"]
-    
+        fields = [
+            "id",
+            "isCreator",
+            "tournamentTitle",
+            "created_at",
+            "maxPlayers",
+            "currentPlayerCount",
+            "isCanceled",
+            "gameData",
+        ]
+
     def get_isCreator(self, obj):
         if self.context == obj.creator:
             return True
