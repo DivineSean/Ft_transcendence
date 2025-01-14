@@ -1,5 +1,4 @@
 from channels.consumer import database_sync_to_async
-from django.db.models.base import sync_to_async
 from games.models import Game, PlayerRating
 from games.serializers import GameRoomSerializer, GameSerializer
 from channels.layers import get_channel_layer
@@ -19,7 +18,7 @@ r = redis.Redis(
 )
 
 QUEUE_KEY = "matchmaking_queue"
-RATING_TOLERANCE_BASELINE = 0
+RATING_TOLERANCE_BASELINE = 5
 TOLERANCE_EXPANSION_RATE = 50
 TOLERANCE_EXPANSION_TIME = 20
 TOLERANCE_CAP = 1000
@@ -58,7 +57,8 @@ class Matchmaker:
             raise
 
         r.zadd(f"{game_name}_{QUEUE_KEY}", {player_id: rating})
-        r.hset(f"{game_name}:players_channel_names", mapping={player_id: channel_name})
+        r.hset(f"{game_name}:players_channel_names",
+               mapping={player_id: channel_name})
         await self.start_loop()
 
     async def remove_player(self, player_id, game_name):
@@ -190,25 +190,27 @@ class Matchmaker:
         channel_layer = get_channel_layer()
 
         # TODO: Add per-player estimated time
-        # FIX: need to prevent players that are already involved in a game from queing again
         while len(self.queues):
             for _, game in self.queues.items():
-                print(f"{game['name']} --> {game['rating_tolerance']}", flush=True)
+                print(
+                    f"{game['name']} --> {game['rating_tolerance']}", flush=True)
                 players = r.zrange(
                     f"{game['name']}_{QUEUE_KEY}", 0, -1, withscores=True
                 )
+                print("-----------------------------------> ", players, flush=True)
                 if len(players) == 0:
                     del self.queues[game["name"]]
                     break
-                batches = self.create_batches(players, game["rating_tolerance"])
+                batches = self.create_batches(
+                    players, game["rating_tolerance"])
                 matches = self.find_matches(batches, game)
                 await self.create_matches(channel_layer, game, matches)
 
                 if matches:
                     game["timer"] = time.time()
                 elif (
-                    time.time() - game["timer"] >= TOLERANCE_EXPANSION_TIME
-                    and game["rating_tolerance"] < TOLERANCE_CAP
+                        time.time() - game["timer"] >= TOLERANCE_EXPANSION_TIME
+                        and game["rating_tolerance"] < TOLERANCE_CAP
                 ):
                     game["timer"] = time.time()
                     game["rating_tolerance"] += TOLERANCE_EXPANSION_RATE

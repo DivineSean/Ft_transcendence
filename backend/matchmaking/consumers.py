@@ -1,6 +1,7 @@
 from channels.consumer import database_sync_to_async
+from django.db.models.base import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-from games.models import Game
+from games.models import Game, GameRoom
 from .matchmaker import Matchmaker
 from .matchmaker import r
 import json
@@ -18,6 +19,35 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
         self.group_name = f"{self.game_name}_matchmaking_group"
         self.joined = False
         await self.channel_layer.group_add(self.group_name, self.channel_name)
+
+        try:
+            self.game = await database_sync_to_async(Game.objects.filter)(name=self.game_name)
+            active_room = await database_sync_to_async(GameRoom.objects.filter(
+                player__user=self.scope["user"],
+                status__in=[
+                    GameRoom.Status.WAITING,
+                    GameRoom.Status.ONGOING,
+                    GameRoom.Status.PAUSED,
+                ]
+            ).first)()
+            if active_room is not None:
+                await self.send(text_data=json.dumps({
+                    "type": "reconnect",
+                    "message": {
+                        "room_id": str(active_room.id)
+                    }
+                }))
+                raise Exception(
+                    "You are already participating in an active game room.")
+        except Game.DoesNotExist:
+            self.close(
+                code=4004,
+                reason=f"Game {self.game_name} does not exist."
+            )
+            return
+        except Exception as e:
+            await self.close(reason=str(e))
+            return
 
         searching = r.get(f"{self.game_name}_players_in_queue")
         searching = int(searching) if searching is not None else 0
@@ -37,7 +67,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
     async def leave_queue(self):
         try:
-            await matchmaker.remove_player(self.player, self.channel_name)
+            await matchmaker.remove_player(self.player, self.game_name)
             n = r.decr(f"{self.game_name}_players_in_queue")
             await self.channel_layer.group_send(
                 self.group_name, {"type": "update", "message": n}
@@ -66,11 +96,13 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
     async def update(self, event):
         await self.send(
-            text_data=json.dumps({"type": "update", "message": event["message"]})
+            text_data=json.dumps(
+                {"type": "update", "message": event["message"]})
         )
 
     async def match(self, event):
         await self.send(
-            text_data=json.dumps({"type": "match_found", "message": event["message"]})
+            text_data=json.dumps(
+                {"type": "match_found", "message": event["message"]})
         )
-        await self.close()
+        await self.close(code=4002)

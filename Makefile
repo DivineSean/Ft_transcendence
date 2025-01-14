@@ -5,27 +5,33 @@ BASE_DIR := .
 ELK_DIR := elk
 MONITORING_DIR := monitoring
 
-all: check_env_files up_base
+BASE_ENV := $(BASE_DIR)/.env
+ELK_ENV := $(ELK_DIR)/.env
+MONITORING_ENV := $(MONITORING_DIR)/.env
 
-check_env_files:
-	@for dir in $(BASE_DIR) $(ELK_DIR) $(MONITORING_DIR); do \
-		if [ ! -f $$dir/.env ]; then \
-			echo "Creating .env file in $$dir from .env.example"; \
-			cp $$dir/.env.example $$dir/.env; \
-		else \
-			echo ".env file already exists in $$dir"; \
-		fi \
-	done
+all: $(BASE_ENV) $(ELK_ENV) $(MONITORING_ENV) up
 
-build_base:
+$(BASE_ENV): $(BASE_DIR)/.env.example
+	@echo "Creating .env file in $(BASE_DIR) from .env.example"
+	cp $< $@
+
+$(ELK_ENV): $(ELK_DIR)/.env.example
+	@echo "Creating .env file in $(ELK_DIR) from .env.example"
+	cp $< $@
+
+$(MONITORING_ENV): $(MONITORING_DIR)/.env.example
+	@echo "Creating .env file in $(MONITORING_DIR) from .env.example"
+	cp $< $@
+
+build: $(BASE_ENV)
 	@echo "Building services in $(BASE_DIR) with profile: $(PROFILE)"
 	docker-compose -f $(BASE_DIR)/$(COMPOSE_FILE) --profile $(PROFILE) build
 
-up_base: build_base
+up: build
 	@echo "Starting services in $(BASE_DIR) with profile: $(PROFILE)"
 	docker-compose -f $(BASE_DIR)/$(COMPOSE_FILE) --profile $(PROFILE) up -d
 
-build_elk:
+build_elk: $(ELK_ENV)
 	@echo "Building services in $(ELK_DIR)"
 	docker-compose -f $(ELK_DIR)/$(COMPOSE_FILE) build
 
@@ -37,7 +43,7 @@ logs_elk:
 	@echo "Tailing logs for ELK services."
 	docker-compose -f $(ELK_DIR)/$(COMPOSE_FILE) logs -f
 
-build_monitoring:
+build_monitoring: $(MONITORING_ENV)
 	@echo "Building services in $(MONITORING_DIR)"
 	docker-compose -f $(MONITORING_DIR)/$(COMPOSE_FILE) build
 
@@ -49,10 +55,10 @@ logs_monitoring:
 	@echo "Tailing logs for monitoring services."
 	docker-compose -f $(MONITORING_DIR)/$(COMPOSE_FILE) logs -f
 
-build_all: build_base build_elk build_monitoring
+build_all: build build_elk build_monitoring
 	@echo "All services have been built."
 
-up_all: up_base up_elk up_monitoring
+up_all: up up_elk up_monitoring
 	@echo "All services have been started."
 
 logs:
@@ -65,7 +71,7 @@ logs_all:
 	@$(MAKE) logs_elk
 	@$(MAKE) logs_monitoring
 
-down_base:
+down:
 	@echo "Stopping services in $(BASE_DIR)"
 	docker-compose -f $(BASE_DIR)/$(COMPOSE_FILE) --profile $(PROFILE) down
 
@@ -77,8 +83,12 @@ down_monitoring:
 	@echo "Stopping services in $(MONITORING_DIR)"
 	docker-compose -f $(MONITORING_DIR)/$(COMPOSE_FILE) down
 
-down_all: down_base down_elk down_monitoring
+down_all: down down_elk down_monitoring
 	@echo "All services have been stopped."
+
+restart:
+	@echo "restarting: $(filter-out $@,$(MAKECMDGOALS))"
+	docker-compose -f $(COMPOSE_FILE) --profile $(PROFILE) restart $(filter-out $@,$(MAKECMDGOALS))
 
 clean: down_all
 	@echo "Cleaning containers, networks, and volumes"
@@ -92,7 +102,7 @@ fclean: clean
 	@echo "Removing all images"
 	docker rmi -f $$(docker images -qa) || true
 
-re: clean up_base
+re: clean up
 
 prune: fclean
 	@echo "Pruning all Docker data"
@@ -106,7 +116,7 @@ shell:
 	@echo "Running interactive shell for service: $(filter-out $@,$(MAKECMDGOALS))"
 	docker-compose -f $(COMPOSE_FILE) --profile $(PROFILE) exec $(filter-out $@,$(MAKECMDGOALS)) sh
 
-.PHONY: all check_env_files build_base build_elk build_monitoring \
-	build_all up_base up_elk up_monitoring up_all down_base down_elk \
-	down_monitoring down_all clean fckean re prune logs_elk logs_monitoring logs_all \
-	rebuild shell
+.PHONY: all build up build_elk up_elk logs_elk \
+        build_monitoring up_monitoring logs_monitoring build_all up_all logs \
+        logs_all down down_elk down_monitoring down_all restart clean fclean re \
+        prune rebuild shell
