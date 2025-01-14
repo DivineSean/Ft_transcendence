@@ -43,7 +43,7 @@ const TopThreePlayers = ({ players }) => {
                       <img
                         src="/images/badges/victoryBadge.png"
                         alt="victory badge"
-                        className="object-cover grow"
+                        className="object-cover grow pointer-events-none"
                       />
                     </div>
                   )}
