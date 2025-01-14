@@ -1,11 +1,14 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
+
 from .models import Tournament
 from uuid import UUID
 import math
 from .tasks import manageTournament
-from .serializers import TournamentSerializer
+from .serializers import TournamentSerializer, getTournamentSerializer
+from rest_framework.pagination import PageNumberPagination, BasePagination
 from games.models import Game
 
 
@@ -14,18 +17,28 @@ def CreateTournament(request):
     maxPlayers = request.data.get("maxPlayers")
     if not maxPlayers or not str(maxPlayers).isdigit():
         return Response(
-            {"error": "maxPlayers not specified or not a digit"}, status=400
+            {"error": "maxPlayers not specified or not a digit"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     maxPlayers = int(maxPlayers)
     if maxPlayers not in [4, 8, 16]:
-        return Response({"error": "maxPlayers khas ykon 4, 8, wla 16"}, status=400)
+        return Response(
+            {"error": "maxPlayers khas ykon 4, 8, wla 16"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     tournamentName = request.data.get("tournamentName")
     if not tournamentName:
-        return Response({"error": "Tournament Name not specified"}, status=400)
+        return Response(
+            {"error": "Tournament Name not specified"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     if Tournament.objects.filter(tournamentTitle=tournamentName):
-        return Response({"error": "This Tournament Already exists"}, status=400)
+        return Response(
+            {"error": "This Tournament Already exists"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     existingLobby = Tournament.objects.filter(
         creator=request._user, isCompleted=False
@@ -35,9 +48,9 @@ def CreateTournament(request):
         return Response(
             {
                 "error": "User already has active tournament",
-                "lobbyID": str(existingLobby.lobbyID),
+                "id": str(existingLobby.id),
             },
-            status=400,
+            status=status.HTTP_400_BAD_REQUEST,
         )
     try:
         newLobby = Tournament.objects.create(
@@ -47,42 +60,52 @@ def CreateTournament(request):
             game=Game.objects.get(name="pong"),
         )
     except:
-        return Response({"error": "Probably pong game doesn't exists"}, status=400)
+        return Response(
+            {"error": "Probably pong game doesn't exists"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     newLobby.addPlayer(request._user)
 
     return Response(
         {
             "message": "Tournament created successfully",
-            "lobbyID": str(newLobby.lobbyID),
+            "id": str(newLobby.id),
         },
-        status=201,
+        status=status.HTTP_201_CREATED,
     )
 
 
 @api_view(["POST"])
 def addPlayerToLobby(request):
 
-    lobbyID = request.data.get("lobbyID")
-    if not lobbyID:
-        return Response("lobbyID required", status=400)
+    id = request.data.get("id")
+    if not id:
+        return Response("id required", status=status.HTTP_400_BAD_REQUEST)
     try:
-        UUID(lobbyID)
+        UUID(id)
     except ValueError:
-        return Response("lobbyID not valid UUID", status=400)
+        return Response("id not valid UUID", status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        lobby = Tournament.objects.get(lobbyID=lobbyID)
+        lobby = Tournament.objects.get(id=id)
     except:
-        return Response("No Tournament with this lobbyID", status=400)
+        return Response(
+            "No Tournament with this id", status=status.HTTP_400_BAD_REQUEST
+        )
 
     playerObj = lobby.addPlayer(request.user)
-
-    response = Response({"message": f"{playerObj[0]}"}, status=int(playerObj[1]))
+    if int(playerObj[1]) == 400:
+        response = Response({"error": f"{playerObj[0]}"}, status=int(playerObj[1]))
+    else:
+        response = Response({"message": f"{playerObj[0]}"}, status=int(playerObj[1]))
 
     if lobby.currentPlayerCount == lobby.maxPlayers:
 
         if lobby.isStarted == True:
-            return Response({"message": "here"})
+            return Response(
+                {"error": "Player already in Tournament"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         tournamentID = TournamentSerializer(lobby).data
         manageTournament.delay(tournamentID)
         lobby.isStarted = True
@@ -96,6 +119,47 @@ def deleteTournament(request):
     try:
         lobby = Tournament.objects.get(creator=request._user)
     except:
-        return Response("No Tournament created by this Uuser", status=400)
+        return Response(
+            "No Tournament created by this Uuser", status=status.HTTP_400_BAD_REQUEST
+        )
     lobby.delete()
-    return Response({"Tournament Deleted"}, status=200)
+    lobby.save()
+    return Response({"Tournament Deleted"}, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+def getTournaments(request):
+
+    try:
+        tournamentsData = getTournamentSerializer(
+            Tournament.objects.all().order_by("-created_at"),
+            many=True,
+            context=request._user,
+        ).data
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    paginator = PageNumberPagination()
+    try:
+        offset = int(request.data.get("offset", 0))
+        paginator.page_size = int(request.data.get("limit", 20))
+
+    except ValueError:
+        return Response(
+            {"Error": "Either Offeset or limit is not a Number"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    paginatedTournaments = tournamentsData[offset : offset + paginator.page_size]
+
+    return Response(
+        {
+            "tournaments": paginatedTournaments,
+            "nextOffset": (
+                offset + paginator.page_size
+                if len(paginatedTournaments) == paginator.page_size
+                else None
+            ),
+        },
+        status=status.HTTP_200_OK,
+    )

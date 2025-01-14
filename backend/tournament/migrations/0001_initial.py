@@ -21,14 +21,8 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
+                    models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True),
                 ),
-                ("lobbyID", models.UUIDField(default=uuid.uuid4, unique=True)),
                 ("created_at", models.DateTimeField(auto_now=True)),
                 ("maxPlayers", models.PositiveIntegerField()),
                 ("currentPlayerCount", models.PositiveIntegerField(default=0)),
