@@ -30,7 +30,7 @@ const Rankings = () => {
 
   const currentUserRank = rankings.rankings.find((player) => player.is_self);
   const otherPlayers = rankings.rankings.filter(
-    (player) => !rankings.rankings.slice(0, 2).includes(player),
+    (player) => !rankings.rankings.slice(0, 3).includes(player),
   );
 
   return (
@@ -41,9 +41,9 @@ const Rankings = () => {
           <div className="container md:px-16 px-0">
             <div className="primary-glass get-height flex flex-col md:p-32 p-16 gap-16 ">
               <div className="flex flex-col overflow-hidden grow">
-                <TopThreePlayers players={rankings.rankings.slice(0, 2)} />
+                <TopThreePlayers players={rankings.rankings.slice(0, 3)} />
 
-                <div className="bg-gray/5 relative flex flex-col p-32 gap-8 overflow-hidden rounded-md grow border-[0.5px] border-stroke-sc">
+                <div className="bg-gray/5 relative flex flex-col md:p-16 p-8 gap-8 overflow-hidden rounded-md grow border-[0.5px] border-stroke-sc">
                   {currentUserRank && (
                     <div className="grid lg:grid-cols-5 grid-cols-4 gap-32 bg-gray/10 border border-green/20 rounded-lg text-center p-8 z-10 mb-16">
                       <p>{currentUserRank.rank}</p>
