@@ -34,7 +34,7 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
                 await self.send(text_data=json.dumps({
                     "type": "reconnect",
                     "message": {
-                        "room_id": str(active_room.id)
+                            "room_id": str(active_room.id)
                     }
                 }))
                 raise Exception(
@@ -46,8 +46,10 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
             )
             return
         except Exception as e:
-            await self.close(reason=str(e))
-            return
+            try:
+                await self.close(reason=str(e))
+            except:
+                return
 
         searching = r.get(f"{self.game_name}_players_in_queue")
         searching = int(searching) if searching is not None else 0
