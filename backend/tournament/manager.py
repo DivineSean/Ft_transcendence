@@ -13,7 +13,7 @@ import random
 class TournamentManager:
     def __init__(self, tournamentID):
 
-        self.tournament = Tournament.objects.get(lobbyID=tournamentID)
+        self.tournament = Tournament.objects.get(id=tournamentID)
         self.channel_layer = get_channel_layer()
 
     def initialize_matches(self):

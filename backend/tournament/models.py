@@ -5,7 +5,7 @@ import uuid
 
 
 class Tournament(models.Model):
-    lobbyID = models.UUIDField(default=uuid.uuid4, unique=True)
+    id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
     creator = models.ForeignKey(
         User, related_name="created_tournaments", on_delete=models.CASCADE
     )

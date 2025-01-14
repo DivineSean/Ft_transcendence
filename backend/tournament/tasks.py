@@ -6,7 +6,7 @@ from games.models import GameRoom
 @shared_task
 def manageTournament(tournamentID):
 
-    manager = TournamentManager(tournamentID["lobbyID"])
+    manager = TournamentManager(tournamentID["id"])
 
     manager.initialize_matches()
 
@@ -20,5 +20,5 @@ def processGameResult(game_room_id):
     if not game_room.bracket:  # wach tournament or not
         return "Nadafak bro"
 
-    manager = TournamentManager(game_room.bracket.tournament.lobbyID)
+    manager = TournamentManager(game_room.bracket.tournament.id)
     manager.handle_game_completion(game_room_id)
