@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('games', '0020_playerrating_losses_playerrating_recent_results_and_more'),
+        ("games", "0020_playerrating_losses_playerrating_recent_results_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='playerrating',
-            name='recent_results',
-            field=models.JSONField(default=['-', '-', '-', '-', '-']),
+            model_name="playerrating",
+            name="recent_results",
+            field=models.JSONField(default=["-", "-", "-", "-", "-"]),
         ),
     ]

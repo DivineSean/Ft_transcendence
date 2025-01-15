@@ -8,9 +8,9 @@ import UserContext from "@/context/UserContext";
 const ProfileStatistics = () => {
   const userContextData = useContext(UserContext);
   const stats = userContextData.status.stats;
-  useEffect(()=>{
+  useEffect(() => {
     console.log(userContextData.status);
-  }, [])
+  }, []);
   return (
     <div className="flex flex-col gap-32 overflow-y-auto no-scrollbar">
       <div className="">
@@ -23,8 +23,11 @@ const ProfileStatistics = () => {
         <div className="flex flex-col gap-16">
           <MainChart ratingHistory={stats.rating_history} />
           <div className="flex md:flex-row flex-col gap-16">
-            <MatchesChart totalgames={stats.total_games} winrate={stats.winrate}/>
-            <ButterflyChart progress={stats.achievement_progress}/>
+            <MatchesChart
+              totalgames={stats.total_games}
+              winrate={stats.winrate}
+            />
+            <ButterflyChart progress={stats.achievement_progress} />
           </div>
         </div>
       </div>

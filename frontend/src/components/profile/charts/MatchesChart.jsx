@@ -1,7 +1,20 @@
 "use client";
 
-import { RadialBarChart, RadialBar, PolarGrid, PolarRadiusAxis, Label } from "recharts";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  RadialBarChart,
+  RadialBar,
+  PolarGrid,
+  PolarRadiusAxis,
+  Label,
+} from "recharts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
 
 const chartConfig = {
@@ -40,7 +53,12 @@ const MatchesChart = ({ totalgames, winrate }) => {
             outerRadius={110}
             barSize={10} //zedt hadi a driss jatni hsen
           >
-            <PolarGrid gridType="circle" radialLines={false} stroke="none" polarRadius={[86, 74]} />
+            <PolarGrid
+              gridType="circle"
+              radialLines={false}
+              stroke="none"
+              polarRadius={[86, 74]}
+            />
             <RadialBar dataKey="matches" background cornerRadius={10} />
 
             <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>

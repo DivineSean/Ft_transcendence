@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('games', '0019_player_should_skip_next_alter_player_result'),
+        ("games", "0019_player_should_skip_next_alter_player_result"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='playerrating',
-            name='losses',
+            model_name="playerrating",
+            name="losses",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='playerrating',
-            name='recent_results',
+            model_name="playerrating",
+            name="recent_results",
             field=models.JSONField(default=list),
         ),
         migrations.AddField(
-            model_name='playerrating',
-            name='wins',
+            model_name="playerrating",
+            name="wins",
             field=models.PositiveIntegerField(default=0),
         ),
     ]

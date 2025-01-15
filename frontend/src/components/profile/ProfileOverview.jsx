@@ -9,10 +9,10 @@ const ProfileOverview = () => {
   const stats = userContextData.status.stats;
 
   const formatRecentResults = (results) => {
-    if (!Array.isArray(results)) return Array(5).fill('-');
+    if (!Array.isArray(results)) return Array(5).fill("-");
     const filledResults = [...results];
     while (filledResults.length < 5) {
-      filledResults.push('-');
+      filledResults.push("-");
     }
     return filledResults;
   };
@@ -23,17 +23,16 @@ const ProfileOverview = () => {
       L: "text-red",
       default: "text-gray-400",
     };
-  
+
     return (
-      <span 
-        key={index} 
+      <span
+        key={index}
         className={`flex uppercase font-bold ${classes[result] || classes.default}`}
       >
-        {result || '-'}
+        {result || "-"}
       </span>
     );
   };
-  
 
   return (
     <div className="flex flex-col gap-16 grow overflow-y-scroll no-scrollbar">
@@ -57,7 +56,9 @@ const ProfileOverview = () => {
             </div>
             <div className="flex flex-col items-end text-right">
               <div className="flex gap-1">
-                {formatRecentResults(stats.recent_results).map((result, index) => renderResult(result, index))}
+                {formatRecentResults(stats.recent_results).map(
+                  (result, index) => renderResult(result, index),
+                )}
               </div>
               <span className="flex text-txt-xs">recent result</span>
             </div>

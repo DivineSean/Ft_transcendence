@@ -423,8 +423,8 @@ export const UserProvider = ({ children }) => {
 
   const getStats = async (game, username) => {
     const url = username
-    ? `api/profile/stats/${game}/${username}`
-    : `api/profile/stats/${game}`;
+      ? `api/profile/stats/${game}/${username}`
+      : `api/profile/stats/${game}`;
     try {
       const res = await FetchData.get(url);
       if (res.ok) {

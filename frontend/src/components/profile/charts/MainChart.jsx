@@ -19,13 +19,12 @@ const chartConfig = {
   },
 };
 
-  const MainChart = ({ ratingHistory = []}) => {
-  const chartData = ratingHistory.map(data => (
-  {
+const MainChart = ({ ratingHistory = [] }) => {
+  const chartData = ratingHistory.map((data) => ({
     month: new Date(data.timestamp).toLocaleDateString(),
     rating: data.rating,
   }));
-	
+
   return (
     <Card className="bg-black/30 border-stroke-sc w-full text-white">
       <CardHeader>
@@ -50,7 +49,10 @@ const chartConfig = {
               tickMargin={8}
               tickFormatter={(value) => {
                 const date = new Date(value);
-                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                return date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                });
               }}
             />
 

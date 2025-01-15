@@ -231,6 +231,7 @@ def get_rankings(request, game_name=None):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @api_view(["GET"])
 def getStats(request, game_name=None, username=None):
     if not game_name:

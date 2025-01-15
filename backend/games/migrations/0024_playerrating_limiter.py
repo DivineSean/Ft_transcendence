@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('games', '0023_playerrating_rating_history'),
+        ("games", "0023_playerrating_rating_history"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='playerrating',
-            name='limiter',
+            model_name="playerrating",
+            name="limiter",
             field=models.PositiveIntegerField(default=30),
         ),
     ]

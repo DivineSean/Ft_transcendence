@@ -1,6 +1,12 @@
 "use client";
 import { TrendingUp } from "lucide-react";
-import { PolarRadiusAxis, PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
+import {
+  PolarRadiusAxis,
+  PolarAngleAxis,
+  PolarGrid,
+  Radar,
+  RadarChart,
+} from "recharts";
 import {
   Card,
   CardContent,
@@ -10,10 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import {
-  ChartContainer,
-  ChartTooltip,
-} from "@/components/ui/chart";
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 
 const ChartTooltipContent = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -32,7 +35,10 @@ const ChartTooltipContent = ({ active, payload }) => {
 };
 
 const ButterflyChart = ({ progress }) => {
-  const totalProgress = Object.values(progress).reduce((sum, value) => sum + value, 0);
+  const totalProgress = Object.values(progress).reduce(
+    (sum, value) => sum + value,
+    0,
+  );
   const overallProgress = (totalProgress / 400) * 100;
   const oProgress = overallProgress.toFixed(0);
 
@@ -45,9 +51,7 @@ const ButterflyChart = ({ progress }) => {
     <Card className="grow bg-black/30 border-stroke-sc text-white">
       <CardHeader className="items-center pb-4">
         <CardTitle>Achievement Progress</CardTitle>
-        <CardDescription>
-          Tracking your gaming achievements
-        </CardDescription>
+        <CardDescription>Tracking your gaming achievements</CardDescription>
       </CardHeader>
 
       <CardContent className="pb-0">
@@ -55,7 +59,7 @@ const ButterflyChart = ({ progress }) => {
           config={chartData}
           className="mx-auto aspect-square max-h-[250px] !w-full"
         >
-          <RadarChart data={chartData} >
+          <RadarChart data={chartData}>
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <PolarAngleAxis dataKey="label" />
             <PolarRadiusAxis domain={[0, 100]} tick={false} />
@@ -73,20 +77,28 @@ const ButterflyChart = ({ progress }) => {
 
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Your Skills growth by {overallProgress.toFixed(1)}% <TrendingUp className="h-5 w-5" />
+          Your Skills growth by {overallProgress.toFixed(1)}%{" "}
+          <TrendingUp className="h-5 w-5" />
         </div>
 
         <div className="flex text-center gap-2 text-stroke-sc">
-          {oProgress < 30 && "Keep pushing! Every step counts towards your goal."}
-          {oProgress >= 30 && oProgress < 50 && "You're making great progress! Keep the momentum going."}
-          {oProgress >= 50 && oProgress < 70 && "Awesome work! You're more than halfway there."}
-          {oProgress >= 70 && oProgress < 90 && "Fantastic effort! The finish line is within sight."}
-          {oProgress >= 90 && "You're a star achiever! Be proud you reached perfection!"}
+          {oProgress < 30 &&
+            "Keep pushing! Every step counts towards your goal."}
+          {oProgress >= 30 &&
+            oProgress < 50 &&
+            "You're making great progress! Keep the momentum going."}
+          {oProgress >= 50 &&
+            oProgress < 70 &&
+            "Awesome work! You're more than halfway there."}
+          {oProgress >= 70 &&
+            oProgress < 90 &&
+            "Fantastic effort! The finish line is within sight."}
+          {oProgress >= 90 &&
+            "You're a star achiever! Be proud you reached perfection!"}
         </div>
       </CardFooter>
     </Card>
   );
 };
-
 
 export default ButterflyChart;
