@@ -5,38 +5,13 @@ import CreateTournament from "@/components/tournaments/CreateTournament";
 import { useContext, useEffect, useState, useRef } from "react";
 import Toast from "@/components/Toast";
 import AuthContext from "@/context/AuthContext";
+import ListTournaments from "@/components/tournaments/ListTournaments";
 
 const Tournaments = () => {
   const authContextData = useContext(AuthContext);
-	const endTourRef = useRef(null);
   const { uid } = useParams();
-  const navigate = useNavigate();
   const [displayCreateTournament, setDisplayCreateTournament] = useState(false);
-
-  const tournaments = [];
-  for (let i = 0; i < 100; i++) {
-    tournaments.push(
-      <div
-        onClick={() => navigate(`/tournaments/${i}`)}
-        key={i}
-        className="w-full p-16 bg-gray/5 rounded-lg border border-gray/10 flex gap-16 justify-between items-center cursor-pointer"
-      >
-        <div className="flex flex-col gap-4">
-          <h1 className="font-bold tracking-wider">tournament</h1>
-          <p className="text-txt-sm tracking-wider">ping pong</p>
-        </div>
-        <div className="text-gray">november 12, 2025</div>
-        <div className="flex flex-col gap-4 items-center">
-          <h1 className="tracking-wider">1/4</h1>
-          <p className="text-txt-sm tracking-wider font-bold">teams</p>
-        </div>
-        <div className="flex flex-col gap-4 items-center">
-          <h1 className="font-bold tracking-wider">registrations</h1>
-          <p className="text-txt-sm tracking-wider text-green">open</p>
-        </div>
-      </div>,
-    );
-  }
+	const [tournaments, setTournaments] = useState(null);
 
   useEffect(() => {
     return () => {
@@ -54,6 +29,7 @@ const Tournaments = () => {
       {displayCreateTournament && (
         <CreateTournament
           setDisplayCreateTournament={setDisplayCreateTournament}
+					setTournaments={setTournaments}
         />
       )}
 
@@ -82,10 +58,7 @@ const Tournaments = () => {
             {uid ? (
               <Brackets />
             ) : (
-              <div className="h-full w-full overflow-y-auto no-scrollbar p-16 flex flex-col gap-16">
-                {tournaments}
-								<span ref={endTourRef} className="text-center text-txt-sm text-green">loading...</span>
-              </div>
+              <ListTournaments tournaments={tournaments} setTournaments={setTournaments} />
             )}
           </div>
         </div>

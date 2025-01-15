@@ -94,6 +94,9 @@ const Rankings = () => {
                         isSelf={player.is_self}
                       />
                     ))}
+										{otherPlayers.length === 0 &&
+											<div className="flex justify-center text-stroke-sc">no players yet</div>
+										}
                   </div>
                 </div>
               </div>

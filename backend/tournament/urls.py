@@ -3,10 +3,8 @@ from . import views
 
 
 urlpatterns = [
-    path("api/tournament/create/", views.CreateTournament, name="CreateTournament"),
-    path("api/tournament/addPlayer/", views.addPlayerToLobby, name="addPlayer"),
-    path("api/tournament/delete/", views.deleteTournament, name="deleteLobby"),
-    path("api/tournament/get/", views.getTournaments, name="getTournaments"),
+    path("api/tournaments/", views.Tournaments.as_view(), name="Tournaments"),
+    path("api/tournaments/<int:offset>/", views.Tournaments.as_view(), name="Tournaments"),
     # path("tournament/", views.tournament_view, name="tournament_view"),  # ghayt7yd mn b3d
     # path("api/tournament/list/", views.listTournaments, name="listTournaments"),
 ]
