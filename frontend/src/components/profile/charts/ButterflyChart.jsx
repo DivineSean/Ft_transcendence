@@ -16,28 +16,28 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 273 },
-  // { month: "May", desktop: 209 },
-  // { month: "June", desktop: 214 },
-];
+
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  progress: {
+    label: "progress",
     color: "#31E78B",
   },
 };
 
-const ButterflyChart = () => {
+const ButterflyChart = ({ progress }) => {
+  const totalProgress = Object.values(progress).reduce((sum, value) => sum + value, 0);
+  const overallProgress = (totalProgress / 400) * 100;
+  const chartData = Object.keys(progress).map((key) => ({
+    name: key,
+    progress: Math.min(progress[key] , 100),
+  }));
+  console.log(chartData);
   return (
     <Card className="grow bg-black/30 border-stroke-sc text-white">
       <CardHeader className="items-center pb-4">
-        <CardTitle>Radar Chart</CardTitle>
+        <CardTitle>Achievement Progress</CardTitle>
         <CardDescription>
-          Showing total visitors for the last 6 months
+          Tracking your gaming achievements
         </CardDescription>
       </CardHeader>
 
@@ -49,13 +49,15 @@ const ButterflyChart = () => {
           <RadarChart data={chartData}>
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
 
-            <PolarAngleAxis dataKey="month" />
+            <PolarAngleAxis dataKey="name"/>
 
             <PolarGrid />
 
             <Radar
-              dataKey="desktop"
-              fill="var(--color-desktop)"
+              dataKey={"progress"}
+              fill={"var(--color-progress)"}
+              stroke={"#31E78B"}
+              strokeWidth={2}
               fillOpacity={0.6}
             />
           </RadarChart>
@@ -64,15 +66,20 @@ const ButterflyChart = () => {
 
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+          Your Skills growth by {overallProgress.toFixed(1)}% <TrendingUp className="h-5 w-5" />
         </div>
 
         <div className="flex items-center gap-2 leading-none text-muted-foreground">
-          January - June 2024
-        </div>
+          {overallProgress.toFixed(0) < 30 && "Keep pushing! Every step counts towards your goal."}
+          {overallProgress.toFixed(0) >= 30 && overallProgress.toFixed(0) < 50 && "You're making great progress! Keep the momentum going."}
+          {overallProgress.toFixed(0) >= 50 && overallProgress.toFixed(0) < 70 && "Awesome work! You're more than halfway there."}
+          {overallProgress.toFixed(0) >= 70 && overallProgress.toFixed(0) < 90 && "Fantastic effort! The finish line is within sight."}
+          {overallProgress.toFixed(0) >= 90 && "You're a star achiever! be proud you reached perfection!"}
+      </div>
       </CardFooter>
     </Card>
   );
 };
+
 
 export default ButterflyChart;

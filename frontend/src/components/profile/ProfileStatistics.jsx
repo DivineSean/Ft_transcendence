@@ -26,7 +26,7 @@ const ProfileStatistics = () => {
           {/* <MainChart /> */}
           <div className="flex md:flex-row flex-col gap-16">
             <MatchesChart totalgames={stats.total_games} winrate={stats.winrate}/>
-            <ButterflyChart />
+            <ButterflyChart progress={stats.achievement_progress}/>
           </div>
         </div>
       </div>

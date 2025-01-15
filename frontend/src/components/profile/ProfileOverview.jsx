@@ -52,7 +52,7 @@ const ProfileOverview = () => {
               <span className="text-txt-xs">total played</span>
             </div>
             <div className="flex flex-col items-center text-center">
-              <span className="text-h-lg-sm">{stats.winrate}%</span>
+              <span className="text-h-lg-sm">{stats.winrate.toFixed(1)}%</span>
               <span className="text-txt-xs">winrate</span>
             </div>
             <div className="flex flex-col items-end text-right">

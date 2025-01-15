@@ -21,6 +21,7 @@ from django.db.models import Q
 from .models import GameRoom, Game
 import json
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.serializers import serialize
 
 
 @api_view(["POST"])
@@ -265,14 +266,19 @@ def getStats(request, game_name=None, username=None):
             {"error": f"Player with id '{user_id}' in game '{game_name}' not found"},
             status=status.HTTP_404_NOT_FOUND,
         )
-    # try:
-    #     achie_vements = Achievement.objects.filter(game=game)
-    #     achievements = AchievementSerializer(data=achie_vements)
-    # except ObjectDoesNotExist:
-    #     return Response(
-    #         {"error": f"Achievements in game '{game_name}' not found"},
-    #         status=status.HTTP_404_NOT_FOUND,
-    #     )
+    try:
+        achie_vements = Achievement.objects.filter(game=game)
+        player_achievements = PlayerAchievement.objects.filter(user=user, game=game)
+        progress = {achievement.name: 0 for achievement in achie_vements}
+        for player_achievement in player_achievements:
+            for achievement in achie_vements:
+                if player_achievement.achievement.name == achievement.name:
+                    progress[achievement.name] += player_achievement.progress
+    except ObjectDoesNotExist:
+        return Response(
+            {"error": f"Achievements in game '{game_name}' not found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
 
     total_games = player.wins + player.losses
     winrate = (player.wins / total_games) * 100 if total_games > 0 else 100
@@ -287,7 +293,7 @@ def getStats(request, game_name=None, username=None):
         "promote": promote,
         "demote": demote,
         "rating_history": player.rating_history,
-        # "test": achievements,
+        "achievement_progress": progress,
     }
 
     return Response(
