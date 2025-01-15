@@ -2,12 +2,13 @@ import Header from "../components/Header";
 import Brackets from "../components/tournaments/Brackets";
 import { useNavigate, useParams } from "react-router-dom";
 import CreateTournament from "@/components/tournaments/CreateTournament";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import Toast from "@/components/Toast";
 import AuthContext from "@/context/AuthContext";
 
 const Tournaments = () => {
   const authContextData = useContext(AuthContext);
+	const endTourRef = useRef(null);
   const { uid } = useParams();
   const navigate = useNavigate();
   const [displayCreateTournament, setDisplayCreateTournament] = useState(false);
@@ -83,6 +84,7 @@ const Tournaments = () => {
             ) : (
               <div className="h-full w-full overflow-y-auto no-scrollbar p-16 flex flex-col gap-16">
                 {tournaments}
+								<span ref={endTourRef} className="text-center text-txt-sm text-green">loading...</span>
               </div>
             )}
           </div>
