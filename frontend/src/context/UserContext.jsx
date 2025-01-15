@@ -406,9 +406,9 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const get_rankings = async (game) => {
+  const get_rankings = async (game, offset) => {
     try {
-      const res = await FetchData.get(`api/rankings/${game}`);
+      const res = await FetchData.get(`api/rankings/${game}/${offset}`);
       if (res.ok) {
         const data = await res.json();
         setRankings(data);

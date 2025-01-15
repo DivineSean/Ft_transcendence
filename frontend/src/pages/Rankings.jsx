@@ -10,11 +10,12 @@ import { useNavigate } from "react-router-dom";
 const Rankings = () => {
   const navigate = useNavigate();
   const { rankings, get_rankings } = useContext(UserContext);
+  const [ next_offset, setNextOffset ] = useState(0);
   const authContextData = useContext(AuthContext);
   const [selectedGame, setSelectedGame] = useState("pong");
 
   useEffect(() => {
-    get_rankings(selectedGame);
+    get_rankings(selectedGame, next_offset);
     return () =>
       authContextData.setGlobalMessage({ message: "", isError: false });
   }, [selectedGame]);
@@ -29,7 +30,7 @@ const Rankings = () => {
       </>
     );
   }
-
+  // setNextOffset(authContextData.rankings.rankings.next_offset);
   const currentUserRank = rankings.rankings.find((player) => player.is_self);
   const otherPlayers = rankings.rankings.filter(
     (player) => !rankings.rankings.slice(0, 3).includes(player),
