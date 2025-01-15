@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import ButterflyChart from "./charts/ButterflyChart";
 import MainChart from "./charts/MainChart";
 import MatchesChart from "./charts/MatchesChart";
@@ -7,9 +7,10 @@ import UserContext from "@/context/UserContext";
 
 const ProfileStatistics = () => {
   const userContextData = useContext(UserContext);
-
-  console.log(userContextData.profileInfo);
-
+  const stats = userContextData.status.stats;
+  useEffect(() => {
+    console.log(userContextData.status);
+  }, []);
   return (
     <div className="flex flex-col gap-32 overflow-y-auto no-scrollbar">
       <div className="">
@@ -17,13 +18,16 @@ const ProfileStatistics = () => {
       </div>
       <div className="flex flex-col gap-16 p-16 bg-gray/10 rounded-lg">
         <h1 className="font-semibold tracking-wider text-gray/80 text-txt-lg">
-          pong
+          {userContextData.status.game}
         </h1>
         <div className="flex flex-col gap-16">
-          <MainChart />
+          <MainChart ratingHistory={stats.rating_history} />
           <div className="flex md:flex-row flex-col gap-16">
-            <MatchesChart />
-            <ButterflyChart />
+            <MatchesChart
+              totalgames={stats.total_games}
+              winrate={stats.winrate}
+            />
+            <ButterflyChart progress={stats.achievement_progress} />
           </div>
         </div>
       </div>

@@ -34,7 +34,6 @@ const Profile = () => {
     section ? section : "overview",
   );
   const contextData = useContext(UserContext);
-
   useEffect(() => {
     if (!profileMenu.includes(section)) {
       navigate("/profile/overview");
@@ -55,9 +54,11 @@ const Profile = () => {
   useEffect(() => {
     if (username) {
       contextData.getProfile(username);
+      contextData.getStats("pong", username);
       contextData.setProfileInfo(null);
       contextData.setUserFriends(null);
     } else {
+      contextData.getStats("pong", username);
       contextData.getProfile();
       contextData.setProfileInfo(null);
     }
@@ -81,9 +82,11 @@ const Profile = () => {
     if (contextData.refresh) {
       if (username) {
         contextData.getProfile(username);
+        contextData.getStats("pong", username);
         contextData.setRefresh(false);
       } else {
         contextData.getProfile();
+        contextData.getStats("pong", username);
         contextData.setRefresh(false);
       }
     }

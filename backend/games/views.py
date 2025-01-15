@@ -7,8 +7,8 @@ from authentication.serializers import UserFriendSerializer
 from chat.views import Conversation
 from asgiref.sync import async_to_sync
 from notification.models import Notifications
-from .models import Game, Player, GameRoom, PlayerRating
-from .serializers import GameRoomSerializer
+from .models import Game, Player, GameRoom, PlayerRating, PlayerAchievement, Achievement
+from .serializers import GameRoomSerializer, AchievementSerializer
 from .tasks import mark_game_room_as_expired
 from matchmaking.matchmaker import GAME_EXPIRATION
 from chat.models import Conversation, Message
@@ -19,9 +19,9 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from django.db.models import Q
 from .models import GameRoom, Game
-from .serializers import GameRoomSerializer
 import json
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.serializers import serialize
 
 
 @api_view(["POST"])
@@ -230,3 +230,74 @@ def get_rankings(request, game_name=None):
         )
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
+def getStats(request, game_name=None, username=None):
+    if not game_name:
+        return Response(
+            {"error": "No game name provided"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    user = request.user
+    user_id = user.id if not username else None
+    if username:
+        try:
+            user = User.objects.get(username=username)
+            user_id = user.id
+        except ObjectDoesNotExist:
+            return Response(
+                {"error": f"User '{username}' not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+    try:
+        game = Game.objects.get(name=game_name)
+    except ObjectDoesNotExist:
+        return Response(
+            {"error": f"Game '{game_name}' not found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    try:
+        player = PlayerRating.objects.get(user=user_id, game=game)
+    except ObjectDoesNotExist:
+        return Response(
+            {"error": f"Player with id '{user_id}' in game '{game_name}' not found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    try:
+        achie_vements = Achievement.objects.filter(game=game)
+        player_achievements = PlayerAchievement.objects.filter(user=user, game=game)
+        progress = {achievement.name: 0 for achievement in achie_vements}
+        for player_achievement in player_achievements:
+            for achievement in achie_vements:
+                if player_achievement.achievement.name == achievement.name:
+                    progress[achievement.name] += player_achievement.progress
+    except ObjectDoesNotExist:
+        return Response(
+            {"error": f"Achievements in game '{game_name}' not found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    total_games = player.wins + player.losses
+    winrate = (player.wins / total_games) * 100 if total_games > 0 else 100
+    demote, promote, elo = player.get_rank(player.rating)
+
+    stats = {
+        "total_games": total_games,
+        "winrate": winrate,
+        "recent_results": player.recent_results,
+        "elo": elo,
+        "mmr": player.rating,
+        "promote": promote,
+        "demote": demote,
+        "rating_history": player.rating_history,
+        "achievement_progress": progress,
+    }
+
+    return Response(
+        {"game": game_name, "stats": stats},
+        status=status.HTTP_200_OK,
+    )
