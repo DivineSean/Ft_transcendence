@@ -114,7 +114,9 @@ class GameRoomSerializer(serializers.ModelSerializer):
     game = serializers.PrimaryKeyRelatedField(queryset=Game.objects.all())
     players = serializers.ListField(child=serializers.DictField(), required=False)
     bracket = serializers.PrimaryKeyRelatedField(
-        queryset=Bracket.objects.all(), required=False
+        queryset=Bracket.objects.all(),
+        required=False,
+        allow_null=True,
     )
 
     class Meta:

@@ -1,6 +1,7 @@
 from channels.consumer import database_sync_to_async
+from django.db.models.base import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-from games.models import Game
+from games.models import Game, GameRoom
 from .matchmaker import Matchmaker
 from .matchmaker import r
 import json
@@ -19,14 +20,47 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
         self.joined = False
         await self.channel_layer.group_add(self.group_name, self.channel_name)
 
-        searching = r.get(f"{self.game_name}_players_in_queue")
-        searching = int(searching) if searching is not None else 0
+        try:
+            self.game = await database_sync_to_async(Game.objects.filter)(
+                name=self.game_name
+            )
+            active_room = await database_sync_to_async(
+                GameRoom.objects.filter(
+                    player__user=self.scope["user"],
+                    status__in=[
+                        GameRoom.Status.WAITING,
+                        GameRoom.Status.ONGOING,
+                        GameRoom.Status.PAUSED,
+                    ],
+                ).first
+            )()
+            if active_room is not None:
+                await self.send(
+                    text_data=json.dumps(
+                        {
+                            "type": "reconnect",
+                            "message": {"room_id": str(active_room.id)},
+                        }
+                    )
+                )
+                raise Exception("You are already participating in an active game room.")
+        except Game.DoesNotExist:
+            self.close(code=4004, reason=f"Game {self.game_name} does not exist.")
+            return
+        except Exception as e:
+            try:
+                await self.close(reason=str(e))
+            except:
+                return
+
+        searching = r.scard(f"{self.game_name}_players_in_queue")
         await self.send(text_data=json.dumps({"type": "update", "message": searching}))
 
     async def join_queue(self):
         try:
             await matchmaker.add_player(self.player, self.channel_name, self.game_name)
-            n = r.incr(f"{self.game_name}_players_in_queue")
+            r.sadd(f"{self.game_name}_players_in_queue", self.player)
+            n = r.scard(f"{self.game_name}_players_in_queue")
             await self.channel_layer.group_send(
                 self.group_name, {"type": "update", "message": n}
             )
@@ -37,8 +71,9 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
     async def leave_queue(self):
         try:
-            await matchmaker.remove_player(self.player, self.channel_name)
-            n = r.decr(f"{self.game_name}_players_in_queue")
+            await matchmaker.remove_player(self.player, self.game_name)
+            r.srem(f"{self.game_name}_players_in_queue", self.player)
+            n = r.scard(f"{self.game_name}_players_in_queue")
             await self.channel_layer.group_send(
                 self.group_name, {"type": "update", "message": n}
             )
@@ -69,8 +104,13 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
             text_data=json.dumps({"type": "update", "message": event["message"]})
         )
 
+    async def update_time(self, event):
+        await self.send(
+            text_data=json.dumps({"type": "update_time", "message": event["message"]})
+        )
+
     async def match(self, event):
         await self.send(
             text_data=json.dumps({"type": "match_found", "message": event["message"]})
         )
-        await self.close()
+        await self.close(code=4002)

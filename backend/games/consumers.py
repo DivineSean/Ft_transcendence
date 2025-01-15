@@ -19,8 +19,9 @@ r = redis.Redis(
     decode_responses=True,
 )
 
-MAX_ALLOWED_TIMEOUTS = 2
 TIMEOUT_DURATION = 30
+XP_GAIN_TN = 280
+XP_GAIN_NORMAL = 250
 
 
 class GameConsumer(WebsocketConsumer):
@@ -51,8 +52,7 @@ class GameConsumer(WebsocketConsumer):
         self.handle_timeout()
 
     def receive(self, text_data):
-        isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
-        if not isPlayer:
+        if self.me is None:
             return
 
         try:
@@ -109,46 +109,51 @@ class GameConsumer(WebsocketConsumer):
                 game_data = serializer.data
                 r.hset(f"game_room_data:{self.game_uuid}", mapping=game_data)
             self.players = game_data["players"] = json.loads(game_data["players"])
+            self.me = next(
+                (
+                    index
+                    for index, player in enumerate(self.players)
+                    if player["user"]["id"] == self.user_id
+                ),
+                None,
+            )
             game_data["state"] = json.loads(game_data["state"])
         except Exception as e:
             self.close(code=4004, reason=str(e))
             return
 
-        # Add the player to the Redis list
+        # Add the player to the connected clients list
         r.rpush(f"game_room_data:{self.game_uuid}:players", self.user_id)
 
-        if game_data["status"] == "paused":
+        if game_data["status"] == "paused" and self.me is not None:
             self.handle_reconnect(game_data)
 
         self.send(text_data=json.dumps({"type": "game_manager", "message": game_data}))
 
     def update_result(self, message):
-        # update the game status to 'completed'
-        # update the result field on the player
-        # notify players
         self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
-        for player in self.players:
-            if player["user"]["id"] == self.user_id:
-                player["result"] = message
-                PlayerRating.handle_rating(
-                    self.user, Game.objects.get(name=self.game_name), player
-                )
-                self.user.status = User.Status.ONLINE
-                # check if tournament or normal game
-                self.user.exp += 250
-                self.user.increase_exp(250)
-                self.user.save()
-                break
-        self.save_game_data(
-            players=json.dumps(self.players), status="completed", countdown=0
+
+        player = self.players[self.me]
+        player["result"] = message
+        PlayerRating.handle_rating(
+            self.user, Game.objects.get(name=self.game_name), player
         )
+
         is_tournament = json.loads(
             r.hget(f"game_room_data:{self.game_uuid}", "bracket")
         )
-        print("----------------------------->", is_tournament, flush=True)
         if is_tournament:
             processGameResult.delay(self.game_uuid)
-            print("Hahoua l3zwa d5el l hna", flush=True)
+            self.user.increase_exp(XP_GAIN_TN)
+        else:
+            self.user.increase_exp(XP_GAIN_NORMAL)
+
+        self.user.status = User.Status.ONLINE
+        self.user.save()
+        self.save_game_data(
+            players=json.dumps(self.players), status="completed", countdown=0
+        )
+
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
             {
@@ -172,23 +177,19 @@ class GameConsumer(WebsocketConsumer):
             print(e, flush=True)
 
     def update_score(self):
-        role = None
         self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
-        for player in self.players:
-            if str(player["user"]["id"]) == str(self.user_id):
-                player["score"] += 1
-                role = player["role"]
-                break
+        player = self.players[self.me]
+        player["score"] += 1
         scores = {player["role"]: str(player["score"]) for player in self.players}
 
-        self.save_game_data(turn=role, players=json.dumps(self.players))
+        self.save_game_data(turn=player["role"], players=json.dumps(self.players))
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
             {
                 "type": "broadcast",
                 "info": "score",
                 "message": {
-                    "role": role,
+                    "role": player["role"],
                     "scores": json.dumps(scores),
                 },
             },
@@ -214,21 +215,21 @@ class GameConsumer(WebsocketConsumer):
 
     def update_readiness(self):
         self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
-        for player in self.players:
-            if player["user"]["id"] == self.user_id and not player["ready"]:
-                player["ready"] = True
-                async_to_sync(self.channel_layer.group_send)(
-                    self.group_name,
-                    {
-                        "type": "broadcast",
-                        "info": "game_manager",
-                        "message": {
-                            "players": self.players,
-                            "r": "yes",
-                        },
+
+        player = self.players[self.me]
+        if not player["ready"]:
+            player["ready"] = True
+            async_to_sync(self.channel_layer.group_send)(
+                self.group_name,
+                {
+                    "type": "broadcast",
+                    "info": "game_manager",
+                    "message": {
+                        "players": self.players,
+                        "r": "yes",
                     },
-                )
-                break
+                },
+            )
 
         self.save_game_data(players=json.dumps(self.players))
         all_ready = all(player.get("ready", False) for player in self.players)
@@ -292,38 +293,37 @@ class GameConsumer(WebsocketConsumer):
             self.save_game_data(state=json.dumps(game_data["state"]))
 
     def handle_timeout(self):
-        isPlayer = any(player["user"]["id"] == self.user_id for player in self.players)
-        if not isPlayer:
+        if not self.players or self.me is None:
             return
+
         game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
         if not game_data:
             return
         self.players = json.loads(game_data["players"])
+        player = self.players[self.me]
         if game_data["status"] in ("ongoing", "paused"):
             leavers = json.loads(game_data["state"])
-            for player in self.players:
-                if player["user"]["id"] == self.user_id:
-                    if player["timeouts"] > 0:
-                        task = mark_game_abandoned.apply_async(
-                            args=[self.game_uuid, self.user_id],
-                            countdown=TIMEOUT_DURATION,
-                        )
-                        leavers[self.user_id] = {
-                            "task_id": task.id,
-                            "disconnect_at": datetime.now().isoformat(),
-                        }
-                        player["timeouts"] -= 1
-                        paused_at = int(time.time() * 1000)
-                        self.save_game_data(
-                            status="paused",
-                            paused_at=paused_at,
-                            state=json.dumps(leavers),
-                            players=json.dumps(self.players),
-                            countdown=0,
-                        )
-                    else:
-                        task = mark_game_abandoned.delay(self.game_uuid, self.user_id)
-                    break
+            if player["timeouts"] > 0:
+                task = mark_game_abandoned.apply_async(
+                    args=[self.game_uuid, self.user_id],
+                    countdown=TIMEOUT_DURATION,
+                )
+                leavers[self.user_id] = {
+                    "task_id": task.id,
+                    "disconnect_at": datetime.now().isoformat(),
+                }
+                player["timeouts"] -= 1
+                paused_at = int(time.time() * 1000)
+                self.save_game_data(
+                    status="paused",
+                    paused_at=paused_at,
+                    state=json.dumps(leavers),
+                    players=json.dumps(self.players),
+                    countdown=0,
+                )
+            else:
+                task = mark_game_abandoned.delay(self.game_uuid, self.user_id)
+
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
                 {

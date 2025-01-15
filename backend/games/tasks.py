@@ -20,6 +20,7 @@ r = redis.Redis(
 @shared_task
 def mark_game_abandoned(game_room_id, user_id):
     from tournament.tasks import processGameResult
+    from games.consumers import XP_GAIN_NORMAL, XP_GAIN_TN
 
     game_room_data = r.hgetall(f"game_room_data:{game_room_id}")
     if not game_room_data:
@@ -35,6 +36,7 @@ def mark_game_abandoned(game_room_id, user_id):
 
     game_room_data["state"] = json.loads(game_room_data["state"])
     game_room_data["players"] = json.loads(game_room_data["players"])
+    game_room_data["bracket"] = json.loads(game_room_data["bracket"])
 
     for player in game_room_data["players"]:
         user = User.objects.get(pk=player["user"]["id"])
@@ -42,8 +44,11 @@ def mark_game_abandoned(game_room_id, user_id):
             player["result"] = Player.Result.LOSS
         else:
             player["result"] = Player.Result.WIN
-            user.exp += 250
-        # Back to Be Online Again
+            if game_room_data["bracket"] is not None:
+                user.increase_exp(XP_GAIN_TN)
+            else:
+                user.increase_exp(XP_GAIN_NORMAL)
+        # Back to Being Online Again
         PlayerRating.handle_rating(
             user, Game.objects.get(pk=game_room_data["game"]), player
         )
@@ -82,12 +87,13 @@ def mark_game_room_as_expired(game_room_id):
         if game_room.status == "waiting":
             game_room.status = "expired"
             players = Player.objects.filter(game_room=game_room)
-            for player in players:
-                if player.ready is True:
-                    player.result = Player.Result.WIN
-                else:
-                    player.result = Player.Result.DISCONNECTED
-                player.save()
+            if game_room.bracket is not None:
+                for player in players:
+                    if player.ready is True:
+                        player.result = Player.Result.WIN
+                    else:
+                        player.result = Player.Result.DISCONNECTED
+                    player.save()
             game_room.save()
 
             channel_layer = get_channel_layer()
@@ -112,7 +118,6 @@ def mark_game_room_as_expired(game_room_id):
 
 @shared_task
 def sync_game_room_data(game_room_id):
-    # INFO : gets game room state from redis, then updates the state field in the database accordingly
     game_room_data = r.hgetall(f"game_room_data:{game_room_id}")
     if not game_room_data:
         return f"GameRoom {game_room_id} state not found."
@@ -124,6 +129,7 @@ def sync_game_room_data(game_room_id):
 
     game_room_data["state"] = json.loads(game_room_data["state"])
     game_room_data["players"] = json.loads(game_room_data["players"])
+    game_room_data["bracket"] = json.loads(game_room_data["bracket"])
     serializer = GameRoomSerializer(game_room, data=game_room_data, partial=True)
     if serializer.is_valid():
         serializer.save()

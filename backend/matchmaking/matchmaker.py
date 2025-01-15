@@ -1,5 +1,4 @@
 from channels.consumer import database_sync_to_async
-from django.db.models.base import sync_to_async
 from games.models import Game, PlayerRating
 from games.serializers import GameRoomSerializer, GameSerializer
 from channels.layers import get_channel_layer
@@ -19,11 +18,13 @@ r = redis.Redis(
 )
 
 QUEUE_KEY = "matchmaking_queue"
-RATING_TOLERANCE_BASELINE = 0
-TOLERANCE_EXPANSION_RATE = 50
-TOLERANCE_EXPANSION_TIME = 20
+RATING_TOLERANCE_BASELINE = 5
+TOLERANCE_EXPANSION_RATE = 25
+TOLERANCE_EXPANSION_TIME = 10
 TOLERANCE_CAP = 1000
 GAME_EXPIRATION = 60
+MIN_WAIT_TIME = 5
+MAX_WAIT_TIME = 400
 
 
 class Matchmaker:
@@ -186,11 +187,48 @@ class Matchmaker:
                         },
                     )
 
+    def calculate_estimated_time(self, player_rating, players, game):
+        rating_tolerance = game["rating_tolerance"]
+
+        compatible_players = [
+            (p, r) for p, r in players if abs(r - player_rating) <= rating_tolerance
+        ]
+
+        if len(compatible_players) >= game["min_players"]:
+            return MIN_WAIT_TIME
+
+        other_players = [(p, r) for p, r in players if r != player_rating]
+        if not other_players:
+            return MAX_WAIT_TIME
+
+        closest_rating = other_players[0][1]
+        required_tolerance = abs(player_rating - closest_rating)
+        remaining_tolerance = min(required_tolerance - rating_tolerance, TOLERANCE_CAP)
+
+        if remaining_tolerance > 0:
+            expansion_steps = (remaining_tolerance // TOLERANCE_EXPANSION_RATE) + 1
+            estimated_time = expansion_steps * TOLERANCE_EXPANSION_TIME
+            return estimated_time
+
+        return MIN_WAIT_TIME
+
+    async def update_players_estimated_time(self, players, game, channel_layer):
+        for player, rating in players:
+            estimated_time = self.calculate_estimated_time(rating, players, game)
+
+            channel = r.hget(f"{game['name']}:players_channel_names", player)
+            if channel:
+                await channel_layer.send(
+                    channel,
+                    {
+                        "type": "update_time",
+                        "message": {"estimated_time": estimated_time},
+                    },
+                )
+
     async def matchmaking_loop(self):
         channel_layer = get_channel_layer()
 
-        # TODO: Add per-player estimated time
-        # FIX: need to prevent players that are already involved in a game from queing again
         while len(self.queues):
             for _, game in self.queues.items():
                 print(f"{game['name']} --> {game['rating_tolerance']}", flush=True)
@@ -200,6 +238,8 @@ class Matchmaker:
                 if len(players) == 0:
                     del self.queues[game["name"]]
                     break
+
+                await self.update_players_estimated_time(players, game, channel_layer)
                 batches = self.create_batches(players, game["rating_tolerance"])
                 matches = self.find_matches(batches, game)
                 await self.create_matches(channel_layer, game, matches)

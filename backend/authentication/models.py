@@ -73,6 +73,7 @@ class User(AbstractUser):
 
         new_exp = last_exp + added_exp
 
+        self.exp = new_exp
         self.exp_history.append({"date": creation_date, "exp": new_exp})
         self.save()
 

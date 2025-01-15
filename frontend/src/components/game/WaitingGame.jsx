@@ -15,7 +15,7 @@ const WaitingGame = ({ data, send, game, decline, setGlobalMessage }) => {
     return {
       username: player.user.username,
       profileImage: player.user.profile_image
-        ? `${BACKENDURL}${player.user.profile_image}?t=${new Date().getTime()}`
+        ? `${BACKENDURL}${player.user.profile_image}`
         : "/images/default.jpeg",
       status: player.ready ? "Accepted" : "Pending",
       statusClass: player.ready ? "text-emerald-400" : "text-red",
