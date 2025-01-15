@@ -21,29 +21,31 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.group_name, self.channel_name)
 
         try:
-            self.game = await database_sync_to_async(Game.objects.filter)(name=self.game_name)
-            active_room = await database_sync_to_async(GameRoom.objects.filter(
-                player__user=self.scope["user"],
-                status__in=[
-                    GameRoom.Status.WAITING,
-                    GameRoom.Status.ONGOING,
-                    GameRoom.Status.PAUSED,
-                ]
-            ).first)()
-            if active_room is not None:
-                await self.send(text_data=json.dumps({
-                    "type": "reconnect",
-                    "message": {
-                            "room_id": str(active_room.id)
-                    }
-                }))
-                raise Exception(
-                    "You are already participating in an active game room.")
-        except Game.DoesNotExist:
-            self.close(
-                code=4004,
-                reason=f"Game {self.game_name} does not exist."
+            self.game = await database_sync_to_async(Game.objects.filter)(
+                name=self.game_name
             )
+            active_room = await database_sync_to_async(
+                GameRoom.objects.filter(
+                    player__user=self.scope["user"],
+                    status__in=[
+                        GameRoom.Status.WAITING,
+                        GameRoom.Status.ONGOING,
+                        GameRoom.Status.PAUSED,
+                    ],
+                ).first
+            )()
+            if active_room is not None:
+                await self.send(
+                    text_data=json.dumps(
+                        {
+                            "type": "reconnect",
+                            "message": {"room_id": str(active_room.id)},
+                        }
+                    )
+                )
+                raise Exception("You are already participating in an active game room.")
+        except Game.DoesNotExist:
+            self.close(code=4004, reason=f"Game {self.game_name} does not exist.")
             return
         except Exception as e:
             try:
@@ -99,19 +101,16 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
     async def update(self, event):
         await self.send(
-            text_data=json.dumps(
-                {"type": "update", "message": event["message"]})
+            text_data=json.dumps({"type": "update", "message": event["message"]})
         )
 
     async def update_time(self, event):
         await self.send(
-            text_data=json.dumps(
-                {"type": "update_time", "message": event["message"]})
+            text_data=json.dumps({"type": "update_time", "message": event["message"]})
         )
 
     async def match(self, event):
         await self.send(
-            text_data=json.dumps(
-                {"type": "match_found", "message": event["message"]})
+            text_data=json.dumps({"type": "match_found", "message": event["message"]})
         )
         await self.close(code=4002)
