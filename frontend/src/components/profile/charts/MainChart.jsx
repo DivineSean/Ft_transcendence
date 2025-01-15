@@ -45,7 +45,7 @@ const chartConfig = {
     month: new Date(data.timestamp).toLocaleDateString(),
     rating: data.rating,
   }));
-
+	
   return (
     <Card className="bg-black/30 border-stroke-sc w-full text-white">
       <CardHeader>
