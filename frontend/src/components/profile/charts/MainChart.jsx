@@ -19,26 +19,6 @@ const chartConfig = {
   },
 };
 
-  //testing case-------------------------------------------------------------
-  // const sampleRatingHistory = Array.from({ length: 30 }, (_, index) => {
-  //   const date = new Date();
-  //   date.setDate(date.getDate() - (29 - index)); // Last 30 days
-    
-  //   // Simulate realistic MMR changes
-  //   const baseRating = 1000;
-  //   const variation = Math.sin(index * 0.5) * 100; // Creates a wave pattern
-  //   const randomness = (Math.random() - 0.5) * 50; // Adds some randomness
-  //   const rating = Math.round(baseRating + variation + randomness);
-    
-  //   return {
-  //     timestamp: date.toISOString(),
-  //     rating: Math.max(0, rating), // Ensure rating doesn't go below 0
-  //   };
-  // });
-
-  // const MainChart = ({ ratingHistory = sampleRatingHistory }) => {
-  // ------------------------------------------------------------------------
-
   const MainChart = ({ ratingHistory = []}) => {
   const chartData = ratingHistory.map(data => (
   {
