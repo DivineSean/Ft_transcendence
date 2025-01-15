@@ -4,7 +4,6 @@ from asgiref.sync import async_to_sync
 from authentication.models import User
 from games.models import Game, GameRoom, Player, PlayerRating
 from games.serializers import GameRoomSerializer
-from games.consumers import XP_GAIN_NORMAL, XP_GAIN_TN
 from django.conf import settings
 import redis
 import json
@@ -21,6 +20,7 @@ r = redis.Redis(
 @shared_task
 def mark_game_abandoned(game_room_id, user_id):
     from tournament.tasks import processGameResult
+    from games.consumers import XP_GAIN_NORMAL, XP_GAIN_TN
 
     game_room_data = r.hgetall(f"game_room_data:{game_room_id}")
     if not game_room_data:

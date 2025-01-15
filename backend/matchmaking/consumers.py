@@ -51,14 +51,14 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
             except:
                 return
 
-        searching = r.get(f"{self.game_name}_players_in_queue")
-        searching = int(searching) if searching is not None else 0
+        searching = r.scard(f"{self.game_name}_players_in_queue")
         await self.send(text_data=json.dumps({"type": "update", "message": searching}))
 
     async def join_queue(self):
         try:
             await matchmaker.add_player(self.player, self.channel_name, self.game_name)
-            n = r.incr(f"{self.game_name}_players_in_queue")
+            r.sadd(f"{self.game_name}_players_in_queue", self.player)
+            n = r.scard(f"{self.game_name}_players_in_queue")
             await self.channel_layer.group_send(
                 self.group_name, {"type": "update", "message": n}
             )
@@ -70,7 +70,8 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
     async def leave_queue(self):
         try:
             await matchmaker.remove_player(self.player, self.game_name)
-            n = r.decr(f"{self.game_name}_players_in_queue")
+            r.srem(f"{self.game_name}_players_in_queue", self.player)
+            n = r.scard(f"{self.game_name}_players_in_queue")
             await self.channel_layer.group_send(
                 self.group_name, {"type": "update", "message": n}
             )
@@ -100,6 +101,12 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
         await self.send(
             text_data=json.dumps(
                 {"type": "update", "message": event["message"]})
+        )
+
+    async def update_time(self, event):
+        await self.send(
+            text_data=json.dumps(
+                {"type": "update_time", "message": event["message"]})
         )
 
     async def match(self, event):
