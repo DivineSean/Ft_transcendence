@@ -8,9 +8,14 @@ from .models import Tournament
 from uuid import UUID
 import math
 from .tasks import manageTournament
-from .serializers import TournamentSerializer, getTournamentSerializer
+from .serializers import (
+    TournamentSerializer,
+    getTournamentSerializer,
+    TournamentDataSerializer,
+)
 from rest_framework.pagination import PageNumberPagination, BasePagination
-from games.models import Game
+from games.models import Game, Player, GameRoom
+from .models import Bracket
 
 
 class Tournaments(APIView):
@@ -166,5 +171,24 @@ class Tournaments(APIView):
             manageTournament.delay(tournamentID)
             lobby.isStarted = True
             lobby.save()
-
         return response
+
+
+@api_view(["POST"])
+def getTournamentData(request):
+    tournamentID = request.data.get("id")
+    if tournamentID == None:
+        return Response(
+            {"error": "No Tournament ID"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        tournamentObj = Tournament.objects.get(id=tournamentID)
+    except Tournament.DoesNotExist:
+        return Response(
+            {"error": "No such tournament with this id"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    brackets = Bracket.objects.filter(tournament=tournamentObj)
+    serializer = TournamentDataSerializer({"brackets": brackets})
+    return Response(serializer.data, status=status.HTTP_200_OK)
