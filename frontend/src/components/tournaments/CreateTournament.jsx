@@ -4,7 +4,7 @@ import { RxCross2 } from "react-icons/rx";
 import AuthContext from "@/context/AuthContext";
 import FetchWrapper from "@/utils/fetchWrapper";
 
-const CreateTournament = ({ setDisplayCreateTournament }) => {
+const CreateTournament = ({ setDisplayCreateTournament, setTournaments }) => {
   const authContextData = useContext(AuthContext);
   const FetchData = new FetchWrapper();
   const [formData, setFormData] = useState({
@@ -26,17 +26,19 @@ const CreateTournament = ({ setDisplayCreateTournament }) => {
     e.preventDefault();
 
     try {
-      const res = await FetchData.post("api/tournament/create/", {
+      const res = await FetchData.post("api/tournaments/", {
         maxPlayers: formData.players,
         tournamentName: formData.tournament_name,
+        game: formData.games,
       });
-      console.log(res);
       if (res.ok) {
         const data = await res.json();
         authContextData.setGlobalMessage({
           message: data.message,
-          isError: true,
+          isError: false,
         });
+        setTournaments(null);
+        setDisplayCreateTournament(false);
       } else if (res.status === 400) {
         const data = await res.json();
         authContextData.setGlobalMessage({
@@ -50,7 +52,6 @@ const CreateTournament = ({ setDisplayCreateTournament }) => {
         isError: true,
       });
     }
-    console.log(formData);
   };
 
   return (
