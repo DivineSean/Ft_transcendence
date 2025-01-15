@@ -129,14 +129,14 @@ class PlayerRating(models.Model):
         if player["result"] == "win":
             player_rating.rating += player["rating_gain"]
             player_rating.wins += 1
-            rating_change = player["rating_gain"]
+            result = ['W']
         else:
             if player_rating.rating < player["rating_loss"]:
                 player_rating.rating = 0
             else:
                 player_rating.rating -= player["rating_loss"]
             player_rating.losses += 1
-            rating_change = -player["rating_loss"]
+            result = ['L']
         
         history_data = {
             "timestamp": current_time,

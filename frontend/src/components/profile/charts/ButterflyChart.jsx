@@ -27,6 +27,7 @@ const chartConfig = {
 const ButterflyChart = ({ progress }) => {
   const totalProgress = Object.values(progress).reduce((sum, value) => sum + value, 0);
   const overallProgress = (totalProgress / 400) * 100;
+  const oProgress = overallProgress.toFixed(0);
   const chartData = Object.keys(progress).map((key) => ({
     name: key,
     progress: Math.min(progress[key] , 100),
@@ -70,11 +71,11 @@ const ButterflyChart = ({ progress }) => {
         </div>
 
         <div className="flex items-center gap-2 leading-none text-muted-foreground">
-          {overallProgress.toFixed(0) < 30 && "Keep pushing! Every step counts towards your goal."}
-          {overallProgress.toFixed(0) >= 30 && overallProgress.toFixed(0) < 50 && "You're making great progress! Keep the momentum going."}
-          {overallProgress.toFixed(0) >= 50 && overallProgress.toFixed(0) < 70 && "Awesome work! You're more than halfway there."}
-          {overallProgress.toFixed(0) >= 70 && overallProgress.toFixed(0) < 90 && "Fantastic effort! The finish line is within sight."}
-          {overallProgress.toFixed(0) >= 90 && "You're a star achiever! be proud you reached perfection!"}
+          {oProgress < 30 && "Keep pushing! Every step counts towards your goal."}
+          {oProgress >= 30 && oProgress < 50 && "You're making great progress! Keep the momentum going."}
+          {oProgress >= 50 && oProgress < 70 && "Awesome work! You're more than halfway there."}
+          {oProgress >= 70 && oProgress < 90 && "Fantastic effort! The finish line is within sight."}
+          {oProgress >= 90 && "You're a star achiever! be proud you reached perfection!"}
       </div>
       </CardFooter>
     </Card>
