@@ -171,7 +171,7 @@ class Tournaments(APIView):
             manageTournament.delay(tournamentID)
             lobby.isStarted = True
             lobby.save()
-            return response
+        return response
 
 
 @api_view(["POST"])
