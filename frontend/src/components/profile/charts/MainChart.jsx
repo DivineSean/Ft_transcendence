@@ -1,5 +1,4 @@
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
-
 import {
   Card,
   CardContent,
@@ -7,37 +6,53 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-];
-
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  rating: {
+    label: "MMR",
     color: "hsl(var(--chart-1))",
   },
 };
 
-const MainChart = () => {
+  //testing case-------------------------------------------------------------
+  // const sampleRatingHistory = Array.from({ length: 30 }, (_, index) => {
+  //   const date = new Date();
+  //   date.setDate(date.getDate() - (29 - index)); // Last 30 days
+    
+  //   // Simulate realistic MMR changes
+  //   const baseRating = 1000;
+  //   const variation = Math.sin(index * 0.5) * 100; // Creates a wave pattern
+  //   const randomness = (Math.random() - 0.5) * 50; // Adds some randomness
+  //   const rating = Math.round(baseRating + variation + randomness);
+    
+  //   return {
+  //     timestamp: date.toISOString(),
+  //     rating: Math.max(0, rating), // Ensure rating doesn't go below 0
+  //   };
+  // });
+
+  // const MainChart = ({ ratingHistory = sampleRatingHistory }) => {
+  // ------------------------------------------------------------------------
+
+  const MainChart = ({ ratingHistory = []}) => {
+  const chartData = ratingHistory.map(data => (
+  {
+    month: new Date(data.timestamp).toLocaleDateString(),
+    rating: data.rating,
+  }));
+
   return (
     <Card className="bg-black/30 border-stroke-sc w-full text-white">
       <CardHeader>
         <CardTitle>Line Chart</CardTitle>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={{}}>
+        <ChartContainer config={chartConfig}>
           <LineChart
             accessibilityLayer
             data={chartData}
@@ -53,7 +68,10 @@ const MainChart = () => {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => {
+                const date = new Date(value);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+              }}
             />
 
             <ChartTooltip
@@ -62,7 +80,7 @@ const MainChart = () => {
             />
 
             <Line
-              dataKey="desktop"
+              dataKey="rating"
               type="natural"
               stroke="#31E78B"
               strokeWidth={2}
@@ -74,4 +92,5 @@ const MainChart = () => {
     </Card>
   );
 };
+
 export default MainChart;

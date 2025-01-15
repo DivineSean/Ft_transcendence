@@ -11,4 +11,10 @@ urlpatterns = [
     path(
         "api/rankings/<str:game_name>/", views.get_rankings, name="updateRankingsPage"
     ),
+    path(
+        "api/profile/stats/<str:game_name>", views.getStats, name="ProfileStats"
+    ),
+    path(
+        "api/profile/stats/<str:game_name>/<str:username>", views.getStats, name="ProfileUserStats"
+    ),
 ]

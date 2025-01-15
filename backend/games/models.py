@@ -6,6 +6,7 @@ from django.utils.timezone import now
 from authentication.models import User as User
 import uuid
 import time
+from datetime import datetime
 
 
 class Game(models.Model):
@@ -80,6 +81,11 @@ class PlayerRating(models.Model):
     game = models.ForeignKey(Game, on_delete=models.PROTECT)
     rating = models.PositiveIntegerField(default=951)
     updated_at = models.DateTimeField(auto_now=True)
+    wins = models.PositiveIntegerField(default=0)
+    losses= models.PositiveIntegerField(default=0)
+    recent_results = models.JSONField(default=list)
+    rating_history = models.JSONField(default=list)
+    limiter = models.PositiveIntegerField(default=30)
 
     RANKS = [
         (0, 350, "Iron"),
@@ -91,6 +97,12 @@ class PlayerRating(models.Model):
         (1851, 2150, "Master"),
         (2151, float("inf"), "Elite"),
     ]
+
+    @classmethod
+    def add_result(cls, player, result):
+        player.recent_results = (player.recent_results + [result])[-5:]
+        player.save()
+
 
     @classmethod
     def get_rank(cls, rating):
@@ -111,13 +123,29 @@ class PlayerRating(models.Model):
                 player_rating = created
         except Exception as e:
             return
+        
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
         if player["result"] == "win":
             player_rating.rating += player["rating_gain"]
-        elif player["result"] == "loss":
+            player_rating.wins += 1
+            rating_change = player["rating_gain"]
+        else:
             if player_rating.rating < player["rating_loss"]:
                 player_rating.rating = 0
             else:
                 player_rating.rating -= player["rating_loss"]
+            player_rating.losses += 1
+            rating_change = -player["rating_loss"]
+        
+        history_data = {
+            "timestamp": current_time,
+            "rating": player_rating.rating,
+        }
+        
+        player_rating.rating_history = (player_rating.rating_history + [history_data])[-player_rating.limiter:]
+        
+        player_rating.add_result(player_rating, result)
         player_rating.save()
 
 

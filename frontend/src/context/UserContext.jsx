@@ -23,6 +23,7 @@ export const UserProvider = ({ children }) => {
   const [blockedUsers, setBlockedUsers] = useState(null);
   const [onlineMatches, setOnlineMatches] = useState(null);
   const [rankings, setRankings] = useState(null);
+  const [status, setStatus] = useState(null);
   const [profileAchievements, setProfileAchievements] = useState(null);
 
   const getUserInfo = async () => {
@@ -420,7 +421,26 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const getStats = async (game, username) => {
+    const url = username
+    ? `api/profile/stats/${game}/${username}`
+    : `api/profile/stats/${game}`;
+    try {
+      const res = await FetchData.get(url);
+      if (res.ok) {
+        const data = await res.json();
+        setStatus(data);
+      }
+    } catch (error) {
+      authContextData.setGlobalMessage({
+        message: error.message,
+        isError: true,
+      });
+    }
+  };
+
   const contextData = {
+    status,
     onlineMatches,
     rankings,
     profileAchievements,
@@ -454,6 +474,7 @@ export const UserProvider = ({ children }) => {
 
     getOnlineMatches,
     get_rankings,
+    getStats,
     getProfileAchievements,
   };
 

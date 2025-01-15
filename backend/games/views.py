@@ -230,3 +230,58 @@ def get_rankings(request, game_name=None):
         )
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["GET"])
+def getStats(request, game_name=None, username=None):
+    if not game_name:
+        return Response(
+            {"error": "No game name provided"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    user_id = request.user.id if not username else None
+    if username:
+        try:
+            user = User.objects.get(username=username)
+            user_id = user.id
+        except ObjectDoesNotExist:
+            return Response(
+                {"error": f"User '{username}' not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+    try:
+        game = Game.objects.get(name=game_name)
+    except ObjectDoesNotExist:
+        return Response(
+            {"error": f"Game '{game_name}' not found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    try:
+        player = PlayerRating.objects.get(user=user_id, game=game)
+    except ObjectDoesNotExist:
+        return Response(
+            {"error": f"Player with id '{user_id}' in game '{game_name}' not found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    total_games = player.wins + player.losses
+    winrate = (player.wins / total_games) * 100 if total_games > 0 else 100
+    demote, promote, elo = player.get_rank(player.rating)
+
+    stats = {
+        "total_games": total_games,
+        "winrate": winrate,
+        "recent_results": player.recent_results,
+        "elo": elo,
+        "mmr": player.rating,
+        "promote": promote,
+        "demote": demote,
+        "rating_history": player.rating_history,
+    }
+
+    return Response(
+        {"game": game_name, "stats": stats},
+        status=status.HTTP_200_OK,
+    )

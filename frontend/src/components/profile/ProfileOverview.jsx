@@ -1,7 +1,40 @@
 import { MdGames } from "react-icons/md";
 import { FaFire } from "react-icons/fa6";
+import { TrendingUp, TrendingDown } from "lucide-react";
+import UserContext from "@/context/UserContext";
+import { useContext } from "react";
 
 const ProfileOverview = () => {
+  const userContextData = useContext(UserContext);
+  const stats = userContextData.status.stats;
+
+  const formatRecentResults = (results) => {
+    if (!Array.isArray(results)) return Array(5).fill('-');
+    const filledResults = [...results];
+    while (filledResults.length < 5) {
+      filledResults.push('-');
+    }
+    return filledResults;
+  };
+
+  const renderResult = (result, index) => {
+    const classes = {
+      W: "text-green",
+      L: "text-red",
+      default: "text-gray-400",
+    };
+  
+    return (
+      <span 
+        key={index} 
+        className={`flex uppercase font-bold ${classes[result] || classes.default}`}
+      >
+        {result || '-'}
+      </span>
+    );
+  };
+  
+
   return (
     <div className="flex flex-col gap-16 grow overflow-y-scroll no-scrollbar">
       <div className="flex flex-col rounded-[8px] border-[0.5px] border-stroke-sc overflow-hidden shrink-0">
@@ -15,15 +48,17 @@ const ProfileOverview = () => {
           <MdGames className="text-green text-txt-3xl" />
           <div className="flex gap-40 justify-between grow">
             <div className="flex flex-col items-start">
-              <span className="text-h-lg-sm">12</span>
+              <span className="text-h-lg-sm">{stats.total_games}</span>
               <span className="text-txt-xs">total played</span>
             </div>
             <div className="flex flex-col items-center text-center">
-              <span className="text-h-lg-sm">100%</span>
-              <span className="text-txt-xs">win rate</span>
+              <span className="text-h-lg-sm">{stats.winrate}%</span>
+              <span className="text-txt-xs">winrate</span>
             </div>
             <div className="flex flex-col items-end text-right">
-              <span className="flex uppercase text-green font-bold">wwww</span>
+              <div className="flex gap-1">
+                {formatRecentResults(stats.recent_results).map((result, index) => renderResult(result, index))}
+              </div>
               <span className="flex text-txt-xs">recent result</span>
             </div>
           </div>
@@ -32,16 +67,22 @@ const ProfileOverview = () => {
           <FaFire className="text-red text-txt-3xl" />
           <div className="flex gap-40 justify-between grow">
             <div className="flex flex-col items-start">
-              <span className="text-h-lg-sm">0</span>
-              <span className="text-txt-xs">streak</span>
+              <span className="text-h-lg-sm">{stats.elo}</span>
+              <span className="text-txt-xs">current rank</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-h-lg-sm">22</span>
-              <span className="text-txt-xs">Rank</span>
+              <span className="text-h-lg-sm">{stats.mmr}</span>
+              <span className="text-txt-xs">Ranked Point</span>
             </div>
             <div className="flex flex-col items-end">
-              <span className="">36</span>
-              <span className="flex text-txt-xs">point</span>
+              <div className="flex items-center gap-1">
+                <TrendingUp className="text-green w-7 h-5" />
+                <span>{stats.promote}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <TrendingDown className="text-red w-7 h-5 rotate-90" />
+                <span>{stats.demote}</span>
+              </div>
             </div>
           </div>
         </div>
