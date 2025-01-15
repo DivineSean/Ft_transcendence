@@ -16,15 +16,6 @@ from games.models import Game
 class Tournaments(APIView):
 
     def get(self, request, offset=0):
-        # for i in range(1, 101):
-        # 	Tournament.objects.create(
-        # 		creator=request._user,
-        # 		maxPlayers=4,
-        # 		total_rounds=3,
-        # 		tournamentTitle='hello',
-        # 		game=Game.objects.get(name='pong'),
-        # 	)
-        # return Response({'message': 'created'}, status=200)
         try:
             tournamentsData = getTournamentSerializer(
                 Tournament.objects.all().order_by("-created_at"),
