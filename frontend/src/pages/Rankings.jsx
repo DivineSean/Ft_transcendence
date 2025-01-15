@@ -8,7 +8,7 @@ import TopThreePlayers from "@/components/rankings/TopThreePlayers";
 import { useNavigate } from "react-router-dom";
 
 const Rankings = () => {
-	const navigate = useNavigate();
+  const navigate = useNavigate();
   const { rankings, get_rankings } = useContext(UserContext);
   const authContextData = useContext(AuthContext);
   const [selectedGame, setSelectedGame] = useState("pong");
@@ -48,9 +48,13 @@ const Rankings = () => {
                 <div className="bg-gray/5 relative flex flex-col md:p-16 p-8 gap-8 overflow-hidden rounded-md grow border-[0.5px] border-stroke-sc">
                   {currentUserRank && (
                     <div
-											onClick={() => navigate(`/profile/overview/${currentUserRank.username}`)}
-											className="grid lg:grid-cols-5 grid-cols-4 gap-32 bg-[#DAA520]/10 hover:bg-[#DAA520]/20 transition-all border border-[#DAA520]/50 rounded-lg text-center p-8 z-10 mb-16 cursor-pointer"
-										>
+                      onClick={() =>
+                        navigate(
+                          `/profile/overview/${currentUserRank.username}`,
+                        )
+                      }
+                      className="grid lg:grid-cols-5 grid-cols-4 gap-32 bg-[#DAA520]/10 hover:bg-[#DAA520]/20 transition-all border border-[#DAA520]/50 rounded-lg text-center p-8 z-10 mb-16 cursor-pointer"
+                    >
                       <p>{currentUserRank.rank}</p>
                       <p className="font-bold">you</p>
                       <p className="hidden lg:block">{currentUserRank.exp}</p>
@@ -94,9 +98,11 @@ const Rankings = () => {
                         isSelf={player.is_self}
                       />
                     ))}
-										{otherPlayers.length === 0 &&
-											<div className="flex justify-center text-stroke-sc">no players yet</div>
-										}
+                    {otherPlayers.length === 0 && (
+                      <div className="flex justify-center text-stroke-sc">
+                        no players yet
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

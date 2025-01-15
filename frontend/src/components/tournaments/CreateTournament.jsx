@@ -29,7 +29,7 @@ const CreateTournament = ({ setDisplayCreateTournament, setTournaments }) => {
       const res = await FetchData.post("api/tournaments/", {
         maxPlayers: formData.players,
         tournamentName: formData.tournament_name,
-				game: formData.games,
+        game: formData.games,
       });
       if (res.ok) {
         const data = await res.json();
@@ -37,8 +37,8 @@ const CreateTournament = ({ setDisplayCreateTournament, setTournaments }) => {
           message: data.message,
           isError: false,
         });
-				setTournaments(null);
-				setDisplayCreateTournament(false);
+        setTournaments(null);
+        setDisplayCreateTournament(false);
       } else if (res.status === 400) {
         const data = await res.json();
         authContextData.setGlobalMessage({

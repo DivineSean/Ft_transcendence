@@ -232,10 +232,10 @@ input:-webkit-autofill:active {
   .tournaments-height {
     height: calc(100% - 200px);
   }
-	@media (max-width: 1099px) {
+  @media (max-width: 1099px) {
     .tournaments-height {
-			height: calc(100% - 150px);
-		}
+      height: calc(100% - 150px);
+    }
   }
   .right-message::before {
     content: "";

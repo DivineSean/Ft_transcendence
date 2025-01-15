@@ -11,7 +11,7 @@ const Tournaments = () => {
   const authContextData = useContext(AuthContext);
   const { uid } = useParams();
   const [displayCreateTournament, setDisplayCreateTournament] = useState(false);
-	const [tournaments, setTournaments] = useState(null);
+  const [tournaments, setTournaments] = useState(null);
 
   useEffect(() => {
     return () => {
@@ -29,7 +29,7 @@ const Tournaments = () => {
       {displayCreateTournament && (
         <CreateTournament
           setDisplayCreateTournament={setDisplayCreateTournament}
-					setTournaments={setTournaments}
+          setTournaments={setTournaments}
         />
       )}
 
@@ -58,7 +58,10 @@ const Tournaments = () => {
             {uid ? (
               <Brackets />
             ) : (
-              <ListTournaments tournaments={tournaments} setTournaments={setTournaments} />
+              <ListTournaments
+                tournaments={tournaments}
+                setTournaments={setTournaments}
+              />
             )}
           </div>
         </div>
