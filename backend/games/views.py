@@ -7,8 +7,8 @@ from authentication.serializers import UserFriendSerializer
 from chat.views import Conversation
 from asgiref.sync import async_to_sync
 from notification.models import Notifications
-from .models import Game, Player, GameRoom, PlayerRating
-from .serializers import GameRoomSerializer
+from .models import Game, Player, GameRoom, PlayerRating, PlayerAchievement, Achievement
+from .serializers import GameRoomSerializer, AchievementSerializer
 from .tasks import mark_game_room_as_expired
 from matchmaking.matchmaker import GAME_EXPIRATION
 from chat.models import Conversation, Message
@@ -19,7 +19,6 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from django.db.models import Q
 from .models import GameRoom, Game
-from .serializers import GameRoomSerializer
 import json
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -239,7 +238,8 @@ def getStats(request, game_name=None, username=None):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    user_id = request.user.id if not username else None
+    user = request.user
+    user_id = user.id if not username else None
     if username:
         try:
             user = User.objects.get(username=username)
@@ -265,6 +265,14 @@ def getStats(request, game_name=None, username=None):
             {"error": f"Player with id '{user_id}' in game '{game_name}' not found"},
             status=status.HTTP_404_NOT_FOUND,
         )
+    # try:
+    #     achie_vements = Achievement.objects.filter(game=game)
+    #     achievements = AchievementSerializer(data=achie_vements)
+    # except ObjectDoesNotExist:
+    #     return Response(
+    #         {"error": f"Achievements in game '{game_name}' not found"},
+    #         status=status.HTTP_404_NOT_FOUND,
+    #     )
 
     total_games = player.wins + player.losses
     winrate = (player.wins / total_games) * 100 if total_games > 0 else 100
@@ -279,6 +287,7 @@ def getStats(request, game_name=None, username=None):
         "promote": promote,
         "demote": demote,
         "rating_history": player.rating_history,
+        # "test": achievements,
     }
 
     return Response(
