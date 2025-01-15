@@ -235,7 +235,6 @@ class Matchmaker:
                 players = r.zrange(
                     f"{game['name']}_{QUEUE_KEY}", 0, -1, withscores=True
                 )
-                print("-----------------------------------> ", players, flush=True)
                 if len(players) == 0:
                     del self.queues[game["name"]]
                     break
