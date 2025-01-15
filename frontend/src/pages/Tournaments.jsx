@@ -35,11 +35,11 @@ const Tournaments = () => {
 
       <div className="container">
         <div
-          className={`flex flex-col w-full ${uid ? "bmo-height" : "get-height"} bg-[url(/images/fakeGlass.png)]
+          className={`flex flex-col w-full ${uid ? "bmo-height" : "bmo-height"} bg-[url(/images/fakeGlass.png)]
 						bg-cover rounded-lg border-[0.5px] border-stroke-pr overflow-hidden`}
         >
           <div
-            className="w-full max-h-[200px] min-h-[200px] bg-[url('/images/pongCover.png')]
+            className="w-full lg:max-h-[200px] lg:min-h-[200px] min-h-[150px] max-h-[150px] bg-[url('/images/pongCover.png')]
 							bg-cover bg-center relative flex justify-end items-end p-16"
           >
             <div className="w-full h-full absolute cover-gradient top-0 bottom-0 left-0 right-0"></div>
@@ -47,7 +47,7 @@ const Tournaments = () => {
               <button
                 onClick={() => setDisplayCreateTournament(true)}
                 className="z-10 secondary-glass p-8 px-16 transition-all flex gap-4
-								justify-center items-center hover:bg-green/60
+								justify-center items-center hover:bg-green/60 lg:text-txt-md text-txt-sm
 								hover:text-black rounded-md text-green font-semibold tracking-wide"
               >
                 create a trounament

@@ -15,38 +15,47 @@ from games.models import Game
 class Tournaments(APIView):
 
 		def get(self, request, offset=0):
-			try:
-					tournamentsData = getTournamentSerializer(
-							Tournament.objects.all().order_by("-created_at"),
-							many=True,
-							context=request._user,
-					).data
-			except Exception as e:
-					return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+			# for i in range(1, 101):
+			# 	Tournament.objects.create(
+			# 		creator=request._user,
+			# 		maxPlayers=4,
+			# 		total_rounds=3,
+			# 		tournamentTitle='hello',
+			# 		game=Game.objects.get(name='pong'),
+			# 	)
+			# return Response({'message': 'created'}, status=200)
+				try:
+						tournamentsData = getTournamentSerializer(
+								Tournament.objects.all().order_by("-created_at"),
+								many=True,
+								context=request._user,
+						).data
+				except Exception as e:
+						return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-			paginator = PageNumberPagination()
-			try:
-					paginator.page_size = int(request.data.get("limit", 20))
+				paginator = PageNumberPagination()
+				try:
+						paginator.page_size = int(request.data.get("limit", 20))
 
-			except ValueError:
-					return Response(
-							{"Error": "Either Offeset or limit is not a Number"},
-							status=status.HTTP_400_BAD_REQUEST,
-					)
+				except ValueError:
+						return Response(
+								{"Error": "Either Offeset or limit is not a Number"},
+								status=status.HTTP_400_BAD_REQUEST,
+						)
 
-			paginatedTournaments = tournamentsData[offset : offset + paginator.page_size]
+				paginatedTournaments = tournamentsData[offset : offset + paginator.page_size]
 
-			return Response(
-					{
-							"tournaments": paginatedTournaments,
-							"nextOffset": (
-									offset + paginator.page_size
-									if len(paginatedTournaments) == paginator.page_size
-									else 0
-							),
-					},
-					status=status.HTTP_200_OK,
-			)
+				return Response(
+						{
+								"tournaments": paginatedTournaments,
+								"nextOffset": (
+										offset + paginator.page_size
+										if len(paginatedTournaments) == paginator.page_size
+										else 0
+								),
+						},
+						status=status.HTTP_200_OK,
+				)
 
 		def delete(self, request):
 				try:

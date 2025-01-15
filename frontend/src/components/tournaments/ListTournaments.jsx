@@ -13,7 +13,10 @@ const getTournaments = async (offset, setTourOffset, authContextData, setTournam
 		if (res.ok) {
 			const data = await res.json();
 			setTourOffset(data.nextOffset);
-			setTournaments(data.tournaments);
+			if (!offset)
+				setTournaments(data.tournaments);
+			else
+				setTournaments((prevTours) => [...data.tournaments, ...prevTours]);
 		}
 	} catch (error) {
 		authContextData.setGlobalMessage({
@@ -29,22 +32,43 @@ const ListTournaments = ({tournaments, setTournaments}) => {
 	const tourContainerRef = useRef(null);
   const navigate = useNavigate();
 	const [tourOffset, setTourOffset] = useState(0);
+	const [chunkedData, setChunkedData] = useState(0);
 
 	useEffect(() => {
 		if (!tournaments) {
+			setChunkedData(0);
 			getTournaments(tourOffset, setTourOffset, authContextData, setTournaments);
 		}
 	}, [tournaments]);
 
-	if (tourContainerRef && tourContainerRef.current) {
-		tourContainerRef.current.addEventListener('scroll', () => {
-			const isAtEnd = tourContainerRef.current.scrollTop + tourContainerRef.current.clientHeight >= tourContainerRef.current.scrollHeight;
-			if (isAtEnd) {
-				tourContainerRef.current.scrollBy({ top: -40, behavior: 'smooth' });
-				console.log('sf rah salat abroooo');
+	useEffect(() => {
+
+		const getChunkedData = setTimeout(() => {
+
+			if (tourOffset !== 0 && chunkedData !== 0) {
+
+				if (tourContainerRef && tourContainerRef.current) {
+					if (Math.abs(tourContainerRef.current.scrollTop + tourContainerRef.current.clientHeight - tourContainerRef.current.scrollHeight) < 1) {
+						tourContainerRef.current.scrollBy({ top: -50, behavior: 'smooth' });
+					}
+				}
+
+				getTournaments(tourOffset, setTourOffset, authContextData, setTournaments);
+				setChunkedData(0);
 			}
-		})
-	}
+		}, 500);
+
+    return () => clearTimeout(getChunkedData);
+
+	}, [chunkedData && tourOffset]);
+
+	const handleConversationScroll = () => {
+    if (tourContainerRef.current) {
+      if (Math.abs(tourContainerRef.current.scrollTop + tourContainerRef.current.clientHeight - tourContainerRef.current.scrollHeight) < 1 && tourOffset !== 0) {
+        setChunkedData((prev) => prev + 1);
+      }
+    }
+  };
 
 	const deleteTournament = async () => {
 		try {
@@ -69,7 +93,6 @@ const ListTournaments = ({tournaments, setTournaments}) => {
 			const res = await FetchData.put('api/tournaments/', {
 				id: tournamentId
 			});
-			console.log(res);
 			if (res.ok) {
 				const data = await res.json();
 				authContextData.setGlobalMessage({
@@ -93,7 +116,11 @@ const ListTournaments = ({tournaments, setTournaments}) => {
 	}
 
 	return (
-		<div ref={tourContainerRef} className="h-full w-full overflow-y-auto no-scrollbar p-16 flex flex-col gap-16">			
+		<div
+			ref={tourContainerRef}
+			onScroll={handleConversationScroll}
+			className="h-full w-full overflow-y-auto no-scrollbar p-16 flex flex-col gap-16"
+		>			
 			{tournaments && tournaments.map((tournament) => (
 				<div key={tournament.id} className="flex gap-32 p-16 bg-gray/5 rounded-lg border border-gray/10 items-center">
 					<div
@@ -104,13 +131,13 @@ const ListTournaments = ({tournaments, setTournaments}) => {
 							<h1 className="font-bold tracking-wider">{tournament.tournamentTitle}</h1>
 							<p className="text-txt-sm tracking-wider">{tournament.gameData.name}</p>
 						</div>
-						<div className="text-gray">{tournament.created_at}</div>
+						<div className="text-gray md:block hidden">{tournament.created_at}</div>
 						<div className="flex flex-col gap-4 items-center">
 							<h1 className="tracking-wider">{tournament.currentPlayerCount}/{tournament.maxPlayers}</h1>
 							<p className="text-txt-sm tracking-wider font-bold">players</p>
 						</div>
 						<div className="flex flex-col gap-4 items-center">
-							<h1 className="font-bold tracking-wider">registrations</h1>
+							<h1 className="font-semibold tracking-wider">registrations</h1>
 							{tournament.currentPlayerCount < tournament.maxPlayers ?
 								<p className="text-txt-sm tracking-wider text-green font-bold">open</p>
 								:
@@ -127,7 +154,7 @@ const ListTournaments = ({tournaments, setTournaments}) => {
 				</div>
 			))}
 			<span ref={endTourRef} className={`text-center text-txt-sm text-green ${tourOffset ? 'block' : 'hidden'}`}>loading...</span>
-			{tournaments && tournaments.length === 0 && <div className="text-center text-stroke-sc">no tournaments</div> }
+			{tournaments && tournaments.length === 0 && <div className="text-center text-stroke-sc">no tournaments yet</div> }
 		</div>
 	)
 }
