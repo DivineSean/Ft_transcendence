@@ -21,7 +21,7 @@ from django.db.models import Q
 from .models import GameRoom, Game
 import json
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.serializers import serialize
+from rest_framework.pagination import PageNumberPagination
 
 
 @api_view(["POST"])
@@ -179,7 +179,8 @@ def getOnlineMatches(request):
 
 
 @api_view(["GET"])
-def get_rankings(request, game_name=None):
+def get_rankings(request, game_name=None, offset=1):
+
     if not game_name:
         return Response(
             {"error": "No game name provided"}, status=status.HTTP_400_BAD_REQUEST
@@ -199,7 +200,6 @@ def get_rankings(request, game_name=None):
         for idx, player in enumerate(players, 1):
             user = player.user
             lower, upper, rank = player.get_rank(player.rating)
-
             rankings.append(
                 {
                     "rank": idx,
@@ -216,10 +216,24 @@ def get_rankings(request, game_name=None):
                     "is_self": user.id == current_user_id,
                 }
             )
+        paginator = PageNumberPagination()
+        try:
+            paginator.page_size = int(request.data.get("limit", 30))
+        except:
+            return Response(
+                {"Error": "Either Offeset or limit is not a Number"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        paginatedRankings = rankings[offset : offset + paginator.page_size]
 
         response_data = {
             "game": game_name,
-            "rankings": rankings,
+            "rankings": paginatedRankings,
+            "next_offset": (
+                offset + paginator.page_size
+                if len(paginatedRankings) == paginator.page_size
+                else -1
+            ),
         }
 
         return Response(response_data, status=status.HTTP_200_OK)

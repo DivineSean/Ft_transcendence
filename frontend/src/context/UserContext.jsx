@@ -22,7 +22,6 @@ export const UserProvider = ({ children }) => {
   const [refresh, setRefresh] = useState(false);
   const [blockedUsers, setBlockedUsers] = useState(null);
   const [onlineMatches, setOnlineMatches] = useState(null);
-  const [rankings, setRankings] = useState(null);
   const [status, setStatus] = useState(null);
   const [profileAchievements, setProfileAchievements] = useState(null);
 
@@ -406,9 +405,9 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const get_rankings = async (game) => {
+  const get_rankings = async (game, setRankings, offset) => {
     try {
-      const res = await FetchData.get(`api/rankings/${game}`);
+      const res = await FetchData.get(`api/rankings/${game}/${offset}/`);
       if (res.ok) {
         const data = await res.json();
         setRankings(data);
@@ -442,7 +441,6 @@ export const UserProvider = ({ children }) => {
   const contextData = {
     status,
     onlineMatches,
-    rankings,
     profileAchievements,
     blockedUsers,
     refresh,
