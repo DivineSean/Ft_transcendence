@@ -22,6 +22,7 @@ from .models import GameRoom, Game
 import json
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.pagination import PageNumberPagination
+from django.db.models import OuterRef
 
 
 @api_view(["POST"])
@@ -93,8 +94,8 @@ def inviteFriend(request, game_name=None):
             metadata={
                 "type": "invite",
                 "status": "waiting",
-                "game": game_name,
-                "gameRoomId": str(game_room.id),
+                        "game": game_name,
+                        "gameRoomId": str(game_room.id),
             },
         )
 
@@ -115,13 +116,13 @@ def inviteFriend(request, game_name=None):
             {
                 "type": "chat_message",
                 "convId": conversation_id,
-                "message": message.message,
-                "metadata": message.metadata,
-                "isRead": message.isRead,
-                "isSent": True,
-                "messageId": str(message.MessageId),
-                "sender": user_data,
-                "timestamp": str(message.timestamp.strftime("%b %d, %H:%M")),
+                        "message": message.message,
+                        "metadata": message.metadata,
+                        "isRead": message.isRead,
+                        "isSent": True,
+                        "messageId": str(message.MessageId),
+                        "sender": user_data,
+                        "timestamp": str(message.timestamp.strftime("%b %d, %H:%M")),
             },
         )
 
@@ -131,7 +132,7 @@ def inviteFriend(request, game_name=None):
             {
                 "type": "send_invite_to_notification",
                 "sender_username": request._user.username,
-                "game": game_name,
+                        "game": game_name,
             },
         )
 
@@ -188,8 +189,16 @@ def get_rankings(request, game_name=None, offset=1):
 
     try:
         game = Game.objects.get(name=game_name)
+        latest_rating_subquery = (
+            PlayerRating.objects.filter(
+                user=OuterRef("user"),
+                game=game,
+            )
+            .order_by("-created_at")
+            .values("id")[:1]
+        )
         players = (
-            PlayerRating.objects.filter(game=game)
+            PlayerRating.objects.filter(id__in=latest_rating_subquery)
             .select_related("user")
             .order_by("-rating")
         )
@@ -199,7 +208,7 @@ def get_rankings(request, game_name=None, offset=1):
 
         for idx, player in enumerate(players, 1):
             user = player.user
-            lower, upper, rank = player.get_rank(player.rating)
+            lower, upper, rank = get_rank(player.rating)
             rankings.append(
                 {
                     "rank": idx,
@@ -224,7 +233,7 @@ def get_rankings(request, game_name=None, offset=1):
                 {"Error": "Either Offeset or limit is not a Number"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        paginatedRankings = rankings[offset : offset + paginator.page_size]
+        paginatedRankings = rankings[offset: offset + paginator.page_size]
 
         response_data = {
             "game": game_name,
@@ -243,7 +252,31 @@ def get_rankings(request, game_name=None, offset=1):
             {"error": f"Game '{game_name}' not found"}, status=status.HTTP_404_NOT_FOUND
         )
     except Exception as e:
+        print(e, flush=True)
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+def get_rank(rating):
+    RANKS = [
+        (0, 350, "Iron"),
+        (351, 650, "Bronze"),
+        (651, 950, "Silver"),
+        (951, 1250, "Gold"),
+        (1251, 1550, "Platinum"),
+        (1551, 1850, "Diamond"),
+        (1851, 2150, "Master"),
+        (2151, float("inf"), "Elite"),
+    ]
+
+    for lower, upper, rank in RANKS:
+        if lower <= rating <= upper:
+            return (
+                lower - 1 if lower != 0 else 0,
+                upper + 1 if upper != float("inf") else "+inf",
+                rank,
+            )
+
+    return 0, 351, "Iron"
 
 
 @api_view(["GET"])
@@ -275,7 +308,35 @@ def getStats(request, game_name=None, username=None):
         )
 
     try:
-        player = PlayerRating.objects.get(user=user_id, game=game)
+        results = Player.objects.filter(
+            user=user_id,
+            game_room__game=game,
+        ).order_by("-created_at").values("result")
+
+        wins = sum(1 for r in results if r['result'] == Player.Result.WIN)
+
+        last_five_games = [
+            "W" if result["result"] == "win" else "L"
+            for result in results[:5]
+        ]
+
+    except Player.DoesNotExist:
+        return Response(
+            {"error": f"No Player records in game '{game_name}' were found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    try:
+        ratings = PlayerRating.objects.filter(
+            user=user_id,
+            game=game
+        ).order_by("created_at")
+
+        rating_history = [
+            {"timestamp": rating.created_at, "rating": rating.rating}
+            for rating in ratings
+        ]
+        latest_rating = ratings.last().rating
     except ObjectDoesNotExist:
         return Response(
             {"error": f"Player with id '{user_id}' in game '{game_name}' not found"},
@@ -283,7 +344,8 @@ def getStats(request, game_name=None, username=None):
         )
     try:
         achie_vements = Achievement.objects.filter(game=game)
-        player_achievements = PlayerAchievement.objects.filter(user=user, game=game)
+        player_achievements = PlayerAchievement.objects.filter(
+            user=user, game=game)
         progress = {achievement.name: 0 for achievement in achie_vements}
         for player_achievement in player_achievements:
             for achievement in achie_vements:
@@ -295,19 +357,19 @@ def getStats(request, game_name=None, username=None):
             status=status.HTTP_404_NOT_FOUND,
         )
 
-    total_games = player.wins + player.losses
-    winrate = (player.wins / total_games) * 100 if total_games > 0 else 100
-    demote, promote, elo = player.get_rank(player.rating)
+    total_games = len(results)
+    winrate = (wins / total_games) * 100 if total_games > 0 else 100
+    demote, promote, elo = get_rank(latest_rating)
 
     stats = {
         "total_games": total_games,
         "winrate": winrate,
-        "recent_results": player.recent_results,
+        "recent_results": last_five_games,
         "elo": elo,
-        "mmr": player.rating,
+        "mmr": latest_rating,
         "promote": promote,
         "demote": demote,
-        "rating_history": player.rating_history,
+        "rating_history": rating_history,
         "achievement_progress": progress,
     }
 

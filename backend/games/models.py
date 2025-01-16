@@ -74,86 +74,42 @@ class Player(models.Model):
         max_length=12, choices=Result.choices, blank=True, null=True
     )
     should_skip_next = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class PlayerRating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     game = models.ForeignKey(Game, on_delete=models.PROTECT)
     rating = models.PositiveIntegerField(default=951)
-    updated_at = models.DateTimeField(auto_now=True)
-    wins = models.PositiveIntegerField(default=0)
-    losses = models.PositiveIntegerField(default=0)
-    recent_results = models.JSONField(default=list)
-    rating_history = models.JSONField(default=list)
-    limiter = models.PositiveIntegerField(default=30)
-
-    RANKS = [
-        (0, 350, "Iron"),
-        (351, 650, "Bronze"),
-        (651, 950, "Silver"),
-        (951, 1250, "Gold"),
-        (1251, 1550, "Platinum"),
-        (1551, 1850, "Diamond"),
-        (1851, 2150, "Master"),
-        (2151, float("inf"), "Elite"),
-    ]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if not self.rating_history:
-            creation_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.rating_history = [{"timestamp": creation_date, "rating": 0}]
-
-    @classmethod
-    def add_result(cls, player, result):
-        player.recent_results = (player.recent_results + [result])[-5:]
-        player.save()
-
-    @classmethod
-    def get_rank(cls, rating):
-        for lower, upper, rank in cls.RANKS:
-            if lower <= rating <= upper:
-                return (
-                    lower - 1 if lower != 0 else 0,
-                    upper + 1 if upper != float("inf") else "+inf",
-                    rank,
-                )
-        return 0, 351, "Iron"
+    created_at = models.DateTimeField(auto_now_add=True)
 
     @classmethod
     def handle_rating(cls, user, game, player):
         try:
-            player_rating, created = cls.objects.get_or_create(user=user, game=game)
-            if created:
-                player_rating = created
-        except Exception as e:
+            last_rating = cls.objects.filter(
+                user=user,
+                game=game,
+            ).order_by("-created_at").first()
+        except cls.DoesNotExist:
             return
 
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
+        new_rating = last_rating.rating
         if player["result"] == "win":
-            player_rating.rating += player["rating_gain"]
-            player_rating.wins += 1
-            result = ["W"]
+            new_rating += player["rating_gain"]
         else:
-            if player_rating.rating < player["rating_loss"]:
-                player_rating.rating = 0
+            if new_rating < player["rating_loss"]:
+                new_rating = 0
             else:
-                player_rating.rating -= player["rating_loss"]
-            player_rating.losses += 1
-            result = ["L"]
+                new_rating -= player["rating_loss"]
 
-        history_data = {
-            "timestamp": current_time,
-            "rating": player_rating.rating,
-        }
-
-        player_rating.rating_history = (player_rating.rating_history + [history_data])[
-            -player_rating.limiter :
-        ]
-
-        player_rating.add_result(player_rating, result)
-        player_rating.save()
+        try:
+            cls.objects.create(
+                user=user,
+                game=game,
+                rating=new_rating,
+            )
+        except Exception as e:
+            return
 
 
 class Achievement(models.Model):
@@ -186,7 +142,8 @@ class Achievement(models.Model):
         try:
             current_index = levels.index(current_level)
             return (
-                levels[current_index + 1] if current_index + 1 < len(levels) else None
+                levels[current_index + 1] if current_index +
+                1 < len(levels) else None
             )
         except ValueError:
             return None
