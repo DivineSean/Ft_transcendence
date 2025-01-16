@@ -9,7 +9,7 @@ urlpatterns = [
     ),
     path("api/matches/", views.getOnlineMatches, name="online matches"),
     path(
-        "api/rankings/<str:game_name>/<int:offset>", views.get_rankings, name="updateRankingsPage"
+        "api/rankings/<str:game_name>/<int:offset>/", views.get_rankings, name="updateRankingsPage"
     ),
     path("api/profile/stats/<str:game_name>", views.getStats, name="ProfileStats"),
     path(

@@ -143,7 +143,6 @@ def inviteFriend(request, game_name=None):
         print(e, flush=True)
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-
 @api_view(["GET"])
 def getOnlineMatches(request):
     games = GameRoom.objects.exclude(
@@ -176,12 +175,6 @@ def getOnlineMatches(request):
         gamestowatch.append(game_data)
 
     return Response(gamestowatch, status=status.HTTP_200_OK)
-
-# import random
-# import string
-
-# def random_username(length=8):
-#     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
 
 @api_view(["GET"])
 def get_rankings(request, game_name=None, offset = 1):
@@ -221,26 +214,9 @@ def get_rankings(request, game_name=None, offset = 1):
                     "is_self": user.id == current_user_id,
                 }
             )
-        # fake_players = [
-        #     {
-        #         "rank": len(rankings) + idx + 1,
-        #         "user_id": f"fake-{idx}",
-        #         "username": random_username(),
-        #         "rating": 400 - idx * 10,
-        #         "exp": random.randint(0, 10),
-        #         "profile_image": None,
-        #         "ranked": "Bronze",
-        #         "demote": 350,
-        #         "promote": 651,
-        #         "is_self": False,
-        #     }
-        #     for idx in range(100)  # Add n fake players
-        # ]
-        # rankings.extend(fake_players)
-
         paginator = PageNumberPagination()
         try:
-            paginator.page_size = int(request.data.get("limit", 20))
+            paginator.page_size = int(request.data.get("limit", 30))
         except:
             return Response(
                 {"Error": "Either Offeset or limit is not a Number"},
