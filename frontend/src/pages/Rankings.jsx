@@ -25,32 +25,37 @@ const Rankings = () => {
     get_rankings(selectedGame, setRankings, next_offset);
     return () => (
       authContextData.setGlobalMessage({ message: "", isError: false }),
-      window.removeEventListener('scroll', scrollHandler)
+      window.removeEventListener("scroll", scrollHandler)
     );
   }, []);
 
   const scrollHandler = () => {
     clearTimeout(window.scrollTimeout);
     window.scrollTimeout = setTimeout(() => {
-      const isNearBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 5;
+      const isNearBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 5;
       if (isNearBottom && !isLoading && hasMore && !chunkedData) {
         setIsLoading(true);
-        setChunkedData(prev => prev + 1);
+        setChunkedData((prev) => prev + 1);
       }
     });
   };
-  
-  window.addEventListener('scroll', scrollHandler);
-  
+
+  window.addEventListener("scroll", scrollHandler);
+
   useEffect(() => {
     if (rankings?.rankings) {
-      setAllPlayers(prev => {
+      setAllPlayers((prev) => {
         const newPlayers = rankings.rankings.filter(
-          newPlayer => !prev.some(existingPlayer => existingPlayer.user_id === newPlayer.user_id)
+          (newPlayer) =>
+            !prev.some(
+              (existingPlayer) => existingPlayer.user_id === newPlayer.user_id,
+            ),
         );
         return [...prev, ...newPlayers];
       });
-      
+
       if (rankings.next_offset === -1) {
         setHasMore(false);
       } else {
@@ -68,7 +73,7 @@ const Rankings = () => {
         setChunkedData(0);
       }
     }, 500);
-    
+
     return () => clearTimeout(getChunkedData);
   }, [chunkedData, next_offset]);
 
@@ -76,10 +81,10 @@ const Rankings = () => {
     if (scrollRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
       const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
-      
+
       if (isNearBottom && !isLoading && hasMore && !chunkedData) {
         setIsLoading(true);
-        setChunkedData(prev => prev + 1);
+        setChunkedData((prev) => prev + 1);
       }
     }
   };
@@ -97,7 +102,7 @@ const Rankings = () => {
 
   const currentUserRank = allPlayers.find((player) => player.is_self);
   const otherPlayers = allPlayers.filter(
-    (player) => !allPlayers.slice(0, 3).includes(player)
+    (player) => !allPlayers.slice(0, 3).includes(player),
   );
   return (
     <>
@@ -111,16 +116,23 @@ const Rankings = () => {
                 <div className="bg-gray/5 relative flex flex-col md:p-16 p-8 gap-8 overflow-hidden rounded-md grow border-[0.5px] border-stroke-sc">
                   {currentUserRank && (
                     <div
-                      onClick={() => navigate(`/profile/overview/${currentUserRank.username}`)}
+                      onClick={() =>
+                        navigate(
+                          `/profile/overview/${currentUserRank.username}`,
+                        )
+                      }
                       className="grid lg:grid-cols-5 grid-cols-4 gap-32 bg-[#DAA520]/10 hover:bg-[#DAA520]/20 transition-all border border-[#DAA520]/50 rounded-lg text-center p-8 z-10 mb-16 cursor-pointer"
                     >
                       <p>{currentUserRank.rank}</p>
                       <p className="font-bold">you</p>
                       <p className="hidden lg:block">{currentUserRank.exp}</p>
                       <p className="lg:block hidden">
-                        {currentUserRank.demote}/{currentUserRank.rating}/{currentUserRank.promote}
+                        {currentUserRank.demote}/{currentUserRank.rating}/
+                        {currentUserRank.promote}
                       </p>
-                      <p className="lg:hidden block">{currentUserRank.rating}</p>
+                      <p className="lg:hidden block">
+                        {currentUserRank.rating}
+                      </p>
                       <p>{currentUserRank.ranked}</p>
                     </div>
                   )}
@@ -140,7 +152,7 @@ const Rankings = () => {
                     <p>Elo</p>
                   </div>
 
-                  <div 
+                  <div
                     ref={scrollRef}
                     onScroll={handleScroll}
                     className="flex flex-col gap-8 lg:overflow-y-scroll no-scrollbar z-10"
@@ -164,7 +176,7 @@ const Rankings = () => {
                       </div>
                     )}
                     <div
-                      className={`text-center mb-16 text-xs text-green ${isLoading && hasMore ? 'block' : 'hidden'}`}
+                      className={`text-center mb-16 text-xs text-green ${isLoading && hasMore ? "block" : "hidden"}`}
                     >
                       loading...
                     </div>

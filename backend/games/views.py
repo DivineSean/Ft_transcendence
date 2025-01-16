@@ -143,6 +143,7 @@ def inviteFriend(request, game_name=None):
         print(e, flush=True)
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(["GET"])
 def getOnlineMatches(request):
     games = GameRoom.objects.exclude(
@@ -176,9 +177,10 @@ def getOnlineMatches(request):
 
     return Response(gamestowatch, status=status.HTTP_200_OK)
 
+
 @api_view(["GET"])
-def get_rankings(request, game_name=None, offset = 1):
-    
+def get_rankings(request, game_name=None, offset=1):
+
     if not game_name:
         return Response(
             {"error": "No game name provided"}, status=status.HTTP_400_BAD_REQUEST
@@ -223,13 +225,15 @@ def get_rankings(request, game_name=None, offset = 1):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         paginatedRankings = rankings[offset : offset + paginator.page_size]
-        
-        
+
         response_data = {
             "game": game_name,
             "rankings": paginatedRankings,
-            "next_offset" : (offset + paginator.page_size 
-            if len(paginatedRankings) == paginator.page_size else -1)
+            "next_offset": (
+                offset + paginator.page_size
+                if len(paginatedRankings) == paginator.page_size
+                else -1
+            ),
         }
 
         return Response(response_data, status=status.HTTP_200_OK)

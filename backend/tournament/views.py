@@ -33,7 +33,7 @@ class Tournaments(APIView):
         paginator = PageNumberPagination()
         try:
             paginator.page_size = int(request.data.get("limit", 20))
-            
+
         except ValueError:
             return Response(
                 {"Error": "Either Offeset or limit is not a Number"},
