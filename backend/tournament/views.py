@@ -189,11 +189,10 @@ def getTournamentData(request, id=None):
                 {"error": "No such tournament with this id"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        total_rounds = tournamentObj.total_rounds
         brackets = Bracket.objects.filter(tournament=tournamentObj)
         serializer = TournamentDataSerializer({"brackets": brackets})
         return Response(
-            {"total_rounds": total_rounds, "tournament": serializer.data},
+            serializer.data,
             status=status.HTTP_200_OK,
         )
     except Exception as e:
