@@ -97,7 +97,7 @@ const Profile = () => {
       <Header link="profile" />
       {authContextData.globalMessage &&
         authContextData.globalMessage.message && <Toast position="topCenter" />}
-      {!contextData.profileInfo && <LoadingPage />}
+      {(!contextData.profileInfo || !contextData.status) && <LoadingPage />}
       {!authContextData.displayMenuGl && contextData.profileInfo !== null && (
         <div className="container">
           {udpateProfile && (
