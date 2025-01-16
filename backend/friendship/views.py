@@ -66,7 +66,7 @@ class SendFriendRequest(APIView):
                     )
 
                     # check if the notif is not created before or already read
-                    if not isNew or notification.isRead:
+                    if isNew or notification.isRead:
                         notification.updateRead()
                         channel_layer = get_channel_layer()
                         group_name = f"notifications_{userId}"

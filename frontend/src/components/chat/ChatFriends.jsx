@@ -3,6 +3,8 @@ import FriendsChat from "./FriendChat";
 const ChatFriends = ({ uid, friendsData }) => {
   const friends = [];
 
+	console.log(friendsData);
+
   if (friendsData && friendsData.users && friendsData.users.length) {
     friendsData.users.map((friend) => {
       return friends.push(

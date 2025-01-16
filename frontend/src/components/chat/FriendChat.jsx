@@ -3,6 +3,7 @@ import { BACKENDURL } from "../../utils/fetchWrapper";
 import { useContext } from "react";
 import NotifContext from "../../context/NotifContext";
 import { useEffect } from "react";
+import { TbDeviceGamepad3Filled } from "react-icons/tb";
 
 const FriendsChat = ({ uid, friendInfo }) => {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const FriendsChat = ({ uid, friendInfo }) => {
           </div>
         )}
         <div
-          className={`w-56 h-56 rounded-full flex border-2 ${friendInfo.isOnline && !friendInfo.isBlocked ? "border-green" : "border-stroke-sc"} overflow-hidden`}
+          className={`w-56 h-56 rounded-full flex border-2 ${(friendInfo.status === 'online' || friendInfo.status === 'in-game') && !friendInfo.isBlocked ? "border-green" : "border-stroke-sc"} overflow-hidden`}
         >
           <img
             src={
@@ -57,10 +58,18 @@ const FriendsChat = ({ uid, friendInfo }) => {
             className="grow object-cover"
           />
         </div>
-        {!friendInfo.isBlocked && (
+        {!friendInfo.isBlocked && friendInfo.status !== "in-game" && (
           <div
-            className={`absolute w-16 h-16 ${friendInfo.isOnline ? "bg-green" : "bg-black border-[3px] border-stroke-sc"} rounded-full right-0 bottom-0`}
+            className={`absolute w-16 h-16 ${friendInfo.status === 'online' && "bg-green"}
+							${friendInfo.status === 'offline' && "bg-black border-[3px] border-stroke-sc"}
+							rounded-full right-0 bottom-0
+						`}
           ></div>
+        )}
+				{!friendInfo.isBlocked && friendInfo.status === "in-game" && (
+          <div className={`absolute rounded-full flex items-center justify-center -right-2 bottom-0 p-2 bg-black/80 border border-green`}>
+						<TbDeviceGamepad3Filled className="text-green" />
+					</div>
         )}
       </div>
 

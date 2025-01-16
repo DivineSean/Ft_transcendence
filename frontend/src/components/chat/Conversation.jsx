@@ -280,7 +280,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
             className="md:hidden block text-txt-xl cursor-pointer"
           />
           <div
-            className={`md:w-56 md:h-56 h-48 w-48 rounded-full flex border overflow-hidden ${friendInfo.isOnline && !friendInfo.isBlocked ? "border-green" : "border-stroke-sc"}`}
+            className={`md:w-56 md:h-56 h-48 w-48 rounded-full flex border overflow-hidden ${(friendInfo.status === 'online' || friendInfo.status === 'in-game') && !friendInfo.isBlocked ? "border-green" : "border-stroke-sc"}`}
           >
             <img
               src={
@@ -294,10 +294,10 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
           </div>
           <div className="flex flex-col justify-between h-full">
             <h2 className="md:text-h-sm-md text-h-sm-sm font-bold max-w-[200px] truncate">{`${friendInfo.first_name} ${friendInfo.last_name}`}</h2>
-            {friendInfo.isOnline && !friendInfo.isBlocked && (
+            {friendInfo.status === 'online' && !friendInfo.isBlocked && (
               <p className="md:text-txt-md text-txt-xs text-green">online</p>
             )}
-            {!friendInfo.isOnline && !friendInfo.isBlocked && (
+            {friendInfo.status !== 'online' && !friendInfo.isBlocked && (
               <p className="text-txt-xs text-stroke-sc lowercase">
                 last seen {friendInfo.last_login}
               </p>
