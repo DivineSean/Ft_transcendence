@@ -33,13 +33,13 @@ class UserSerializerOne(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "username",
-            "isOnline",
             "last_login",
             "about",
             "profile_image",
             "exp",
             "level",
             "percentage",
+            "status",
         ]
 
 

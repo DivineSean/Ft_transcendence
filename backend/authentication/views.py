@@ -163,10 +163,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
         else:
 
-            # set the user online
-            user.isOnline = True
-            user.save()
-
             refresh_token = RefreshToken.for_user(user)
             access_token = str(refresh_token.access_token)
 
@@ -302,6 +298,10 @@ class CustomTokenRefreshView(TokenRefreshView):
         return response
 
 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
+
 @api_view(["POST"])
 def logout(request):
 
@@ -311,13 +311,18 @@ def logout(request):
     if refresh_token:
         token = RefreshToken(refresh_token)
 
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            refresh_token[:99],
+            {"type": "websocket.close"},
+        )
+
         response.delete_cookie("accessToken")
         response.delete_cookie("refreshToken")
         jwtObj = JWTAuthentication()
 
         try:
             user = jwtObj.get_user(token)
-            user.isOnline = False
             user.last_login = timezone.now()
             user.save()
             token.blacklist()

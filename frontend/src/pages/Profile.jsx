@@ -103,7 +103,7 @@ const Profile = () => {
           {udpateProfile && (
             <UpdateProfile setUpdateProfile={setUpdateProfile} />
           )}
-          <div className="flex primary-glass overflow-hidden p-16 w-full lg:gap-32 gap-16 relative get-height">
+          <div className="flex primary-glass overflow-hidden p-16 w-full gap-16 relative get-height">
             <div
               className={`absolute top-0 left-0 w-full lg:h-[232px] ${contextData.profileInfo.me ? "h-[216px]" : "h-[260px]"}`}
             >

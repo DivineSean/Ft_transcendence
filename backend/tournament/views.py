@@ -174,21 +174,26 @@ class Tournaments(APIView):
         return response
 
 
-@api_view(["POST"])
-def getTournamentData(request):
-    tournamentID = request.data.get("id")
-    if tournamentID == None:
-        return Response(
-            {"error": "No Tournament ID"}, status=status.HTTP_400_BAD_REQUEST
-        )
-
+@api_view(["GET"])
+def getTournamentData(request, id=None):
     try:
-        tournamentObj = Tournament.objects.get(id=tournamentID)
-    except Tournament.DoesNotExist:
+        if id == None:
+            return Response(
+                {"error": "No Tournament ID"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            tournamentObj = Tournament.objects.get(id=id)
+        except Tournament.DoesNotExist:
+            return Response(
+                {"error": "No such tournament with this id"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        brackets = Bracket.objects.filter(tournament=tournamentObj)
+        serializer = TournamentDataSerializer({"brackets": brackets})
         return Response(
-            {"error": "No such tournament with this id"},
-            status=status.HTTP_400_BAD_REQUEST,
+            serializer.data,
+            status=status.HTTP_200_OK,
         )
-    brackets = Bracket.objects.filter(tournament=tournamentObj)
-    serializer = TournamentDataSerializer({"brackets": brackets})
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

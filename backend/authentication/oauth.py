@@ -189,9 +189,6 @@ def callback(request):
 
             else:
 
-                user.isOnline = True
-                user.save()
-
                 response = Response(
                     {"message": "you logged in successfully"}, status=status.HTTP_200_OK
                 )

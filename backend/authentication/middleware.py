@@ -22,7 +22,6 @@ class sAuthMiddleWare(MiddlewareMixin):
             "/api/auth/username/setup/",
             "/api/password-reset/send-code/",
             "/api/password-reset/confirm/",
-            "/api/logout/",
             "/api/two-factor/resend/",
         ]
 
