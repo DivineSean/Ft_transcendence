@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0006_user_exp_history'),
+        ("authentication", "0006_user_exp_history"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='user',
-            name='isOnline',
+            model_name="user",
+            name="isOnline",
         ),
         migrations.AddField(
-            model_name='user',
-            name='connect_count',
+            model_name="user",
+            name="connect_count",
             field=models.PositiveBigIntegerField(default=0),
         ),
     ]

@@ -46,7 +46,7 @@ const FriendsChat = ({ uid, friendInfo }) => {
           </div>
         )}
         <div
-          className={`w-56 h-56 rounded-full flex border-2 ${(friendInfo.status === 'online' || friendInfo.status === 'in-game') && !friendInfo.isBlocked ? "border-green" : "border-stroke-sc"} overflow-hidden`}
+          className={`w-56 h-56 rounded-full flex border-2 ${(friendInfo.status === "online" || friendInfo.status === "in-game") && !friendInfo.isBlocked ? "border-green" : "border-stroke-sc"} overflow-hidden`}
         >
           <img
             src={
@@ -60,16 +60,18 @@ const FriendsChat = ({ uid, friendInfo }) => {
         </div>
         {!friendInfo.isBlocked && friendInfo.status !== "in-game" && (
           <div
-            className={`absolute w-16 h-16 ${friendInfo.status === 'online' && "bg-green"}
-							${friendInfo.status === 'offline' && "bg-black border-[3px] border-stroke-sc"}
+            className={`absolute w-16 h-16 ${friendInfo.status === "online" && "bg-green"}
+							${friendInfo.status === "offline" && "bg-black border-[3px] border-stroke-sc"}
 							rounded-full right-0 bottom-0
 						`}
           ></div>
         )}
-				{!friendInfo.isBlocked && friendInfo.status === "in-game" && (
-          <div className={`absolute rounded-full flex items-center justify-center -right-2 bottom-0 p-2 bg-black/80 border border-green`}>
-						<TbDeviceGamepad3Filled className="text-green" />
-					</div>
+        {!friendInfo.isBlocked && friendInfo.status === "in-game" && (
+          <div
+            className={`absolute rounded-full flex items-center justify-center -right-2 bottom-0 p-2 bg-black/80 border border-green`}
+          >
+            <TbDeviceGamepad3Filled className="text-green" />
+          </div>
         )}
       </div>
 

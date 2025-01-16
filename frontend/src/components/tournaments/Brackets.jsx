@@ -250,21 +250,21 @@ region = [
 const Brackets = () => {
   const canvasRef = useRef(null);
   const regionRef = useRef(null);
-	const { uid } = useParams();
-	const FetchData = new FetchWrapper();
+  const { uid } = useParams();
+  const FetchData = new FetchWrapper();
 
-	// const getBracket = async (uid) => {
-	// 	try {
-	// 		const res = await FetchData.get(`api/tournament/${uid}/`);
-	// 		console.log(res);
-	// 	} catch (error) {
-	// 		console.log(error.message);
-	// 	}
-	// }
+  // const getBracket = async (uid) => {
+  // 	try {
+  // 		const res = await FetchData.get(`api/tournament/${uid}/`);
+  // 		console.log(res);
+  // 	} catch (error) {
+  // 		console.log(error.message);
+  // 	}
+  // }
 
-	// useEffect(() => {
-	// 	getBracket(uid);
-	// }, []);
+  // useEffect(() => {
+  // 	getBracket(uid);
+  // }, []);
 
   useEffect(() => {
     if (canvasRef.current) {

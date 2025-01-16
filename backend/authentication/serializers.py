@@ -121,7 +121,7 @@ class UserFriendSerializer(serializers.ModelSerializer):
             "id",
             "username",
             "profile_image",
-						"status",
+            "status",
         ]
         extra_kwargs = {"profile_image": {"required": False}}
         extra_kwargs = {"password": {"write_only": True}}
