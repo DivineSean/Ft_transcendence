@@ -112,7 +112,6 @@ class Tournament {
   }
 
   calcLeft(element) {
-    console.log(element);
     const rect = element.getBoundingClientRect();
     return {
       x: rect.left,
