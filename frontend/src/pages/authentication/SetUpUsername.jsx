@@ -32,18 +32,17 @@ const SetUpUsername = () => {
               <div className="md:px-64 px-32 flex flex-col justify-center items-center md:gap-32 gap-24 lg:py-64 py-32 grow">
                 <div className="flex flex-col gap-8 items-center">
                   <h1 className="md:text-h-lg-xl text-h-sm-lg font-bold">
-                    Hello again
-                    <span className="text-green lowercase"> player</span>
+                    Hello
+                    <span className="text-green "> Player</span>
                     <span className="lowercase"></span>
                   </h1>
                   <p className="md:text-txt-sm text-txt-xs text-center text-gray">
-                    welcome to our world, it seems like this is your first time
-                    on our website you are in the correct place.
+                    Welcome to our world! It looks like this is your first time here. You're in the right place!
                   </p>
                 </div>
 
                 <p className="md:text-txt-sm text-txt-xs text-center font-semibold">
-                  Please set up your username so your friends can identify you
+                  Set up your username so your friends can recognize you.
                 </p>
                 <form
                   onSubmit={(e) => authContextData.setUpUsername(e, uid)}
@@ -70,7 +69,7 @@ const SetUpUsername = () => {
                     type="submit"
                     className="bg-green text-black text-h-sm-lg font-bold py-8 rounded disabled:bg-green/20 transition-all"
                   >
-                    {authContextData.btnLoading ? "loading..." : "Set Up"}
+                    {authContextData.btnLoading ? "loading..." : "Join Now"}
                   </button>
                 </form>
               </div>

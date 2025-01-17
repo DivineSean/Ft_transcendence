@@ -143,40 +143,40 @@ def inviteFriend(request, game_name=None):
         print(e, flush=True)
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-
 @api_view(["GET"])
 def getOnlineMatches(request):
     games = GameRoom.objects.exclude(
-        Q(status=GameRoom.Status.COMPLETED)
-        | Q(status=GameRoom.Status.EXPIRED)
-        | Q(status=GameRoom.Status.WAITING)
+        Q(status__in=[GameRoom.Status.COMPLETED, GameRoom.Status.EXPIRED, GameRoom.Status.WAITING])
     )
-    serializers = GameRoomSerializer(games, many=True)
-    gamestowatch = []
-    for serialized in serializers.data:
-        game = Game.objects.get(pk=serialized["game"])
-        serialized["game"] = game.name
-        serialized["players"] = json.loads(serialized["players"])
-        players = serialized["players"]
-        game_data = {
-            "game": serialized["game"],
-            "id": serialized["id"],
-            "started_at": serialized["started_at"],
-            "players": [],
-        }
-        for player_data in players:
-            player = player_data["user"]
-            game_data["players"].append(
+    serialized_games = GameRoomSerializer(games, many=True).data
+    gamestowatch = {}
+    gamestowatch["online"] = []
+    gamestowatch["tournament"] = []
+    
+    
+    for game_data in serialized_games:
+        game = Game.objects.get(pk=game_data["game"])
+        players = json.loads(game_data["players"])
+        
+        match_info = {
+            "game": game.name,
+            "id": game_data["id"],
+            "started_at": game_data["started_at"],
+            "players": [
                 {
-                    "username": player["username"],
-                    "profile_image": player["profile_image"],
-                    "score": player_data["score"],
+                    "username": player["user"]["username"],
+                    "profile_image": player["user"]["profile_image"],
+                    "score": player["score"],
                 }
-            )
-        gamestowatch.append(game_data)
-
+                for player in players
+            ],
+        }
+        category = "tournament" if game_data["bracket"] != "null" else "online"
+        if category == "tournament":
+            gamestowatch["tournament"].append(match_info)
+        else:
+            gamestowatch["online"].append(match_info)
     return Response(gamestowatch, status=status.HTTP_200_OK)
-
 
 @api_view(["GET"])
 def get_rankings(request, game_name=None, offset=1):

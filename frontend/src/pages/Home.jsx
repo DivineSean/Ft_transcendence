@@ -27,13 +27,13 @@ const Home = () => {
       friends.push(<SideOnlineFriends key={friend.id} friend={friend} />);
     });
   }
-
+  console.log("im parents :", userContextData.onlineMatches);
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="home" />
       {authContextData.globalMessage &&
         authContextData.globalMessage.message && <Toast position="topCenter" />}
-      {userContextData.generalLoading && <LoadingPage />}
+      {(userContextData.generalLoading || !userContextData.onlineMatches) && <LoadingPage />}
       {!userContextData.generalLoading && (
         <>
           {!authContextData.displayMenuGl && (
@@ -49,7 +49,7 @@ const Home = () => {
                         userContextData.userInfo.first_name
                       }
                       description={`
-												Welcome to Advanture Time! As a new member, you have joined a community of passionate individuals. Let's inspire and support each other.
+												Welcome Adventurer! Get ready to have fun, compete, and connect with awesome players. Lets make this an unforgettable experience!
 											`}
                       isModel={false}
                       isMainButton={true}
@@ -57,9 +57,9 @@ const Home = () => {
                       imgSrc="images/bmo.png"
                     />
                     <Card
-                      title="explore the"
-                      name="world"
-                      description="Here you can explore our world to meet more friends to play or talk with"
+                      title="Explore a New"
+                      name="World"
+                      description="Adventure awaits! Meet friends, play games, and explore a world full of possibilities."
                       isModel={true}
                       isMainButton={false}
                       buttonContent="coming soon..."
@@ -67,8 +67,12 @@ const Home = () => {
                     />
                   </div>
                   <div className="grid lg:grid-cols-[1fr_1.1fr] lg:gap-32 gap-16">
-                    <OnlineMatches data={userContextData.onlineMatches} />
-                    <OnlineMatches data={userContextData.onlineMatches} />
+                    {userContextData.onlineMatches && 
+                      <>
+                        <OnlineMatches name={"online"}/>
+                        <OnlineMatches name={"tournament"}/>
+                      </>
+                    }
                   </div>
                   <div className="primary-glass"></div>
                 </article>
