@@ -37,7 +37,7 @@ const WaitingGame = ({ data, send, game, decline, setGlobalMessage }) => {
       if (remainingTime <= 0 || decline === "yes") {
         setGlobalMessage({
           message:
-            "The match was either not accepted in time or was declined. You have been removed from the queue.",
+            "Match not accepted or declined. You've been removed from the queue.",
           isError: true,
         });
         navigate(`/games/${game}/online`);

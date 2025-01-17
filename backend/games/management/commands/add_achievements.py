@@ -11,19 +11,19 @@ class Command(BaseCommand):
             "pong": [
                 {
                     "name": "The Serve Demon",
-                    "description": "Nobody Can handle that kind of power!",
+                    "description": "Score 3 untouched serves in a single match to prove your serving mastery. The opponent should not make contact with any of these serves.",
                 },
                 {
                     "name": "The Marathoner",
-                    "description": "The game doesnt just need you—it thrives because of you!",
+                    "description": "Win a match that lasts 5 minutes or longer. Endurance and consistency are key to outlasting your opponent in these epic rallies.",
                 },
                 {
                     "name": "The Dominator",
-                    "description": "You didnt win—you sent a message to everyone watching!",
+                    "description": "Crush your opponent with a flawless 7-0 victory and claim ultimate bragging rights!",
                 },
                 {
                     "name": "The Bounceback Boss",
-                    "description": "From the brink of defeat to total domination. Truly inspiring!",
+                    "description": "Defy the odds! Overcome a 4-goal deficit and stage an epic comeback to seize victory!",
                 },
             ]
         }

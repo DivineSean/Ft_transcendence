@@ -50,7 +50,7 @@ const Tournaments = () => {
 								justify-center items-center hover:bg-green/60 lg:text-txt-md text-txt-sm
 								hover:text-black rounded-md text-green font-semibold tracking-wide"
               >
-                create a trounament
+                Create New Tournament
               </button>
             )}
           </div>

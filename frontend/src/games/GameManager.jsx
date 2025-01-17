@@ -51,7 +51,7 @@ const GameOverlay = ({
       return (
         <GameStatus
           game={game}
-          title={"this game has been expired"}
+          title={"This game has expired"}
           image={"/images/gameOver.png"}
         />
       );
@@ -65,7 +65,7 @@ const GameOverlay = ({
           {isS ? (
             <GameStatus
               game={game}
-              title={"this game has been concluded"}
+              title={"This game has concluded"}
               image={"/images/gameOver.png"}
             />
           ) : (

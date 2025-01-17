@@ -53,8 +53,9 @@ const Home = () => {
 											`}
                       isModel={false}
                       isMainButton={true}
-                      buttonContent="play now"
+                      buttonContent="Play Now"
                       imgSrc="images/bmo.png"
+                      link="/games"
                     />
                     <Card
                       title="Explore a New"
@@ -62,7 +63,7 @@ const Home = () => {
                       description="Adventure awaits! Meet friends, play games, and explore a world full of possibilities."
                       isModel={true}
                       isMainButton={false}
-                      buttonContent="coming soon..."
+                      buttonContent="Coming Soon..."
                       imgSrc="images/bmo.png"
                     />
                   </div>

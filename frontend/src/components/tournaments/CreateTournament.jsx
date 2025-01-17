@@ -214,7 +214,7 @@ const CreateTournament = ({ setDisplayCreateTournament, setTournaments }) => {
           </div>
 
           <button className="bg-green p-8 text-black text-lg font-bold rounded-sm disabled:bg-green/20">
-            create
+            Create
           </button>
         </form>
       </div>

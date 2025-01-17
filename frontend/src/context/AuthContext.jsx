@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }) => {
         const data = await res.json();
         window.location.href = data.url;
       } else {
-        setGlobalMessage({ message: "something went wrong!", isError: true });
+        setGlobalMessage({ message: "An error occurred. Please try again.", isError: true });
       }
     } catch (error) {
       setGlobalMessage({ message: error.message, isError: true });
@@ -153,7 +153,7 @@ export const AuthProvider = ({ children }) => {
           navigate("/login");
         } else if (res.status === 400) {
           setGlobalMessage({
-            message: "email already exists or some cridentials not correct!",
+            message: "The email already exists or some credentials are incorrect.",
             isError: true,
           });
         }
@@ -200,7 +200,7 @@ export const AuthProvider = ({ children }) => {
           }
         } else if (res.status === 400 || res.status === 401) {
           setGlobalMessage({
-            message: `email or password are invalid please try again!`,
+            message: `The email or password is invalid. Please try again.`,
             isError: true,
           });
         }
@@ -382,7 +382,7 @@ export const AuthProvider = ({ children }) => {
       if (res.ok) {
         navigate("/login");
         setGlobalMessage({
-          message: "you have successfully logged out!",
+          message: "You have been successfully logged out.",
           isError: false,
         });
         setDisplayMenuGl(false);

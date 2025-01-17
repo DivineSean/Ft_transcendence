@@ -71,7 +71,7 @@ const Matches = ({ data }) => {
                     navigate(`/games/${match.game}/online/${match.id}`)
                   }
                 >
-                  watch
+                  Watch
                 </button>
               </div>
             </div>

@@ -53,7 +53,7 @@ const Approval = ({ approval, setApproval }) => {
 					transition-all grow
 				"
             >
-              cancel
+              Cancel
             </button>
             <button
               onClick={handleApproval}
@@ -62,7 +62,7 @@ const Approval = ({ approval, setApproval }) => {
 					transition-all
 				"
             >
-              confirm
+              Confirm
             </button>
           </div>
         </div>

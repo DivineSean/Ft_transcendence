@@ -38,7 +38,7 @@ const Friends = ({ friend }) => {
       </div>
       <div className="flex gap-16">
         <button className="px-16 p-8 gap-10 transition-all rounded-md bg-green/70 text-black font-semibold hover:bg-green txt-xs">
-          invite
+          Invite
         </button>
       </div>
     </div>
@@ -91,7 +91,7 @@ const FriendRequest = ({ friendRequest, type }) => {
             onClick={() => contextData.unblockUser(friendRequest.id)}
             className="hover-secondary text-green p-8 transition-all font-bold rounded-md grow flex justify-center hover:bg-green hover:text-black"
           >
-            unblock user
+            Unblock user
           </button>
         )}
       </div>
