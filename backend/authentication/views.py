@@ -56,7 +56,6 @@ def registerView(request):
         return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
 
     except Exception as e:
-        print(str(e), flush=True)
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
