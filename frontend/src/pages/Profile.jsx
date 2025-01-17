@@ -185,13 +185,17 @@ const Profile = () => {
             <div className="flex flex-col w-full overflow-hidden grow z-[1] gap-16">
               <div className="flex flex-col gap-32 md:items-start w-full items-center lg:min-h-[216px] relative lg:justify-end lg:p-16">
                 {contextData.profileInfo.me && (
-                  <div
+                  <button
                     onClick={() => setUpdateProfile(true)}
-                    className="absolute flex gap-8 items-center text-gray tracking-wide top-0 right-0 text-md backdrop-blur-3xl p-8 cursor-pointer rounded-lg border-[0.5px] border-stroke-sc"
+                    className="absolute items-center text-gray tracking-wide top-0 right-0
+												secondary-glass p-8 px-12 transition-all flex gap-8
+												justify-center items-center hover:bg-green/60 lg:text-txt-md text-txt-sm
+												hover:text-black rounded-md text-green font-semibold tracking-wide
+											"
                   >
                     <FiEdit3 className="text-green" />
                     <p className="text-txt-xs md:text-txt-md">edit profile</p>
-                  </div>
+                  </button>
                 )}
                 <div className="w-full flex gap-16 flex-col items-center lg:hidden">
                   <div className="flex h-[184px] flex-col gap-8 py-16 items-center">
