@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Trophy } from "lucide-react";
 
 const GameToast = ({ title, message, duration = 100000, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -42,7 +41,6 @@ const GameToast = ({ title, message, duration = 100000, onClose }) => {
             {/* Icon & Title */}
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 animate-pulse">
-                {/* <Trophy className="w-5 h-5 text-white" /> */}
                 <img
                   src={`/images/achievement/icons/${title}.png`}
                   alt="achievemet icon"

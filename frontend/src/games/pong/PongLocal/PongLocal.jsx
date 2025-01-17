@@ -9,6 +9,8 @@ import { useEffect, useRef, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../../../context/AuthContext";
 import Toast from "../../../components/Toast";
+import GameResultLan from "@/components/game/GameResultLan";
+import GameResult from "@/components/game/GameResult";
 
 const PongLocal = () => {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ const PongLocal = () => {
   const keyboard = useRef({});
   const authContextData = useContext(AuthContext);
   const [isOver, setIsOver] = useState(false);
+  const [Players1, setPlayers1] = useState(false);
 
   const tableRef = useRef(null);
   const netRef = useRef(null);
@@ -106,7 +109,6 @@ const PongLocal = () => {
     window.addEventListener("resize", onWindowResize, false);
 
     return () => {
-      console.log("cleaned pong local");
       sm.current.listener.setMasterVolume(0);
       ballRef.current.cleanup();
       sm.current.cleanup();
@@ -198,10 +200,21 @@ const PongLocal = () => {
     };
   }, [isOver]);
 
-  function restart() {
-    window.location.href = "/games/pong/local/PongLocal";
-    window.close();
-  }
+  if (isOver && ballRef.scoreboard[0] === 7)
+    setPlayers1(true);
+
+  const Gameover = ({ status }) => {
+    const playersData = [
+      { user: { username: "Player1", profile_image: null } },
+      { user: { username: "Player2", profile_image: null } },
+    ];
+  
+    return (
+      <>
+        <GameResultLan playersData={playersData} isWon={status} />
+      </>
+    );
+  };
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
@@ -213,42 +226,8 @@ const PongLocal = () => {
         />
       )}
       <canvas id="pong"></canvas>
-      {isOver && (
-        <div className="flex absolute inset-0 items-center justify-center bg-black bg-opacity-60 z-10">
-          <div className="text-center transform scale-110">
-            <img
-              className="w-[250px] h-[250px] mx-auto transition-all transform hover:scale-110"
-              src="/images/eto.gif"
-              alt="Victory Dance"
-            />
-            <div className="mb-6 mt-8">
-              <p className="text-5xl font-extrabold text-white animate__animated animate__bounceIn animate__delay-2000ms">
-                GameOver
-              </p>
-              <p className="text-2xl font-semibold mt-4 text-white animate__animated animate__fadeIn animate__delay-4000ms">
-                What A Good Game Champions!
-              </p>
-
-              <div className="flex flex-col gap-6 mt-12">
-                <button
-                  className="relative inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
-                  onClick={() => navigate("/games/pong")}
-                >
-                  <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
-                  <span className="z-10">Back To Pong</span>
-                </button>
-
-                <button
-                  className="relative inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white uppercase transition-all duration-500 border-2 border-fuchsia-500 rounded-full shadow-lg hover:shadow-fuchsia-500/50 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-500 hover:from-blue-500 hover:to-fuchsia-500 hover:scale-110"
-                  onClick={restart}
-                >
-                  <span className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 opacity-0 transition-opacity duration-300 hover:opacity-50"></span>
-                  <span className="z-10">Restart The Game</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      {!isOver && (
+        <Gameover status={Players1} />
       )}
     </div>
   );

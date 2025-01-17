@@ -1,6 +1,6 @@
 import { MdGames } from "react-icons/md";
 import { FaFire } from "react-icons/fa6";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { LuTrendingDown, LuTrendingUp } from "react-icons/lu";
 import UserContext from "@/context/UserContext";
 import { useContext } from "react";
 
@@ -77,11 +77,11 @@ const ProfileOverview = () => {
             </div>
             <div className="flex flex-col items-end">
               <div className="flex items-center gap-1">
-                <TrendingUp className="text-green w-7 h-5" />
+                <LuTrendingUp className="text-green w-7 h-5" />
                 <span>{stats.promote}</span>
               </div>
               <div className="flex items-center gap-1">
-                <TrendingDown className="text-red w-7 h-5 rotate-90" />
+                <LuTrendingDown className="text-red w-7 h-5 rotate-90" />
                 <span>{stats.demote}</span>
               </div>
             </div>

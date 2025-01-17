@@ -1,5 +1,4 @@
-"use client";
-import { TrendingUp } from "lucide-react";
+import { LuTrendingUp } from "react-icons/lu";
 import {
   PolarRadiusAxis,
   PolarAngleAxis,
@@ -78,7 +77,7 @@ const ButterflyChart = ({ progress }) => {
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
           Your Skills growth by {overallProgress.toFixed(1)}%{" "}
-          <TrendingUp className="h-5 w-5" />
+          <LuTrendingUp className="h-5 w-5" />
         </div>
 
         <div className="flex text-center gap-2 text-stroke-sc">
