@@ -61,9 +61,9 @@ class TournamentDataSerializer(serializers.Serializer):
         brackets = instance.get("brackets")
         totalRounds = instance.get("totalRounds")
         maxPlayers = instance.get("maxPlayers")
+        isCompleted = instance.get("isCompleted")
         bracketCounter = 0
         for bracket in brackets:
-            
             gameRooms = GameRoom.objects.filter(bracket=bracket)
             bracketData = {}
             for gameRoom in gameRooms:
@@ -107,5 +107,5 @@ class TournamentDataSerializer(serializers.Serializer):
             data.append(big)
             bracketCounter +=1 
                 
-        return {"region": data}
+        return {"isCompleted" : isCompleted,"region": data}
 

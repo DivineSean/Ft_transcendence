@@ -56,7 +56,6 @@ class TournamentManager:
             mark_game_room_as_expired.apply_async(
                 args=[game_room.id], countdown=GAME_EXPIRATION
             )
-
             # self.notify_players(users, game_room) mn b3d
         else:
             # chi wahed y dir chi raise wygol hada li lah 3aza wa jal
