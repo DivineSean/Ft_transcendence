@@ -80,19 +80,20 @@ export const AuthProvider = ({ children }) => {
       if (value !== formData.password) {
         validationErrors.confirmPassword = "password does not matched!";
       }
-    } else if (name === 'firstName') {
-			if (value.length > 12) {
-				validationErrors.firstName = "first name must be less than 13 character";
-			}
-		} else if (name === 'lastName') {
-			if (value.length > 12) {
-				validationErrors.lastName = "last name must be less than 13 character";
-			}
-		} else if (name === 'username') {
-			if (value.length > 12) {
-				validationErrors.username = "username must be less than 13 character";
-			}
-		}
+    } else if (name === "firstName") {
+      if (value.length > 12) {
+        validationErrors.firstName =
+          "first name must be less than 13 character";
+      }
+    } else if (name === "lastName") {
+      if (value.length > 12) {
+        validationErrors.lastName = "last name must be less than 13 character";
+      }
+    } else if (name === "username") {
+      if (value.length > 12) {
+        validationErrors.username = "username must be less than 13 character";
+      }
+    }
     setFormData({
       ...formData,
       [name]: value,
@@ -143,9 +144,9 @@ export const AuthProvider = ({ children }) => {
           `${data} must contain at least 6 characters, uppercase, lowercase, number and special character.`;
       if (data === "confirmPassword" && formData.password != formData[data])
         validationErrors[data] = "password does not matched!";
-			if (data === "firstName" && formData.firstName.length > 12)
+      if (data === "firstName" && formData.firstName.length > 12)
         validationErrors[data] = "first name must be less than 13 character";
-			if (data === "lastName" && formData.lastName.length > 12)
+      if (data === "lastName" && formData.lastName.length > 12)
         validationErrors[data] = "last name must be less than 13 character";
 
       if (!formData[data].trim() && data !== "username") {
@@ -169,7 +170,8 @@ export const AuthProvider = ({ children }) => {
           navigate("/login");
         } else if (res.status === 400) {
           setGlobalMessage({
-            message: "email already exists or some cridentials not correct! (first and last name must be less than 13 character)",
+            message:
+              "email already exists or some cridentials not correct! (first and last name must be less than 13 character)",
             isError: true,
           });
         }
