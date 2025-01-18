@@ -40,7 +40,7 @@ const defaultBracket = [
   },
 ];
 
-const Brackets = ({ setDisplayError }) => {
+const Brackets = () => {
   const canvasRef = useRef(null);
   const { uid } = useParams();
   const FetchData = new FetchWrapper();
@@ -75,13 +75,6 @@ const Brackets = ({ setDisplayError }) => {
       tournament.init();
     }
   }, [canvasRef && canvasRef.current]);
-
-  useEffect(() => {
-    if (bracket && bracket.maxPlayers !== bracket.currentPlayerCount) {
-      setRegion(defaultBracket);
-      setDisplayError(true);
-    }
-  });
 
   return (
     <>
