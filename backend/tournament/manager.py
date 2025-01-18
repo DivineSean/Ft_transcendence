@@ -29,14 +29,14 @@ class TournamentManager:
             )
 
             random.shuffle(players)  # katdmes l carta
-
+            print("*********************************8**8****", flush=True)
             for i in range(0, len(players), 2):
                 if i + 1 < len(players):
                     self.create_game_pair(
                         [players[i].user, players[i + 1].user], current_bracket
                     )
         except Exception as e:
-            print(f"i_m exception : {e}")
+            print(f"------------------i_m exception : {e}")
             pass
 
     def create_game_pair(self, users, bracket):
@@ -50,14 +50,17 @@ class TournamentManager:
         }
         # kansifet lik bracket, zidha f serializer
         serializer = GameRoomSerializer(data=data)
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", flush=True)
 
         if serializer.is_valid():
             game_room = serializer.create(serializer.validated_data)
             mark_game_room_as_expired.apply_async(
                 args=[game_room.id], countdown=GAME_EXPIRATION
             )
-            # self.notify_players(users, game_room) mn b3d
+            print("######################################", flush=True)
+            self.notify_players(users, game_room)
         else:
+            print("+++++++++++++++++++++++++++IM in else condition", flush=True)
             # chi wahed y dir chi raise wygol hada li lah 3aza wa jal
             pass
 
@@ -70,7 +73,8 @@ class TournamentManager:
             notifType="IT",
             userId=receiver,
             senderId=self.tournament.creator,
-            senderUsername=self.tournament.creator.user_username,
+            game=self.tournament.game.name,
+            senderUsername=self.tournament.creator.username,
             targetId=str(game_room_id),
         )
 

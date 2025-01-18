@@ -20,7 +20,7 @@ const OptionsSection = ({ data, type, reference }) => {
     } else if (item.notifType === "IG") {
       navigate(`/chat/${item.targetId}`);
     } else if (item.notifType === "IT") {
-      console.log("had khouna invitak tl3eb tournaments am3lm");
+      navigate(`/games/${item.game}/online/${item.targetId}`);
     } else if (item.notifType === "CC") {
       navigate(`/chat/${item.targetId}`);
     }

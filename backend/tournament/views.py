@@ -196,7 +196,7 @@ def getTournamentData(request, id=None):
             "totalRounds": tournamentObj.total_rounds,
             "maxPlayers": tournamentObj.maxPlayers,
             "currentPlayerCount": tournamentObj.currentPlayerCount,
-            "isCompleted": True,
+            "isCompleted": tournamentObj.isCompleted,
         }
     )
     return Response(serializer.data, status=status.HTTP_200_OK)

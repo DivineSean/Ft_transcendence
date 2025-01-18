@@ -29,6 +29,7 @@ class Notifications(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     isRead = models.BooleanField(default=False)
     targetId = models.CharField(max_length=255, blank=True, null=True)
+    game = models.CharField(max_length=255, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.notifMessage:
