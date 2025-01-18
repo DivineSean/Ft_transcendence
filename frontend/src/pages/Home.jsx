@@ -27,7 +27,6 @@ const Home = () => {
       friends.push(<SideOnlineFriends key={friend.id} friend={friend} />);
     });
   }
-  console.log("im parents :", userContextData.onlineMatches);
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="home" />
