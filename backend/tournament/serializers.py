@@ -3,6 +3,8 @@ from .models import Tournament, Bracket
 from games.models import GameRoom, Player
 from games.serializers import GameSerializer, PlayerSerializer
 from .serializers import PlayerSerializer
+import math
+from uuid import uuid4
 
 
 class TournamentSerializer(serializers.ModelSerializer):
@@ -55,10 +57,14 @@ class TournamentPlayerSerializer(PlayerSerializer):
 
 
 class TournamentDataSerializer(serializers.Serializer):
+
     def to_representation(self, instance):
         data = []
         brackets = instance.get("brackets")
-
+        totalRounds = instance.get("totalRounds")
+        maxPlayers = instance.get("maxPlayers")
+        isCompleted = instance.get("isCompleted")
+        bracketCounter = 0
         for bracket in brackets:
             gameRooms = GameRoom.objects.filter(bracket=bracket)
             bracketData = {}
@@ -71,8 +77,35 @@ class TournamentDataSerializer(serializers.Serializer):
 
                 bracketData[gameRoomiD] = playersData
 
-            # data[str(bracket.id)] = bracketData
+            # print(bracketData, flush=True)
             data.append(bracketData)
-            print(data, flush=True)
 
-        return {"region": data}
+            bracketCounter += 1
+
+        while bracketCounter < totalRounds:
+
+            totalGamesPerRound = int(maxPlayers / pow(2, bracketCounter + 1))
+            big = {}
+            for i in range(0, totalGamesPerRound):
+
+                big[str(uuid4())] = [
+                    {
+                        "id": "",
+                        "result": "",
+                        "score": "",
+                        "username": "",
+                        "profile_image": "",
+                    },
+                    {
+                        "id": "",
+                        "result": "",
+                        "score": "",
+                        "username": "",
+                        "profile_image": "",
+                    },
+                ]
+
+            data.append(big)
+            bracketCounter += 1
+
+        return {"isCompleted": isCompleted, "region": data}
