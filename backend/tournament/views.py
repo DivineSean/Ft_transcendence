@@ -189,6 +189,7 @@ def getTournamentData(request, id=None):
             status=status.HTTP_400_BAD_REQUEST,
         )
     brackets = Bracket.objects.filter(tournament=tournamentObj)
+
     serializer = TournamentDataSerializer(
         {
             "brackets": brackets,
