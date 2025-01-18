@@ -1,24 +1,17 @@
-from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from authentication.models import User
 from rest_framework import status
 from rest_framework.decorators import api_view
-from authentication.serializers import UserFriendSerializer
 from chat.views import Conversation
 from asgiref.sync import async_to_sync
 from notification.models import Notifications
 from .models import Game, Player, GameRoom, PlayerRating, PlayerAchievement, Achievement
-from .serializers import GameRoomSerializer, AchievementSerializer
+from .serializers import GameRoomSerializer
 from .tasks import mark_game_room_as_expired
 from matchmaking.matchmaker import GAME_EXPIRATION
-from chat.models import Conversation, Message
+from chat.models import Message
 from channels.layers import get_channel_layer
 from authentication.serializers import UserSerializer
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import api_view
-from django.db.models import Q
-from .models import GameRoom, Game
 import json
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.pagination import PageNumberPagination
@@ -148,13 +141,11 @@ def inviteFriend(request, game_name=None):
 @api_view(["GET"])
 def getOnlineMatches(request):
     games = GameRoom.objects.exclude(
-        Q(
-            status__in=[
-                GameRoom.Status.COMPLETED,
-                GameRoom.Status.EXPIRED,
-                GameRoom.Status.WAITING,
-            ]
-        )
+        status__in=[
+            GameRoom.Status.COMPLETED,
+            GameRoom.Status.EXPIRED,
+            GameRoom.Status.WAITING,
+        ]
     )
     serialized_games = GameRoomSerializer(games, many=True).data
     gamestowatch = {}
@@ -240,7 +231,7 @@ def get_rankings(request, game_name=None, offset=1):
                 {"Error": "Either Offeset or limit is not a Number"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        paginatedRankings = rankings[offset : offset + paginator.page_size]
+        paginatedRankings = rankings[offset: offset + paginator.page_size]
 
         response_data = {
             "game": game_name,
@@ -265,14 +256,16 @@ def get_rankings(request, game_name=None, offset=1):
 
 def get_rank(rating):
     RANKS = [
-        (0, 350, "Iron"),
-        (351, 650, "Bronze"),
-        (651, 950, "Silver"),
-        (951, 1250, "Gold"),
-        (1251, 1550, "Platinum"),
-        (1551, 1850, "Diamond"),
-        (1851, 2150, "Master"),
-        (2151, float("inf"), "Elite"),
+        (0, 800, "Level 1"),
+        (801, 950, "Level 2"),
+        (951, 1100, "Level 3"),
+        (1101, 1250, "Level 4"),
+        (1251, 1400, "Level 5"),
+        (1401, 1550, "Level 6"),
+        (1551, 1700, "Level 7"),
+        (1701, 1850, "Level 8"),
+        (1851, 2000, "Level 9"),
+        (2001, float("inf"), "Level 10"),
     ]
 
     for lower, upper, rank in RANKS:
@@ -353,7 +346,8 @@ def getStats(request, game_name=None, username=None):
         )
     try:
         achie_vements = Achievement.objects.filter(game=game)
-        player_achievements = PlayerAchievement.objects.filter(user=user, game=game)
+        player_achievements = PlayerAchievement.objects.filter(
+            user=user, game=game)
         progress = {achievement.name: 0 for achievement in achie_vements}
         for player_achievement in player_achievements:
             for achievement in achie_vements:
