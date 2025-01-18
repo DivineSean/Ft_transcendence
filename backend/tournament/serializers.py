@@ -39,10 +39,13 @@ class getTournamentSerializer(serializers.ModelSerializer):
         return False
 
 
-class TournamentPlayerSerializer(PlayerSerializer):
+# from authentication.serializers import UserSerializer
+
+
+class TournamentPlayerSerializer(serializers.ModelSerializer):
 
     username = serializers.CharField(source="user.username")
-    profile_image = serializers.CharField(source="user.profile_image")
+    profile_image = serializers.SerializerMethodField()
     id = serializers.CharField(source="user.id")
 
     class Meta:
@@ -55,6 +58,12 @@ class TournamentPlayerSerializer(PlayerSerializer):
             "profile_image",
         ]
 
+    def get_profile_image(self, obj):
+        from authentication.serializers import UserSerializer
+
+        user_serializer = UserSerializer(obj.user).data
+        return user_serializer.get("profile_image")
+
 
 class TournamentDataSerializer(serializers.Serializer):
 
@@ -63,6 +72,7 @@ class TournamentDataSerializer(serializers.Serializer):
         brackets = instance.get("brackets")
         totalRounds = instance.get("totalRounds")
         maxPlayers = instance.get("maxPlayers")
+        currentPlayerCount = instance.get("currentPlayerCount")
         isCompleted = instance.get("isCompleted")
         bracketCounter = 0
         for bracket in brackets:
@@ -108,4 +118,9 @@ class TournamentDataSerializer(serializers.Serializer):
             data.append(big)
             bracketCounter += 1
 
-        return {"isCompleted": isCompleted, "region": data}
+        return {
+            "isCompleted": isCompleted,
+            "currentPlayerCount": currentPlayerCount,
+            "maxPlayers": maxPlayers,
+            "region": data,
+        }
