@@ -20,7 +20,7 @@ const OptionsSection = ({ data, type, reference }) => {
     } else if (item.notifType === "IG") {
       navigate(`/chat/${item.targetId}`);
     } else if (item.notifType === "IT") {
-			navigate(`/games/${item.game}/online/${item.targetId}`);
+      navigate(`/games/${item.game}/online/${item.targetId}`);
     } else if (item.notifType === "CC") {
       navigate(`/chat/${item.targetId}`);
     }

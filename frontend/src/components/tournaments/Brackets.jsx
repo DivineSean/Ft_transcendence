@@ -76,7 +76,7 @@ const Brackets = () => {
     }
   }, [canvasRef && canvasRef.current]);
 
-	console.log(bracket);
+  console.log(bracket);
 
   return (
     <>
