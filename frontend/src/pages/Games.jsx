@@ -169,7 +169,6 @@ const BmoScreen = ({ games }) => {
 	const resetRoute = (index) => {
 		const newRoutes = routes.slice(0, index + 1);
 		setRoutes(newRoutes);
-		console.log(newRoutes, newRoutes[index]);
 		navigate("/games/" + newRoutes.join("/"));
 	};
 
@@ -286,7 +285,6 @@ const BmoDiskDrive = ({ games }) => {
 	useEffect(() => {
 		const foundGame = games.find((Game) => Game.name === game);
 		setGameObject(foundGame);
-		console.log(game, foundGame);
 	}, [game, games, location])
 
 	return (
@@ -297,15 +295,15 @@ const BmoDiskDrive = ({ games }) => {
 						<span className="bmo-disk-drive absolute h-full w-full bg-transparent z-[100] rounded-md md:rounded-lg "></span>
 						<span className="game-cartridge bg-[#C83737] absolute -bottom-16 h-full text-white flex items-center justify-between">
 							<div className="ml-8 h-full items-center flex gap-4">
-								<span className="h-[80%] w-[4px] rounded-full bg-black/20"></span>
-								<span className="h-[80%] w-[4px] rounded-full bg-black/20"></span>
-								<span className="h-[80%] w-[4px] rounded-full bg-black/20"></span>
+								<span className="border-l-[1px] border-r-[1px] border-r-black/20 border-white/20 h-[80%] md:w-[8px] w-[4px] rounded-full bg-black/20"></span>
+								<span className="border-l-[1px] border-r-[1px] border-r-black/20 border-white/20 h-[80%] md:w-[8px] w-[4px] rounded-full bg-black/20"></span>
+								<span className="border-l-[1px] border-r-[1px] border-r-black/20 border-white/20 h-[80%] md:w-[8px] w-[4px] rounded-full bg-black/20"></span>
 							</div>
-							<span>{gameObject.name}</span>
+							<span className="md:text-txt-xl text-black/30">{gameObject.name}</span>
 							<div className="mr-8 h-full items-center flex gap-4">
-								<span className="h-[80%] w-[4px] rounded-full bg-black/20"></span>
-								<span className="h-[80%] w-[4px] rounded-full bg-black/20"></span>
-								<span className="h-[80%] w-[4px] rounded-full bg-black/20"></span>
+								<span className="border-l-[1px] border-r-[1px] border-r-black/20 border-white/20 h-[80%] md:w-[8px] w-[4px] rounded-full bg-black/20"></span>
+								<span className="border-l-[1px] border-r-[1px] border-r-black/20 border-white/20 h-[80%] md:w-[8px] w-[4px] rounded-full bg-black/20"></span>
+								<span className="border-l-[1px] border-r-[1px] border-r-black/20 border-white/20 h-[80%] md:w-[8px] w-[4px] rounded-full bg-black/20"></span>
 							</div>
 						</span>
 					</>
