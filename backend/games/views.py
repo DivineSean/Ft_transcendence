@@ -12,10 +12,10 @@ from matchmaking.matchmaker import GAME_EXPIRATION
 from chat.models import Message
 from channels.layers import get_channel_layer
 from authentication.serializers import UserSerializer
-import json
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import OuterRef
+import json
 
 
 @api_view(["POST"])
@@ -218,8 +218,6 @@ def get_rankings(request, game_name=None, offset=1):
                         user.profile_image.url if user.profile_image else None
                     ),
                     "ranked": rank,
-                    "demote": lower,
-                    "promote": upper,
                     "is_self": user.id == current_user_id,
                 }
             )
