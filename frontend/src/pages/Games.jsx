@@ -54,7 +54,7 @@ const GameCard = ({
         <span></span>
       </span>
       <span
-        className="grow bg-blue-600 nes-container with-title is-centered is-rounded bg-cover bg-center"
+        className="grow bg-blue-600 nes-container with-title is-centered rounded-xl bg-center"
         style={{ backgroundImage: image, backgroundSize: "cover" }}
       >
         <h1 className="title text-xl text-center">{name}</h1>
@@ -89,18 +89,27 @@ const GameModes = ({ games }) => {
   return (
     <>
       {gameObject ? (
-        <div className="flex flex-col md:flex-row h-full gap-16 p-16">
-          {gameObject.modes &&
-            Object.entries(gameObject.modes).map(([mode, enabled]) => (
-              <button
-                key={mode}
-                onClick={() => enabled && navigate(mode)}
-                className={`nes-btn grow ${enabled ? "" : "is-disabled"}`}
-                disabled={!enabled}
-              >
-                {mode}
-              </button>
-            ))}
+        <div className="h-full flex flex-col p-16 gap-16">
+          <div
+            className="h-full hidden md:block bg-green nes-container rounded-lg bg-center"
+            style={{
+              backgroundImage: gameObject.image,
+              backgroundSize: "cover",
+            }}
+          ></div>
+          <div className="grow flex flex-col md:flex-row gap-16">
+            {gameObject.modes &&
+              Object.entries(gameObject.modes).map(([mode, enabled]) => (
+                <button
+                  key={mode}
+                  onClick={() => enabled && navigate(mode)}
+                  className={`nes-btn grow ${!enabled && "is-disabled"}`}
+                  disabled={!enabled}
+                >
+                  {mode}
+                </button>
+              ))}
+          </div>
         </div>
       ) : (
         <div className="flex justify-center items-center h-full p-8 md:p-64">
@@ -136,27 +145,22 @@ const ModeDetails = ({ games }) => {
           : undefined;
       if (!modeObject) navigate(`/games/${game}`);
     }
-    // if (mode === "local") navigate("PongLocal");
   }, []);
 
-  const Modes = () => {
-    switch (mode) {
-      case "ai":
-        return <div>ai</div>;
-      case "online":
-        return <OnlineGame game={game} />;
-      case "local":
-        return (
-          <div className="h-full flex flex-col justify-center items-center p-8">
-            Waiting...
-          </div>
-        );
-      default:
-        return <div>no such mode</div>;
-    }
-  };
-
-  return <>{Modes()}</>;
+  switch (mode) {
+    case "ai":
+      return <div>ai</div>;
+    case "online":
+      return <OnlineGame game={game} />;
+    case "local":
+      return (
+        <div className="h-full flex flex-col justify-center items-center p-8">
+          Waiting...
+        </div>
+      );
+    default:
+      return <div>no such mode</div>;
+  }
 };
 
 const BmoScreen = ({ games }) => {
@@ -167,7 +171,6 @@ const BmoScreen = ({ games }) => {
   const resetRoute = (index) => {
     const newRoutes = routes.slice(0, index + 1);
     setRoutes(newRoutes);
-    console.log(newRoutes, newRoutes[index]);
     navigate("/games/" + newRoutes.join("/"));
   };
 
@@ -182,8 +185,8 @@ const BmoScreen = ({ games }) => {
   }, [location]);
 
   return (
-    <>
-      <div className="bg-[#165044] w-full items-center flex gap-16">
+    <div className="nes-wrapper rounded-xl relative overflow-hidden grow h-[64px] flex flex-col">
+      <div className="bg-[#165044] w-full items-center flex gap-8 md:gap-16">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           x="0px"
@@ -243,35 +246,77 @@ const BmoScreen = ({ games }) => {
         </svg>
         <button
           onClick={() => resetRoute("Games")}
-          className="font-press-start text-txt-xs md:text-txt-md"
+          className="font-press-start text-white !outline-none !text-txt-xs md:!text-txt-md"
         >
           Games
         </button>
         {routes.map((route, index) => (
           <React.Fragment key={index}>
             {index < routes.length && (
-              <h2 className="font-press-start text-txt-xs md:text-txt-md">
-                {" "}
-                {">"}{" "}
-              </h2>
+              <span className="font-press-start text-white !outline-none !text-txt-xs md:!text-txt-md">
+                {">"}
+              </span>
             )}
             <button
               onClick={() => resetRoute(index)}
-              className="font-press-start text-txt-xs md:text-txt-md"
+              className="font-press-start text-white !outline-none !text-txt-xs md:!text-txt-md"
             >
               {route}
             </button>
           </React.Fragment>
         ))}
       </div>
-      <div className="bg-[#B2F5CE] min-h-[200px] grow nes-wrapper">
+      <div className="bg-[#B2F5CE] min-h-[200px] grow">
         <Routes>
           <Route path="/" element={<GamesLibrary games={games} />} />
           <Route path="/:game" element={<GameModes games={games} />} />
           <Route path="/:game/:mode" element={<ModeDetails games={games} />} />
         </Routes>
       </div>
-    </>
+    </div>
+  );
+};
+
+const BmoDiskDrive = ({ games }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { game } = useParams();
+  const [gameObject, setGameObject] = useState(null);
+
+  useEffect(() => {
+    const foundGame = games.find((Game) => Game.name === game);
+    setGameObject(foundGame);
+  }, [game, games, location]);
+
+  return (
+    <div className="flex justify-between items-center min-h-[23px] max-h-[47px]">
+      <div className="bg-[#165044] relative rounded-md md:rounded-lg h-full w-[60%] flex justify-center items-center nes-wrapper cursor-default">
+        {gameObject && (
+          <>
+            <span className="bmo-disk-drive absolute h-full w-full bg-transparent z-[100] rounded-md md:rounded-lg "></span>
+            <span className="game-cartridge bg-[#C83737] absolute -bottom-16 h-full text-white flex items-center justify-between">
+              <div className="ml-8 h-full items-center flex gap-4">
+                <span className="border-l-[1px] border-r-[1px] border-r-black/20 border-white/20 h-[80%] md:w-[8px] w-[4px] rounded-full bg-black/20"></span>
+                <span className="border-l-[1px] border-r-[1px] border-r-black/20 border-white/20 h-[80%] md:w-[8px] w-[4px] rounded-full bg-black/20"></span>
+                <span className="border-l-[1px] border-r-[1px] border-r-black/20 border-white/20 h-[80%] md:w-[8px] w-[4px] rounded-full bg-black/20"></span>
+              </div>
+              <span className="md:text-txt-xl text-black/30">
+                {gameObject.name}
+              </span>
+              <div className="mr-8 h-full items-center flex gap-4">
+                <span className="border-l-[1px] border-r-[1px] border-r-black/20 border-white/20 h-[80%] md:w-[8px] w-[4px] rounded-full bg-black/20"></span>
+                <span className="border-l-[1px] border-r-[1px] border-r-black/20 border-white/20 h-[80%] md:w-[8px] w-[4px] rounded-full bg-black/20"></span>
+                <span className="border-l-[1px] border-r-[1px] border-r-black/20 border-white/20 h-[80%] md:w-[8px] w-[4px] rounded-full bg-black/20"></span>
+              </div>
+            </span>
+          </>
+        )}
+      </div>
+      <button
+        className="bg-[#006680] rounded-full min-h-[23px] min-w-[23px] max-h-[47px] max-w-[47px] w-[6vmin] h-[6vmin]"
+        onClick={() => navigate("/games")}
+      ></button>
+    </div>
   );
 };
 
@@ -284,7 +329,7 @@ const Games = () => {
       image:
         "url('https://mir-s3-cdn-cf.behance.net/project_modules/fs/05daa256209423.59a540cb340e6.jpg')",
       modes: {
-        ai: true,
+        ai: false,
         online: true,
         local: true,
       },
@@ -305,21 +350,21 @@ const Games = () => {
       <div className="container md:px-16 px-0">
         <div className="primary-glass p-16 md:p-32 min-h-[570px] h-full bmo-height">
           <div className="bg-[#2CA086] bmo-frame rounded-lg min-h-[520px] w-full h-full flex lg:flex-row flex-col gap-16 p-16 md:p-32 overflow-y-auto no-scrollbar">
-            <div className="max-w-[20%] hidden lg:pt-16 lg:flex flex-col justify-between items-center">
+            <div className="w-[200px] hidden lg:pt-16 lg:flex flex-col justify-between items-center">
               <button className="bg-[#006680] rounded-lg min-w-[32px] min-h-[8px] max-w-[64px] max-h-[22px] w-[7vmin] h-[2.5vmin]"></button>
               <CrossButtons />
               <span></span>
             </div>
-            <div className="grow min-h-fit h-[70%] lg:h-full flex flex-col gap-64 lg:gap-16">
-              <div className="bmo-screen rounded-xl relative overflow-hidden grow flex flex-col">
-                <BmoScreen games={games} />
-              </div>
-              <div className="flex justify-between items-center min-h-[23px] max-h-[47px]">
-                <span className="bg-[#165044] rounded-md md:rounded-lg h-full w-[60%]"></span>
-                <button className="bg-[#006680] rounded-full min-h-[23px] min-w-[23px] max-h-[47px] max-w-[47px] w-[6vmin] h-[6vmin]"></button>
-              </div>
+            <div className="w-full min-h-fit h-[70%] lg:h-full flex flex-col gap-32 lg:gap-16">
+              <BmoScreen games={games} />
+              <Routes>
+                <Route
+                  path="/:game?/:mode?"
+                  element={<BmoDiskDrive games={games} />}
+                />
+              </Routes>
             </div>
-            <div className="grow p-16 md:p-32 md:pb-0 lg:p-0 justify-between lg:max-w-[20%] flex">
+            <div className="grow p-16 md:p-32 md:pb-0 lg:p-0 justify-between lg:w-[200px] flex">
               <div className="lg:hidden gap-16 md:gap-32 flex flex-col justify-center items-center">
                 <CrossButtons />
                 <span className="flex justify-around gap-16">

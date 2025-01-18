@@ -91,7 +91,7 @@ const OnlineGame = ({ game = "" }) => {
 
   return (
     <div className="h-full flex flex-col justify-center items-center p-16">
-      <div className="nes-container md:w-1/2 w-full is-rounded is-centered flex flex-col gap-8 justify-center">
+      <div className="nes-container md:w-[300px] is-rounded is-centered flex flex-col gap-8 justify-center">
         {status === "searching" && (
           <>
             <div className="flex justify-center items-center gap-16">

@@ -409,7 +409,8 @@ class CheckPasswordChange(APIView):
         serializer = PasswordUpdateSerializer(user, data={"new_password": newPassword})
 
         if serializer.is_valid():
-            serializer.save()
+            user.set_password(newPassword)
+            user.save()
             return Response(
                 {"message": "password updated successfully"}, status=status.HTTP_200_OK
             )
@@ -562,9 +563,11 @@ def setUpUsername(request):
 
     username = username.lower()
     username_regex = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]{3,}$")
-    if not username_regex.match(username):
+    if not username_regex.match(username) or len(username) > 12:
         return Response(
-            {"error": "invalid username, examples user, user1, user-12, user_12"},
+            {
+                "error": "invalid username, examples user, user1, user-12, user_12, and less than 13 character"
+            },
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -625,22 +628,16 @@ def search_users(request):
                 {"error": "no query provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        search_vector = SearchVector("username", "first_name", "last_name")
+        search_vector = SearchVector("username")
 
         users = (
-            User.objects.annotate(
-                similarity=TrigramSimilarity("username", query)
-                + TrigramSimilarity("first_name", query)
-                + TrigramSimilarity("last_name", query)
-            )
+            User.objects.annotate(similarity=TrigramSimilarity("username", query))
             .filter(similarity__gt=0.1)
             .exclude(blockedUsers__contains=[str(request._user.id)])
             .order_by("-similarity")
         )
 
         serializer = UserFriendSerializer(users, many=True)
-
-        print(serializer.data, flush=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 

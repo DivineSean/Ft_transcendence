@@ -210,6 +210,7 @@ class GameConsumer(WebsocketConsumer):
         try:
             GameRoom.objects.filter(pk=self.game_uuid).delete()
             r.delete(f"game_room_data:{self.game_uuid}")
+            r.delete(f"game_room_data:{self.game_uuid}:players")
         except Exception as e:
             print("Failed To Delete GameRoom", str(e), flush=True)
 
