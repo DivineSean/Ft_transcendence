@@ -33,7 +33,9 @@ const Home = () => {
       <Header link="home" />
       {authContextData.globalMessage &&
         authContextData.globalMessage.message && <Toast position="topCenter" />}
-      {(userContextData.generalLoading || !userContextData.onlineMatches) && <LoadingPage />}
+      {(userContextData.generalLoading || !userContextData.onlineMatches) && (
+        <LoadingPage />
+      )}
       {!userContextData.generalLoading && (
         <>
           {!authContextData.displayMenuGl && (
@@ -68,12 +70,12 @@ const Home = () => {
                     />
                   </div>
                   <div className="grid lg:grid-cols-[1fr_1.1fr] lg:gap-32 gap-16">
-                    {userContextData.onlineMatches && 
+                    {userContextData.onlineMatches && (
                       <>
-                        <OnlineMatches name={"online"}/>
-                        <OnlineMatches name={"tournament"}/>
+                        <OnlineMatches name={"online"} />
+                        <OnlineMatches name={"tournament"} />
                       </>
-                    }
+                    )}
                   </div>
                   <div className="primary-glass"></div>
                 </article>

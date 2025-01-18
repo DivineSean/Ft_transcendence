@@ -37,7 +37,8 @@ const SetUpUsername = () => {
                     <span className="lowercase"></span>
                   </h1>
                   <p className="md:text-txt-sm text-txt-xs text-center text-gray">
-                    Welcome to our world! It looks like this is your first time here. You're in the right place!
+                    Welcome to our world! It looks like this is your first time
+                    here. You're in the right place!
                   </p>
                 </div>
 

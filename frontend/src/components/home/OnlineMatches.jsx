@@ -82,7 +82,6 @@ const Matches = ({ data }) => {
   );
 };
 
-
 const OnlineMatches = ({ name }) => {
   const userContextData = useContext(UserContext);
   const data = userContextData.onlineMatches;
@@ -100,21 +99,29 @@ const OnlineMatches = ({ name }) => {
             <p>live</p>
           </div>
           <div className="flex flex-col gap-16 overflow-y-scroll no-scrollbar z-10">
-          {data && name === "online" ?  (<Matches data={data.online} />) : (<Matches data={data.tournament} />)}
-          {data && (
-            <>
-              {name === "online" && data.online && data.online.length === 0 && (
-                <p className="text-center text-gray-500 text-stroke-sc">
-                  No active {name} matches right now
-                </p>
-              )}
-              {name === "tournament" && data.tournament && data.tournament.length === 0 && (
-                <p className="text-center text-gray-500 text-stroke-sc">
-                  No active tournament matches right now
-                </p>
-              )}
-            </>
-          )}
+            {data && name === "online" ? (
+              <Matches data={data.online} />
+            ) : (
+              <Matches data={data.tournament} />
+            )}
+            {data && (
+              <>
+                {name === "online" &&
+                  data.online &&
+                  data.online.length === 0 && (
+                    <p className="text-center text-gray-500 text-stroke-sc">
+                      No active {name} matches right now
+                    </p>
+                  )}
+                {name === "tournament" &&
+                  data.tournament &&
+                  data.tournament.length === 0 && (
+                    <p className="text-center text-gray-500 text-stroke-sc">
+                      No active tournament matches right now
+                    </p>
+                  )}
+              </>
+            )}
           </div>
         </div>
       </div>

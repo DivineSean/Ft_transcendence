@@ -220,7 +220,8 @@ const Chat = () => {
               <div className="grow md:flex hidden flex-col gap-16 justify-center items-center text-gray">
                 <div className="contrast-75 grayscale-[50%] w-[300px] h-[300px] bg-[url('/images/chat.png')] bg-cover bg-center"></div>
                 <p className="w-[300px] font-light tracking-wider text-center text-txt-sm">
-                  Stay connected with your friends—send and receive messages securely and effortlessly.
+                  Stay connected with your friends—send and receive messages
+                  securely and effortlessly.
                 </p>
               </div>
             )}

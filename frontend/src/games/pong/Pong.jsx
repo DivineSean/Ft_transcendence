@@ -465,17 +465,21 @@ const Pong = ({
           </button>
         </div>
       )}
-      {authContextData.globalMessage?.message && !authContextData.globalMessage?.title && !isWon && !islost &&
-        <Toast />
-      }
-      {authContextData.globalMessage?.message && authContextData.globalMessage?.title && !isWon && !islost && (
-        <GameToast
-          duration={4000}
-          message={authContextData.globalMessage.message}
-          title={authContextData.globalMessage.title}
-          onClose={authContextData.setGlobalMessage}
-        />
-      )}
+      {authContextData.globalMessage?.message &&
+        !authContextData.globalMessage?.title &&
+        !isWon &&
+        !islost && <Toast />}
+      {authContextData.globalMessage?.message &&
+        authContextData.globalMessage?.title &&
+        !isWon &&
+        !islost && (
+          <GameToast
+            duration={4000}
+            message={authContextData.globalMessage.message}
+            title={authContextData.globalMessage.title}
+            onClose={authContextData.setGlobalMessage}
+          />
+        )}
       {isPortrait && (
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
           <div className="text-center p-6">

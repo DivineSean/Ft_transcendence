@@ -205,7 +205,9 @@ const ListTournaments = ({ tournaments, setTournaments }) => {
         loading...
       </span>
       {tournaments && tournaments.length === 0 && (
-        <div className="text-center text-stroke-sc">No tournaments are available right now. Check back soon!</div>
+        <div className="text-center text-stroke-sc">
+          No tournaments are available right now. Check back soon!
+        </div>
       )}
     </div>
   );

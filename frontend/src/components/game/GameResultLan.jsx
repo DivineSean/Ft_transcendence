@@ -1,11 +1,10 @@
 import { BACKENDURL } from "../../utils/fetchWrapper";
 import { useNavigate } from "react-router-dom";
 
-const GameResultLan = ({ playersData, isWon}) => {
-
-    const navigate = useNavigate();
-    const winner = isWon ? playersData[0] : playersData[1];
-    const loser = isWon ? playersData[1] : playersData[0];
+const GameResultLan = ({ playersData, isWon }) => {
+  const navigate = useNavigate();
+  const winner = isWon ? playersData[0] : playersData[1];
+  const loser = isWon ? playersData[1] : playersData[0];
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center overflow-hidden px-16">

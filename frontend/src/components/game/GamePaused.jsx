@@ -20,7 +20,8 @@ const GamePaused = ({ game, image, isS, isRanked }) => {
   }, []);
 
   const handleQuitClick = () => {
-    if (isS || countdown <= 0 || isRanked === 0) navigate(`/games/${game}/online`);
+    if (isS || countdown <= 0 || isRanked === 0)
+      navigate(`/games/${game}/online`);
     else setIsQuitConfirmed(true);
   };
 
@@ -50,16 +51,17 @@ const GamePaused = ({ game, image, isS, isRanked }) => {
                       The game will be forfeited in: {countdown} seconds
                       <br />
                       <strong className="text-red">
-                      Unless the player reconnects
+                        Unless the player reconnects
                       </strong>
                     </>
                   ) : (
                     <>
                       <br />
-                      Game over. The player has been penalized with a rating deduction
+                      Game over. The player has been penalized with a rating
+                      deduction
                       <br />
                       <strong className="text-red">
-                      Unfortunately, the AFK player did not reconnect.
+                        Unfortunately, the AFK player did not reconnect.
                       </strong>
                     </>
                   )}
@@ -68,10 +70,12 @@ const GamePaused = ({ game, image, isS, isRanked }) => {
                 <p>
                   {countdown > 0 ? (
                     <>
-                      Reconnection pending... Please wait for your opponent to reconnect in: {" "}
-                      {countdown}s
+                      Reconnection pending... Please wait for your opponent to
+                      reconnect in: {countdown}s
                       <br />
-                          <strong className="text-red">Warning!</strong> If you leave now, you can't join another game until this game expires.
+                      <strong className="text-red">Warning!</strong> If you
+                      leave now, you can't join another game until this game
+                      expires.
                     </>
                   ) : (
                     "You're Patient been rewarded, Congratulations You Won!"
@@ -79,15 +83,15 @@ const GamePaused = ({ game, image, isS, isRanked }) => {
                 </p>
               )}
             </div>
-              <div className="flex gap-16">
-                <button
-                  onClick={handleQuitClick}
-                  className="secondary-glass p-8 px-16 transition-all flex gap-4 justify-center items-center
+            <div className="flex gap-16">
+              <button
+                onClick={handleQuitClick}
+                className="secondary-glass p-8 px-16 transition-all flex gap-4 justify-center items-center
                 hover:bg-red-600 hover:text-black rounded-md text-red-600 font-semibold tracking-wide"
-                >
-                  Quit Game
-                </button>
-              </div>
+              >
+                Quit Game
+              </button>
+            </div>
           </div>
           <div
             style={{ backgroundImage: `url(${image})` }}

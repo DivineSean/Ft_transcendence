@@ -144,21 +144,27 @@ def inviteFriend(request, game_name=None):
         print(e, flush=True)
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(["GET"])
 def getOnlineMatches(request):
     games = GameRoom.objects.exclude(
-        Q(status__in=[GameRoom.Status.COMPLETED, GameRoom.Status.EXPIRED, GameRoom.Status.WAITING])
+        Q(
+            status__in=[
+                GameRoom.Status.COMPLETED,
+                GameRoom.Status.EXPIRED,
+                GameRoom.Status.WAITING,
+            ]
+        )
     )
     serialized_games = GameRoomSerializer(games, many=True).data
     gamestowatch = {}
     gamestowatch["online"] = []
     gamestowatch["tournament"] = []
-    
-    
+
     for game_data in serialized_games:
         game = Game.objects.get(pk=game_data["game"])
         players = json.loads(game_data["players"])
-        
+
         match_info = {
             "game": game.name,
             "id": game_data["id"],
@@ -178,6 +184,7 @@ def getOnlineMatches(request):
         else:
             gamestowatch["online"].append(match_info)
     return Response(gamestowatch, status=status.HTTP_200_OK)
+
 
 @api_view(["GET"])
 def get_rankings(request, game_name=None, offset=1):

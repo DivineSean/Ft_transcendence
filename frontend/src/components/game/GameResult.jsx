@@ -17,9 +17,7 @@ const GameResult = ({ playersData, isWon }) => {
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center overflow-hidden px-16">
       <div className="relative w-full max-w-xl">
-        <div
-          className={`flex flex-col items-center gap-16`}
-        >
+        <div className={`flex flex-col items-center gap-16`}>
           <div
             className={`rounded-full p-8 flex ${
               isWon
@@ -27,7 +25,11 @@ const GameResult = ({ playersData, isWon }) => {
                 : "bg-red/20 text-red"
             }`}
           >
-            {isWon ? <LiaTrophySolid className="text-txt-5xl" /> : <IoIosCloseCircleOutline className="text-txt-5xl" />}
+            {isWon ? (
+              <LiaTrophySolid className="text-txt-5xl" />
+            ) : (
+              <IoIosCloseCircleOutline className="text-txt-5xl" />
+            )}
           </div>
 
           <h1

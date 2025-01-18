@@ -57,7 +57,12 @@ const GameOverlay = ({
       );
     case "paused":
       return (
-        <GamePaused game={game} image={"/images/gamePaused.jpeg"} isS={isS} isRanked={data.players[0].rating_gain}/>
+        <GamePaused
+          game={game}
+          image={"/images/gamePaused.jpeg"}
+          isS={isS}
+          isRanked={data.players[0].rating_gain}
+        />
       );
     case "completed":
       return (

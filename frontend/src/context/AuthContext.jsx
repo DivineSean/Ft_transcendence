@@ -126,7 +126,10 @@ export const AuthProvider = ({ children }) => {
         const data = await res.json();
         window.location.href = data.url;
       } else {
-        setGlobalMessage({ message: "An error occurred. Please try again.", isError: true });
+        setGlobalMessage({
+          message: "An error occurred. Please try again.",
+          isError: true,
+        });
       }
     } catch (error) {
       setGlobalMessage({ message: error.message, isError: true });

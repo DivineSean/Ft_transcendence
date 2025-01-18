@@ -9,10 +9,9 @@ const GameStatus = ({ game, title, image }) => {
         <div className="primary-glass overflow-hidden">
           <div className="grid lg:grid-cols-[1fr_520px] grid-cols-1 min-h-[200px] lg:min-h-[500px]">
             <div className="flex flex-col justify-center items-center p-8 md:p-16 gap-8 md:gap-12">
-
               <div className="flex justify-center">
                 <h1 className="text-center text-2xl md:text-4xl font-bold text-green mb-6 ">
-                Uh Oh! What Happened to the {game}?
+                  Uh Oh! What Happened to the {game}?
                 </h1>
               </div>
               <div className="text-center text-white/90 text-sm lg:text-lg max-w-[80%]">

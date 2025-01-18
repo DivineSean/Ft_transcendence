@@ -19,7 +19,11 @@ const WaitingGame = ({ data, send, game, decline, setGlobalMessage }) => {
       profileImage: player.user.profile_image
         ? `${BACKENDURL}${player.user.profile_image}`
         : "/images/default.jpeg",
-      status: player.ready ? <GoVerified className="text-txt-xl"/> : <GiSandsOfTime className="text-txt-xl"/>,
+      status: player.ready ? (
+        <GoVerified className="text-txt-xl" />
+      ) : (
+        <GiSandsOfTime className="text-txt-xl" />
+      ),
       statusClass: player.ready ? "text-green" : "text-red",
     };
   };
@@ -122,8 +126,10 @@ const WaitingGame = ({ data, send, game, decline, setGlobalMessage }) => {
 const PlayerInfo = ({ player }) => (
   <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8">
     <div className="relative group">
-      <div className="w-48 h-48 md:w-48 lg:w-64 md:h-48 lg:h-64 rounded-full overflow-hidden
-        border-2 border-stroke-sc group-hover:border-green/50 transition-all duration-300">
+      <div
+        className="w-48 h-48 md:w-48 lg:w-64 md:h-48 lg:h-64 rounded-full overflow-hidden
+        border-2 border-stroke-sc group-hover:border-green/50 transition-all duration-300"
+      >
         <img
           src={player.profileImage}
           className="object-cover w-full h-full"
@@ -151,13 +157,9 @@ const GameInfo = ({ game, flag }) => (
     </span>
     <span className="px-8 p-4 rounded-lg bg-green/10 backdrop-blur-sm border border-stroke-sc">
       {flag !== 0 ? (
-        <span className="text-xs md:text-sm text-green">
-          Ranked Match
-        </span>
+        <span className="text-xs md:text-sm text-green">Ranked Match</span>
       ) : (
-        <span className="text-xs md:text-sm text-green">
-          Normal Match
-        </span>
+        <span className="text-xs md:text-sm text-green">Normal Match</span>
       )}
     </span>
     <span className="px-8 p-4 rounded-lg bg-green/10 backdrop-blur-sm border border-green/20">

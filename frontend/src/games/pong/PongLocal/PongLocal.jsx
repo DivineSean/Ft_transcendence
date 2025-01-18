@@ -200,15 +200,14 @@ const PongLocal = () => {
     };
   }, [isOver]);
 
-  if (isOver && ballRef.scoreboard[0] === 7)
-    setPlayers1(true);
+  if (isOver && ballRef.scoreboard[0] === 7) setPlayers1(true);
 
   const Gameover = ({ status }) => {
     const playersData = [
       { user: { username: "Player1", profile_image: null } },
       { user: { username: "Player2", profile_image: null } },
     ];
-  
+
     return (
       <>
         <GameResultLan playersData={playersData} isWon={status} />
@@ -226,9 +225,7 @@ const PongLocal = () => {
         />
       )}
       <canvas id="pong"></canvas>
-      {!isOver && (
-        <Gameover status={Players1} />
-      )}
+      {!isOver && <Gameover status={Players1} />}
     </div>
   );
 };
