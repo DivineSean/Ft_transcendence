@@ -12,12 +12,17 @@ const Tournaments = () => {
   const { uid } = useParams();
   const [displayCreateTournament, setDisplayCreateTournament] = useState(false);
   const [tournaments, setTournaments] = useState(null);
+	const [displayError, setDisplayError] = useState(false);
 
   useEffect(() => {
     return () => {
       authContextData.setGlobalMessage({ message: "", isError: false });
     };
   }, []);
+
+	if (displayError) {
+		console.log('s;ldkfjljkdfgljkfglkjfgl');
+	}
 
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
@@ -53,10 +58,15 @@ const Tournaments = () => {
                 Create New Tournament
               </button>
             )}
+						{displayError && 
+							<div className="absolute left-1/2 -translate-x-1/2 text-xs w-full px-16 bottom-4 text-center text-white md:text-red md:text-txt-sm">
+								the first round does not complete yet that's why you cannot see the bracket right now. this is just the example.
+							</div>
+						}
           </div>
           <div className="tournaments-height">
             {uid ? (
-              <Brackets />
+              <Brackets setDisplayError={setDisplayError} />
             ) : (
               <ListTournaments
                 tournaments={tournaments}

@@ -137,6 +137,10 @@ const ListTournaments = ({ tournaments, setTournaments }) => {
     }
   };
 
+	const showBracket = (tournament) => {
+		navigate(`/tournaments/${tournament.id}`)
+	}
+
   return (
     <div
       ref={tourContainerRef}
@@ -150,7 +154,7 @@ const ListTournaments = ({ tournaments, setTournaments }) => {
             className="flex gap-32 p-16 bg-gray/5 rounded-lg border border-gray/10 items-center"
           >
             <div
-              onClick={() => navigate(`/tournaments/${tournament.id}`)}
+              onClick={() => showBracket(tournament)}
               className="w-full flex gap-16 justify-between items-center cursor-pointer"
             >
               <div className="flex flex-col gap-4">

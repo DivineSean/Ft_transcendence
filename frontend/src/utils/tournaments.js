@@ -1,7 +1,6 @@
 class Tournament {
-  constructor(canvas, regoin) {
+  constructor(canvas) {
     this.canvas = canvas;
-    this.regoin = regoin;
     this.defaults = {
       width: 2,
       color: "#5B5B5B",
