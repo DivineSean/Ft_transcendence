@@ -9,10 +9,10 @@ const Card = ({ ...props }) => {
           {props.title}
           <span className="text-green font-bold"> {props.name}!</span>
         </p>
-        <p className="lg:text-txt-xs text-txt-lg md:max-w-[80%]">
+        <p className="lg:text-txt-xs text-txt-lg md:max-w-[80%] line-clamp-4">
           {props.description}
         </p>
-        <div className="flex gap-4 md:gap-8 justify-start mt-6 md:mt-8">
+        <div className="flex gap-4 md:gap-8 justify-start">
           {props.isMainButton && (
             <button
               onClick={() => navigate(props.link)}

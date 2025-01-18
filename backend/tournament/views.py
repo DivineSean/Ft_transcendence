@@ -189,12 +189,14 @@ def getTournamentData(request, id=None):
             status=status.HTTP_400_BAD_REQUEST,
         )
     brackets = Bracket.objects.filter(tournament=tournamentObj)
+
     serializer = TournamentDataSerializer(
         {
             "brackets": brackets,
             "totalRounds": tournamentObj.total_rounds,
             "maxPlayers": tournamentObj.maxPlayers,
-            "isCompleted": tournamentObj.isCompleted,
+            "currentPlayerCount": tournamentObj.currentPlayerCount,
+            "isCompleted": True,
         }
     )
     return Response(serializer.data, status=status.HTTP_200_OK)

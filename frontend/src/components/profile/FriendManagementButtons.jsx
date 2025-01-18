@@ -14,8 +14,8 @@ const FriendManagementButtons = ({ setApproval }) => {
       visible: true,
       message:
         type === "unfriend"
-          ? `if you change your mind, you'll have to send friend request to`
-          : `if you change your mind, you'll have to unblock`,
+          ? `If you change your mind, you'll need to send a friend request to`
+          : `If you change your mind, you'll need to unblock`,
       type: type,
     });
   };

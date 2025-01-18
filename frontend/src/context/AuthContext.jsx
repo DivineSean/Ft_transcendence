@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }) => {
       }
     } else if (name === "confirmPassword") {
       if (value !== formData.password) {
-        validationErrors.confirmPassword = "password does not matched!";
+        validationErrors.confirmPassword = "password does'nt match!";
       }
     } else if (name === "firstName") {
       if (value.length > 12) {
@@ -146,7 +146,7 @@ export const AuthProvider = ({ children }) => {
         validationErrors[data] =
           `${data} must contain at least 6 characters, uppercase, lowercase, number and special character.`;
       if (data === "confirmPassword" && formData.password != formData[data])
-        validationErrors[data] = "password does not matched!";
+        validationErrors[data] = "password does'nt match!";
       if (data === "firstName" && formData.firstName.length > 12)
         validationErrors[data] = "first name must be less than 13 character";
       if (data === "lastName" && formData.lastName.length > 12)
@@ -348,7 +348,7 @@ export const AuthProvider = ({ children }) => {
           `${data} must contain at least 6 characters, uppercase, lowercase, number and special character.`;
 
       if (data === "confirmPassword" && formData.password != formData[data])
-        validationErrors[data] = "password does not matched!";
+        validationErrors[data] = "password does'nt match!";
 
       if (
         !formData[data].trim() &&
