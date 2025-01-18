@@ -137,9 +137,9 @@ const ListTournaments = ({ tournaments, setTournaments }) => {
     }
   };
 
-	const showBracket = (tournament) => {
-		navigate(`/tournaments/${tournament.id}`)
-	}
+  const showBracket = (tournament) => {
+    navigate(`/tournaments/${tournament.id}`);
+  };
 
   return (
     <div
