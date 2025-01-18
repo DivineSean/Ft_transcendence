@@ -31,7 +31,7 @@ class Tournament(models.Model):
     )
 
     def addPlayer(self, user):
-        #random
+        # random
         if self.currentPlayerCount >= self.maxPlayers:  # 4 / 8 / 16
             return ["Tournament is full", 400]
 

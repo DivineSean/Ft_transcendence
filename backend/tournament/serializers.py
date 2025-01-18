@@ -5,6 +5,8 @@ from games.serializers import GameSerializer, PlayerSerializer
 from .serializers import PlayerSerializer
 import math
 from uuid import uuid4
+
+
 class TournamentSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(format="hex_verbose", read_only=True)
 
@@ -55,7 +57,7 @@ class TournamentPlayerSerializer(PlayerSerializer):
 
 
 class TournamentDataSerializer(serializers.Serializer):
-    
+
     def to_representation(self, instance):
         data = []
         brackets = instance.get("brackets")
@@ -75,37 +77,35 @@ class TournamentDataSerializer(serializers.Serializer):
 
                 bracketData[gameRoomiD] = playersData
 
-            # print(bracketData, flush=True)  
+            # print(bracketData, flush=True)
             data.append(bracketData)
-            
+
             bracketCounter += 1
-        
-        
-        
+
         while bracketCounter < totalRounds:
 
-            totalGamesPerRound = int(maxPlayers / pow(2  , bracketCounter + 1))
+            totalGamesPerRound = int(maxPlayers / pow(2, bracketCounter + 1))
             big = {}
-            for i in range(0, totalGamesPerRound) :
-                
-                big[str(uuid4())] = [
-                        {
-                            "id" : "",
-                            "result": "",
-                            "score": "",
-                            "username": "",
-                            "profile_image": "",
-                        }, 
-                        {
-                            "id" : "",
-                            "result": "",
-                            "score": "",
-                            "username": "",
-                            "profile_image": "",
-                        },]
-                                    
-            data.append(big)
-            bracketCounter +=1 
-                
-        return {"isCompleted" : isCompleted,"region": data}
+            for i in range(0, totalGamesPerRound):
 
+                big[str(uuid4())] = [
+                    {
+                        "id": "",
+                        "result": "",
+                        "score": "",
+                        "username": "",
+                        "profile_image": "",
+                    },
+                    {
+                        "id": "",
+                        "result": "",
+                        "score": "",
+                        "username": "",
+                        "profile_image": "",
+                    },
+                ]
+
+            data.append(big)
+            bracketCounter += 1
+
+        return {"isCompleted": isCompleted, "region": data}
