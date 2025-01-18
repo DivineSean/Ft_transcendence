@@ -54,11 +54,11 @@ const SignUp = () => {
                     error={authContextData.error.firstName}
                     title="first name"
                   />
-                  {/* {authContextData.error.firstName && (
-						<span className="text-red text-txt-sm">
-							{authContextData.error.firstName}
-						</span>
-						)} */}
+                  {authContextData.error.firstName && (
+                    <span className="text-red text-txt-sm">
+                      {authContextData.error.firstName}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-10">
@@ -142,9 +142,9 @@ const SignUp = () => {
               </form>
 
               <div className="flex gap-16 items-center">
-                <hr className="grow text-stroke-sc" />
+                <div className="grow bg-stroke-sc h-[1px]"></div>
                 <p className="">or</p>
-                <hr className="grow text-stroke-sc" />
+                <div className="grow bg-stroke-sc h-[1px]"></div>
               </div>
 
               <button

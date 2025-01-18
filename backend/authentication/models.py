@@ -46,7 +46,7 @@ class User(AbstractUser):
     status = models.CharField(
         max_length=8, choices=Status.choices, default=Status.OFFLINE
     )
-    isOnline = models.BooleanField(default=False)
+    connect_count = models.PositiveBigIntegerField(default=0)
     isTwoFa = models.BooleanField(default=False)
     about = models.TextField(blank=True)
     profile_image = models.ImageField(

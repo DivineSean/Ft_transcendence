@@ -151,9 +151,9 @@ const Login = () => {
               </form>
 
               <div className="flex gap-16 items-center">
-                <hr className="grow text-stroke-sc" />
+                <div className="grow bg-stroke-sc h-[1px]"></div>
                 <p className="">or</p>
-                <hr className="grow text-stroke-sc" />
+                <div className="grow bg-stroke-sc h-[1px]"></div>
               </div>
 
               <button

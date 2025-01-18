@@ -1,7 +1,8 @@
 import json
 from channels.generic.websocket import WebsocketConsumer
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
+from django.db.models import Q, F
+from django.db import transaction
 from .models import Conversation, Message
 from authentication.models import User
 from django.utils import timezone
@@ -25,6 +26,11 @@ class Chat(WebsocketConsumer):
         except ValidationError:
             return
 
+        # change the status to online if the user is connected to the socket
+        self.scope["user"].status = "online"
+        self.scope["user"].connect_count += 1
+        self.scope["user"].save()
+
         conversations = Conversation.objects.filter(
             Q(Sender=self.user["id"]) | Q(Receiver=self.user["id"])
         )
@@ -41,11 +47,29 @@ class Chat(WebsocketConsumer):
         async_to_sync(self.channel_layer.group_add)(
             self.notif_room_name, self.channel_name
         )
+
+        self.connected = self.scope["cookies"]["refreshToken"][:99]
+        async_to_sync(self.channel_layer.group_add)(self.connected, self.channel_name)
         self.accept()
 
     def disconnect(self, code):
+        # change the status to offline if the user is connected to the socket
+        with transaction.atomic():
+
+            self.scope["user"].connect_count = F("connect_count") - 1
+            self.scope["user"].save()
+            self.scope["user"].refresh_from_db()
+
+            if self.scope["user"].connect_count == 0:
+                self.scope["user"].status = "offline"
+
+            self.scope["user"].save()
+
         async_to_sync(self.channel_layer.group_discard)(
             self.notif_room_name, self.channel_name
+        )
+        async_to_sync(self.channel_layer.group_discard)(
+            self.connected, self.channel_name
         )
         for element in self.room_group_name:
             async_to_sync(self.channel_layer.group_discard)(element, self.channel_name)
@@ -301,6 +325,9 @@ class Chat(WebsocketConsumer):
             sender=User.objects.get(email=self.user["email"]),
             message=message,
         )
+
+    def websocket_close(self, event):
+        self.close()
 
 
 # TO DO => restrictions in jwt (password)

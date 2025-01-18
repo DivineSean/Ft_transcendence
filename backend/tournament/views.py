@@ -174,16 +174,15 @@ class Tournaments(APIView):
         return response
 
 
-@api_view(["POST"])
-def getTournamentData(request):
-    tournamentID = request.data.get("id")
-    if tournamentID == None:
+@api_view(["GET"])
+def getTournamentData(request, id=None):
+    if id == None:
         return Response(
             {"error": "No Tournament ID"}, status=status.HTTP_400_BAD_REQUEST
         )
 
     try:
-        tournamentObj = Tournament.objects.get(id=tournamentID)
+        tournamentObj = Tournament.objects.get(id=id)
     except Tournament.DoesNotExist:
         return Response(
             {"error": "No such tournament with this id"},

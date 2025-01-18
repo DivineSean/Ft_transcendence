@@ -154,8 +154,13 @@ def callback(request):
 
         if not is_new_user:
             serializer = RegisterOAuthSerializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+            # serializer.is_valid()
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                return Response(
+                    {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+                )
 
         user = User.objects.get(email=user_data.get("email"))
         if not user.profile_image:
@@ -188,9 +193,6 @@ def callback(request):
                 return Response(data, status=status.HTTP_200_OK)
 
             else:
-
-                user.isOnline = True
-                user.save()
 
                 response = Response(
                     {"message": "you logged in successfully"}, status=status.HTTP_200_OK

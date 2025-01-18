@@ -456,3 +456,28 @@ input:-webkit-autofill:active {
     @apply bg-background text-foreground;
   }
 }
+
+.bmo-disk-drive {
+  -webkit-box-shadow: inset 0px 10px 5px 0px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: inset 0px 10px 5px 0px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0px 10px 5px 0px rgba(0, 0, 0, 0.4);
+}
+
+.game-cartridge {
+  perspective: 1000px;
+  width: calc(100% - 4px);
+  -webkit-box-shadow: 0px 16px 16px 0px rgba(0, 0, 0, 0.36);
+  -moz-box-shadow: 0px 16px 16px 0px rgba(0, 0, 0, 0.36);
+  box-shadow: 0px 16px 16px 0px rgba(0, 0, 0, 0.36);
+}
+.game-cartridge::before {
+  content: "";
+  position: absolute;
+  right: 1px;
+  left: 1.5px;
+  height: 25px;
+  background-color: #c83737ed;
+  @apply bg-[#C83737]/70;
+  top: -20px;
+  transform: rotate3d(0, 1, 0.5, 3.142rad);
+}
