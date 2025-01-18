@@ -41,7 +41,6 @@ class Notifications(models.Model):
 				self.timestamp = datetime.now()
 				super().save(*args, **kwargs)
 
-<<<<<<< Updated upstream
     def get_default_message(self):
         return {
             "FR": "You have received a friend request from: ",
@@ -51,14 +50,3 @@ class Notifications(models.Model):
             "CC": "Conversation created by: ",
             "AF": "Your friend request has been accepted by: ",
         }.get(self.notifType, "finahowa l message d notif al 3yan")
-=======
-		def get_default_message(self):
-				return {
-						"FR": "You Received a Friend Request from: ",
-						"IG": "You've been invited to a game from: ",
-						"IT": "You've been invited to a Tournament from: ",
-						"ME": "You received a Message from: ",
-						"CC": "Conversation created by: ",
-						"AF": "Your friend request get accepted by: ",
-				}.get(self.notifType, "finahowa l message d notif al 3yan")
->>>>>>> Stashed changes
