@@ -40,7 +40,7 @@ const Approval = ({ approval, setApproval }) => {
                 {" "}
                 {contextData.userInfo.username}{" "}
               </span>
-              agin
+              again
             </p>
           </div>
           <div className="flex gap-16 w-[95%]">

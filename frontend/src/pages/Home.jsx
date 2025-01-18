@@ -50,7 +50,7 @@ const Home = () => {
                         userContextData.userInfo.first_name
                       }
                       description={`
-												Welcome Adventurer! Get ready to have fun, compete, and connect with awesome players. Lets make this an unforgettable experience!
+												Welcome, Adventurer! Prepare for exciting challenges, fierce competition, and new connections with players from around the world
 											`}
                       isModel={false}
                       isMainButton={true}
@@ -59,7 +59,7 @@ const Home = () => {
                       link="/games"
                     />
                     <Card
-                      title="Explore a New"
+                      title="Undiscovered"
                       name="World"
                       description="Adventure awaits! Meet friends, play games, and explore a world full of possibilities."
                       isModel={true}

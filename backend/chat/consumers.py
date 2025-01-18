@@ -246,7 +246,7 @@ class Chat(WebsocketConsumer):
                 {
                     "type": "friendRequest",
                     "sender": event["sender"],
-                    "message": f"You Received a Friend Request from {self.user['username']}",
+                    "message": f"You have received a friend request from {self.user['username']}",
                 }
             )
         )
@@ -257,7 +257,7 @@ class Chat(WebsocketConsumer):
                 {
                     "type": "acceptFriendRequest",
                     "sender": event["sender"],
-                    "message": f"Your friend request get accepted by {self.user['username']}",
+                    "message": f"Your friend request has been accepted by {self.user['username']}",
                 }
             )
         )
@@ -305,7 +305,7 @@ class Chat(WebsocketConsumer):
             text_data=json.dumps(
                 {
                     "type": "convBlocked",
-                    "message": "this conversation has been blocked by the other friend",
+                    "message": "This conversation has been blocked by your friend",
                 }
             )
         )

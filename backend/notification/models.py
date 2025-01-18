@@ -42,10 +42,10 @@ class Notifications(models.Model):
 
     def get_default_message(self):
         return {
-            "FR": "You Received a Friend Request from: ",
-            "IG": "You've been invited to a game from: ",
-            "IT": "You've been invited to a Tournament from: ",
-            "ME": "You received a Message from: ",
+            "FR": "You have received a friend request from: ",
+            "IG": "You've been invited to a game by: ",
+            "IT": "You've been invited to a tournament by: ",
+            "ME": "You have received a message from: ",
             "CC": "Conversation created by: ",
-            "AF": "Your friend request get accepted by: ",
+            "AF": "Your friend request has been accepted by: ",
         }.get(self.notifType, "finahowa l message d notif al 3yan")

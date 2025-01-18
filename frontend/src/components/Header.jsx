@@ -262,7 +262,7 @@ const Header = ({ ...props }) => {
                         ))
                       ) : (
                         <p className="text-stroke-sc text-txt-md grow flex justify-center items-center py-8">
-                          no user founded
+                          no user found
                         </p>
                       )}
                     </ul>
