@@ -1,6 +1,7 @@
 import WorldModel from "./WorldModel";
-
+import { useNavigate } from "react-router-dom";
 const Card = ({ ...props }) => {
+  const navigate = useNavigate();
   return (
     <div className="glass-component justify-between lg:pr-8 md:h-[283px]">
       <div className="flex flex-col md:justify-between gap-16">
@@ -11,14 +12,22 @@ const Card = ({ ...props }) => {
         <p className="lg:text-txt-xs text-txt-lg md:max-w-[80%]">
           {props.description}
         </p>
-        <div className="flex items-end">
+        <div className="flex gap-4 md:gap-8 justify-start mt-6 md:mt-8">
           {props.isMainButton && (
-            <button className="px-32 py-8 bg-green text-black font-semibold text-h-lg-sm rounded">
+            <button
+              onClick={() => navigate(props.link)}
+              className="secondary-glass p-8 px-32 transition-all flex gap-4 justify-center items-center
+               rounded-md font-semibold tracking-wide hover:bg-green/60 hover:text-black text-green"
+            >
               {props.buttonContent}
             </button>
           )}
           {!props.isMainButton && (
-            <button className="px-32 py-8 text-white font-semibold text-h-lg-sm rounded border-2 border-white">
+            <button
+              disabled={true}
+              className="secondary-glass p-8 px-32 transition-all flex gap-4 justify-center items-center disabled:cursor-not-allowed
+               rounded-md font-semibold tracking-wide hover:bg-green/60 hover:text-black text-white disabled:bg-transparent disabled:text-stroke-sc"
+            >
               {props.buttonContent}
             </button>
           )}

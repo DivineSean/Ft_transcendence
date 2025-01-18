@@ -129,7 +129,7 @@ const UpdateProfile = ({ setUpdateProfile }) => {
         contextData.setUserInfo(data);
         contextData.setProfileInfo(data);
         authContextData.setGlobalMessage({
-          message: "profile updated successfully",
+          message: "Your profile has been updated successfully",
           isError: false,
         });
       } else if (res.status === 400) {
@@ -162,7 +162,7 @@ const UpdateProfile = ({ setUpdateProfile }) => {
         if (res.ok) {
           navigate(`/forgotpassword/${contextData.userInfo.id}`);
           authContextData.setGlobalMessage({
-            message: "check your email",
+            message: "Please check your email",
             isError: false,
           });
         } else {
@@ -290,14 +290,14 @@ const UpdateProfile = ({ setUpdateProfile }) => {
               ></div>
             </label>
           </div>
-          <div className="lowercase flex gap-8 justify-center font-light text-txt-sm">
-            if you want to change your password you click the
+          <div className=" flex gap-8 justify-center font-light text-txt-sm">
+            To change your password, simply click
             <label
               disabled={passwordLoading}
               className="text-green font-semibold tracking-wide disabled:text-green/20 cursor-pointer"
               onClick={handleChangePassword}
             >
-              change password
+              Change Password
             </label>
           </div>
           <button

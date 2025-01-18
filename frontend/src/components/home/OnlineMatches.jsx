@@ -3,6 +3,8 @@ import { IoGameController } from "react-icons/io5";
 import { GiPingPongBat } from "react-icons/gi";
 import { BACKENDURL } from "../../utils/fetchWrapper";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import UserContext from "@/context/UserContext";
 
 const formattedTime = (match) => {
   const elapsedTimeInSeconds = Math.floor(
@@ -18,6 +20,7 @@ const formattedTime = (match) => {
 
 const Matches = ({ data }) => {
   const navigate = useNavigate();
+
   return (
     <>
       {data && data.length !== 0 && (
@@ -68,7 +71,7 @@ const Matches = ({ data }) => {
                     navigate(`/games/${match.game}/online/${match.id}`)
                   }
                 >
-                  watch
+                  Watch
                 </button>
               </div>
             </div>
@@ -79,11 +82,13 @@ const Matches = ({ data }) => {
   );
 };
 
-// OnlineMatches component where matches data is passed as prop
-const OnlineMatches = ({ data }) => {
+const OnlineMatches = ({ name }) => {
+  const userContextData = useContext(UserContext);
+  const data = userContextData.onlineMatches;
+
   return (
     <div className="glass-component flex-col md:gap-32 gap-16 ">
-      <h3 className="md:text-h-lg-md text-h-sm-md">Online Matches</h3>
+      <h3 className="md:text-h-lg-md text-h-sm-md">{name} Matches</h3>
       <div className="bg-gray/5 rounded-lg py-8 border-[0.5px] border-stroke-sc flex-col flex lg:max-h-[500px] lg:h-[500px] max-h-[400px] h-[400px]">
         <div className="overflow-y-auto md:px-16 px-8 flex flex-col custom-scrollbar gap-16">
           <div className="grid md:grid-cols-[20px_1fr_1fr_1fr_1fr] grid-cols-[20px_1fr_1fr_1fr] gap-32 items-center text-center font-bold py-8 bg-gray/5 rounded-lg">
@@ -94,11 +99,28 @@ const OnlineMatches = ({ data }) => {
             <p>live</p>
           </div>
           <div className="flex flex-col gap-16 overflow-y-scroll no-scrollbar z-10">
-            <Matches data={data} />
-            {data && data.length === 0 && (
-              <p className="text-center text-gray-500 text-stroke-sc">
-                No online matches available at the moment.
-              </p>
+            {data && name === "online" ? (
+              <Matches data={data.online} />
+            ) : (
+              <Matches data={data.tournament} />
+            )}
+            {data && (
+              <>
+                {name === "online" &&
+                  data.online &&
+                  data.online.length === 0 && (
+                    <p className="text-center text-gray-500 text-stroke-sc">
+                      No active {name} matches right now
+                    </p>
+                  )}
+                {name === "tournament" &&
+                  data.tournament &&
+                  data.tournament.length === 0 && (
+                    <p className="text-center text-gray-500 text-stroke-sc">
+                      No active tournament matches right now
+                    </p>
+                  )}
+              </>
             )}
           </div>
         </div>

@@ -55,8 +55,8 @@ const Message = ({ message, friendInfo }) => {
 										disabled:cursor-not-allowed"
                 >
                   {message.metadata.status === "waiting"
-                    ? "play game"
-                    : "invite expired"}
+                    ? "Play Game"
+                    : "Invite Expired"}
                 </button>
               </div>
               <div className="flex gap-4 items-center justify-end">
@@ -110,8 +110,8 @@ const Message = ({ message, friendInfo }) => {
 											disabled:cursor-not-allowed"
                 >
                   {message.metadata.status === "waiting"
-                    ? "play game"
-                    : "invite expired"}
+                    ? "Play Game"
+                    : "Invite Expired"}
                 </button>
               </div>
               <div className="flex gap-4 items-center justify-end">
@@ -129,14 +129,14 @@ const Message = ({ message, friendInfo }) => {
 	<div className="message-glass p-16 rounded-lg border-[0.5px] border-stroke-pr flex flex-col gap-8 items-center">
 		<p>a new pong game invite send</p>
 		<button className="secondary-glass p-8 px-16 transition-all hover:bg-green/60 hover:text-black rounded-md text-green font-semibold">
-			accept
+			Accept
 		</button>
 		<button
 			disabled
 			className="secondary-glass p-8 px-16 transition-all hover:bg-green/60 hover:text-black rounded-md
 			text-green font-semibold disabled:text-stroke-sc disabled:bg-transparent disabled:cursor-not-allowed"
 		>
-			accept
+			Accept
 		</button>
 	</div>
 */

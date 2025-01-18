@@ -2,7 +2,9 @@ import React, { useContext } from "react";
 import UserContext from "../../context/UserContext";
 import { BACKENDURL } from "../../utils/fetchWrapper";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, TrendingDown, Trophy, XCircle } from "lucide-react";
+import { LiaTrophySolid } from "react-icons/lia";
+import { IoIosCloseCircleOutline } from "react-icons/io";
+import { LuTrendingDown, LuTrendingUp } from "react-icons/lu";
 
 const GameResult = ({ playersData, isWon }) => {
   const navigate = useNavigate();
@@ -13,25 +15,26 @@ const GameResult = ({ playersData, isWon }) => {
   const ratingChangeL = playersData[me].rating_loss;
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-black to-gray-900 flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,128,128,0.1),rgba(0,0,0,0))]" />
-      <div className="relative w-full max-w-xl mx-4 z-10">
-        <div
-          className={`flex flex-col items-center transform ${isWon ? "scale-100" : "scale-95"} transition-all duration-500`}
-        >
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center overflow-hidden px-16">
+      <div className="relative w-full max-w-xl">
+        <div className={`flex flex-col items-center gap-16`}>
           <div
-            className={`rounded-full p-4 mb-6 ${
+            className={`rounded-full p-8 flex ${
               isWon
-                ? "bg-emerald-500/20 text-emerald-400"
-                : "bg-rose-500/20 text-rose-400"
+                ? "bg-green/20 text-green border border-green/50"
+                : "bg-red/20 text-red"
             }`}
           >
-            {isWon ? <Trophy size={40} /> : <XCircle size={40} />}
+            {isWon ? (
+              <LiaTrophySolid className="text-txt-5xl" />
+            ) : (
+              <IoIosCloseCircleOutline className="text-txt-5xl" />
+            )}
           </div>
 
           <h1
             className={`text-4xl md:text-6xl font-black mb-2 ${
-              isWon ? "text-emerald-400" : "text-rose-400"
+              isWon ? "text-green" : "text-red"
             }`}
           >
             {isWon ? "VICTORY" : "DEFEAT"}
@@ -39,21 +42,21 @@ const GameResult = ({ playersData, isWon }) => {
           <div
             className={`w-full mt-8 rounded-xl p-6 backdrop-blur-md ${
               isWon
-                ? "bg-emerald-500/10 border border-emerald-500/20"
-                : "bg-rose-500/10 border border-rose-500/20"
+                ? "bg-green/10 border border-green/20"
+                : "bg-red/10 border border-red/20"
             }`}
           >
             <div className="flex items-center gap-6">
               <div className="relative">
                 <div
                   className={`w-20 h-20 rounded-full overflow-hidden border-2 ${
-                    isWon ? "border-emerald-500" : "border-rose-500"
+                    isWon ? "border-green" : "border-red"
                   }`}
                 >
                   <img
                     src={
                       playersData[me].user.profile_image
-                        ? `${BACKENDURL}${playersData[me].user.profile_image}?t=${new Date().getTime()}`
+                        ? `${BACKENDURL}${playersData[me].user.profile_image}`
                         : "/images/default.jpeg"
                     }
                     alt=""
@@ -73,7 +76,7 @@ const GameResult = ({ playersData, isWon }) => {
               <div className="flex-1">
                 <h2
                   className={`text-lg md:text-xl font-bold ${
-                    isWon ? "text-emerald-400" : "text-rose-400"
+                    isWon ? "text-green" : "text-red"
                   }`}
                 >
                   @{playersData[me].user.username}
@@ -81,13 +84,13 @@ const GameResult = ({ playersData, isWon }) => {
                 {(ratingChangeW > 0 || ratingChangeL > 0) && (
                   <div
                     className={`flex items-center gap-1 mt-1 ${
-                      isWon ? "text-emerald-400" : "text-rose-400"
+                      isWon ? "text-green" : "text-red"
                     }`}
                   >
                     {isWon ? (
-                      <TrendingUp size={16} />
+                      <LuTrendingUp size={16} />
                     ) : (
-                      <TrendingDown size={16} />
+                      <LuTrendingDown size={16} />
                     )}
                     <span className="font-medium text-sm">
                       {isWon ? `+${ratingChangeW}` : `-${ratingChangeL}`} RP
@@ -106,11 +109,13 @@ const GameResult = ({ playersData, isWon }) => {
           </div>
           <button
             onClick={() => navigate("/games/pong/online/")}
-            className={`mt-8 px-8 py-3 rounded-lg font-semibold text-sm uppercase tracking-wider transition-all 
+            className={`
+              secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center
+               rounded-md font-semibold tracking-wide
               ${
                 isWon
-                  ? "bg-emerald-500 hover:bg-emerald-600 text-emerald-50"
-                  : "bg-rose-500 hover:bg-rose-600 text-rose-50"
+                  ? "hover:bg-green/60 hover:text-black text-green"
+                  : "hover:bg-red/60 hover:text-white text-red"
               }`}
           >
             Play Again

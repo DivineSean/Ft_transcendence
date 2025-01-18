@@ -29,7 +29,7 @@ const FriendManagementButtons = ({ setApproval }) => {
             className="secondary-glass grow lg:w-full p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
           >
             <IoChatbubbleEllipsesOutline />
-            <p>message</p>
+            <p>Message</p>
           </button>
         )}
 
@@ -45,7 +45,7 @@ const FriendManagementButtons = ({ setApproval }) => {
             className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
           >
             <IoMdPersonAdd />
-            <p>add friend</p>
+            <p>Add Friend</p>
           </button>
         )}
 
@@ -58,7 +58,7 @@ const FriendManagementButtons = ({ setApproval }) => {
             className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
           >
             <ImUserMinus />
-            <p>cancel request</p>
+            <p>Cancel Request</p>
           </button>
         )}
 
@@ -74,7 +74,7 @@ const FriendManagementButtons = ({ setApproval }) => {
               className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
             >
               <ImUserPlus />
-              <p>confirm</p>
+              <p>Confirm</p>
             </button>
             <button
               onClick={() =>
@@ -83,7 +83,7 @@ const FriendManagementButtons = ({ setApproval }) => {
               className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
             >
               <ImUserMinus />
-              <p>delete</p>
+              <p>Delete</p>
             </button>
           </>
         )}
@@ -98,7 +98,7 @@ const FriendManagementButtons = ({ setApproval }) => {
               className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-green/60 hover:text-black rounded-md text-green font-semibold tracking-wide"
             >
               <ImUserMinus />
-              <p>unblock</p>
+              <p>Unblock</p>
             </button>
             {/* <p className="text-center normal-case text-txt-xs text-red">this user have been blocked by you click to unblock</p> */}
           </>
@@ -112,7 +112,7 @@ const FriendManagementButtons = ({ setApproval }) => {
             className="secondary-glass grow p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
           >
             <ImUserMinus />
-            <p>unfriend</p>
+            <p>Unfriend</p>
           </button>
         )}
 
@@ -124,7 +124,7 @@ const FriendManagementButtons = ({ setApproval }) => {
             className="secondary-glass text-txt-sm p-8 px-16 transition-all flex gap-4 justify-center items-center hover:bg-red/60 hover:text-white rounded-md text-red font-semibold tracking-wide"
           >
             <MdOutlineBlock />
-            <p>block</p>
+            <p>Block</p>
           </button>
         )}
     </>

@@ -51,13 +51,18 @@ const GameOverlay = ({
       return (
         <GameStatus
           game={game}
-          title={"this game has been expired"}
+          title={"This game has expired"}
           image={"/images/gameOver.png"}
         />
       );
     case "paused":
       return (
-        <GamePaused game={game} image={"/images/gamePaused.jpeg"} isS={isS} />
+        <GamePaused
+          game={game}
+          image={"/images/gamePaused.jpeg"}
+          isS={isS}
+          isRanked={data.players[0].rating_gain}
+        />
       );
     case "completed":
       return (
@@ -65,7 +70,7 @@ const GameOverlay = ({
           {isS ? (
             <GameStatus
               game={game}
-              title={"this game has been concluded"}
+              title={"This game has concluded"}
               image={"/images/gameOver.png"}
             />
           ) : (

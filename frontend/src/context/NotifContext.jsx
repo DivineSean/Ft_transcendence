@@ -69,7 +69,7 @@ export const NotifProvider = ({ children }) => {
         } else if (messageData.type === "gameInvite") {
           getNotfications();
           authContextData.setGlobalMessage({
-            message: `you get invited by @${messageData.senderUsername} to play ${messageData.game} game`,
+            message: `You have been invited by @${messageData.senderUsername} to play the ${messageData.game} game.`,
           });
         }
       }
@@ -122,7 +122,7 @@ export const NotifProvider = ({ children }) => {
         const data = await res.json();
         if (res.status === 401) {
           authContextData.setGlobalMessage({
-            message: "unauthorized user",
+            message: "Unauthorized user. Access denied.",
             isError: true,
           });
           navigate("/login");
@@ -199,7 +199,7 @@ export const NotifProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         authContextData.setGlobalMessage({
-          message: "invite sent successfully",
+          message: "The invitation has been sent successfully.",
           isError: false,
         });
       } else if (res.status === 400) {

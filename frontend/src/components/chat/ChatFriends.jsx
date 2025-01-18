@@ -17,7 +17,7 @@ const ChatFriends = ({ uid, friendsData }) => {
   } else {
     friends.push(
       <div key={0} className="text-stroke-sc text-center">
-        no conversation friends
+        No friends to chat with yet
       </div>,
     );
   }

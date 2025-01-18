@@ -28,7 +28,7 @@ const MainChart = ({ ratingHistory = [] }) => {
   return (
     <Card className="bg-black/30 border-stroke-sc w-full text-white">
       <CardHeader>
-        <CardTitle>Line Chart</CardTitle>
+        <CardTitle>Rating Chart</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>

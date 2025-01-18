@@ -1,5 +1,3 @@
-"use client";
-
 import {
   RadialBarChart,
   RadialBar,
@@ -51,7 +49,7 @@ const MatchesChart = ({ totalgames, winrate }) => {
             endAngle={endAngle}
             innerRadius={80}
             outerRadius={110}
-            barSize={10} //zedt hadi a driss jatni hsen
+            barSize={10}
           >
             <PolarGrid
               gridType="circle"

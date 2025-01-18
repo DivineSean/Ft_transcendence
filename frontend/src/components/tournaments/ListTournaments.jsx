@@ -98,7 +98,7 @@ const ListTournaments = ({ tournaments, setTournaments }) => {
       if (res.ok) {
         setTournaments(null);
         authContextData.setGlobalMessage({
-          message: "the tournament deleted successfully",
+          message: "The tournament has been successfully deleted",
           isError: false,
         });
       }
@@ -205,7 +205,9 @@ const ListTournaments = ({ tournaments, setTournaments }) => {
         loading...
       </span>
       {tournaments && tournaments.length === 0 && (
-        <div className="text-center text-stroke-sc">no tournaments yet</div>
+        <div className="text-center text-stroke-sc">
+          No tournaments are available right now. Check back soon!
+        </div>
       )}
     </div>
   );

@@ -37,7 +37,7 @@ export const UserProvider = ({ children }) => {
       } else {
         if (res.status === 401) {
           authContextData.setGlobalMessage({
-            message: "unauthorized user",
+            message: "Unauthorized user. Access denied.",
             isError: true,
           });
           navigate("/login");
@@ -64,7 +64,7 @@ export const UserProvider = ({ children }) => {
         const data = await res.json();
         if (!data.found) {
           authContextData.setGlobalMessage({
-            message: "user not found!!",
+            message: "User not found.",
             isError: true,
           });
           navigate("/profile/overview");

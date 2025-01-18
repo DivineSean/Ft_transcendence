@@ -59,7 +59,7 @@ const ProfileOptions = ({
               }
               className="secondary-glass grow lg:w-full p-8 transition-all hover:bg-green/60 hover:text-black rounded-md text-green font-semibold"
             >
-              invite to play
+              Invite To Play
             </button>
             <button
               onClick={() =>
@@ -67,7 +67,7 @@ const ProfileOptions = ({
               }
               className="secondary-glass grow lg:w-full p-8 transition-all hover:bg-green/60 hover:text-black rounded-md text-green font-semibold"
             >
-              view profile
+              View Profile
             </button>
           </div>
           <UserLevel
