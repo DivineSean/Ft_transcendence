@@ -75,7 +75,6 @@ class TournamentDataSerializer(serializers.Serializer):
         currentPlayerCount = instance.get("currentPlayerCount")
         isCompleted = instance.get("isCompleted")
         bracketCounter = 0
-        print("dkfdjkds", currentPlayerCount, maxPlayers, flush=True)
         if maxPlayers == currentPlayerCount:
             for bracket in brackets:
                 gameRooms = GameRoom.objects.filter(bracket=bracket)
