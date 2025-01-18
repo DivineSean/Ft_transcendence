@@ -20,10 +20,6 @@ const Tournaments = () => {
     };
   }, []);
 
-  if (displayError) {
-    console.log("s;ldkfjljkdfgljkfglkjfgl");
-  }
-
   return (
     <div className="flex flex-col grow lg:gap-32 gap-16">
       <Header link="tournaments" />
