@@ -172,7 +172,8 @@ const Rankings = () => {
                     ))}
                     {otherPlayers.length === 0 && (
                       <div className="flex justify-center text-stroke-sc">
-                        no players yet
+                        the ranking system in this area will activate once there
+                        are enough players
                       </div>
                     )}
                     <div
