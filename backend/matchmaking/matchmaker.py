@@ -51,9 +51,14 @@ class Matchmaker:
                 raise
 
         try:
-            game_rating = await database_sync_to_async(PlayerRating.objects.get)(
-                user_id=player_id, game_id=self.queues[game_name]["id"]
-            )
+            game_rating = await database_sync_to_async(
+                lambda: PlayerRating.objects.filter(
+                    user_id=player_id,
+                    game_id=self.queues[game_name]["id"],
+                )
+                .order_by("-created_at")
+                .first()
+            )()
             rating = game_rating.rating
         except:
             raise
