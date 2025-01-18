@@ -10,6 +10,7 @@ import AuthContext from "../../context/AuthContext";
 import GameToast from "../../components/GameToast";
 import JoystickController from "joystick-controller";
 import { PiPingPongFill } from "react-icons/pi";
+import Toast from "@/components/Toast";
 
 const Pong = ({
   send,
@@ -464,7 +465,10 @@ const Pong = ({
           </button>
         </div>
       )}
-      {authContextData.globalMessage?.message && !isWon && !islost && (
+      {authContextData.globalMessage?.message && !authContextData.globalMessage?.title && !isWon && !islost &&
+        <Toast />
+      }
+      {authContextData.globalMessage?.message && authContextData.globalMessage?.title && !isWon && !islost && (
         <GameToast
           duration={4000}
           message={authContextData.globalMessage.message}

@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
-const GamePaused = ({ game, image, isS }) => {
+const GamePaused = ({ game, image, isS, isRanked }) => {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(28);
   const [isQuitConfirmed, setIsQuitConfirmed] = useState(false);
-
+  console.log("isRanked", isRanked);
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown((prevCountdown) => {
@@ -20,7 +20,7 @@ const GamePaused = ({ game, image, isS }) => {
   }, []);
 
   const handleQuitClick = () => {
-    if (isS) navigate(`/games/${game}/online`);
+    if (isS || countdown <= 0 || isRanked === 0) navigate(`/games/${game}/online`);
     else setIsQuitConfirmed(true);
   };
 
@@ -43,23 +43,23 @@ const GamePaused = ({ game, image, isS }) => {
             <div className="normal-case tracking-wider text-center">
               {isS ? (
                 <p>
-                  One of the players Disconnected.
+                  One of the players has been disconnected
                   {countdown > 0 ? (
                     <>
                       <br />
-                      The game is going to be forfeit in: {countdown}s
+                      The game will be forfeited in: {countdown} seconds
                       <br />
                       <strong className="text-red">
-                        Unless the player is back
+                      Unless the player reconnects
                       </strong>
                     </>
                   ) : (
                     <>
                       <br />
-                      The game is over, the player recieved a Rating Penalty
+                      Game over. The player has been penalized with a rating deduction
                       <br />
                       <strong className="text-red">
-                        Sadly The Player Didn't Make it!!
+                      Unfortunately, the AFK player did not reconnect.
                       </strong>
                     </>
                   )}
@@ -68,12 +68,10 @@ const GamePaused = ({ game, image, isS }) => {
                 <p>
                   {countdown > 0 ? (
                     <>
-                      Please wait for the other player to reconnect in:{" "}
+                      Reconnection pending... Please wait for your opponent to reconnect in: {" "}
                       {countdown}s
                       <br />
-                      <strong className="text-red">Warning!</strong> If you
-                      leave now and the other player returns, you will lose your
-                      rating.
+                          <strong className="text-red">Warning!</strong> If you leave now, you can't join another game until this game expires.
                     </>
                   ) : (
                     "You're Patient been rewarded, Congratulations You Won!"
@@ -81,7 +79,6 @@ const GamePaused = ({ game, image, isS }) => {
                 </p>
               )}
             </div>
-            {countdown > 0 && (
               <div className="flex gap-16">
                 <button
                   onClick={handleQuitClick}
@@ -91,7 +88,6 @@ const GamePaused = ({ game, image, isS }) => {
                   Quit Game
                 </button>
               </div>
-            )}
           </div>
           <div
             style={{ backgroundImage: `url(${image})` }}
@@ -110,8 +106,7 @@ const GamePaused = ({ game, image, isS }) => {
               Are you sure you want to quit?
             </h3>
             <p className="text-center mb-4">
-              You will lose your rating if you leave now and the other player
-              returns.
+              You'll lose your rating if your opponent returns in time.
             </p>
             <div className="flex gap-8">
               <button

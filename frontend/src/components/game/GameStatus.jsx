@@ -9,20 +9,23 @@ const GameStatus = ({ game, title, image }) => {
         <div className="primary-glass overflow-hidden">
           <div className="grid lg:grid-cols-[1fr_520px] grid-cols-1 min-h-[200px] lg:min-h-[500px]">
             <div className="flex flex-col justify-center items-center p-8 md:p-16 gap-8 md:gap-12">
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent">
-                Uh Oh! What Happened to the {game}?
-              </h1>
 
-              <div className="text-center text-white/90 text-sm md:text-base lg:text-lg max-w-[80%]">
+              <div className="flex justify-center">
+                <h1 className="text-center text-2xl md:text-4xl font-bold text-green mb-6 ">
+                Uh Oh! What Happened to the {game}?
+                </h1>
+              </div>
+              <div className="text-center text-white/90 text-sm lg:text-lg max-w-[80%]">
                 {title}. No worry! You can try playing a different game mode or
                 search for a new opponent or even watching a live game. Lets get
                 back in the action — are you ready?
               </div>
 
-              <div className="flex flex-col md:flex-row gap-4 md:gap-8 w-full justify-center">
+              <div className="flex gap-4 md:gap-8 justify-center mt-6 md:mt-8">
                 <button
                   onClick={() => navigate(`/games/${game}/online`)}
-                  className="primary-glass py-2 md:py-4 px-6 md:px-8 transition-all flex justify-center items-center hover:bg-blue-400/20 rounded-md text-blue-400 font-semibold border border-blue-400/20 text-sm md:text-base"
+                  className="secondary-glass p-8 px-32 transition-all flex gap-4 justify-center items-center
+                  rounded-md font-semibold tracking-wide hover:bg-green/60 hover:text-black text-green"
                 >
                   Go Back
                 </button>

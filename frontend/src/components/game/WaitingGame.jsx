@@ -5,8 +5,6 @@ import { BACKENDURL } from "../../utils/fetchWrapper.js";
 import { GiSandsOfTime } from "react-icons/gi";
 import { GoVerified } from "react-icons/go";
 
-
-
 const WaitingGame = ({ data, send, game, decline, setGlobalMessage }) => {
   const navigate = useNavigate();
   const { userInfo } = useContext(UserContext);
@@ -68,7 +66,7 @@ const WaitingGame = ({ data, send, game, decline, setGlobalMessage }) => {
 
   return (
     <div className="bg-black/50 backdrop-blur-sm absolute top-0 left-0 flex justify-center items-center w-full h-full">
-      <div className="primary-glass lg:w-[60%] md:w-[80%] w-[95%] flex flex-col relative overflow-hidden p-16 lg:p-32 rounded-2xl border border-stroke-sc gap-8 md:gap-32">
+      <div className="primary-glass lg:w-[60%] md:w-[80%] w-[95%] lg:flex lg:flex-col relative overflow-hidden p-16 lg:p-32 rounded-2xl border border-stroke-sc gap-8 md:gap-32">
         <div className="flex justify-center">
           <h1 className="text-center text-2xl md:text-4xl font-bold bg-gradient-to-l from-green to-red bg-clip-text text-transparent mb-6 ">
             Match Found

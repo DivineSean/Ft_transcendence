@@ -291,10 +291,10 @@ const Games = () => {
     },
   ];
 
-  // useEffect(() => { #Enabling This Make the toast Error message from the game dissapear also by
-  //                   # Not enabling it make the toast stay when switching between tournament and games
+  // useEffect(() => { //Enabling This Make the toast Error message from the game dissapear also by
+  //                   // Not enabling it make the toast stay when switching between tournament and games
   //   return () =>
-  //     authContextData.setGlobalMessage({ message: "", isError: false });
+  //     authContextData.setGlobalMessage({ message: "", isError: false, title: null });
   // }, []);
 
   return (
