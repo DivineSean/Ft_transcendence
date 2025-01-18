@@ -121,19 +121,19 @@ const Rankings = () => {
                           `/profile/overview/${currentUserRank.username}`,
                         )
                       }
-                      className="grid lg:grid-cols-5 grid-cols-4 gap-32 bg-[#DAA520]/10 hover:bg-[#DAA520]/20 transition-all border border-[#DAA520]/50 rounded-lg text-center p-8 z-10 mb-16 cursor-pointer"
+                      className="grid lg:grid-cols-5 grid-cols-4 gap-32 bg-[#DAA520]/10 hover:bg-[#DAA520]/20 transition-all border border-[#DAA520]/50 rounded-lg text-center p-8 z-10 mb-16 cursor-pointer items-center"
                     >
                       <p>{currentUserRank.rank}</p>
                       <p className="font-bold">you</p>
                       <p className="hidden lg:block">{currentUserRank.exp}</p>
-                      <p className="lg:block hidden">
-                        {currentUserRank.demote}/{currentUserRank.rating}/
-                        {currentUserRank.promote}
-                      </p>
-                      <p className="lg:hidden block">
-                        {currentUserRank.rating}
-                      </p>
-                      <p>{currentUserRank.ranked}</p>
+                      <p>{currentUserRank.rating}</p>
+                      <div className="flex justify-center">
+                        <img
+                          src={`/images/rating/${currentUserRank.ranked}.png`}
+                          className="w-24 md:w-32 pointer-events-none"
+                          alt="Rating level"
+                        />
+                      </div>
                     </div>
                   )}
 
@@ -142,12 +142,10 @@ const Rankings = () => {
                     <p>Player</p>
                     <p className="hidden lg:block">Account Level</p>
                     <p className="lg:block hidden">
-                      <span title="Demote">D/</span>
-                      <span title="MMR">M/</span>
-                      <span title="Promote">P</span>
+                      <span>Rating</span>
                     </p>
                     <p className="lg:hidden block">
-                      <span>MMR</span>
+                      <span>Rating</span>
                     </p>
                     <p>Elo</p>
                   </div>
@@ -162,9 +160,7 @@ const Rankings = () => {
                         key={player.user_id}
                         rank={player.rank}
                         username={player.username}
-                        demote={player.demote}
                         rating={player.rating}
-                        promote={player.promote}
                         lvl={player.exp}
                         ranked={player.ranked}
                         isSelf={player.is_self}

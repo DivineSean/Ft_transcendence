@@ -1,28 +1,21 @@
-from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from authentication.models import User
 from rest_framework import status
 from rest_framework.decorators import api_view
-from authentication.serializers import UserFriendSerializer
 from chat.views import Conversation
 from asgiref.sync import async_to_sync
 from notification.models import Notifications
 from .models import Game, Player, GameRoom, PlayerRating, PlayerAchievement, Achievement
-from .serializers import GameRoomSerializer, AchievementSerializer
+from .serializers import GameRoomSerializer
 from .tasks import mark_game_room_as_expired
 from matchmaking.matchmaker import GAME_EXPIRATION
-from chat.models import Conversation, Message
+from chat.models import Message
 from channels.layers import get_channel_layer
 from authentication.serializers import UserSerializer
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import api_view
-from django.db.models import Q
-from .models import GameRoom, Game
-import json
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import OuterRef
+import json
 
 
 @api_view(["POST"])
@@ -148,13 +141,11 @@ def inviteFriend(request, game_name=None):
 @api_view(["GET"])
 def getOnlineMatches(request):
     games = GameRoom.objects.exclude(
-        Q(
-            status__in=[
-                GameRoom.Status.COMPLETED,
-                GameRoom.Status.EXPIRED,
-                GameRoom.Status.WAITING,
-            ]
-        )
+        status__in=[
+            GameRoom.Status.COMPLETED,
+            GameRoom.Status.EXPIRED,
+            GameRoom.Status.WAITING,
+        ]
     )
     serialized_games = GameRoomSerializer(games, many=True).data
     gamestowatch = {}
@@ -227,8 +218,6 @@ def get_rankings(request, game_name=None, offset=1):
                         user.profile_image.url if user.profile_image else None
                     ),
                     "ranked": rank,
-                    "demote": lower,
-                    "promote": upper,
                     "is_self": user.id == current_user_id,
                 }
             )
@@ -265,14 +254,16 @@ def get_rankings(request, game_name=None, offset=1):
 
 def get_rank(rating):
     RANKS = [
-        (0, 350, "Iron"),
-        (351, 650, "Bronze"),
-        (651, 950, "Silver"),
-        (951, 1250, "Gold"),
-        (1251, 1550, "Platinum"),
-        (1551, 1850, "Diamond"),
-        (1851, 2150, "Master"),
-        (2151, float("inf"), "Elite"),
+        (0, 800, "Level 1"),
+        (801, 950, "Level 2"),
+        (951, 1100, "Level 3"),
+        (1101, 1250, "Level 4"),
+        (1251, 1400, "Level 5"),
+        (1401, 1550, "Level 6"),
+        (1551, 1700, "Level 7"),
+        (1701, 1850, "Level 8"),
+        (1851, 2000, "Level 9"),
+        (2001, float("inf"), "Level 10"),
     ]
 
     for lower, upper, rank in RANKS:

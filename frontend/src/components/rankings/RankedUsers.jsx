@@ -1,15 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-const RankedUsers = ({
-  rank,
-  username,
-  demote,
-  rating,
-  promote,
-  lvl,
-  ranked,
-  isSelf,
-}) => {
+const RankedUsers = ({ rank, username, rating, lvl, ranked, isSelf }) => {
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
@@ -26,9 +17,7 @@ const RankedUsers = ({
         @{username.length > 10 ? `${username.substring(0, 10)}...` : username}
       </p>
       <p className="hidden lg:block">{lvl}</p>
-      <p className="lg:block hidden">
-        {demote}/{rating}/{promote}
-      </p>
+      <p className="lg:block hidden">{rating}</p>
       <p className="lg:hidden block">{rating}</p>
       <p onClick={handleProfileClick}>{ranked}</p>
     </div>

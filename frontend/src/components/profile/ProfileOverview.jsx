@@ -44,7 +44,7 @@ const ProfileOverview = () => {
           </h2>
         </div>
         <div className="flex md:px-32 px-16 py-16 gap-32 items-center">
-          <MdGames className="text-green text-txt-3xl" />
+          <MdGames className="text-green text-txt-5xl" />
           <div className="flex gap-40 justify-between grow">
             <div className="flex flex-col items-start">
               <span className="text-h-lg-sm">{stats.total_games}</span>
@@ -60,15 +60,19 @@ const ProfileOverview = () => {
                   (result, index) => renderResult(result, index),
                 )}
               </div>
-              <span className="flex text-txt-xs">recent result</span>
+              <span className="flex text-txt-xs">recent results</span>
             </div>
           </div>
         </div>
-        <div className="flex sc-overview-glass md:px-32 px-16 py-16 gap-32 items-center">
-          <FaFire className="text-red text-txt-3xl" />
+        <div className="flex sc-overview-glass md:px-32 px-16 py-16 gap-32 items-center justify-between">
+          <div className="w-48">
+            <img src={`/images/rating/${stats.elo}.png`} alt="Rating level" />
+          </div>
           <div className="flex gap-40 justify-between grow">
             <div className="flex flex-col items-start">
-              <span className="text-h-lg-sm">{stats.elo}</span>
+              <span className="text-h-lg-sm whitespace-nowrap">
+                {stats.elo}
+              </span>
               <span className="text-txt-xs">current rank</span>
             </div>
             <div className="flex flex-col items-center">
