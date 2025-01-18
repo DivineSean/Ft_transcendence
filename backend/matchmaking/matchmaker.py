@@ -55,15 +55,16 @@ class Matchmaker:
                 lambda: PlayerRating.objects.filter(
                     user_id=player_id,
                     game_id=self.queues[game_name]["id"],
-                ).order_by("-created_at").first()
+                )
+                .order_by("-created_at")
+                .first()
             )()
             rating = game_rating.rating
         except:
             raise
 
         r.zadd(f"{game_name}_{QUEUE_KEY}", {player_id: rating})
-        r.hset(f"{game_name}:players_channel_names",
-               mapping={player_id: channel_name})
+        r.hset(f"{game_name}:players_channel_names", mapping={player_id: channel_name})
         await self.start_loop()
 
     async def remove_player(self, player_id, game_name):
@@ -207,12 +208,10 @@ class Matchmaker:
 
         closest_rating = other_players[0][1]
         required_tolerance = abs(player_rating - closest_rating)
-        remaining_tolerance = min(
-            required_tolerance - rating_tolerance, TOLERANCE_CAP)
+        remaining_tolerance = min(required_tolerance - rating_tolerance, TOLERANCE_CAP)
 
         if remaining_tolerance > 0:
-            expansion_steps = (remaining_tolerance //
-                               TOLERANCE_EXPANSION_RATE) + 1
+            expansion_steps = (remaining_tolerance // TOLERANCE_EXPANSION_RATE) + 1
             estimated_time = expansion_steps * TOLERANCE_EXPANSION_TIME
             return estimated_time
 
@@ -220,8 +219,7 @@ class Matchmaker:
 
     async def update_players_estimated_time(self, players, game, channel_layer):
         for player, rating in players:
-            estimated_time = self.calculate_estimated_time(
-                rating, players, game)
+            estimated_time = self.calculate_estimated_time(rating, players, game)
 
             channel = r.hget(f"{game['name']}:players_channel_names", player)
             if channel:
@@ -238,8 +236,7 @@ class Matchmaker:
 
         while len(self.queues):
             for _, game in self.queues.items():
-                print(
-                    f"{game['name']} --> {game['rating_tolerance']}", flush=True)
+                print(f"{game['name']} --> {game['rating_tolerance']}", flush=True)
                 players = r.zrange(
                     f"{game['name']}_{QUEUE_KEY}", 0, -1, withscores=True
                 )
@@ -248,8 +245,7 @@ class Matchmaker:
                     break
 
                 await self.update_players_estimated_time(players, game, channel_layer)
-                batches = self.create_batches(
-                    players, game["rating_tolerance"])
+                batches = self.create_batches(players, game["rating_tolerance"])
                 matches = self.find_matches(batches, game)
                 await self.create_matches(channel_layer, game, matches)
 

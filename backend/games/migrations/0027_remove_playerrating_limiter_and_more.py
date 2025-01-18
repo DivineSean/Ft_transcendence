@@ -7,26 +7,28 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('games', '0026_remove_playerrating_losses_and_more'),
+        ("games", "0026_remove_playerrating_losses_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='playerrating',
-            name='limiter',
+            model_name="playerrating",
+            name="limiter",
         ),
         migrations.RemoveField(
-            model_name='playerrating',
-            name='rating_history',
+            model_name="playerrating",
+            name="rating_history",
         ),
         migrations.RemoveField(
-            model_name='playerrating',
-            name='updated_at',
+            model_name="playerrating",
+            name="updated_at",
         ),
         migrations.AddField(
-            model_name='playerrating',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="playerrating",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
     ]

@@ -86,10 +86,14 @@ class PlayerRating(models.Model):
     @classmethod
     def handle_rating(cls, user, game, player):
         try:
-            last_rating = cls.objects.filter(
-                user=user,
-                game=game,
-            ).order_by("-created_at").first()
+            last_rating = (
+                cls.objects.filter(
+                    user=user,
+                    game=game,
+                )
+                .order_by("-created_at")
+                .first()
+            )
         except cls.DoesNotExist:
             return
 
@@ -142,8 +146,7 @@ class Achievement(models.Model):
         try:
             current_index = levels.index(current_level)
             return (
-                levels[current_index + 1] if current_index +
-                1 < len(levels) else None
+                levels[current_index + 1] if current_index + 1 < len(levels) else None
             )
         except ValueError:
             return None

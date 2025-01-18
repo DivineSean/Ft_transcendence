@@ -6,20 +6,20 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('games', '0025_player_created_at'),
+        ("games", "0025_player_created_at"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='playerrating',
-            name='losses',
+            model_name="playerrating",
+            name="losses",
         ),
         migrations.RemoveField(
-            model_name='playerrating',
-            name='recent_results',
+            model_name="playerrating",
+            name="recent_results",
         ),
         migrations.RemoveField(
-            model_name='playerrating',
-            name='wins',
+            model_name="playerrating",
+            name="wins",
         ),
     ]

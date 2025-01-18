@@ -94,8 +94,8 @@ def inviteFriend(request, game_name=None):
             metadata={
                 "type": "invite",
                 "status": "waiting",
-                        "game": game_name,
-                        "gameRoomId": str(game_room.id),
+                "game": game_name,
+                "gameRoomId": str(game_room.id),
             },
         )
 
@@ -116,13 +116,13 @@ def inviteFriend(request, game_name=None):
             {
                 "type": "chat_message",
                 "convId": conversation_id,
-                        "message": message.message,
-                        "metadata": message.metadata,
-                        "isRead": message.isRead,
-                        "isSent": True,
-                        "messageId": str(message.MessageId),
-                        "sender": user_data,
-                        "timestamp": str(message.timestamp.strftime("%b %d, %H:%M")),
+                "message": message.message,
+                "metadata": message.metadata,
+                "isRead": message.isRead,
+                "isSent": True,
+                "messageId": str(message.MessageId),
+                "sender": user_data,
+                "timestamp": str(message.timestamp.strftime("%b %d, %H:%M")),
             },
         )
 
@@ -132,7 +132,7 @@ def inviteFriend(request, game_name=None):
             {
                 "type": "send_invite_to_notification",
                 "sender_username": request._user.username,
-                        "game": game_name,
+                "game": game_name,
             },
         )
 
@@ -233,7 +233,7 @@ def get_rankings(request, game_name=None, offset=1):
                 {"Error": "Either Offeset or limit is not a Number"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        paginatedRankings = rankings[offset: offset + paginator.page_size]
+        paginatedRankings = rankings[offset : offset + paginator.page_size]
 
         response_data = {
             "game": game_name,
@@ -308,16 +308,19 @@ def getStats(request, game_name=None, username=None):
         )
 
     try:
-        results = Player.objects.filter(
-            user=user_id,
-            game_room__game=game,
-        ).order_by("-created_at").values("result")
+        results = (
+            Player.objects.filter(
+                user=user_id,
+                game_room__game=game,
+            )
+            .order_by("-created_at")
+            .values("result")
+        )
 
-        wins = sum(1 for r in results if r['result'] == Player.Result.WIN)
+        wins = sum(1 for r in results if r["result"] == Player.Result.WIN)
 
         last_five_games = [
-            "W" if result["result"] == "win" else "L"
-            for result in results[:5]
+            "W" if result["result"] == "win" else "L" for result in results[:5]
         ]
 
     except Player.DoesNotExist:
@@ -327,10 +330,9 @@ def getStats(request, game_name=None, username=None):
         )
 
     try:
-        ratings = PlayerRating.objects.filter(
-            user=user_id,
-            game=game
-        ).order_by("created_at")
+        ratings = PlayerRating.objects.filter(user=user_id, game=game).order_by(
+            "created_at"
+        )
 
         rating_history = [
             {"timestamp": rating.created_at, "rating": rating.rating}
@@ -344,8 +346,7 @@ def getStats(request, game_name=None, username=None):
         )
     try:
         achie_vements = Achievement.objects.filter(game=game)
-        player_achievements = PlayerAchievement.objects.filter(
-            user=user, game=game)
+        player_achievements = PlayerAchievement.objects.filter(user=user, game=game)
         progress = {achievement.name: 0 for achievement in achie_vements}
         for player_achievement in player_achievements:
             for achievement in achie_vements:
