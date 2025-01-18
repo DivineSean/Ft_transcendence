@@ -11,7 +11,6 @@ class Tournament(models.Model):
     creator = models.ForeignKey(
         User, related_name="created_tournaments", on_delete=models.CASCADE
     )
-    # game = models.ForeignKey(Game, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now=True)
     maxPlayers = models.PositiveIntegerField()
     currentPlayerCount = models.PositiveIntegerField(default=0)
