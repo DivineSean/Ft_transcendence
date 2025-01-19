@@ -276,7 +276,7 @@ export class SceneManager {
       (this.player === 1 && P["2"] === "6")
     ) {
       if (ball.audio && ball.BackgroundMusic) {
-      ball.BackgroundMusic.setVolume(0.01);
+        ball.BackgroundMusic.setVolume(0.01);
       }
       if (ball.audio && ball.ballMatchPoint && !ball.ballMatchPoint.isPlaying) {
         ball.ballMatchPoint.currentTime = 0;
@@ -286,8 +286,7 @@ export class SceneManager {
     this.updateTextOnPlane(this.P1ScoreBarre, P["1"], 0, 0, 0.03, 0xffffff);
     this.updateTextOnPlane(this.P2ScoreBarre, P["2"], 0, 0, 0.03, 0xffffff);
     if (P["1"] === "7" || P["2"] === "7") {
-      if (ball.audio)
-      {
+      if (ball.audio) {
         ball.bounceSound.setVolume(0);
         ball.netHitSound.setVolume(0);
         ball.paddleHitSound.setVolume(0);

@@ -86,7 +86,7 @@ const GameOverlay = ({
         </>
       );
     default:
-        () => navigate(`/games/${game}/online`);
+      () => navigate(`/games/${game}/online`);
   }
 };
 

@@ -185,7 +185,11 @@ const Pong = ({
               sm.current.RemontadaChance = true;
           }
           if (Math.abs(score1 - score2) === 0 && sm.current.RemontadaChance) {
-            if (ballRef.current.audio && ballRef.current.Achievement && !ballRef.current.Achievement.isPlaying) {
+            if (
+              ballRef.current.audio &&
+              ballRef.current.Achievement &&
+              !ballRef.current.Achievement.isPlaying
+            ) {
               ballRef.current.Achievement.currentTime = 0;
               ballRef.current.Achievement.play();
             }
@@ -232,7 +236,11 @@ const Pong = ({
           playersRef.current[opp - 1].rotationZ = msg.message.paddle.rotZ;
           playersRef.current[opp - 1].updatePos();
         } else if (msg.message.content == "rotating") {
-          if (ballRef.current.audio && ballRef.current.swing && !ballRef.current.swing.isPlaying) {
+          if (
+            ballRef.current.audio &&
+            ballRef.current.swing &&
+            !ballRef.current.swing.isPlaying
+          ) {
             ballRef.current.swing.currentTime = 0;
             ballRef.current.swing.play();
           }
@@ -243,12 +251,20 @@ const Pong = ({
           playersRef.current[opp - 1].updatePos();
         } else if (msg.message.content == "ball") {
           if (msg.message.ball.stats === "shoot") {
-            if (ballRef.current.audio && ballRef.current.paddleHitSound && !ballRef.current.paddleHitSound.isPlaying) {
+            if (
+              ballRef.current.audio &&
+              ballRef.current.paddleHitSound &&
+              !ballRef.current.paddleHitSound.isPlaying
+            ) {
               ballRef.current.paddleHitSound.currentTime = 0;
               ballRef.current.paddleHitSound.play();
             }
           } else if (msg.message.ball.stats === "hit") {
-            if (ballRef.current.audio && ballRef.current.onlyHit && !ballRef.current.onlyHit.isPlaying) {
+            if (
+              ballRef.current.audio &&
+              ballRef.current.onlyHit &&
+              !ballRef.current.onlyHit.isPlaying
+            ) {
               ballRef.current.onlyHit.currentTime = 0;
               ballRef.current.onlyHit.play();
             }
@@ -356,7 +372,11 @@ const Pong = ({
         ball.startTime = Date.now();
         return;
       }
-      if (ballRef.current.audio && ballRef.current.BackgroundMusic && !ball.BackgroundMusic.isPlaying) {
+      if (
+        ballRef.current.audio &&
+        ballRef.current.BackgroundMusic &&
+        !ball.BackgroundMusic.isPlaying
+      ) {
         ball.BackgroundMusic.currentTime = 0;
         ball.BackgroundMusic.play();
       }
@@ -410,8 +430,7 @@ const Pong = ({
     return () => sm.current.renderer.setAnimationLoop(null);
   }, [ready, isWon, islost]);
 
-
-  const handleOrientation = () =>{
+  const handleOrientation = () => {
     try {
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch(() => {});
@@ -430,7 +449,7 @@ const Pong = ({
       screen.orientation.lock("landscape").catch(() => {});
     }
     setIsPortrait(false);
-  }
+  };
 
   return (
     <div id="message" className="relative w-full h-screen overflow-hidden">
@@ -482,9 +501,10 @@ const Pong = ({
             </div>
 
             <p className="text-gray/80 text-md text-center px-8 lowercase">
-              For the best Pong experience, please allow us to switch to landscape mode
+              For the best Pong experience, please allow us to switch to
+              landscape mode
             </p>
-            
+
             <div className="flex gap-8 justify-center px-4 mt-8">
               <button
                 onClick={handleOrientation}
@@ -499,7 +519,7 @@ const Pong = ({
                     JSON.stringify({
                       type: "notready",
                       message: {},
-                    })
+                    }),
                   );
                 }}
                 className="secondary-glass grow p-8 sm:px-16 transition-all flex gap-4 justify-center items-center
@@ -511,12 +531,12 @@ const Pong = ({
           </div>
         </div>
       )}
-      {isSpectator && !costumeMessage &&
+      {isSpectator && !costumeMessage && (
         <div className="absolute w-full h-auto text-center overflow-hidden z-[2] p-16 animate-pulse">
           <h1>Spectator Mode</h1>
           <h2>Press Any key To Activate The Game Sound</h2>
         </div>
-      }
+      )}
       <canvas id="pong" className="block"></canvas>
     </div>
   );

@@ -103,7 +103,6 @@ export class SceneManager {
     this.wall4 = undefined;
     this.wall5 = undefined;
     this.wall6 = undefined;
-
   }
 
   FixLight(light, x, y, z) {

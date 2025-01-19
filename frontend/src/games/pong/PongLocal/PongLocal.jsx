@@ -29,7 +29,11 @@ const PongLocal = () => {
     loaderTRef.current = new GLTFLoader();
     loaderRef.current = new GLTFLoader();
     loaderBRef.current = new GLTFLoader();
-    sm.current = new SceneManager(authContextData.setGlobalMessage, setIsOver, setPlayers1);
+    sm.current = new SceneManager(
+      authContextData.setGlobalMessage,
+      setIsOver,
+      setPlayers1,
+    );
     tableRef.current = new Table(sm.current.scene, loaderTRef.current);
     netRef.current = new Net(sm.current.scene, loaderRef.current);
     ballRef.current = new Ball(sm.current.scene, loaderBRef.current);
@@ -107,8 +111,7 @@ const PongLocal = () => {
     window.addEventListener("resize", onWindowResize, false);
 
     return () => {
-      if (ballRef.audio)
-        sm.current.listener.setMasterVolume(0);
+      if (ballRef.audio) sm.current.listener.setMasterVolume(0);
       ballRef.current.cleanup();
       sm.current.cleanup();
       tableRef.current.cleanup();
@@ -187,7 +190,6 @@ const PongLocal = () => {
       sm.current.renderer.setAnimationLoop(null);
     };
   }, [isOver]);
-
 
   const Gameover = ({ status }) => {
     const playersData = [

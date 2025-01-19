@@ -41,11 +41,16 @@ class Ball {
   }
 
   serve(net, sign) {
-    if (sign === 1 && this.audio && this.scoreSound && !this.scoreSound.isPlaying) {
+    if (
+      sign === 1 &&
+      this.audio &&
+      this.scoreSound &&
+      !this.scoreSound.isPlaying
+    ) {
       this.scoreSound.currentTime = 0;
       this.scoreSound.play();
     } else {
-      if (this.audio && this.lostSound &&!this.lostSound.isPlaying) {
+      if (this.audio && this.lostSound && !this.lostSound.isPlaying) {
         this.lostSound.currentTime = 0;
         this.lostSound.play();
       }
@@ -77,7 +82,7 @@ class Ball {
     if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
       this.y = table.boundingBoxTable.max.y + 1;
       this.dy *= -0.6;
-      if (this.audio && this.bounceSound &&!this.bounceSound.isPlaying) {
+      if (this.audio && this.bounceSound && !this.bounceSound.isPlaying) {
         this.bounceSound.currentTime = 0;
         this.bounceSound.play();
       }
@@ -127,7 +132,12 @@ class Ball {
       player1.hit(this);
       this.count = 0;
       this.lastshooter = player1.player;
-    } else if (player1.rotating && this.audio && this.swing && !this.swing.isPlaying) {
+    } else if (
+      player1.rotating &&
+      this.audio &&
+      this.swing &&
+      !this.swing.isPlaying
+    ) {
       this.swing.currentTime = 0;
       this.swing.play();
     }
@@ -157,7 +167,12 @@ class Ball {
       player2.hit(this);
       this.count = 0;
       this.lastshooter = player2.player;
-    } else if (player2.rotating && this.audio && this.swing &&!this.swing.isPlaying) {
+    } else if (
+      player2.rotating &&
+      this.audio &&
+      this.swing &&
+      !this.swing.isPlaying
+    ) {
       this.swing.currentTime = 0;
       this.swing.play();
     }
@@ -223,9 +238,8 @@ class Ball {
     this.removeAudio(this.Achievement);
   }
 
-  audioLoading(sm){
-    if (!this.audio)
-    {
+  audioLoading(sm) {
+    if (!this.audio) {
       sm.listener = new THREE.AudioListener();
       sm.camera.add(sm.listener);
       sm.audioLoader = new THREE.AudioLoader();
@@ -332,7 +346,6 @@ class Ball {
         },
       );
     }
-      
   }
 
   async render() {

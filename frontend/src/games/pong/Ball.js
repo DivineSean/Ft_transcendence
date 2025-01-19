@@ -269,7 +269,12 @@ class Ball {
       this.count = 0;
       this.lastshooter = player1.player;
       flag = true;
-    } else if (player1.rotating && this.audio && this.swing && !this.swing.isPlaying) {
+    } else if (
+      player1.rotating &&
+      this.audio &&
+      this.swing &&
+      !this.swing.isPlaying
+    ) {
       this.swing.currentTime = 0;
       this.swing.play();
     }
@@ -332,10 +337,8 @@ class Ball {
     }
   }
 
-  audioLoader(sm)
-  {
-    if (!this.audio)
-    {
+  audioLoader(sm) {
+    if (!this.audio) {
       sm.listener = new THREE.AudioListener();
       sm.camera.add(sm.listener);
       sm.audioLoader = new THREE.AudioLoader();
@@ -481,7 +484,7 @@ class Ball {
         child.receiveShadow = true;
       }
     });
-    
+
     if (sm.changeServe !== 1) {
       this.x = 42 * -1;
       this.y = -23.5;
