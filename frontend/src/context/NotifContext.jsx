@@ -163,7 +163,9 @@ export const NotifProvider = ({ children }) => {
     setAllMessages,
   ) => {
     try {
-      const res = await FetchData.get(`api/chat/messages/${convId}/${offsetMssg}/`);
+      const res = await FetchData.get(
+        `api/chat/messages/${convId}/${offsetMssg}/`,
+      );
 
       if (res.status === 200) {
         const data = await res.json();
