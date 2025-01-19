@@ -104,9 +104,6 @@ export class SceneManager {
     this.wall5 = undefined;
     this.wall6 = undefined;
 
-    this.listener = new THREE.AudioListener();
-    this.camera.add(this.listener);
-    this.audioLoader = new THREE.AudioLoader();
   }
 
   FixLight(light, x, y, z) {
@@ -330,7 +327,7 @@ export class SceneManager {
     }
     if (P[0] === 6 || P[1] === 6) {
       ball.BackgroundMusic.setVolume(0.03);
-      if (!ball.ballMatchPoint.isPlaying) {
+      if (ball.audio && ball.ballMatchPoint && !ball.ballMatchPoint.isPlaying) {
         ball.ballMatchPoint.currentTime = 0;
         ball.ballMatchPoint.play();
       }

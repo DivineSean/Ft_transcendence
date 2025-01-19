@@ -72,11 +72,12 @@ const PongLocal = () => {
     sm.current.render();
     tableRef.current.render();
     netRef.current.render();
-    ballRef.current.render(sm.current);
+    ballRef.current.render();
     playersRef.current[0].render();
     playersRef.current[1].render();
 
     const handleKeyDown = (event) => {
+      ballRef.current.audioLoading(sm.current);
       keyboard.current[event.code] = true;
     };
 
@@ -106,7 +107,8 @@ const PongLocal = () => {
     window.addEventListener("resize", onWindowResize, false);
 
     return () => {
-      sm.current.listener.setMasterVolume(0);
+      if (ballRef.audio)
+        sm.current.listener.setMasterVolume(0);
       ballRef.current.cleanup();
       sm.current.cleanup();
       tableRef.current.cleanup();
@@ -146,18 +148,7 @@ const PongLocal = () => {
         !table.boundingBoxTable ||
         !players[0].boundingBox ||
         !players[1].boundingBox ||
-        !ball.boundingSphere ||
-        !ball.bounceSound ||
-        !ball.netHitSound ||
-        !ball.paddleHitSound ||
-        !ball.onlyHit ||
-        !ball.swing ||
-        !ball.scoreSound ||
-        !ball.BackgroundMusic ||
-        !ball.lostSound ||
-        !ball.ballMatchPoint ||
-        !ball.Defeat ||
-        !ball.Victory
+        !ball.boundingSphere
       ) {
         return;
       }

@@ -212,7 +212,7 @@ const Pong = ({
               sm.current.RemontadaChance = true;
           }
           if (Math.abs(score1 - score2) === 0 && sm.current.RemontadaChance) {
-            if (!ballRef.current.Achievement.isPlaying) {
+            if (ballRef.current.audio && ballRef.current.Achievement && !ballRef.current.Achievement.isPlaying) {
               ballRef.current.Achievement.currentTime = 0;
               ballRef.current.Achievement.play();
             }
@@ -259,7 +259,7 @@ const Pong = ({
           playersRef.current[opp - 1].rotationZ = msg.message.paddle.rotZ;
           playersRef.current[opp - 1].updatePos();
         } else if (msg.message.content == "rotating") {
-          if (!ballRef.current.swing.isPlaying) {
+          if (ballRef.current.audio && ballRef.current.swing && !ballRef.current.swing.isPlaying) {
             ballRef.current.swing.currentTime = 0;
             ballRef.current.swing.play();
           }
@@ -270,12 +270,12 @@ const Pong = ({
           playersRef.current[opp - 1].updatePos();
         } else if (msg.message.content == "ball") {
           if (msg.message.ball.stats === "shoot") {
-            if (!ballRef.current.paddleHitSound.isPlaying) {
+            if (ballRef.current.audio && ballRef.current.paddleHitSound && !ballRef.current.paddleHitSound.isPlaying) {
               ballRef.current.paddleHitSound.currentTime = 0;
               ballRef.current.paddleHitSound.play();
             }
           } else if (msg.message.ball.stats === "hit") {
-            if (!ballRef.current.onlyHit.isPlaying) {
+            if (ballRef.current.audio && ballRef.current.onlyHit && !ballRef.current.onlyHit.isPlaying) {
               ballRef.current.onlyHit.currentTime = 0;
               ballRef.current.onlyHit.play();
             }
@@ -304,6 +304,7 @@ const Pong = ({
 
     addMessageHandler(messageHandler);
     const handleKeyDown = (event) => {
+      ballRef.current.audioLoader(sm.current);
       if (playersRef.current[player - 1].rotating || isSpectator) return;
       keyboard.current[event.code] = true;
     };
@@ -375,24 +376,13 @@ const Pong = ({
         !net.boundingBox ||
         !table.boundingBoxTable ||
         !players[player - 1].boundingBox ||
-        !ball.boundingSphere ||
-        !ball.bounceSound ||
-        !ball.netHitSound ||
-        !ball.paddleHitSound ||
-        !ball.onlyHit ||
-        !ball.swing ||
-        !ball.scoreSound ||
-        !ball.BackgroundMusic ||
-        !ball.lostSound ||
-        !ball.ballMatchPoint ||
-        !ball.Defeat ||
-        !ball.Victory
+        !ball.boundingSphere
       ) {
         ball.div.textContent = "";
         ball.startTime = Date.now();
         return;
       }
-      if (!ball.BackgroundMusic.isPlaying) {
+      if (ballRef.current.audio && ballRef.current.BackgroundMusic && !ball.BackgroundMusic.isPlaying) {
         ball.BackgroundMusic.currentTime = 0;
         ball.BackgroundMusic.play();
       }
@@ -454,6 +444,7 @@ const Pong = ({
             justify-center p-8 rounded-full shadow-2xl
 						border-[0.5px] border-stroke-sc"
             onTouchStart={() => {
+              ballRef.current.audioLoader(sm.current);
               if (playersRef.current[player - 1].rotating) return;
               keyboard.current["Space"] = true;
             }}
