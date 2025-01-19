@@ -48,36 +48,37 @@ const Pong = ({
     );
 
     if (!isMobile.current) return;
-    const handleOrientation = () => {
-      const isPortraitMode = window.innerHeight > window.innerWidth;
-      setIsPortrait(isPortraitMode);
+    setIsPortrait(true);
 
-      if (screen.orientation?.lock) {
-        screen.orientation.lock("landscape").catch(() => {
-          // im doing that to force browser to landscape mode if it doesnt require user permission, if does im silencing it using empty catch
-        });
-      }
-    };
+    // const handleOrientation = () => {
+    //   const isPortraitMode = window.innerHeight > window.innerWidth;
+    //   setIsPortrait(isPortraitMode);
 
-    handleOrientation();
-    try {
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      } else if (document.documentElement.mozRequestFullScreen) {
-        // Firefox
-        document.documentElement.mozRequestFullScreen();
-      } else if (document.documentElement.webkitRequestFullscreen) {
-        // Chrome, Safari
-        document.documentElement.webkitRequestFullscreen();
-      } else if (document.documentElement.msRequestFullscreen) {
-        // IE/Edge
-        document.documentElement.msRequestFullscreen();
-      }
-    } catch (error) {
-      console.error("Failed to enter fullscreen: ", error);
-    }
-    window.addEventListener("resize", handleOrientation);
-    window.addEventListener("orientationchange", handleOrientation);
+      
+    //   if (isPortrait)
+    //   {
+    //       if (screen.orientation?.lock) {
+    //         screen.orientation.lock("landscape").catch(() => {});
+    //       }
+    //       try {
+    //         if (document.documentElement.requestFullscreen) {
+    //           document.documentElement.requestFullscreen();
+    //         } else if (document.documentElement.mozRequestFullScreen) {
+    //           // Firefox
+    //           document.documentElement.mozRequestFullScreen();
+    //         } else if (document.documentElement.webkitRequestFullscreen) {
+    //           // Chrome, Safari
+    //           document.documentElement.webkitRequestFullscreen();
+    //         } else if (document.documentElement.msRequestFullscreen) {
+    //           // IE/Edge
+    //           document.documentElement.msRequestFullscreen();
+    //         }
+    //       } catch (error) {}
+    //   }
+    // };
+    // handleOrientation();
+    // window.addEventListener("resize", handleOrientation);
+    // window.addEventListener("orientationchange", handleOrientation);
 
     if (!ready) return;
 

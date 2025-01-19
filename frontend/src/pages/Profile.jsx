@@ -97,7 +97,7 @@ const Profile = () => {
       <Header link="profile" />
       {authContextData.globalMessage &&
         authContextData.globalMessage.message && <Toast position="topCenter" />}
-      {(!contextData.profileInfo || !contextData.status) && <LoadingPage />}
+      {(!contextData.profileInfo || !contextData.status.stats) && <LoadingPage />}
       {!authContextData.displayMenuGl && contextData.profileInfo !== null && (
         <div className="container">
           {udpateProfile && (
@@ -272,12 +272,12 @@ const Profile = () => {
                       </div>
                     ))}
                   </div>
-                  {selectedMenu === "overview" && <ProfileOverview />}
-                  {selectedMenu === "statistics" && <ProfileStatistics />}
-                  {selectedMenu === "achievements" && (
+                  {selectedMenu === "overview" && contextData.status.stats && <ProfileOverview />}
+                  {selectedMenu === "statistics" && contextData.status.stats && <ProfileStatistics />}
+                  {selectedMenu === "achievements" && contextData.status.stats && (
                     <ProfileAchievements username={username} />
                   )}
-                  {selectedMenu === "friends" && (
+                  {selectedMenu === "friends" && contextData.status.stats && (
                     <ProfileFriends username={username} />
                   )}
                 </>
