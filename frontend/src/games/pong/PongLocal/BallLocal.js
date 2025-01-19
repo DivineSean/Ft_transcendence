@@ -246,7 +246,7 @@ class Ball {
       this.audio = true;
       // Load all sounds
       sm.audioLoader.load(
-        `https://${window.location.hostname}:3000/public/games/Sounds/bounce.mp3`,
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/bounce.mp3`,
         (buffer) => {
           this.bounceSound = new THREE.Audio(sm.listener);
           this.bounceSound.setBuffer(buffer);
@@ -255,7 +255,7 @@ class Ball {
       );
 
       sm.audioLoader.load(
-        `https://${window.location.hostname}:3000/public/games/Sounds/NetHit.mp3`,
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/NetHit.mp3`,
         (buffer) => {
           this.netHitSound = new THREE.Audio(sm.listener);
           this.netHitSound.setBuffer(buffer);
@@ -264,7 +264,7 @@ class Ball {
       );
 
       sm.audioLoader.load(
-        `https://${window.location.hostname}:3000/public/games/Sounds/hit.mp3`,
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/hit.mp3`,
         (buffer) => {
           this.paddleHitSound = new THREE.Audio(sm.listener);
           this.paddleHitSound.setBuffer(buffer);
@@ -273,7 +273,7 @@ class Ball {
       );
 
       sm.audioLoader.load(
-        `https://${window.location.hostname}:3000/public/games/Sounds/BallHit.mp3`,
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/BallHit.mp3`,
         (buffer) => {
           this.onlyHit = new THREE.Audio(sm.listener);
           this.onlyHit.setBuffer(buffer);
@@ -282,7 +282,7 @@ class Ball {
       );
 
       sm.audioLoader.load(
-        `https://${window.location.hostname}:3000/public/games/Sounds/swing.mp3`,
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/swing.mp3`,
         (buffer) => {
           this.swing = new THREE.Audio(sm.listener);
           this.swing.setBuffer(buffer);
@@ -291,7 +291,7 @@ class Ball {
       );
 
       sm.audioLoader.load(
-        `https://${window.location.hostname}:3000/public/games/Sounds/Music4.mp3`,
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/Music4.mp3`,
         (buffer) => {
           this.BackgroundMusic = new THREE.Audio(sm.listener);
           this.BackgroundMusic.setLoop(true);
@@ -302,7 +302,7 @@ class Ball {
       );
 
       sm.audioLoader.load(
-        `https://${window.location.hostname}:3000/public/games/Sounds/scoring.mp3`,
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/scoring.mp3`,
         (buffer) => {
           this.scoreSound = new THREE.Audio(sm.listener);
           this.scoreSound.setBuffer(buffer);
@@ -311,7 +311,7 @@ class Ball {
       );
 
       sm.audioLoader.load(
-        `https://${window.location.hostname}:3000/public/games/Sounds/aww.mp3`,
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/aww.mp3`,
         (buffer) => {
           this.lostSound = new THREE.Audio(sm.listener);
           this.lostSound.setBuffer(buffer);
@@ -320,7 +320,7 @@ class Ball {
       );
 
       sm.audioLoader.load(
-        `https://${window.location.hostname}:3000/public/games/Sounds/MatchPoint.mp3`,
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/MatchPoint.mp3`,
         (buffer) => {
           this.ballMatchPoint = new THREE.Audio(sm.listener);
           this.ballMatchPoint.setBuffer(buffer);
@@ -329,7 +329,7 @@ class Ball {
       );
 
       sm.audioLoader.load(
-        `https://${window.location.hostname}:3000/public/games/Sounds/Defeat.mp3`,
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/Defeat.mp3`,
         (buffer) => {
           this.Defeat = new THREE.Audio(sm.listener);
           this.Defeat.setBuffer(buffer);
@@ -338,7 +338,7 @@ class Ball {
       );
 
       sm.audioLoader.load(
-        `https://${window.location.hostname}:3000/public/games/Sounds/Victory.mp3`,
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/Victory.mp3`,
         (buffer) => {
           this.Victory = new THREE.Audio(sm.listener);
           this.Victory.setBuffer(buffer);
