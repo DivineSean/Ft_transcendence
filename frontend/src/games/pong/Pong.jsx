@@ -10,6 +10,7 @@ import AuthContext from "../../context/AuthContext";
 import GameToast from "../../components/GameToast";
 import JoystickController from "joystick-controller";
 import { PiPingPongFill } from "react-icons/pi";
+import { PiWarningBold } from "react-icons/pi";
 import Toast from "@/components/Toast";
 
 const Pong = ({
@@ -49,36 +50,6 @@ const Pong = ({
 
     if (!isMobile.current) return;
     setIsPortrait(true);
-
-    // const handleOrientation = () => {
-    //   const isPortraitMode = window.innerHeight > window.innerWidth;
-    //   setIsPortrait(isPortraitMode);
-
-      
-    //   if (isPortrait)
-    //   {
-    //       if (screen.orientation?.lock) {
-    //         screen.orientation.lock("landscape").catch(() => {});
-    //       }
-    //       try {
-    //         if (document.documentElement.requestFullscreen) {
-    //           document.documentElement.requestFullscreen();
-    //         } else if (document.documentElement.mozRequestFullScreen) {
-    //           // Firefox
-    //           document.documentElement.mozRequestFullScreen();
-    //         } else if (document.documentElement.webkitRequestFullscreen) {
-    //           // Chrome, Safari
-    //           document.documentElement.webkitRequestFullscreen();
-    //         } else if (document.documentElement.msRequestFullscreen) {
-    //           // IE/Edge
-    //           document.documentElement.msRequestFullscreen();
-    //         }
-    //       } catch (error) {}
-    //   }
-    // };
-    // handleOrientation();
-    // window.addEventListener("resize", handleOrientation);
-    // window.addEventListener("orientationchange", handleOrientation);
 
     if (!ready) return;
 
@@ -438,6 +409,29 @@ const Pong = ({
 
     return () => sm.current.renderer.setAnimationLoop(null);
   }, [ready, isWon, islost]);
+
+
+  const handleOrientation = () =>{
+    try {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else if (document.documentElement.mozRequestFullScreen) {
+        // Firefox
+        document.documentElement.mozRequestFullScreen().catch(() => {});
+      } else if (document.documentElement.webkitRequestFullscreen) {
+        // Chrome, Safari
+        document.documentElement.webkitRequestFullscreen().catch(() => {});
+      } else if (document.documentElement.msRequestFullscreen) {
+        // IE/Edge
+        document.documentElement.msRequestFullscreen().catch(() => {});
+      }
+    } catch (error) {}
+    if (screen.orientation?.lock) {
+      screen.orientation.lock("landscape").catch(() => {});
+    }
+    setIsPortrait(false);
+  }
+
   return (
     <div id="message" className="relative w-full h-screen overflow-hidden">
       {isMobile.current && ready && (
@@ -476,29 +470,44 @@ const Pong = ({
           />
         )}
       {isPortrait && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
-          <div className="text-center p-6">
-            <div className="animate-bounce mb-4">
-              <svg
-                className="w-16 h-16 mx-auto text-white transform rotate-90"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 8h16M4 16h16"
-                />
-              </svg>
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
+          <div className="w-[90%] secondary-glass p-8 py-16 flex flex-col gap-16">
+            <div className="text-center px-4">
+              <div className="flex justify-center">
+                <PiWarningBold className="text-txt-2xl text-red" />
+              </div>
+              <h2 className="text-txt-2xl text-red uppercase">
+                permission required
+              </h2>
             </div>
-            <h2 className="text-white text-2xl font-bold mb-2">
-              Please Rotate Your Device
-            </h2>
-            <p className="text-white text-lg">
-              For the best Pong experience, play in landscape mode
+
+            <p className="text-gray/80 text-md text-center px-8 lowercase">
+              For the best Pong experience, please allow us to switch to landscape mode
             </p>
+            
+            <div className="flex gap-8 justify-center px-4 mt-8">
+              <button
+                onClick={handleOrientation}
+                className="secondary-glass grow p-8 sm:px-16 transition-all flex gap-4 justify-center items-center
+                        rounded-md font-semibold tracking-wide hover:bg-green/60 hover:text-black text-green"
+              >
+                Accept
+              </button>
+              <button
+                onClick={() => {
+                  send(
+                    JSON.stringify({
+                      type: "notready",
+                      message: {},
+                    })
+                  );
+                }}
+                className="secondary-glass grow p-8 sm:px-16 transition-all flex gap-4 justify-center items-center
+                        rounded-md font-semibold tracking-wide hover:bg-red/60 hover:text-white text-red"
+              >
+                Decline
+              </button>
+            </div>
           </div>
         </div>
       )}
