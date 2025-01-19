@@ -41,7 +41,7 @@ export class Table {
   async render() {
     this.table = await this.loader
       .loadAsync(
-        `https://${window.location.hostname}:3000/public/games/models/table.glb`,
+        `https://${window.location.hostname}:${window.location.port}/games/models/table.glb`,
       )
       .then((data) => data.scene.children[0]);
 
@@ -59,7 +59,7 @@ export class Table {
     //mid table
     this.midtable = await this.loader
       .loadAsync(
-        `https://${window.location.hostname}:3000/public/games/models/midtable.glb`,
+        `https://${window.location.hostname}:${window.location.port}/games/models/midtable.glb`,
       )
       .then((data) => data.scene.children[0]);
 
@@ -76,7 +76,7 @@ export class Table {
 
     this.endtable = await this.loader
       .loadAsync(
-        `https://${window.location.hostname}:3000/public/games/models/endtable.glb`,
+        `https://${window.location.hostname}:${window.location.port}/games/models/endtable.glb`,
       )
       .then((data) => data.scene.children[0]);
 
