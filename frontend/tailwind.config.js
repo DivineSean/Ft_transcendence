@@ -8,7 +8,7 @@ export default {
         "hero-pattern": "url('/images/background.png')",
       },
       fontFamily: {
-        "press-start": ['Press Start 2P"', "sans-serif"],
+        "press-start": ["Press Start 2P", "sans-serif"],
       },
       colors: {
         green: "#31E78B",
