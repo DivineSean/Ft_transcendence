@@ -38,7 +38,7 @@ const Approval = ({ approval, setApproval }) => {
               {approval.message}
               <span className="font-bold text-white">
                 {" "}
-                {contextData.userInfo.username}{" "}
+                {contextData.profileInfo.username}{" "}
               </span>
               again
             </p>

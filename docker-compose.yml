@@ -165,7 +165,10 @@ services:
       - 3000:443
     container_name: nginx
     depends_on:
-      - backend
+      backend:
+        condition: service_started
+      frontend:
+        condition: service_completed_successfully
     restart: unless-stopped
     volumes:
       - static:/home/app/static:ro

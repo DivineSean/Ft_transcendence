@@ -338,7 +338,7 @@ class Ball {
   async render() {
     this.model = await this.loader
       .loadAsync(
-        `https://${window.location.hostname}:3000/public/games/models/ball.glb`,
+        `https://${window.location.hostname}:${window.location.port}/games/models/ball.glb`,
       )
       .then((data) => data.scene.children[0]);
 
@@ -350,6 +350,7 @@ class Ball {
         child.receiveShadow = true;
       }
     });
+
     this.scene.add(this.model);
 
     const box = new THREE.Box3().setFromObject(this.model);

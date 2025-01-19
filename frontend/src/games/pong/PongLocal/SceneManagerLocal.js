@@ -182,7 +182,7 @@ export class SceneManager {
   updateTextOnPlane(plane, text, x, y, z, color) {
     const loader = new FontLoader();
     loader.load(
-      `https://${window.location.hostname}:3000/public/games/Fonts/Font.json`,
+      `https://${window.location.hostname}:${window.location.port}/games/Fonts/Font.json`,
       (font) => {
         plane.children.forEach((child) => {
           if (child.isMesh && child.geometry instanceof TextGeometry) {
@@ -724,7 +724,7 @@ export class SceneManager {
   addTextToPlane(plane, text, x, y, color) {
     const loader = new FontLoader();
     loader.load(
-      `https://${window.location.hostname}:3000/public/games/Fonts/Font.json`,
+      `https://${window.location.hostname}:${window.location.port}/games/Fonts/Font.json`,
       (font) => {
         const textGeometry = new TextGeometry(text, {
           font: font,

@@ -469,7 +469,7 @@ class Ball {
 
     this.model = await this.loader
       .loadAsync(
-        `https://${window.location.hostname}:3000/public/games/models/ball.glb`,
+        `https://${window.location.hostname}:${window.location.port}/games/models/ball.glb`,
       )
       .then((data) => data.scene.children[0]);
 
@@ -481,7 +481,7 @@ class Ball {
         child.receiveShadow = true;
       }
     });
-
+    
     if (sm.changeServe !== 1) {
       this.x = 42 * -1;
       this.y = -23.5;
