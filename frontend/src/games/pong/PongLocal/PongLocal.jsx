@@ -6,14 +6,11 @@ import Ball from "./BallLocal";
 import { Clock } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import AuthContext from "../../../context/AuthContext";
 import Toast from "../../../components/Toast";
 import GameResultLan from "@/components/game/GameResultLan";
-import GameResult from "@/components/game/GameResult";
 
 const PongLocal = () => {
-  const navigate = useNavigate();
   const sm = useRef(null);
   const loaderRef = useRef(null);
   const loaderTRef = useRef(null);
@@ -32,7 +29,7 @@ const PongLocal = () => {
     loaderTRef.current = new GLTFLoader();
     loaderRef.current = new GLTFLoader();
     loaderBRef.current = new GLTFLoader();
-    sm.current = new SceneManager(authContextData.setGlobalMessage, setIsOver);
+    sm.current = new SceneManager(authContextData.setGlobalMessage, setIsOver, setPlayers1);
     tableRef.current = new Table(sm.current.scene, loaderTRef.current);
     netRef.current = new Net(sm.current.scene, loaderRef.current);
     ballRef.current = new Ball(sm.current.scene, loaderBRef.current);
@@ -200,7 +197,6 @@ const PongLocal = () => {
     };
   }, [isOver]);
 
-  if (isOver && ballRef.scoreboard[0] === 7) setPlayers1(true);
 
   const Gameover = ({ status }) => {
     const playersData = [
@@ -225,7 +221,7 @@ const PongLocal = () => {
         />
       )}
       <canvas id="pong"></canvas>
-      {!isOver && <Gameover status={Players1} />}
+      {isOver && <Gameover status={Players1} />}
     </div>
   );
 };

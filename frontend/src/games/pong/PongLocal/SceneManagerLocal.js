@@ -4,10 +4,11 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
 
 export class SceneManager {
-  constructor(globalMessage, setIsOver) {
+  constructor(globalMessage, setIsOver, setPlayers1) {
     this.player = 1;
     this.globalMessage = globalMessage;
     this.setIsOver = setIsOver;
+    this.setPlayers1 = setPlayers1;
     // Camera
     this.camera = new THREE.PerspectiveCamera(
       80,
@@ -381,6 +382,7 @@ export class SceneManager {
         ball.Victory.play();
       }
       this.setIsOver(true);
+      this.setPlayers1(P[0] === 7);
     }
   }
 
