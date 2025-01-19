@@ -54,6 +54,7 @@ class Ball {
     this.div = undefined;
     this.label = undefined;
     this.model = undefined;
+    this.audio = false;
   }
 
   serve(net, sign) {
@@ -62,14 +63,14 @@ class Ball {
       (this.player === 1 && sign === 1) ||
       (this.player === 2 && sign === -1)
     ) {
-      if (!this.scoreSound.isPlaying) {
+      if (this.audio && this.scoreSound && !this.scoreSound.isPlaying) {
         this.scoreSound.currentTime = 0;
         this.scoreSound.play();
       }
       this.scene.add(this.label);
       this.div.textContent = "10 Seconds To Serve the Ball\n\t0s\t";
     } else {
-      if (!this.lostSound.isPlaying) {
+      if (this.audio && this.lostSound && !this.lostSound.isPlaying) {
         this.lostSound.currentTime = 0;
         this.lostSound.play();
       }
@@ -143,13 +144,13 @@ class Ball {
       if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
         this.y = table.boundingBoxTable.max.y + 1;
         this.dy *= -0.6;
-        if (!this.bounceSound.isPlaying) {
+        if (this.audio && this.bounceSound && !this.bounceSound.isPlaying) {
           this.bounceSound.currentTime = 0;
           this.bounceSound.play();
         }
       }
       if (this.boundingSphere.intersectsBox(net.boundingBox)) {
-        if (!this.netHitSound.isPlaying) {
+        if (this.audio && this.netHitSound && !this.netHitSound.isPlaying) {
           this.netHitSound.currentTime = 0.5;
           this.netHitSound.play();
         }
@@ -185,7 +186,7 @@ class Ball {
       if (this.isServerDemon) {
         this.serverWin++;
         if (this.serverWin === 3) {
-          if (!this.Achievement.isPlaying) {
+          if (this.audio && this.Achievement && !this.Achievement.isPlaying) {
             this.Achievement.currentTime = 0;
             this.Achievement.play();
           }
@@ -206,7 +207,7 @@ class Ball {
     } else if (this.boundingSphere.intersectsBox(table.boundingBoxTable)) {
       this.y = table.boundingBoxTable.max.y + 1;
       this.dy *= -0.6;
-      if (!this.bounceSound.isPlaying) {
+      if (this.audio && this.bounceSound && !this.bounceSound.isPlaying) {
         this.bounceSound.currentTime = 0;
         this.bounceSound.play();
       }
@@ -226,7 +227,7 @@ class Ball {
     }
     let status = "";
     if (this.boundingSphere.intersectsBox(net.boundingBox)) {
-      if (!this.netHitSound.isPlaying) {
+      if (this.audio && this.netHitSound && !this.netHitSound.isPlaying) {
         this.netHitSound.currentTime = 0.5;
         this.netHitSound.play();
       }
@@ -241,7 +242,7 @@ class Ball {
       player1.rotating &&
       this.sendLock === false
     ) {
-      if (!this.paddleHitSound.isPlaying) {
+      if (this.audio && this.paddleHitSound && !this.paddleHitSound.isPlaying) {
         this.paddleHitSound.currentTime = 0;
         this.paddleHitSound.play();
       }
@@ -257,7 +258,7 @@ class Ball {
       !player1.rotating &&
       !this.serving
     ) {
-      if (!this.onlyHit.isPlaying) {
+      if (this.audio && this.onlyHit && !this.onlyHit.isPlaying) {
         this.onlyHit.currentTime = 0;
         this.onlyHit.play();
       }
@@ -268,7 +269,12 @@ class Ball {
       this.count = 0;
       this.lastshooter = player1.player;
       flag = true;
-    } else if (player1.rotating && !this.swing.isPlaying) {
+    } else if (
+      player1.rotating &&
+      this.audio &&
+      this.swing &&
+      !this.swing.isPlaying
+    ) {
       this.swing.currentTime = 0;
       this.swing.play();
     }
@@ -331,8 +337,125 @@ class Ball {
     }
   }
 
+  audioLoader(sm) {
+    if (!this.audio) {
+      sm.listener = new THREE.AudioListener();
+      sm.camera.add(sm.listener);
+      sm.audioLoader = new THREE.AudioLoader();
+      this.audio = true;
+      // Load all sounds
+      sm.audioLoader.load(
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/bounce.mp3`,
+        (buffer) => {
+          this.bounceSound = new THREE.Audio(sm.listener);
+          this.bounceSound.setBuffer(buffer);
+          this.bounceSound.setVolume(0.8);
+        },
+      );
+
+      sm.audioLoader.load(
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/NetHit.mp3`,
+        (buffer) => {
+          this.netHitSound = new THREE.Audio(sm.listener);
+          this.netHitSound.setBuffer(buffer);
+          this.netHitSound.setVolume(0.8);
+        },
+      );
+
+      sm.audioLoader.load(
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/hit.mp3`,
+        (buffer) => {
+          this.paddleHitSound = new THREE.Audio(sm.listener);
+          this.paddleHitSound.setBuffer(buffer);
+          this.paddleHitSound.setVolume(0.8);
+        },
+      );
+
+      sm.audioLoader.load(
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/BallHit.mp3`,
+        (buffer) => {
+          this.onlyHit = new THREE.Audio(sm.listener);
+          this.onlyHit.setBuffer(buffer);
+          this.onlyHit.setVolume(0.8);
+        },
+      );
+
+      sm.audioLoader.load(
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/swing.mp3`,
+        (buffer) => {
+          this.swing = new THREE.Audio(sm.listener);
+          this.swing.setBuffer(buffer);
+          this.swing.setVolume(0.5);
+        },
+      );
+
+      sm.audioLoader.load(
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/Music4.mp3`,
+        (buffer) => {
+          this.BackgroundMusic = new THREE.Audio(sm.listener);
+          this.BackgroundMusic.setLoop(true);
+          this.BackgroundMusic.setBuffer(buffer);
+          this.BackgroundMusic.setVolume(0.05);
+        },
+      );
+
+      sm.audioLoader.load(
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/scoring.mp3`,
+        (buffer) => {
+          this.scoreSound = new THREE.Audio(sm.listener);
+          this.scoreSound.setBuffer(buffer);
+          this.scoreSound.setVolume(0.5);
+        },
+      );
+
+      sm.audioLoader.load(
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/aww.mp3`,
+        (buffer) => {
+          this.lostSound = new THREE.Audio(sm.listener);
+          this.lostSound.setBuffer(buffer);
+          this.lostSound.setVolume(0.5);
+        },
+      );
+
+      sm.audioLoader.load(
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/MatchPoint.mp3`,
+        (buffer) => {
+          this.ballMatchPoint = new THREE.Audio(sm.listener);
+          this.ballMatchPoint.setBuffer(buffer);
+          this.ballMatchPoint.setVolume(0.5);
+        },
+      );
+
+      sm.audioLoader.load(
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/Defeat.mp3`,
+        (buffer) => {
+          this.Defeat = new THREE.Audio(sm.listener);
+          this.Defeat.setBuffer(buffer);
+          this.Defeat.setVolume(0.5);
+        },
+      );
+
+      sm.audioLoader.load(
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/Victory.mp3`,
+        (buffer) => {
+          this.Victory = new THREE.Audio(sm.listener);
+          this.Victory.setBuffer(buffer);
+          this.Victory.setVolume(0.5);
+        },
+      );
+
+      sm.audioLoader.load(
+        `https://${window.location.hostname}:${window.location.port}/games/Sounds/AchievementSong.mp3`,
+        (buffer) => {
+          this.Achievement = new THREE.Audio(sm.listener);
+          this.Achievement.setBuffer(buffer);
+          this.Achievement.setVolume(1);
+        },
+      );
+    }
+  }
+
   async render(sm) {
-    // Set up CSS2DRenderer
     this.container = document.getElementById("message");
     this.labelRenderer = new CSS2DRenderer();
     this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
@@ -362,116 +485,6 @@ class Ball {
       }
     });
 
-    // Load all sounds
-    sm.audioLoader.load(
-      `https://${window.location.hostname}:${window.location.port}/games/Sounds/bounce.mp3`,
-      (buffer) => {
-        this.bounceSound = new THREE.Audio(sm.listener);
-        this.bounceSound.setBuffer(buffer);
-        this.bounceSound.setVolume(0.8);
-      },
-    );
-
-    sm.audioLoader.load(
-      `https://${window.location.hostname}:${window.location.port}/games/Sounds/NetHit.mp3`,
-      (buffer) => {
-        this.netHitSound = new THREE.Audio(sm.listener);
-        this.netHitSound.setBuffer(buffer);
-        this.netHitSound.setVolume(0.8);
-      },
-    );
-
-    sm.audioLoader.load(
-      `https://${window.location.hostname}:${window.location.port}/games/Sounds/hit.mp3`,
-      (buffer) => {
-        this.paddleHitSound = new THREE.Audio(sm.listener);
-        this.paddleHitSound.setBuffer(buffer);
-        this.paddleHitSound.setVolume(0.8);
-      },
-    );
-
-    sm.audioLoader.load(
-      `https://${window.location.hostname}:${window.location.port}/games/Sounds/BallHit.mp3`,
-      (buffer) => {
-        this.onlyHit = new THREE.Audio(sm.listener);
-        this.onlyHit.setBuffer(buffer);
-        this.onlyHit.setVolume(0.8);
-      },
-    );
-
-    sm.audioLoader.load(
-      `https://${window.location.hostname}:${window.location.port}/games/Sounds/swing.mp3`,
-      (buffer) => {
-        this.swing = new THREE.Audio(sm.listener);
-        this.swing.setBuffer(buffer);
-        this.swing.setVolume(0.5);
-      },
-    );
-
-    sm.audioLoader.load(
-      `https://${window.location.hostname}:${window.location.port}/games/Sounds/Music4.mp3`,
-      (buffer) => {
-        this.BackgroundMusic = new THREE.Audio(sm.listener);
-        this.BackgroundMusic.setLoop(true);
-        this.BackgroundMusic.setBuffer(buffer);
-        this.BackgroundMusic.setVolume(0.05);
-      },
-    );
-
-    sm.audioLoader.load(
-      `https://${window.location.hostname}:${window.location.port}/games/Sounds/scoring.mp3`,
-      (buffer) => {
-        this.scoreSound = new THREE.Audio(sm.listener);
-        this.scoreSound.setBuffer(buffer);
-        this.scoreSound.setVolume(0.5);
-      },
-    );
-
-    sm.audioLoader.load(
-      `https://${window.location.hostname}:${window.location.port}/games/Sounds/aww.mp3`,
-      (buffer) => {
-        this.lostSound = new THREE.Audio(sm.listener);
-        this.lostSound.setBuffer(buffer);
-        this.lostSound.setVolume(0.5);
-      },
-    );
-
-    sm.audioLoader.load(
-      `https://${window.location.hostname}:${window.location.port}/games/Sounds/MatchPoint.mp3`,
-      (buffer) => {
-        this.ballMatchPoint = new THREE.Audio(sm.listener);
-        this.ballMatchPoint.setBuffer(buffer);
-        this.ballMatchPoint.setVolume(0.5);
-      },
-    );
-
-    sm.audioLoader.load(
-      `https://${window.location.hostname}:${window.location.port}/games/Sounds/Defeat.mp3`,
-      (buffer) => {
-        this.Defeat = new THREE.Audio(sm.listener);
-        this.Defeat.setBuffer(buffer);
-        this.Defeat.setVolume(0.5);
-      },
-    );
-
-    sm.audioLoader.load(
-      `https://${window.location.hostname}:${window.location.port}/games/Sounds/Victory.mp3`,
-      (buffer) => {
-        this.Victory = new THREE.Audio(sm.listener);
-        this.Victory.setBuffer(buffer);
-        this.Victory.setVolume(0.5);
-      },
-    );
-
-    sm.audioLoader.load(
-      `https://${window.location.hostname}:${window.location.port}/games/Sounds/AchievementSong.mp3`,
-      (buffer) => {
-        this.Achievement = new THREE.Audio(sm.listener);
-        this.Achievement.setBuffer(buffer);
-        this.Achievement.setVolume(1);
-      },
-    );
-
     if (sm.changeServe !== 1) {
       this.x = 42 * -1;
       this.y = -23.5;
@@ -497,6 +510,7 @@ class Ball {
   }
 
   removeAudio(sound) {
+    if (!sound) return;
     if (sound && sound.isPlaying) {
       sound.stop();
     }

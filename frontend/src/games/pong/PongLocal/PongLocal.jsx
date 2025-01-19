@@ -6,14 +6,11 @@ import Ball from "./BallLocal";
 import { Clock } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import AuthContext from "../../../context/AuthContext";
 import Toast from "../../../components/Toast";
 import GameResultLan from "@/components/game/GameResultLan";
-import GameResult from "@/components/game/GameResult";
 
 const PongLocal = () => {
-  const navigate = useNavigate();
   const sm = useRef(null);
   const loaderRef = useRef(null);
   const loaderTRef = useRef(null);
@@ -32,7 +29,11 @@ const PongLocal = () => {
     loaderTRef.current = new GLTFLoader();
     loaderRef.current = new GLTFLoader();
     loaderBRef.current = new GLTFLoader();
-    sm.current = new SceneManager(authContextData.setGlobalMessage, setIsOver);
+    sm.current = new SceneManager(
+      authContextData.setGlobalMessage,
+      setIsOver,
+      setPlayers1,
+    );
     tableRef.current = new Table(sm.current.scene, loaderTRef.current);
     netRef.current = new Net(sm.current.scene, loaderRef.current);
     ballRef.current = new Ball(sm.current.scene, loaderBRef.current);
@@ -75,11 +76,12 @@ const PongLocal = () => {
     sm.current.render();
     tableRef.current.render();
     netRef.current.render();
-    ballRef.current.render(sm.current);
+    ballRef.current.render();
     playersRef.current[0].render();
     playersRef.current[1].render();
 
     const handleKeyDown = (event) => {
+      ballRef.current.audioLoading(sm.current);
       keyboard.current[event.code] = true;
     };
 
@@ -109,7 +111,7 @@ const PongLocal = () => {
     window.addEventListener("resize", onWindowResize, false);
 
     return () => {
-      sm.current.listener.setMasterVolume(0);
+      if (ballRef.audio) sm.current.listener.setMasterVolume(0);
       ballRef.current.cleanup();
       sm.current.cleanup();
       tableRef.current.cleanup();
@@ -149,18 +151,7 @@ const PongLocal = () => {
         !table.boundingBoxTable ||
         !players[0].boundingBox ||
         !players[1].boundingBox ||
-        !ball.boundingSphere ||
-        !ball.bounceSound ||
-        !ball.netHitSound ||
-        !ball.paddleHitSound ||
-        !ball.onlyHit ||
-        !ball.swing ||
-        !ball.scoreSound ||
-        !ball.BackgroundMusic ||
-        !ball.lostSound ||
-        !ball.ballMatchPoint ||
-        !ball.Defeat ||
-        !ball.Victory
+        !ball.boundingSphere
       ) {
         return;
       }
@@ -200,8 +191,6 @@ const PongLocal = () => {
     };
   }, [isOver]);
 
-  if (isOver && ballRef.scoreboard[0] === 7) setPlayers1(true);
-
   const Gameover = ({ status }) => {
     const playersData = [
       { user: { username: "Player1", profile_image: null } },
@@ -225,7 +214,7 @@ const PongLocal = () => {
         />
       )}
       <canvas id="pong"></canvas>
-      {!isOver && <Gameover status={Players1} />}
+      {isOver && <Gameover status={Players1} />}
     </div>
   );
 };

@@ -98,8 +98,8 @@ export class SceneManager {
     this.pointLight = undefined;
     this.timerDiv = undefined;
 
-    this.audioLoader = new THREE.AudioLoader();
-    this.listener = new THREE.AudioListener();
+    this.audioLoader = undefined;
+    this.listener = undefined;
   }
 
   FixLight(light, x, y, z) {
@@ -126,7 +126,7 @@ export class SceneManager {
     );
     const minutes = Math.floor(elapsedTimeInSeconds / 60);
     if (!this.Marathoner && minutes === 5) {
-      if (!ball.Achievement.isPlaying) {
+      if (ball.audio && ball.Achievement && !ball.Achievement.isPlaying) {
         ball.Achievement.currentTime = 0;
         ball.Achievement.play();
       }
@@ -260,7 +260,7 @@ export class SceneManager {
       (P["1"] === "0" && P["2"] === "7" && this.player === -1) ||
       (P["1"] === "7" && P["2"] === "0" && this.player === 1)
     ) {
-      if (!ball.Achievement.isPlaying) {
+      if (ball.audio && ball.Achievement && !ball.Achievement.isPlaying) {
         ball.Achievement.currentTime = 0;
         ball.Achievement.play();
       }
@@ -275,8 +275,10 @@ export class SceneManager {
       (this.player === -1 && P["1"] === "6") ||
       (this.player === 1 && P["2"] === "6")
     ) {
-      ball.BackgroundMusic.setVolume(0.01);
-      if (!ball.ballMatchPoint.isPlaying) {
+      if (ball.audio && ball.BackgroundMusic) {
+        ball.BackgroundMusic.setVolume(0.01);
+      }
+      if (ball.audio && ball.ballMatchPoint && !ball.ballMatchPoint.isPlaying) {
         ball.ballMatchPoint.currentTime = 0;
         ball.ballMatchPoint.play();
       }
@@ -284,66 +286,68 @@ export class SceneManager {
     this.updateTextOnPlane(this.P1ScoreBarre, P["1"], 0, 0, 0.03, 0xffffff);
     this.updateTextOnPlane(this.P2ScoreBarre, P["2"], 0, 0, 0.03, 0xffffff);
     if (P["1"] === "7" || P["2"] === "7") {
-      ball.bounceSound.setVolume(0);
-      ball.netHitSound.setVolume(0);
-      ball.paddleHitSound.setVolume(0);
-      ball.onlyHit.setVolume(0);
-      ball.swing.setVolume(0);
-      ball.scoreSound.setVolume(0);
-      ball.BackgroundMusic.setVolume(0);
-      ball.lostSound.setVolume(0);
-      ball.ballMatchPoint.setVolume(0);
+      if (ball.audio) {
+        ball.bounceSound.setVolume(0);
+        ball.netHitSound.setVolume(0);
+        ball.paddleHitSound.setVolume(0);
+        ball.onlyHit.setVolume(0);
+        ball.swing.setVolume(0);
+        ball.scoreSound.setVolume(0);
+        ball.BackgroundMusic.setVolume(0);
+        ball.lostSound.setVolume(0);
+        ball.ballMatchPoint.setVolume(0);
+      }
       if (P["1"] === "7") {
         if (this.player === 1) {
-          if (!ball.Victory.isPlaying) {
+          if (ball.audio && ball.Victory && !ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
-            this.setIsWon(true);
-            send(
-              JSON.stringify({
-                type: "result",
-                message: "win",
-              }),
-            );
           }
+          this.setIsWon(true);
+          send(
+            JSON.stringify({
+              type: "result",
+              message: "win",
+            }),
+          );
         } else {
-          if (!ball.Defeat.isPlaying) {
+          if (ball.audio && ball.Defeat && !ball.Defeat.isPlaying) {
             ball.Defeat.currentTime = 0;
             ball.Defeat.play();
-            this.setIslost(true);
-            send(
-              JSON.stringify({
-                type: "result",
-                message: "loss",
-              }),
-            );
           }
+          this.setIslost(true);
+          send(
+            JSON.stringify({
+              type: "result",
+              message: "loss",
+            }),
+          );
         }
       } else {
         if (this.player === 1) {
-          if (!ball.Defeat.isPlaying) {
+          if (ball.audio && ball.Defeat && !ball.Defeat.isPlaying) {
             ball.Defeat.currentTime = 0;
             ball.Defeat.play();
-            this.setIslost(true);
-            send(
-              JSON.stringify({
-                type: "result",
-                message: "loss",
-              }),
-            );
           }
+          this.setIslost(true);
+          send(
+            JSON.stringify({
+              type: "result",
+              message: "loss",
+            }),
+          );
         } else {
-          if (!ball.Victory.isPlaying) {
+          if (ball.audio && ball.Victory && !ball.Victory.isPlaying) {
             ball.Victory.currentTime = 0;
             ball.Victory.play();
-            this.setIsWon(true);
-            send(
-              JSON.stringify({
-                type: "result",
-                message: "win",
-              }),
-            );
           }
+          this.setIsWon(true);
+          send(
+            JSON.stringify({
+              type: "result",
+              message: "win",
+            }),
+          );
         }
       }
       this.setReady(false);
