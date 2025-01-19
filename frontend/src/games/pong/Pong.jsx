@@ -40,6 +40,7 @@ const Pong = ({
   const isMobile = useRef(false);
   const authContextData = useContext(AuthContext);
   const [isPortrait, setIsPortrait] = useState(false);
+  const [costumeMessage, setcostumeMessage] = useState(false);
 
   useEffect(() => {
     isMobile.current = /android|iphone|ipad|ipod/i.test(
@@ -305,6 +306,7 @@ const Pong = ({
     addMessageHandler(messageHandler);
     const handleKeyDown = (event) => {
       ballRef.current.audioLoader(sm.current);
+      setcostumeMessage(true);
       if (playersRef.current[player - 1].rotating || isSpectator) return;
       keyboard.current[event.code] = true;
     };
@@ -445,6 +447,7 @@ const Pong = ({
 						border-[0.5px] border-stroke-sc"
             onTouchStart={() => {
               ballRef.current.audioLoader(sm.current);
+              setcostumeMessage(true);
               if (playersRef.current[player - 1].rotating) return;
               keyboard.current["Space"] = true;
             }}
@@ -498,6 +501,12 @@ const Pong = ({
           </div>
         </div>
       )}
+      {isSpectator && !costumeMessage &&
+        <div className="absolute w-full h-auto text-center overflow-hidden z-[2] p-16 animate-pulse">
+          <h1>Spectator Mode</h1>
+          <h2>Press Any key To Activate The Game Sound</h2>
+        </div>
+      }
       <canvas id="pong" className="block"></canvas>
     </div>
   );
