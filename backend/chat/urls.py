@@ -7,11 +7,11 @@ urlpatterns = [
         views.ChatConversation.as_view(),
     ),
     path(
-        "chat/getMessages/",
+        "api/chat/messages/<str:convID>/<int:offset>/",
         views.getMessages.as_view(),
     ),
     path(
-        "chat/conversations/search/",
+        "api/chat/conversations/search/",
         views.search_conversations,
     ),
 ]

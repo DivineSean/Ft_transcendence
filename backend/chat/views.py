@@ -174,23 +174,27 @@ class ChatConversation(APIView):
 class getMessages(APIView):
     # Expecting convID, limit = how much data you want (optional => default 2,)
     # offset(from where you want data to be fetched from (default = 0))
-    def post(self, request, *args, **kwargs):
+    def get(self, request, convID=None, offset=0):
+
+        if not convID:
+            return Response(
+                "no conversation id provided", status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
-            convID = Conversation.objects.get(ConversationId=request.data.get("convID"))
-        except:
-            return Response("convID not valid", status=status.HTTP_400_BAD_REQUEST)
+            conversation = Conversation.objects.get(ConversationId=convID)
+        except Exception as e:
+            return Response({"errro": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         response = Response(status=status.HTTP_200_OK)
 
         chatMessages = []
-        messages = Message.objects.filter(ConversationName=convID).order_by(
+        messages = Message.objects.filter(ConversationName=conversation).order_by(
             "-timestamp"
         )
 
         paginator = PageNumberPagination()
         try:
-            offset = int(request.data.get("offset", 0))
             paginator.page_size = int(request.data.get("limit", 20))
         except ValueError:
             response.data = {"Error": "Either Offeset or limit is not a Number"}
@@ -203,7 +207,7 @@ class getMessages(APIView):
             if message.sender.email == request._user.email:
                 chatMessages.append(
                     {
-                        "convId": convID.ConversationId,
+                        "convId": conversation.ConversationId,
                         "messageId": message.MessageId,
                         "message": message.message,
                         "isRead": message.isRead,
@@ -214,10 +218,10 @@ class getMessages(APIView):
                     }
                 )  # maybe other fields, not sure
             else:
-                receiverID = convID.Receiver.id
+                receiverID = conversation.Receiver.id
                 chatMessages.append(
                     {
-                        "convId": convID.ConversationId,
+                        "convId": conversation.ConversationId,
                         "messageId": message.MessageId,
                         "message": message.message,
                         "isRead": message.isRead,

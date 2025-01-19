@@ -138,10 +138,7 @@ export const NotifProvider = ({ children }) => {
 
   const getMessages = async (convId, setOffsetMssg) => {
     try {
-      const res = await FetchData.post("chat/getMessages/", {
-        convID: convId,
-        offset: 0,
-      });
+      const res = await FetchData.get(`api/chat/messages/${convId}/0/`);
 
       if (res.status === 200) {
         const data = await res.json();
@@ -166,10 +163,9 @@ export const NotifProvider = ({ children }) => {
     setAllMessages,
   ) => {
     try {
-      const res = await FetchData.post("chat/getMessages/", {
-        convID: convId,
-        offset: offsetMssg,
-      });
+      const res = await FetchData.get(
+        `api/chat/messages/${convId}/${offsetMssg}/`,
+      );
 
       if (res.status === 200) {
         const data = await res.json();
