@@ -66,7 +66,9 @@ export const create3DModel = async (canvas, modelFolderName) => {
   const loader = new GLTFLoader(manager);
 
   loader
-    .loadAsync(`https://${window.location.hostname}:${window.location.port}/planet/scene.gltf`)
+    .loadAsync(
+      `https://${window.location.hostname}:${window.location.port}/planet/scene.gltf`,
+    )
     .then((gltf) => {
       const mesh = gltf.scene;
       scene.add(mesh);
