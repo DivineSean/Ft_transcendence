@@ -42,6 +42,7 @@ const defaultBracket = [
 
 const Brackets = () => {
   const canvasRef = useRef(null);
+	const regionRef = useRef(null);
   const { uid } = useParams();
   const FetchData = new FetchWrapper();
   const [bracket, setBracket] = useState(null);
@@ -70,11 +71,11 @@ const Brackets = () => {
   }, []);
 
   useEffect(() => {
-    if (canvasRef && canvasRef.current) {
+    if (canvasRef && canvasRef.current && region && regionRef.current) {
       const tournament = new Tournament(canvasRef.current);
       tournament.init();
     }
-  }, [canvasRef && canvasRef.current]);
+  }, [canvasRef && canvasRef.current, region && regionRef]);
 
   console.log(bracket);
 
@@ -86,7 +87,7 @@ const Brackets = () => {
 				</div>
 			} */}
       {region && (
-        <div className="grow h-full region flex md:justify-center justify-start overflow-y-auto no-scrollbar gap-4">
+        <div ref={regionRef} className="grow h-full region flex md:justify-center justify-start overflow-y-auto no-scrollbar gap-4">
           <canvas
             ref={canvasRef}
             style={{ width: "100%", height: "100%" }}
