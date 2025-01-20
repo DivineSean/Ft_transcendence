@@ -115,7 +115,7 @@ const Brackets = () => {
                       className={`transition-all flex items-center justify-between cursor-pointer gap-8
 											team z-10 md:p-8 p-4
 											${bracket.isCompleted && team.result === "win" ? "team-winner" : ""}
-											${bracket.isCompleted && team.result === "loss" ? "team-loser" : ""}
+											${bracket.isCompleted && (team.result === "loss" || team.result === "disconnected") ? "team-loser" : ""}
 											team-${team.username} 
 											${index === 1 && "border-t-[0.5px] border-stroke-sc"}
 										`}
