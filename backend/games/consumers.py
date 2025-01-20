@@ -130,6 +130,7 @@ class GameConsumer(WebsocketConsumer):
 
         self.send(text_data=json.dumps({"type": "game_manager", "message": game_data}))
 
+
     def update_result(self, message):
         self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
 
@@ -251,6 +252,7 @@ class GameConsumer(WebsocketConsumer):
                 self.group_name,
                 {"type": "broadcast", "info": "time", "message": start_time},
             )
+            
 
     def handle_reconnect(self, game_data):
         # remove the current player since they are reconnecting

@@ -90,14 +90,14 @@ const Profile = () => {
         contextData.setRefresh(false);
       }
     }
-  }, [contextData.refresh]);
+  }, [contextData.refresh, contextData.status]);
 
   return (
     <div className="flex flex-col w-full grow lg:gap-32 gap-16 relative">
       <Header link="profile" />
       {authContextData.globalMessage &&
         authContextData.globalMessage.message && <Toast position="topCenter" />}
-      {(!contextData.profileInfo || !contextData.status.stats) && (
+      {(!contextData.profileInfo || !contextData.status) && (
         <LoadingPage />
       )}
       {!authContextData.displayMenuGl && contextData.profileInfo !== null && (
@@ -196,7 +196,7 @@ const Profile = () => {
 											"
                   >
                     <FiEdit3 className="text-green" />
-                    <p className="text-txt-xs md:text-txt-md">edit profile</p>
+                    <p className="text-txt-xs md:text-txt-md">Edit Profile</p>
                   </button>
                 )}
                 <div className="w-full flex gap-16 flex-col items-center lg:hidden">
@@ -274,16 +274,16 @@ const Profile = () => {
                       </div>
                     ))}
                   </div>
-                  {selectedMenu === "overview" && contextData.status.stats && (
+                  {selectedMenu === "overview" && contextData.status && (
                     <ProfileOverview />
                   )}
                   {selectedMenu === "statistics" &&
-                    contextData.status.stats && <ProfileStatistics />}
+                    contextData.status && <ProfileStatistics />}
                   {selectedMenu === "achievements" &&
-                    contextData.status.stats && (
+                    contextData.status && (
                       <ProfileAchievements username={username} />
                     )}
-                  {selectedMenu === "friends" && contextData.status.stats && (
+                  {selectedMenu === "friends" && contextData.status && (
                     <ProfileFriends username={username} />
                   )}
                 </>
