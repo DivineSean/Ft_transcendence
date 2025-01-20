@@ -148,8 +148,7 @@ class GameConsumer(WebsocketConsumer):
         else:
             self.user.increase_exp(XP_GAIN_NORMAL)
 
-        self.user.status = User.Status.ONLINE
-        self.user.save()
+        self.user.update_status(User.Status.ONLINE)
         self.save_game_data(
             players=json.dumps(self.players), status="completed", countdown=0
         )
@@ -196,6 +195,8 @@ class GameConsumer(WebsocketConsumer):
         )
 
     def sending_decline(self):
+        # TODO: prevent decline after accept
+
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
             {
@@ -208,9 +209,21 @@ class GameConsumer(WebsocketConsumer):
         )
 
         try:
+            self.players = json.loads(
+                r.hget(f"game_room_data:{self.game_uuid}", "players")
+            )
+
             GameRoom.objects.filter(pk=self.game_uuid).delete()
             r.delete(f"game_room_data:{self.game_uuid}")
             r.delete(f"game_room_data:{self.game_uuid}:players")
+
+            for player in self.players:
+                try:
+                    user = User.objects.get(pk=player["user"]["id"])
+                    user.update_status(User.Status.ONLINE)
+                except Exception as e:
+                    print(e, flush=True)
+
         except Exception as e:
             print("Failed To Delete GameRoom", str(e), flush=True)
 
@@ -220,6 +233,7 @@ class GameConsumer(WebsocketConsumer):
         player = self.players[self.me]
         if not player["ready"]:
             player["ready"] = True
+            self.user.update_status(User.Status.IN_GAME)
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
                 {
@@ -232,7 +246,7 @@ class GameConsumer(WebsocketConsumer):
                 },
             )
 
-        self.save_game_data(players=json.dumps(self.players))
+        self.save_game_data(players=json.dumps(self.players), countdown=0)
         all_ready = all(player.get("ready", False) for player in self.players)
         if all_ready:
             start_time = int(time.time() * 1000)
