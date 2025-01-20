@@ -43,9 +43,13 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
                         }
                     )
                 )
-                raise Exception("You are already participating in an active game room.")
+                raise Exception(
+                    "You are already participating in an active game room.")
         except Game.DoesNotExist:
-            self.close(code=4004, reason=f"Game {self.game_name} does not exist.")
+            self.close(
+                code=4004,
+                reason=f"Game {self.game_name} does not exist."
+            )
             return
         except Exception as e:
             try:
@@ -53,8 +57,11 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
             except:
                 return
 
-        searching = r.scard(f"{self.game_name}_players_in_queue")
-        await self.send(text_data=json.dumps({"type": "update", "message": searching}))
+        try:
+            searching = r.scard(f"{self.game_name}_players_in_queue")
+            await self.send(text_data=json.dumps({"type": "update", "message": searching}))
+        except:
+            pass
 
     async def join_queue(self):
         try:
@@ -101,16 +108,19 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
     async def update(self, event):
         await self.send(
-            text_data=json.dumps({"type": "update", "message": event["message"]})
+            text_data=json.dumps(
+                {"type": "update", "message": event["message"]})
         )
 
     async def update_time(self, event):
         await self.send(
-            text_data=json.dumps({"type": "update_time", "message": event["message"]})
+            text_data=json.dumps(
+                {"type": "update_time", "message": event["message"]})
         )
 
     async def match(self, event):
         await self.send(
-            text_data=json.dumps({"type": "match_found", "message": event["message"]})
+            text_data=json.dumps(
+                {"type": "match_found", "message": event["message"]})
         )
         await self.close(code=4002)

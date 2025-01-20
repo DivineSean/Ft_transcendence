@@ -48,15 +48,15 @@ def mark_game_abandoned(game_room_id, user_id):
                 user.increase_exp(XP_GAIN_TN)
             else:
                 user.increase_exp(XP_GAIN_NORMAL)
-        # Back to Being Online Again
         PlayerRating.handle_rating(
             user, Game.objects.get(pk=game_room_data["game"]), player
         )
-        user.status = User.Status.ONLINE
-        user.save()
+        # Back to Being Online Again
+        user.update_status(User.Status.ONLINE)
 
     game_room_data["status"] = GameRoom.Status.COMPLETED
-    serializer = GameRoomSerializer(game_room, data=game_room_data, partial=True)
+    serializer = GameRoomSerializer(
+        game_room, data=game_room_data, partial=True)
     if serializer.is_valid():
         serializer.save()
         r.hset(f"game_room_data:{game_room_id}", mapping=serializer.data)
@@ -96,6 +96,14 @@ def mark_game_room_as_expired(game_room_id):
                     player.save()
             game_room.save()
 
+            # Change user status (in-game -> online/offline)
+            for player in players:
+                try:
+                    user = User.objects.get(pk=player.user.id)
+                    user.update_status(User.Status.ONLINE)
+                except Exception as e:
+                    print(e, flush=True)
+
             channel_layer = get_channel_layer()
             r.hset(f"game_room_data:{game_room_id}", "status", "expired")
             async_to_sync(channel_layer.group_send)(
@@ -130,7 +138,8 @@ def sync_game_room_data(game_room_id):
     game_room_data["state"] = json.loads(game_room_data["state"])
     game_room_data["players"] = json.loads(game_room_data["players"])
     game_room_data["bracket"] = json.loads(game_room_data["bracket"])
-    serializer = GameRoomSerializer(game_room, data=game_room_data, partial=True)
+    serializer = GameRoomSerializer(
+        game_room, data=game_room_data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return f"GameRoom {game_room_id} synched successfully"
