@@ -53,8 +53,7 @@ class User(AbstractUser):
         upload_to="profile_images/", blank=True, null=True
     )
     exp = models.PositiveBigIntegerField(default=0)
-    blockedUsers = models.JSONField(
-        default=callableDict, null=True, blank=True)
+    blockedUsers = models.JSONField(default=callableDict, null=True, blank=True)
 
     exp_history = models.JSONField(default=list)
 
@@ -66,18 +65,23 @@ class User(AbstractUser):
 
     def update_status(self, new_status):
         from games.models import Player, GameRoom
+
         self.refresh_from_db()
 
         if new_status == self.Status.ONLINE:
             if self.status == self.Status.OFFLINE:
-                player = Player.objects.filter(
-                    user=self,
-                    game_room__status__in=[
-                        GameRoom.Status.WAITING,
-                        GameRoom.Status.ONGOING,
-                        GameRoom.Status.PAUSED,
-                    ]
-                ).select_related("game_room").first()
+                player = (
+                    Player.objects.filter(
+                        user=self,
+                        game_room__status__in=[
+                            GameRoom.Status.WAITING,
+                            GameRoom.Status.ONGOING,
+                            GameRoom.Status.PAUSED,
+                        ],
+                    )
+                    .select_related("game_room")
+                    .first()
+                )
                 if player and player.ready is True:
                     self.status = self.Status.IN_GAME
                 else:

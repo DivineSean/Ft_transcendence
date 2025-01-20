@@ -55,8 +55,7 @@ def mark_game_abandoned(game_room_id, user_id):
         user.update_status(User.Status.ONLINE)
 
     game_room_data["status"] = GameRoom.Status.COMPLETED
-    serializer = GameRoomSerializer(
-        game_room, data=game_room_data, partial=True)
+    serializer = GameRoomSerializer(game_room, data=game_room_data, partial=True)
     if serializer.is_valid():
         serializer.save()
         r.hset(f"game_room_data:{game_room_id}", mapping=serializer.data)
@@ -138,8 +137,7 @@ def sync_game_room_data(game_room_id):
     game_room_data["state"] = json.loads(game_room_data["state"])
     game_room_data["players"] = json.loads(game_room_data["players"])
     game_room_data["bracket"] = json.loads(game_room_data["bracket"])
-    serializer = GameRoomSerializer(
-        game_room, data=game_room_data, partial=True)
+    serializer = GameRoomSerializer(game_room, data=game_room_data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return f"GameRoom {game_room_id} synched successfully"
