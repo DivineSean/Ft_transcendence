@@ -130,6 +130,31 @@ class GameConsumer(WebsocketConsumer):
 
         self.send(text_data=json.dumps({"type": "game_manager", "message": game_data}))
 
+    def check_results(self):
+        lock = r.set(f"game_room_data:{self.game_uuid}:lock", self.user_id, nx=True, ex=5)
+        
+        if lock:
+            try:
+                all_players = r.lrange(f"game_room_data:{self.game_uuid}:players", 0, -1)
+                total_results = 0
+                for player_id in all_players:
+                    count = r.llen(f"game_room_data:{self.game_uuid}:players:{player_id}:result")
+                    print("EEEEEEEEEEY WHAT ==> ", r.lindex(f"game_room_data:{self.game_uuid}:players:{player_id}:result", 0), flush=True)
+                    if (count > 0):
+                        total_results += 1
+                    print("EEEEEEEEEEY count ==> ", total_results, flush=True)
+                if total_results == 2 and r.lindex(f"game_room_data:{self.game_uuid}:players:{self.user_id}:login", 0) == "No":
+                    print("Start Tournament", flush=True)
+                    processGameResult.delay(self.game_uuid)
+                    r.rpush(f"game_room_data:{self.game_uuid}:players:{self.user_id}:login", "Yes")
+            finally:
+                #delete player left
+                r.delete(f"game_room_data:{self.game_uuid}:lock")
+        else:
+            print("im sleeping zzzzzzzzzzzzz", flush=True)
+            time.sleep(5)
+            self.check_results()
+
     def update_result(self, message):
         self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
 
@@ -139,20 +164,42 @@ class GameConsumer(WebsocketConsumer):
             self.user, Game.objects.get(name=self.game_name), player
         )
 
-        is_tournament = json.loads(
-            r.hget(f"game_room_data:{self.game_uuid}", "bracket")
-        )
-        if is_tournament:
-            processGameResult.delay(self.game_uuid)
-            self.user.increase_exp(XP_GAIN_TN)
-        else:
-            self.user.increase_exp(XP_GAIN_NORMAL)
-
         self.user.status = User.Status.ONLINE
         self.user.save()
         self.save_game_data(
             players=json.dumps(self.players), status="completed", countdown=0
         )
+
+        is_tournament = json.loads(
+            r.hget(f"game_room_data:{self.game_uuid}", "bracket")
+        )
+        if is_tournament:
+            # print("message is ====> ", message, flush=True)
+            # r.rpush(f"game_room_data:{self.game_uuid}:players{self.user_id}:result", message)
+            # print("here is the result ",r.llen(f"game_room_data:{self.game_uuid}:players:{self.user_id}:result"), flush=True)
+            print("TYYYYPE  ",type(message), flush=True)
+            message = str(message)  # Ensure the message is a string
+            key = f"game_room_data:{self.game_uuid}:players:{self.user_id}:result"  # Correct key format
+
+            # Add the message to the Redis list
+            print("Message is ====> ", message, flush=True)
+            r.rpush(key, message)
+            r.rpush(f"game_room_data:{self.game_uuid}:players:{self.user_id}:login", "No")
+
+            # Check the list length
+            list_length = r.llen(key)
+            print(f"Key used: {key}", flush=True)
+            print("Here is the result: ", list_length, flush=True)
+
+
+            #once the game is finished
+            # user a user b,
+            self.check_results()
+            # processGameResult.apply_async(args=[self.game_uuid], countdown = 5) # 5 => save db
+            # print("IM increasing the xp of this game ", self.game_uuid, flush=True)
+            self.user.increase_exp(XP_GAIN_TN)
+        else:
+            self.user.increase_exp(XP_GAIN_NORMAL)
 
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
@@ -294,7 +341,7 @@ class GameConsumer(WebsocketConsumer):
             self.save_game_data(state=json.dumps(game_data["state"]))
 
     def handle_timeout(self):
-        if not self.players or self.me is None:
+        if not hasattr(self , "players") or not self.players or self.me is None:
             return
 
         game_data = r.hgetall(f"game_room_data:{self.game_uuid}")

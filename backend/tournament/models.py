@@ -2,6 +2,16 @@ from django.db import models
 from authentication.models import User
 from games.models import GameRoom, Player, Game
 import uuid
+import redis
+from django.conf import settings
+
+r = redis.Redis(
+    host=settings.REDIS_CONNECTION["host"],
+    port=settings.REDIS_CONNECTION["port"],
+    password=settings.REDIS_CONNECTION["password"],
+    db=settings.REDIS_CONNECTION["db"],
+    decode_responses=True,
+)
 
 
 class Tournament(models.Model):
@@ -65,7 +75,7 @@ class tournamentPlayer(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-
+#pls mat9is walo mn hadchi tanji ngado 
 class Bracket(models.Model):
     tournament = models.ForeignKey(
         "Tournament", related_name="brackets", on_delete=models.CASCADE
@@ -74,16 +84,35 @@ class Bracket(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def getWinners(self):
+        listofGameRooms = GameRoom.objects.filter(bracket = self, status=GameRoom.Status.COMPLETED)
+        # 1 2 
+        listofExpired = GameRoom.objects.filter(bracket = self, status=GameRoom.Status.EXPIRED)
 
-        return Player.objects.filter(
-            game_room__bracket=self, result=Player.Result.WIN
-        ).select_related("user").order_by("id"), Player.objects.filter(
-            game_room__bracket=self, result=Player.Result.DISCONNECTED
-        ).select_related(
-            "user"
-        ).order_by(
-            "id"
-        )
+        print("LIST EXPIRED",  listofExpired, flush=True)
+        #data
+        winners = []
+        allData = []
+        for gameRoom in listofGameRooms:
+            all_players = Player.objects.filter(game_room = gameRoom)
+            for player_id in all_players:
+                if (player_id.result == "win"):
+                    print("HEERE WIIN", flush=True)
+                    winners.append(Player.objects.get(user__id=player_id.user.id, game_room=gameRoom))
+                    allData.append(Player.objects.get(user__id=player_id.user.id, game_room=gameRoom))
+   
+
+        for gr in listofExpired:
+            all_players = Player.objects.filter(game_room = gr)
+            for player_id in all_players:
+                print("TYPE PLAYER ID IS disc : ", type(player_id))
+                if (player_id.result == "Disconnected"):
+                    allData.append(Player.objects.get(user__id=player_id.user.id, game_room=gr))
+                if (player_id.result == "win"):
+                    allData.append(Player.objects.get(user__id=player_id.user.id, game_room=gr))
+                    winners.append(Player.objects.get(user__id=player_id.user.id, game_room=gr))
+        print("Winners =>   ",winners, flush=True)
+        print("allData =>   ",allData, flush=True)
+        return winners, allData 
 
     def isComplete(self):
         return not GameRoom.objects.filter(

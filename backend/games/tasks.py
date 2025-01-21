@@ -7,6 +7,8 @@ from games.serializers import GameRoomSerializer
 from django.conf import settings
 import redis
 import json
+from django.db import transaction
+from django.db.transaction import on_commit
 
 r = redis.Redis(
     host=settings.REDIS_CONNECTION["host"],
@@ -49,6 +51,7 @@ def mark_game_abandoned(game_room_id, user_id):
             else:
                 user.increase_exp(XP_GAIN_NORMAL)
         # Back to Being Online Again
+        r.rpush(f"game_room_data:{game_room_id}:players:{user_id}:result", player["result"])
         PlayerRating.handle_rating(
             user, Game.objects.get(pk=game_room_data["game"]), player
         )
@@ -71,6 +74,7 @@ def mark_game_abandoned(game_room_id, user_id):
         )
 
         if game_room.bracket is not None:
+            print("ABANDONED TASK CALLED", flush=True)
             processGameResult.delay(game_room_id)
 
         return f"GameRoom {game_room_id} marked as abandoned"
@@ -80,24 +84,21 @@ def mark_game_abandoned(game_room_id, user_id):
 
 @shared_task
 def mark_game_room_as_expired(game_room_id):
-    from tournament.tasks import processGameResult
-
+    from tournament.tasks import processGameResult  
+    
     try:
-        game_room = GameRoom.objects.get(id=game_room_id)
-        if game_room.status == "waiting":
+        with transaction.atomic():
+            game_room = GameRoom.objects.select_for_update().get(id=game_room_id)
+            
+            if game_room.status != "waiting":
+                return f"GameRoom {game_room_id} is not in waiting status."        
+            
             game_room.status = "expired"
-            players = Player.objects.filter(game_room=game_room)
-            if game_room.bracket is not None:
-                for player in players:
-                    if player.ready is True:
-                        player.result = Player.Result.WIN
-                    else:
-                        player.result = Player.Result.DISCONNECTED
-                    player.save()
             game_room.save()
-
-            channel_layer = get_channel_layer()
             r.hset(f"game_room_data:{game_room_id}", "status", "expired")
+            
+            
+            channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
                 f"game_room_{game_room_id}",
                 {
@@ -108,10 +109,33 @@ def mark_game_room_as_expired(game_room_id):
                     },
                 },
             )
-
+        
             if game_room.bracket is not None:
-                processGameResult.delay(game_room_id)
+          
+                players = Player.objects.select_for_update().filter(game_room=game_room)
+                
+                for player in players:
+                    player.result = (
+                        Player.Result.WIN if player.ready 
+                        else Player.Result.DISCONNECTED
+                    )
+                    gr = str(game_room_id)
+                    id = str(player.user.id)
+                    res= str(player.result)
+                    r.rpush(
+                        f"game_room_data:{gr}:players:{id}:result", 
+                        str(r)
+                    )
+                    player.save()
+                print("PLAYERR = " ,id, type(id), flush=True)
+                print("game_room_id = " ,gr, type(gr), flush=True)
+                print("result = ", res, type(res), flush=True)
+                print("COMMITED====", flush=True)
+                on_commit(lambda: processGameResult.delay(game_room_id))
+                print("ON_COMMIT CALLED", flush=True)
+                
             return f"GameRoom {game_room_id} marked as expired."
+            
     except GameRoom.DoesNotExist:
         return f"GameRoom {game_room_id} does not exist."
 
