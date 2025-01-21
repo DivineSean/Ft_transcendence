@@ -1,5 +1,6 @@
 import SideOnlineFriends from "../components/home/SideOnlineFriends";
 import OnlineMatches from "../components/home/OnlineMatches";
+import UpcomingTournament from "../components/home/UpcomingTournament";
 import AuthContext from "../context/AuthContext";
 import Card from "../components/home/Card";
 import Header from "../components/Header";
@@ -15,14 +16,20 @@ const Home = () => {
   useEffect(() => {
     userContextData.getFriends();
     userContextData.getOnlineMatches();
+    userContextData.getUpcomingTournament();
 
     return () =>
       authContextData.setGlobalMessage({ message: "", isError: false });
   }, []);
 
-  useEffect(() => {}, [userContextData.onlineMatches]);
+  // useEffect(() => { }, [userContextData.onlineMatches]);
 
-  if (userContextData.userFriends && userContextData.userFriends.friends) {
+  // console.log("here: ", userContextData);
+  if (
+    userContextData &&
+    userContextData.userFriends &&
+    userContextData.userFriends.friends
+  ) {
     userContextData.userFriends.friends.map((friend) => {
       friends.push(<SideOnlineFriends key={friend.id} friend={friend} />);
     });
@@ -74,6 +81,11 @@ const Home = () => {
                         <OnlineMatches name={"online"} />
                         <OnlineMatches name={"tournament"} />
                       </>
+                    )}
+                  </div>
+                  <div className="">
+                    {userContextData.upcomingTournament && (
+                      <UpcomingTournament />
                     )}
                   </div>
                   <div className="primary-glass"></div>

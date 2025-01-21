@@ -177,8 +177,7 @@ const Profile = () => {
                   </>
                 ) : (
                   <p className="text-center text-txt-xs treacking-wide text-red normal-case grow flex items-center">
-                    you can't see the content of this user while you are
-                    blocking him
+                    You cannot view this user's profile while they are blocked.
                   </p>
                 )}
               </div>
@@ -289,8 +288,7 @@ const Profile = () => {
                 </>
               ) : (
                 <p className="h-full flex flex-col text-center text-txt-xs text-red justify-center normal-case">
-                  you can't see the content of this user while you are blocking
-                  him
+                  You cannot view this user's profile while they are blocked.
                 </p>
               )}
             </div>

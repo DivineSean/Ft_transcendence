@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import FetchWrapper from "../utils/fetchWrapper";
 import AuthContext from "./AuthContext";
 import NotifContext from "./NotifContext";
+import UpcomingTournament from "@/components/home/UpcomingTournament";
 
 const UserContext = createContext();
 
@@ -22,6 +23,7 @@ export const UserProvider = ({ children }) => {
   const [refresh, setRefresh] = useState(false);
   const [blockedUsers, setBlockedUsers] = useState(null);
   const [onlineMatches, setOnlineMatches] = useState(null);
+  const [upcomingTournament, setUpcomingTournament] = useState(null);
   const [status, setStatus] = useState(null);
   const [profileAchievements, setProfileAchievements] = useState(null);
 
@@ -405,6 +407,21 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const getUpcomingTournament = async () => {
+    try {
+      const res = await FetchData.get("api/tournaments/upcoming/");
+      if (res.ok) {
+        const data = await res.json();
+        setUpcomingTournament(data);
+      }
+    } catch (error) {
+      authContextData.setGlobalMessage({
+        message: error.message,
+        isError: true,
+      });
+    }
+  };
+
   const get_rankings = async (game, setRankings, offset) => {
     try {
       const res = await FetchData.get(`api/rankings/${game}/${offset}/`);
@@ -441,6 +458,7 @@ export const UserProvider = ({ children }) => {
   const contextData = {
     status,
     onlineMatches,
+    upcomingTournament,
     profileAchievements,
     blockedUsers,
     refresh,
@@ -474,6 +492,8 @@ export const UserProvider = ({ children }) => {
     get_rankings,
     getStats,
     getProfileAchievements,
+
+    getUpcomingTournament,
   };
 
   return (

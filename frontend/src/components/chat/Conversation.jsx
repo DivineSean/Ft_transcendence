@@ -294,10 +294,12 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
           </div>
           <div className="flex flex-col justify-between h-full">
             <h2 className="md:text-h-sm-md text-h-sm-sm font-bold max-w-[200px] truncate">{`${friendInfo.first_name} ${friendInfo.last_name}`}</h2>
-            {friendInfo.status === "online" && !friendInfo.isBlocked && (
-              <p className="md:text-txt-md text-txt-xs text-green">online</p>
+            {friendInfo.status !== "offline" && !friendInfo.isBlocked && (
+              <p className="md:text-txt-md text-txt-xs text-green">
+                {friendInfo.status}
+              </p>
             )}
-            {friendInfo.status !== "online" && !friendInfo.isBlocked && (
+            {friendInfo.status === "offline" && !friendInfo.isBlocked && (
               <p className="text-txt-xs text-stroke-sc lowercase">
                 last seen {friendInfo.last_login}
               </p>

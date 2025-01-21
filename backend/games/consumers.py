@@ -195,23 +195,14 @@ class GameConsumer(WebsocketConsumer):
         )
 
     def sending_decline(self):
-        # TODO: prevent decline after accept
-
-        async_to_sync(self.channel_layer.group_send)(
-            self.group_name,
-            {
-                "type": "broadcast",
-                "info": "game_manager",
-                "message": {
-                    "r": "no",
-                },
-            },
-        )
-
         try:
             self.players = json.loads(
                 r.hget(f"game_room_data:{self.game_uuid}", "players")
             )
+            bracket = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "bracket"))
+
+            if bracket is not None or self.players[self.me]["ready"] is True:
+                return
 
             GameRoom.objects.filter(pk=self.game_uuid).delete()
             r.delete(f"game_room_data:{self.game_uuid}")
@@ -226,6 +217,18 @@ class GameConsumer(WebsocketConsumer):
 
         except Exception as e:
             print("Failed To Delete GameRoom", str(e), flush=True)
+            return
+
+        async_to_sync(self.channel_layer.group_send)(
+            self.group_name,
+            {
+                "type": "broadcast",
+                "info": "game_manager",
+                "message": {
+                    "r": "no",
+                },
+            },
+        )
 
     def update_readiness(self):
         self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
@@ -308,7 +311,7 @@ class GameConsumer(WebsocketConsumer):
             self.save_game_data(state=json.dumps(game_data["state"]))
 
     def handle_timeout(self):
-        if not self.players or self.me is None:
+        if not hasattr(self, "players") or not self.players or self.me is None:
             return
 
         game_data = r.hgetall(f"game_room_data:{self.game_uuid}")

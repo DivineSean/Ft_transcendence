@@ -65,6 +65,7 @@ class Chat(WebsocketConsumer):
             self.scope["user"].refresh_from_db()
             if self.scope["user"].connect_count == 0:
                 self.scope["user"].update_status(User.Status.OFFLINE)
+                self.scope["user"].last_login = timezone.now()
                 self.scope["user"].save()
 
         async_to_sync(self.channel_layer.group_discard)(
