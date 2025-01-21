@@ -328,7 +328,7 @@ class GameConsumer(WebsocketConsumer):
             self.save_game_data(state=json.dumps(game_data["state"]))
 
     def handle_timeout(self):
-        if not self.players or self.me is None:
+        if not hasattr(self, "players") or not self.players or self.me is None:
             return
 
         game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
