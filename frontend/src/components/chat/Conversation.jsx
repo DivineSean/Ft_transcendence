@@ -172,7 +172,6 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
       setOldInputValue(inputValue);
     }, 1000);
 
-    console.log("friendInfo: ", friendInfo);
     return () => {
       clearTimeout(sendStopTyping);
     };
