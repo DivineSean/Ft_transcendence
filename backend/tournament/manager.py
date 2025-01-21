@@ -109,7 +109,7 @@ class TournamentManager:
         if current_bracket.isComplete():
             print("im in complete")  
             winners, disconnected = current_bracket.getWinners() # disconnected must be winners + disconneceted
-           
+        
 
             skippedPlayerss = (
                 Player.objects.filter(  # normalement hadi makhshach trowi error
@@ -119,10 +119,12 @@ class TournamentManager:
             )
             # totalPlayers = len(winners) + len(skippedPlayerss) #maybe khsni nchecki bhadi not sure
             if len(winners) == 0:  # maybe khsni n checki 3la skipped players hna
+                self.tournament.refresh_from_db()
                 self.tournament.isCanceled = True
                 self.tournament.save()
                 return
             elif len(winners) == 1:  # w ta hna not sure
+                self.tournament.refresh_from_db()
                 self.tournament.winner = winners[0].user
                 self.tournament.isCompleted = True
                 self.tournament.save()

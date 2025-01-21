@@ -111,7 +111,6 @@ def mark_game_room_as_expired(game_room_id):
             )
         
             if game_room.bracket is not None:
-          
                 players = Player.objects.select_for_update().filter(game_room=game_room)
                 
                 for player in players:

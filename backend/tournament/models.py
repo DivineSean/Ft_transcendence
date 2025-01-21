@@ -92,28 +92,33 @@ class Bracket(models.Model):
         #data
         winners = []
         allData = []
+
         for gameRoom in listofGameRooms:
             all_players = Player.objects.filter(game_room = gameRoom)
+            
             for player_id in all_players:
+                player_id.refresh_from_db()
+                print("THIS IS PLAYER RESULT THAT I RECEIVED : ",player_id.result, flush=True)
                 if (player_id.result == "win"):
                     print("HEERE WIIN", flush=True)
                     winners.append(Player.objects.get(user__id=player_id.user.id, game_room=gameRoom))
                     allData.append(Player.objects.get(user__id=player_id.user.id, game_room=gameRoom))
    
-
         for gr in listofExpired:
             all_players = Player.objects.filter(game_room = gr)
             for player_id in all_players:
-                print("TYPE PLAYER ID IS disc : ", type(player_id))
+                player_id.refresh_from_db()
                 if (player_id.result == "Disconnected"):
+
                     allData.append(Player.objects.get(user__id=player_id.user.id, game_room=gr))
+                
                 if (player_id.result == "win"):
                     allData.append(Player.objects.get(user__id=player_id.user.id, game_room=gr))
                     winners.append(Player.objects.get(user__id=player_id.user.id, game_room=gr))
         print("Winners =>   ",winners, flush=True)
         print("allData =>   ",allData, flush=True)
-        return winners, allData 
-
+        return winners, allData  # 2 winners
+ 
     def isComplete(self):
         return not GameRoom.objects.filter(
             bracket=self,
