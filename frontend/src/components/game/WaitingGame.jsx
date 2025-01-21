@@ -220,7 +220,8 @@ const ActionButtons = ({ data, me, send }) => (
 					);
 				}}
 				className={`secondary-glass p-8 px-16 transition-all flex gap-4 justify-center items-center
-rounded-md font-semibold tracking-wide ${data.players[me].ready === true ? "text-gray pointer-disabled" : "hover:bg-red/60 hover:text-white text-red"}`}
+rounded-md font-semibold tracking-wide disabled:text-stroke-sc disabled:cursor-not-allowed disabled:bg-transparent hover:bg-red/60 hover:text-white text-red`}
+				disabled={data.players[me].ready}
 			>
 				Decline
 			</button>
