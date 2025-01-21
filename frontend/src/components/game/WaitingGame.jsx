@@ -111,7 +111,13 @@ const WaitingGame = ({ data, send, game, decline, setGlobalMessage }) => {
 						</div>
 						<PlayerInfo player={otherInfo} />
 					</div>
-					<GameInfo game={game} flag={data.players[me].rating_gain} />
+					<GameInfo game={game} type={(() => {
+						if (data.bracket !== "null")
+							return "Tournament";
+						else if (!data.players[me].rating_gain && !data.players[me].rating_loss)
+							return "Normal";
+						return "Ranked";
+					})()} />
 				</div>
 
 				{data.players[me].rating_gain !== 0 && (
@@ -150,17 +156,13 @@ const PlayerInfo = ({ player }) => (
 	</div>
 );
 
-const GameInfo = ({ game, flag }) => (
+const GameInfo = ({ game, type }) => (
 	<div className="flex items-center justify-center flex-wrap gap-16">
 		<span className="px-8 p-4 rounded-lg bg-white/5 backdrop-blur-sm border border-stroke-sc">
 			<span className="text-xs md:text-sm text-white">{game} Game</span>
 		</span>
 		<span className="px-8 p-4 rounded-lg bg-green/10 backdrop-blur-sm border border-stroke-sc">
-			{flag !== 0 ? (
-				<span className="text-xs md:text-sm text-green">Ranked Match</span>
-			) : (
-				<span className="text-xs md:text-sm text-green">Normal Match</span>
-			)}
+			<span className="text-xs md:text-sm text-green">{type} Match</span>
 		</span>
 		<span className="px-8 p-4 rounded-lg bg-green/10 backdrop-blur-sm border border-green/20">
 			<span className="text-xs md:text-sm text-green">1v1</span>
@@ -187,7 +189,7 @@ const RatingInformation = ({ data, me }) => (
 	</div>
 );
 
-const ActionButtons = ({ data, me, game, send, navigate }) => (
+const ActionButtons = ({ data, me, send }) => (
 	<div className="flex gap-4 md:gap-8 justify-center mt-6 md:mt-8">
 		<button
 			onClick={() => {
@@ -205,22 +207,24 @@ const ActionButtons = ({ data, me, game, send, navigate }) => (
 		>
 			Accept
 		</button>
-		<button
-			onClick={() => {
-				if (data.bracket !== "null" || data.players[me].ready === true)
-					return;
-				send(
-					JSON.stringify({
-						type: "notready",
-						message: {},
-					}),
-				);
-			}}
-			className={`secondary-glass p-8 px-16 transition-all flex gap-4 justify-center items-center
-rounded-md font-semibold tracking-wide ${data.bracket !== "null" || data.players[me].ready === true ? "text-gray pointer-disabled" : "hover:bg-red/60 hover:text-white text-red"}`}
-		>
-			Decline
-		</button>
+		{data.bracket === "null" && (
+			<button
+				onClick={() => {
+					if (data.players[me].ready === true)
+						return;
+					send(
+						JSON.stringify({
+							type: "notready",
+							message: {},
+						}),
+					);
+				}}
+				className={`secondary-glass p-8 px-16 transition-all flex gap-4 justify-center items-center
+rounded-md font-semibold tracking-wide ${data.players[me].ready === true ? "text-gray pointer-disabled" : "hover:bg-red/60 hover:text-white text-red"}`}
+			>
+				Decline
+			</button>
+		)}
 	</div>
 );
 
