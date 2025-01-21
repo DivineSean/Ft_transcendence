@@ -50,8 +50,7 @@ class Chat(WebsocketConsumer):
         )
 
         self.connected = self.scope["cookies"]["refreshToken"][:99]
-        async_to_sync(self.channel_layer.group_add)(
-            self.connected, self.channel_name)
+        async_to_sync(self.channel_layer.group_add)(self.connected, self.channel_name)
         self.accept()
 
     def disconnect(self, code):
@@ -76,8 +75,7 @@ class Chat(WebsocketConsumer):
             self.connected, self.channel_name
         )
         for element in self.room_group_name:
-            async_to_sync(self.channel_layer.group_discard)(
-                element, self.channel_name)
+            async_to_sync(self.channel_layer.group_discard)(element, self.channel_name)
 
     def receive(self, text_data):
 
@@ -183,14 +181,12 @@ class Chat(WebsocketConsumer):
     def chat_typing(self, event):
         if event["sender"]["id"] != self.user["id"]:
             self.send(
-                text_data=json.dumps(
-                    {"type": "typing", "convId": event["convId"]})
+                text_data=json.dumps({"type": "typing", "convId": event["convId"]})
             )
 
     def chat_read_message(self, event):
         messages = (
-            Message.objects.filter(
-                isRead=False, ConversationName=event["convId"])
+            Message.objects.filter(isRead=False, ConversationName=event["convId"])
             .exclude(sender=self.user["id"])
             .update(isRead=True)
         )
@@ -217,8 +213,7 @@ class Chat(WebsocketConsumer):
         else:
             if event["sender"]["id"] != self.user["id"]:
                 self.send(
-                    text_data=json.dumps(
-                        {"type": "read", "convId": event["convId"]})
+                    text_data=json.dumps({"type": "read", "convId": event["convId"]})
                 )
 
     def chat_message(self, event):

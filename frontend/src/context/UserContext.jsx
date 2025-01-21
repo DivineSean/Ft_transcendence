@@ -458,7 +458,7 @@ export const UserProvider = ({ children }) => {
   const contextData = {
     status,
     onlineMatches,
-	upcomingTournament,
+    upcomingTournament,
     profileAchievements,
     blockedUsers,
     refresh,
@@ -492,8 +492,8 @@ export const UserProvider = ({ children }) => {
     get_rankings,
     getStats,
     getProfileAchievements,
-	
-	getUpcomingTournament,
+
+    getUpcomingTournament,
   };
 
   return (
