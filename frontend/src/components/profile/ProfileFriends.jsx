@@ -28,18 +28,13 @@ const Friends = ({ friend }) => {
           />
         </div>
         <div className="flex flex-col justify-center">
-          <div className="text-txt-xs font-bold cursor-pointer truncate max-w-[160px]">
+          <div className="text-txt-sm md:text-txt-md font-bold cursor-pointer truncate max-w-[160px]">
             {`${friend.first_name} ${friend.last_name}`}
           </div>
           <div className="text-txt-xs text-gray max-w-[120px] truncate">
             @{friend.username}
           </div>
         </div>
-      </div>
-      <div className="flex gap-16">
-        <button className="px-16 p-8 gap-10 transition-all rounded-md bg-green/70 text-black font-semibold hover:bg-green txt-xs">
-          Invite
-        </button>
       </div>
     </div>
   );

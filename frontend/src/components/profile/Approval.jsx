@@ -18,7 +18,7 @@ const Approval = ({ approval, setApproval }) => {
         //   }
         className="bg-black/70 h-full w-full absolute top-0 left-0 flex justify-center items-center"
       ></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px]">
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px]">
         <div className="secondary-glass p-32 flex flex-col items-center gap-24 z-[10]">
           <div className="flex flex-col gap-16 w-full items-center">
             {/* <h2 className="font-bold text-txt-xl text-red">{approval.type}</h2> */}
