@@ -19,6 +19,7 @@ import { UserProvider } from "./context/UserContext";
 import PongLocal from "./games/pong/PongLocal/PongLocal";
 import { NotifProvider } from "./context/NotifContext";
 import Tournaments from "./pages/Tournaments";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <NotifProvider>
             <UserProvider>
               <Routes>
+							<Route path="/" element={<LandingPage />} />
                 <Route path="forgotpassword/" element={<ForgotPassword />} />
                 <Route
                   path="forgotpassword/:uid"
