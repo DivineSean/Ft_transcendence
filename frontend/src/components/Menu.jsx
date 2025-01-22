@@ -50,22 +50,20 @@ const navLinks = [
 const Menu = ({ ...props }) => {
   const { displayMenuGl, setDisplayMenuGl, logout } = useContext(AuthContext);
   const userContextData = useContext(UserContext);
-	const navigate = useNavigate();
+  const navigate = useNavigate();
 
-	const navigateToPage = (link) => {
-		if (link.name === 'profile')
-			navigate(`/profile/overview`);
-		else
-			navigate(`/${link.name}`);
-		console.log(link.name);
-		setDisplayMenuGl(false);
-	}
+  const navigateToPage = (link) => {
+    if (link.name === "profile") navigate(`/profile/overview`);
+    else navigate(`/${link.name}`);
+    console.log(link.name);
+    setDisplayMenuGl(false);
+  };
   const links = [];
   navLinks.forEach((link) => {
     if (props.link === link.name) {
       links.push(
         <div
-					onClick={() => navigateToPage(link)}
+          onClick={() => navigateToPage(link)}
           key={link.name}
           className="font-semibold hover-secondary rounded-md"
         >

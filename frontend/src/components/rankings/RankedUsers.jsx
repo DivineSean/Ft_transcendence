@@ -18,13 +18,13 @@ const RankedUsers = ({ rank, username, rating, lvl, ranked, isSelf }) => {
       </p>
       <p className="hidden lg:block">{lvl}</p>
       <p className="">{rating}</p>
-			<div className="flex justify-center">
-				<img
-					src={`/images/rating/${ranked}.png`}
-					className="w-24 md:w-32 pointer-events-none"
-					alt="Rating level"
-				/>
-			</div>
+      <div className="flex justify-center">
+        <img
+          src={`/images/rating/${ranked}.png`}
+          className="w-24 md:w-32 pointer-events-none"
+          alt="Rating level"
+        />
+      </div>
     </div>
   );
 };

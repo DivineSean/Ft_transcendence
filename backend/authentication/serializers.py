@@ -5,6 +5,7 @@ from chat.models import Conversation
 from django.core.exceptions import ValidationError
 import re
 
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 

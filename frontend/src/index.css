@@ -482,6 +482,6 @@ input:-webkit-autofill:active {
   transform: rotate3d(0, 1, 0.5, 3.142rad);
 }
 .not-found {
-	-webkit-text-stroke-width: 0.5px;
+  -webkit-text-stroke-width: 0.5px;
   -webkit-text-stroke-color: black;
 }

@@ -33,8 +33,11 @@ const Matches = ({ data }) => {
               <GiPingPongBat className="md:ml-16 ml-8" />
               <div className="flex gap-4 normal-case justify-center items-center">
                 <div
-									onClick={() => navigate(`/profile/overview/${match.players[0].username}`)}
-									className="min-w-24 max-w-24 cursor-pointer min-h-24 max-h-24 md:min-w-32 md:max-w-32 md:min-h-32 md:max-h-32 rounded-full overflow-hidden flex border-[0.5px] border-stroke-sc">
+                  onClick={() =>
+                    navigate(`/profile/overview/${match.players[0].username}`)
+                  }
+                  className="min-w-24 max-w-24 cursor-pointer min-h-24 max-h-24 md:min-w-32 md:max-w-32 md:min-h-32 md:max-h-32 rounded-full overflow-hidden flex border-[0.5px] border-stroke-sc"
+                >
                   <img
                     src={
                       match.players[0].profile_image
@@ -47,8 +50,11 @@ const Matches = ({ data }) => {
                 </div>
                 <p className="font-bold text-green">vs</p>
                 <div
-									onClick={() => navigate(`/profile/overview/${match.players[1].username}`)}
-									className="min-w-24 max-w-24 cursor-pointer min-h-24 max-h-24 md:min-w-32 md:max-w-32 md:min-h-32 md:max-h-32 rounded-full overflow-hidden flex border-[0.5px] border-stroke-sc">
+                  onClick={() =>
+                    navigate(`/profile/overview/${match.players[1].username}`)
+                  }
+                  className="min-w-24 max-w-24 cursor-pointer min-h-24 max-h-24 md:min-w-32 md:max-w-32 md:min-h-32 md:max-h-32 rounded-full overflow-hidden flex border-[0.5px] border-stroke-sc"
+                >
                   <img
                     src={
                       match.players[1].profile_image

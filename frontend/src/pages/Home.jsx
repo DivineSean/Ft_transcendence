@@ -86,8 +86,8 @@ const Home = () => {
                   </div>
                   <div className="">
                     {userContextData.upcomingTournament && (
-											<UpcomingTournament />
-										)}
+                      <UpcomingTournament />
+                    )}
                   </div>
                 </article>
                 {friends.length !== 0 && (

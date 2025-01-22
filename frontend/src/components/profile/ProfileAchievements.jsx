@@ -93,7 +93,9 @@ const ProfileAchievements = ({ username }) => {
           ))}
         </>
       )}
-			{!contextData.profileAchievements && <p className="text-center py-32 text-stroke-sc">no achivements.</p>}
+      {!contextData.profileAchievements && (
+        <p className="text-center py-32 text-stroke-sc">no achivements.</p>
+      )}
     </div>
   );
 };

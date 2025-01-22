@@ -144,13 +144,14 @@ const Profile = () => {
                     />
                   </div>
                 )}
-                {contextData.profileInfo && !contextData.profileInfo.isUserBlocked && (
-                  <UserLevel
-                    exp={contextData.profileInfo.exp}
-                    level={contextData.profileInfo.level}
-                    percentage={contextData.profileInfo.percentage}
-                  />
-                )}
+                {contextData.profileInfo &&
+                  !contextData.profileInfo.isUserBlocked && (
+                    <UserLevel
+                      exp={contextData.profileInfo.exp}
+                      level={contextData.profileInfo.level}
+                      percentage={contextData.profileInfo.percentage}
+                    />
+                  )}
               </div>
 
               <div className="flex flex-col grow justify-between mt-16 overflow-y-auto no-scrollbar">
@@ -226,14 +227,15 @@ const Profile = () => {
                     </div>
                   )}
                 </div>
-                {contextData.profileInfo && !contextData.profileInfo.isUserBlocked && (
-                  <UserLevel
-                    exp={contextData.profileInfo.exp}
-                    level={contextData.profileInfo.level}
-                    percentage={contextData.profileInfo.percentage}
-                    isMobile={true}
-                  />
-                )}
+                {contextData.profileInfo &&
+                  !contextData.profileInfo.isUserBlocked && (
+                    <UserLevel
+                      exp={contextData.profileInfo.exp}
+                      level={contextData.profileInfo.level}
+                      percentage={contextData.profileInfo.percentage}
+                      isMobile={true}
+                    />
+                  )}
                 {!contextData.profileInfo.isUserBlocked && (
                   <div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">
                     <div className="flex w-[213px] items-center justify-center">

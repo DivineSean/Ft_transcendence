@@ -38,6 +38,7 @@ class getTournamentSerializer(serializers.ModelSerializer):
             return True
         return False
 
+
 class TournamentPlayerSerializer(serializers.ModelSerializer):
 
     username = serializers.CharField(source="user.username")
