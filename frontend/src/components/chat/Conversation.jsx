@@ -206,7 +206,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
         key={0}
         className="text-stroke-sc font-light tracking-wider text-txt-xs text-center"
       >
-        so messages yet! say hello!
+        It's quiet in here... say something!"
       </div>,
     );
   }

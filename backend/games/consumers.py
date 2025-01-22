@@ -138,7 +138,6 @@ class GameConsumer(WebsocketConsumer):
         PlayerRating.handle_rating(
             self.user, Game.objects.get(name=self.game_name), player
         )
-
         is_tournament = json.loads(
             r.hget(f"game_room_data:{self.game_uuid}", "bracket")
         )
