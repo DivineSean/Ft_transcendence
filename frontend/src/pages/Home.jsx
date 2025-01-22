@@ -12,6 +12,7 @@ import Toast from "../components/Toast";
 const Home = () => {
   const authContextData = useContext(AuthContext);
   const userContextData = useContext(UserContext);
+
   const friends = [];
   useEffect(() => {
     userContextData.getFriends();
@@ -21,6 +22,8 @@ const Home = () => {
     return () =>
       authContextData.setGlobalMessage({ message: "", isError: false });
   }, []);
+
+	console.log(userContextData, userContextData.generalLoading);
 
   // useEffect(() => { }, [userContextData.onlineMatches]);
 
@@ -45,10 +48,10 @@ const Home = () => {
       {!userContextData.generalLoading && (
         <>
           {!authContextData.displayMenuGl && (
-            <div className="container px-16">
+            <div className="container px-16 pb-16">
               <section className="flex lg:gap-32 gap-16 justify-end">
                 <div className="backdrop-blur-sm w-full h-full absolute top-0 right-0 z-[-1]"></div>
-                <article className="flex flex-col gap-32 grow">
+                <article className="flex flex-col gap-32">
                   <div className="grid lg:grid-cols-[1.1fr_1fr] lg:gap-32 gap-16">
                     <Card
                       title="welcome back,"
@@ -71,7 +74,7 @@ const Home = () => {
                       description="Adventure awaits! Meet friends, play games, and explore a world full of possibilities."
                       isModel={true}
                       isMainButton={false}
-                      buttonContent="Coming Soon..."
+                      buttonContent="Coming Soon"
                       imgSrc="images/bmo.png"
                     />
                   </div>
@@ -85,15 +88,14 @@ const Home = () => {
                   </div>
                   <div className="">
                     {userContextData.upcomingTournament && (
-                      <UpcomingTournament />
-                    )}
+											<UpcomingTournament />
+										)}
                   </div>
-                  <div className="primary-glass"></div>
                 </article>
                 {friends.length !== 0 && (
                   <>
                     <div className="min-w-[83px] lg:flex hidden"></div>
-                    <article className="fixed side-online-friends-container py-16 primary-glass min-w-[83px] lg:flex hidden flex-col gap-16 items-center ">
+                    <article className="fixed side-online-friends-container py-16 primary-glass min-w-[83px] lg:flex hidden flex-col gap-16 items-center">
                       <div className="px-8 custom-scrollbar overflow-y-auto">
                         {friends}
                       </div>
