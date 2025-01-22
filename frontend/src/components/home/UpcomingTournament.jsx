@@ -40,12 +40,11 @@ const UpcomingTournament = () => {
     }
   };
 
-  // console.log(tournament, Object.keys(tournament).length === 0);
   return (
     <div className="glass-component flex-col md:gap-32 gap-16 ">
       <h3 className="md:text-h-lg-md text-h-sm-md">Upcoming tournament</h3>
       {/* <div className="flex gap-32 p-16 bg-gray/5 rounded-lg border border-gray/10 items-center"> */}
-      <div className="bg-gray/5 rounded-lg py-8 border-[0.5px] border-stroke-sc flex-col flex lg:max-h-[100px] lg:h-[100px] max-h-[100px] h-[100px]">
+      <div className="bg-gray/5 rounded-lg py-8 border-[0.5px] border-stroke-sc flex-col flex p-16 py-24 justify-center">
         {Object.keys(tournament).length !== 0 ? (
           <div className="w-full flex gap-16 justify-between items-center cursor-pointer">
             <div className="flex flex-col gap-4">

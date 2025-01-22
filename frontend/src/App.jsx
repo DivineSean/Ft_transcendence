@@ -2,7 +2,6 @@ import Login from "./pages/authentication/Login";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import SignUp from "./pages/authentication/Register";
 import { AuthProvider } from "./context/AuthContext";
-import PrivateRoute from "./utils/PrivateRoute";
 import Home from "./pages/Home";
 import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
@@ -20,6 +19,7 @@ import { UserProvider } from "./context/UserContext";
 import PongLocal from "./games/pong/PongLocal/PongLocal";
 import { NotifProvider } from "./context/NotifContext";
 import Tournaments from "./pages/Tournaments";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   return (
@@ -30,6 +30,7 @@ function App() {
           <NotifProvider>
             <UserProvider>
               <Routes>
+                <Route path="/" element={<LandingPage />} />
                 <Route path="forgotpassword/" element={<ForgotPassword />} />
                 <Route
                   path="forgotpassword/:uid"

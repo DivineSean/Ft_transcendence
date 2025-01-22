@@ -141,12 +141,7 @@ const Rankings = () => {
                     <p>Rank</p>
                     <p>Player</p>
                     <p className="hidden lg:block">Account Level</p>
-                    <p className="lg:block hidden">
-                      <span>Rating</span>
-                    </p>
-                    <p className="lg:hidden block">
-                      <span>Rating</span>
-                    </p>
+                    <p>Rating</p>
                     <p>Elo</p>
                   </div>
 

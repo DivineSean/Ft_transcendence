@@ -17,9 +17,14 @@ const RankedUsers = ({ rank, username, rating, lvl, ranked, isSelf }) => {
         @{username.length > 10 ? `${username.substring(0, 10)}...` : username}
       </p>
       <p className="hidden lg:block">{lvl}</p>
-      <p className="lg:block hidden">{rating}</p>
-      <p className="lg:hidden block">{rating}</p>
-      <p onClick={handleProfileClick}>{ranked}</p>
+      <p className="">{rating}</p>
+      <div className="flex justify-center">
+        <img
+          src={`/images/rating/${ranked}.png`}
+          className="w-24 md:w-32 pointer-events-none"
+          alt="Rating level"
+        />
+      </div>
     </div>
   );
 };

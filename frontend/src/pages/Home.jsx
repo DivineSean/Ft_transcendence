@@ -12,6 +12,7 @@ import Toast from "../components/Toast";
 const Home = () => {
   const authContextData = useContext(AuthContext);
   const userContextData = useContext(UserContext);
+
   const friends = [];
   useEffect(() => {
     userContextData.getFriends();
@@ -45,10 +46,10 @@ const Home = () => {
       {!userContextData.generalLoading && (
         <>
           {!authContextData.displayMenuGl && (
-            <div className="container px-16">
+            <div className="container px-16 pb-16">
               <section className="flex lg:gap-32 gap-16 justify-end">
                 <div className="backdrop-blur-sm w-full h-full absolute top-0 right-0 z-[-1]"></div>
-                <article className="flex flex-col gap-32 grow">
+                <article className="flex flex-col lg:gap-32 gap-16">
                   <div className="grid lg:grid-cols-[1.1fr_1fr] lg:gap-32 gap-16">
                     <Card
                       title="welcome back,"
@@ -62,17 +63,17 @@ const Home = () => {
                       isModel={false}
                       isMainButton={true}
                       buttonContent="Play Now"
-                      imgSrc="images/bmo.png"
+                      imgSrc="images/bmoModel.png"
                       link="/games"
                     />
                     <Card
                       title="Undiscovered"
                       name="World"
                       description="Adventure awaits! Meet friends, play games, and explore a world full of possibilities."
-                      isModel={true}
+                      isModel={false}
                       isMainButton={false}
-                      buttonContent="Coming Soon..."
-                      imgSrc="images/bmo.png"
+                      buttonContent="Coming Soon"
+                      imgSrc="images/earth.png"
                     />
                   </div>
                   <div className="grid lg:grid-cols-[1fr_1.1fr] lg:gap-32 gap-16">
@@ -88,12 +89,11 @@ const Home = () => {
                       <UpcomingTournament />
                     )}
                   </div>
-                  <div className="primary-glass"></div>
                 </article>
                 {friends.length !== 0 && (
                   <>
                     <div className="min-w-[83px] lg:flex hidden"></div>
-                    <article className="fixed side-online-friends-container py-16 primary-glass min-w-[83px] lg:flex hidden flex-col gap-16 items-center ">
+                    <article className="fixed side-online-friends-container py-16 primary-glass min-w-[83px] lg:flex hidden flex-col gap-16 items-center">
                       <div className="px-8 custom-scrollbar overflow-y-auto">
                         {friends}
                       </div>

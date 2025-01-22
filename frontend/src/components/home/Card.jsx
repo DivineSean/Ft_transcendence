@@ -37,7 +37,7 @@ const Card = ({ ...props }) => {
         <img
           src={props.imgSrc}
           alt="bmo"
-          className="md:h-full h-[80%] md:inline hidden"
+          className="md:h-full h-[80%] md:inline hidden pointer-events-none"
         />
       )}
       {props.isModel && <WorldModel />}

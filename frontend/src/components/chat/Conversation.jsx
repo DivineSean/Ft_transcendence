@@ -289,7 +289,7 @@ const Conversation = ({ uid, hideSelf, friendInfo, displayProfile }) => {
                   : "/images/default.jpeg"
               }
               alt="profile"
-              className="grow object-cover"
+              className="grow object-cover pointer-events-none"
             />
           </div>
           <div className="flex flex-col justify-between h-full">

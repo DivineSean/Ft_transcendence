@@ -9,7 +9,7 @@ import { RiGamepadLine } from "react-icons/ri";
 import { FaRegUser } from "react-icons/fa";
 import { TbLogout2 } from "react-icons/tb";
 import { PiRanking } from "react-icons/pi";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { GoHome } from "react-icons/go";
 import { useContext } from "react";
 import UserContext from "../context/UserContext";
@@ -50,13 +50,20 @@ const navLinks = [
 const Menu = ({ ...props }) => {
   const { displayMenuGl, setDisplayMenuGl, logout } = useContext(AuthContext);
   const userContextData = useContext(UserContext);
+  const navigate = useNavigate();
 
+  const navigateToPage = (link) => {
+    if (link.name === "profile") navigate(`/profile/overview`);
+    else navigate(`/${link.name}`);
+    console.log(link.name);
+    setDisplayMenuGl(false);
+  };
   const links = [];
   navLinks.forEach((link) => {
     if (props.link === link.name) {
       links.push(
-        <Link
-          to={`/${link.name === "profile" ? "profile/overview" : link.name}`}
+        <div
+          onClick={() => navigateToPage(link)}
           key={link.name}
           className="font-semibold hover-secondary rounded-md"
         >
@@ -64,13 +71,12 @@ const Menu = ({ ...props }) => {
             {link.icon}
             {link.name}
           </li>
-        </Link>,
+        </div>,
       );
     } else {
       links.push(
-        <Link
-          to={`/${link.name}`}
-          onClick={() => setDisplayMenuGl(false)}
+        <div
+          onClick={() => navigateToPage(link)}
           key={link.name}
           className="hover:hover-secondary rounded-md font-semibold"
         >
@@ -78,7 +84,7 @@ const Menu = ({ ...props }) => {
             {link.icon}
             {link.name}
           </li>
-        </Link>,
+        </div>,
       );
     }
   });
@@ -102,11 +108,11 @@ const Menu = ({ ...props }) => {
             <img
               src={
                 userContextData.userInfo.profile_image
-                  ? `${BACKENDURL}${userContextData.userInfo.profile_image}?t=${new Date().getTime()}`
+                  ? `${BACKENDURL}${userContextData.userInfo.profile_image}`
                   : "/images/default.jpeg"
               }
               alt="profile"
-              className="grow object-cover"
+              className="grow object-cover pointer-events-none"
             />
           </div>
           <div className="flex flex-col justify-center">

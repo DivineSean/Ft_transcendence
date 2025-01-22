@@ -6,18 +6,6 @@ from django.core.exceptions import ValidationError
 import re
 
 
-"""
-
-{
-"first_name": "hammo",
-"last_name": "hassni",
-"email": "elyaagoubi123.works@gmail.com",
-"password": "hammo"
-}
-
-"""
-
-
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 

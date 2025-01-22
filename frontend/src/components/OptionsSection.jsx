@@ -76,11 +76,11 @@ const OptionsSection = ({ data, type, reference }) => {
               <img
                 src={
                   contextData.userInfo && contextData.userInfo.profile_image
-                    ? `${BACKENDURL}${contextData.userInfo.profile_image}?t=${new Date().getTime()}`
+                    ? `${BACKENDURL}${contextData.userInfo.profile_image}`
                     : "/images/default.jpeg"
                 }
                 alt="profile pic"
-                className="grow object-cover"
+                className="grow object-cover pointer-events-none"
               />
             </div>
             <h2 className="text-h-sm-sm tracking-wide lowercase truncate">
@@ -120,11 +120,11 @@ const OptionsSection = ({ data, type, reference }) => {
                         <img
                           src={
                             item && item.senderId.profile_image
-                              ? `${BACKENDURL}${item.senderId.profile_image}?t=${new Date().getTime()}`
+                              ? `${BACKENDURL}${item.senderId.profile_image}`
                               : "/images/default.jpeg"
                           }
                           alt="sender"
-                          className="object-cover grow"
+                          className="object-cover grow pointer-events-none"
                         />
                       </div>
                       <div className="flex flex-col gap-4 items-end grow tracking-wider">

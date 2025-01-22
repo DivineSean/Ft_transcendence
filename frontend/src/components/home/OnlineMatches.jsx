@@ -32,27 +32,37 @@ const Matches = ({ data }) => {
             >
               <GiPingPongBat className="md:ml-16 ml-8" />
               <div className="flex gap-4 normal-case justify-center items-center">
-                <div className="min-w-24 max-w-24 min-h-24 max-h-24 md:min-w-32 md:max-w-32 md:min-h-32 md:max-h-32 rounded-full overflow-hidden flex border-[0.5px] border-stroke-sc">
+                <div
+                  onClick={() =>
+                    navigate(`/profile/overview/${match.players[0].username}`)
+                  }
+                  className="min-w-24 max-w-24 cursor-pointer min-h-24 max-h-24 md:min-w-32 md:max-w-32 md:min-h-32 md:max-h-32 rounded-full overflow-hidden flex border-[0.5px] border-stroke-sc"
+                >
                   <img
                     src={
                       match.players[0].profile_image
-                        ? `${BACKENDURL}${match.players[0].profile_image}?t=${new Date().getTime()}`
+                        ? `${BACKENDURL}${match.players[0].profile_image}`
                         : "/images/default.jpeg"
                     }
                     alt=""
-                    className="object-cover grow"
+                    className="object-cover grow pointer-events-none"
                   />
                 </div>
                 <p className="font-bold text-green">vs</p>
-                <div className="min-w-24 max-w-24 min-h-24 max-h-24 md:min-w-32 md:max-w-32 md:min-h-32 md:max-h-32 rounded-full overflow-hidden flex border-[0.5px] border-stroke-sc">
+                <div
+                  onClick={() =>
+                    navigate(`/profile/overview/${match.players[1].username}`)
+                  }
+                  className="min-w-24 max-w-24 cursor-pointer min-h-24 max-h-24 md:min-w-32 md:max-w-32 md:min-h-32 md:max-h-32 rounded-full overflow-hidden flex border-[0.5px] border-stroke-sc"
+                >
                   <img
                     src={
                       match.players[1].profile_image
-                        ? `${BACKENDURL}${match.players[1].profile_image}?t=${new Date().getTime()}`
+                        ? `${BACKENDURL}${match.players[1].profile_image}`
                         : "/images/default.jpeg"
                     }
                     alt=""
-                    className="object-cover grow"
+                    className="object-cover grow pointer-events-none"
                   />
                 </div>
               </div>
@@ -87,9 +97,9 @@ const OnlineMatches = ({ name }) => {
   const data = userContextData.onlineMatches;
 
   return (
-    <div className="glass-component flex-col md:gap-32 gap-16 ">
+    <div className="glass-component flex-col md:gap-32 gap-16">
       <h3 className="md:text-h-lg-md text-h-sm-md">{name} Matches</h3>
-      <div className="bg-gray/5 rounded-lg py-8 border-[0.5px] border-stroke-sc flex-col flex lg:max-h-[500px] lg:h-[500px] max-h-[400px] h-[400px]">
+      <div className="bg-gray/5 rounded-lg py-8 border-[0.5px] border-stroke-sc flex-col flex lg:max-h-[500px] lg:h-[500px] min-h-[400px] h-[400px]">
         <div className="overflow-y-auto md:px-16 px-8 flex flex-col custom-scrollbar gap-16">
           <div className="grid md:grid-cols-[20px_1fr_1fr_1fr_1fr] grid-cols-[20px_1fr_1fr_1fr] gap-32 items-center text-center font-bold py-8 bg-gray/5 rounded-lg">
             <IoGameController className="md:ml-16 ml-8" />

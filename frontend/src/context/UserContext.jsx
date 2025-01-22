@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import FetchWrapper from "../utils/fetchWrapper";
 import AuthContext from "./AuthContext";
 import NotifContext from "./NotifContext";
-import UpcomingTournament from "@/components/home/UpcomingTournament";
 
 const UserContext = createContext();
 

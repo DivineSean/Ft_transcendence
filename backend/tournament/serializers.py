@@ -39,9 +39,6 @@ class getTournamentSerializer(serializers.ModelSerializer):
         return False
 
 
-# from authentication.serializers import UserSerializer
-
-
 class TournamentPlayerSerializer(serializers.ModelSerializer):
 
     username = serializers.CharField(source="user.username")
