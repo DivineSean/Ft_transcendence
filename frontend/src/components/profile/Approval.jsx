@@ -27,11 +27,11 @@ const Approval = ({ approval, setApproval }) => {
                 src={
                   contextData.profileInfo &&
                   contextData.profileInfo.profile_image
-                    ? `${BACKENDURL}${contextData.profileInfo.profile_image}?t=${new Date().getTime()}`
+                    ? `${BACKENDURL}${contextData.profileInfo.profile_image}`
                     : "/images/default.jpeg"
                 }
                 alt="image"
-                className="object-cover grow"
+                className="object-cover grow pointer-events-none"
               />
             </div>
             <p className="text-txt-md text-gray lowercase text-center w-[85%] tracking-wider">

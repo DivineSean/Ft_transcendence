@@ -23,8 +23,6 @@ const Home = () => {
       authContextData.setGlobalMessage({ message: "", isError: false });
   }, []);
 
-	console.log(userContextData, userContextData.generalLoading);
-
   // useEffect(() => { }, [userContextData.onlineMatches]);
 
   // console.log("here: ", userContextData);
@@ -65,17 +63,17 @@ const Home = () => {
                       isModel={false}
                       isMainButton={true}
                       buttonContent="Play Now"
-                      imgSrc="images/bmo.png"
+                      imgSrc="images/bmoModel.png"
                       link="/games"
                     />
                     <Card
                       title="Undiscovered"
                       name="World"
                       description="Adventure awaits! Meet friends, play games, and explore a world full of possibilities."
-                      isModel={true}
+                      isModel={false}
                       isMainButton={false}
                       buttonContent="Coming Soon"
-                      imgSrc="images/bmo.png"
+                      imgSrc="images/earth.png"
                     />
                   </div>
                   <div className="grid lg:grid-cols-[1fr_1.1fr] lg:gap-32 gap-16">

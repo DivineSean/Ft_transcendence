@@ -149,7 +149,7 @@ const PlayerInfo = ({ player }) => (
       >
         <img
           src={player.profileImage}
-          className="object-cover w-full h-full"
+          className="object-cover w-full h-full pointer-events-none"
           alt={`@${player.username}`}
         />
       </div>

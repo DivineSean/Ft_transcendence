@@ -5,7 +5,7 @@ const UserLevel = ({ exp, level, percentage, isMobile }) => {
     >
       <div className="flex gap-8 grow">
         <div
-          className={`w-[80px] flex justify-center items-end overflow-hidden`}
+          className={`w-[80px] flex justify-center items-end overflow-hidden pointer-events-none`}
         >
           <img
             className={` object-cover grow h-full w-full`}

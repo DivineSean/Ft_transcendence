@@ -127,7 +127,7 @@ const Profile = () => {
                         : "/images/default.jpeg"
                     }
                     alt="profile pic"
-                    className="object-cover w-full"
+                    className="object-cover w-full pointer-events-none"
                   />
                 </div>
                 <h1 className="text-h-lg-md font-bold max-w-[200px] truncate">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
@@ -167,7 +167,7 @@ const Profile = () => {
                       </p>
                     </div>
                     <div className="bg-stroke-sc min-h-[1px] w-full"></div>
-                    <div>
+                    <div className="flex justify-center grayscale-[100%] contrast-10">
                       <img
                         className="w-[241px] h-[288px]"
                         src="/images/bmo.png"
@@ -209,7 +209,7 @@ const Profile = () => {
                             : "/images/default.jpeg"
                         }
                         alt="profile pic"
-                        className="object-cover w-full"
+                        className="object-cover w-full pointer-events-none"
                       />
                     </div>
                     <h1 className="text-h-sm-sm font-bold max-w-[160px] truncate">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
@@ -238,9 +238,9 @@ const Profile = () => {
                   <div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">
                     <div className="flex w-[213px] items-center justify-center">
                       <img
-                        className="flex w-[140px] h-[166px]"
+                        className="flex w-[140px] h-[166px] pointer-events-none"
                         src="/images/bmo.png"
-                        alt="Player Caractere"
+                        alt="Player Caracter"
                       />
                     </div>
                     <div className="flex flex-col gap-16 max-w-[432px] md:items-start items-center md:text-left text-center">

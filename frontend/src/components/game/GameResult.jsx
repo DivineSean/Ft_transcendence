@@ -60,7 +60,7 @@ const GameResult = ({ playersData, isWon }) => {
                         : "/images/default.jpeg"
                     }
                     alt=""
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover pointer-events-none"
                   />
                 </div>
                 {isWon && (
@@ -102,7 +102,7 @@ const GameResult = ({ playersData, isWon }) => {
                 <img
                   src={isWon ? "/images/eto.gif" : "/images/bmo.gif"}
                   alt="Result Animation"
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover pointer-events-none"
                 />
               </div>
             </div>

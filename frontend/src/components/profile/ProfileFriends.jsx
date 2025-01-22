@@ -20,11 +20,11 @@ const Friends = ({ friend }) => {
           <img
             src={
               friend.profile_image
-                ? `${BACKENDURL}${friend.profile_image}?t=${new Date().getTime()}`
+                ? `${BACKENDURL}${friend.profile_image}`
                 : "/images/default.jpeg"
             }
             alt="Friend Personal image"
-            className="object-cover grow"
+            className="object-cover grow pointer-events-none"
           />
         </div>
         <div className="flex flex-col justify-center">
@@ -53,11 +53,11 @@ const FriendRequest = ({ friendRequest, type }) => {
         <img
           src={
             friendRequest.profile_image
-              ? `${BACKENDURL}${friendRequest.profile_image}?t=${new Date().getTime()}`
+              ? `${BACKENDURL}${friendRequest.profile_image}`
               : "/images/default.jpeg"
           }
           alt="request"
-          className="object-cover grow "
+          className="object-cover grow pointer-events-none"
         />
         <div className="text-txt-xs p-8 pt-16 text-whiter w-full tracking-wide font-semibold absolute bottom-0 cover-gradient max-w-full truncate">
           {friendRequest.first_name} {friendRequest.last_name}

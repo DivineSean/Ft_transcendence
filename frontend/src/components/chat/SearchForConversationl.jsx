@@ -85,11 +85,11 @@ const SearchForConversation = ({ setDisplaySearch }) => {
                     <img
                       src={
                         conversation.user.profile_image
-                          ? `${BACKENDURL}${conversation.user.profile_image}?t=${new Date().getTime()}`
+                          ? `${BACKENDURL}${conversation.user.profile_image}`
                           : "/images/default.jpeg"
                       }
                       alt="img"
-                      className="grow object-cover"
+                      className="grow object-cover pointer-events-none"
                     />
                   </div>
                   <section className="flex flex-col justify-center normal-case">

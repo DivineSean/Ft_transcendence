@@ -206,7 +206,7 @@ const Header = ({ ...props }) => {
             <img
               src="/images/logo.png"
               alt="logo"
-              className="w-full h-[50px]"
+              className="w-full h-[50px] pointer-events-none"
             />
           </Link>
           <nav className="lg:flex grow hidden lg:justify-center justify-end">
@@ -247,7 +247,7 @@ const Header = ({ ...props }) => {
                                     : "/images/default.jpeg"
                                 }
                                 alt="img"
-                                className="grow object-cover"
+                                className="grow object-cover pointer-events-none"
                               />
                             </div>
                             <section className="flex flex-col justify-center normal-case">
@@ -304,7 +304,7 @@ const Header = ({ ...props }) => {
                   : "/images/default.jpeg"
               }
               alt="profile pic"
-              className="grow object-cover"
+              className="grow object-cover pointer-events-none"
             />
           </div>
           <div onClick={toggleMenu} className="lg:hidden block cursor-pointer">

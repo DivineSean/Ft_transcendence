@@ -7,8 +7,6 @@ const RankedUsers = ({ rank, username, rating, lvl, ranked, isSelf }) => {
     navigate(`/profile/overview/${username}`);
   };
 
-	console.log(ranked);
-
   return (
     <div
       onClick={handleProfileClick}

@@ -44,7 +44,7 @@ const GameToast = ({ title, message, duration = 100000, onClose }) => {
                 <img
                   src={`/images/achievement/icons/${title}.png`}
                   alt="achievemet icon"
-                  className="w-48 h-48"
+                  className="w-48 h-48 pointer-events-none"
                 />
               </div>
 

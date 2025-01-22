@@ -50,10 +50,10 @@ const TopThreePlayers = ({ players }) => {
                   <img
                     src={
                       players[playerIndex].profile_image
-                        ? `${BACKENDURL}${players[playerIndex].profile_image}?t=${new Date().getTime()}`
+                        ? `${BACKENDURL}${players[playerIndex].profile_image}`
                         : "/images/default.jpeg"
                     }
-                    className={`object-cover grow rounded-full`}
+                    className={`object-cover grow rounded-full pointer-events-none`}
                     alt={players[playerIndex].username}
                     draggable="false"
                   />

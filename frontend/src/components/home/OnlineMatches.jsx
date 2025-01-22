@@ -38,11 +38,11 @@ const Matches = ({ data }) => {
                   <img
                     src={
                       match.players[0].profile_image
-                        ? `${BACKENDURL}${match.players[0].profile_image}?t=${new Date().getTime()}`
+                        ? `${BACKENDURL}${match.players[0].profile_image}`
                         : "/images/default.jpeg"
                     }
                     alt=""
-                    className="object-cover grow"
+                    className="object-cover grow pointer-events-none"
                   />
                 </div>
                 <p className="font-bold text-green">vs</p>
@@ -52,11 +52,11 @@ const Matches = ({ data }) => {
                   <img
                     src={
                       match.players[1].profile_image
-                        ? `${BACKENDURL}${match.players[1].profile_image}?t=${new Date().getTime()}`
+                        ? `${BACKENDURL}${match.players[1].profile_image}`
                         : "/images/default.jpeg"
                     }
                     alt=""
-                    className="object-cover grow"
+                    className="object-cover grow pointer-events-none"
                   />
                 </div>
               </div>
