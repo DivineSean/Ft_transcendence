@@ -144,7 +144,7 @@ const Profile = () => {
                     />
                   </div>
                 )}
-                {contextData.profileInfo && (
+                {contextData.profileInfo && !contextData.profileInfo.isUserBlocked && (
                   <UserLevel
                     exp={contextData.profileInfo.exp}
                     level={contextData.profileInfo.level}
@@ -226,7 +226,7 @@ const Profile = () => {
                     </div>
                   )}
                 </div>
-                {contextData.profileInfo && (
+                {contextData.profileInfo && !contextData.profileInfo.isUserBlocked && (
                   <UserLevel
                     exp={contextData.profileInfo.exp}
                     level={contextData.profileInfo.level}
@@ -264,7 +264,6 @@ const Profile = () => {
                         key={menu}
                         className={`grow flex flex-col gap-8 items-center cursor-pointer md:text-h-lg-sm text-txt-xs font-bold`}
                         onClick={() => handleNavigation(menu)}
-                        // onClick={() => setSelectedMenu(menu)}
                       >
                         <span>{menu}</span>
                         {selectedMenu === menu && (

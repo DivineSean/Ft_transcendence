@@ -49,7 +49,7 @@ const Home = () => {
             <div className="container px-16 pb-16">
               <section className="flex lg:gap-32 gap-16 justify-end">
                 <div className="backdrop-blur-sm w-full h-full absolute top-0 right-0 z-[-1]"></div>
-                <article className="flex flex-col gap-32">
+                <article className="flex flex-col lg:gap-32 gap-16">
                   <div className="grid lg:grid-cols-[1.1fr_1fr] lg:gap-32 gap-16">
                     <Card
                       title="welcome back,"
