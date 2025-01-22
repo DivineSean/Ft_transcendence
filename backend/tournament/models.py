@@ -85,43 +85,36 @@ class Bracket(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
     def getWinners(self):
-        listofGameRooms = GameRoom.objects.filter(bracket = self, status=GameRoom.Status.COMPLETED)
-        # 1 2 
-        listofExpired = GameRoom.objects.filter(bracket = self, status=GameRoom.Status.EXPIRED)
+        listofGameRooms = GameRoom.objects.filter(bracket = self, status__in=[GameRoom.Status.COMPLETED, GameRoom.Status.EXPIRED])
 
-        print("LIST EXPIRED",  listofExpired, flush=True)
-        #data
+        
         winners = []
         allData = []
 
         for gameRoom in listofGameRooms:
-            # all_players = Player.objects.filter(game_room = gameRoom)
-            all_players = json.loads(r.hget(f"game_room_data:{gameRoom.id}", "players"))
-            
-            for player_id in all_players:
-                # player_id.refresh_from_db()
-                print("THIS IS PLAYER RESULT THAT I RECEIVED : ",player_id["result"], flush=True)
-                if (player_id["result"]== "win"):
-                    print("HEERE WIIN", flush=True)
-                    winners.append(Player.objects.get(user__id=player_id["user"]["id"], game_room=gameRoom))
-                    allData.append(Player.objects.get(user__id=player_id["user"]["id"], game_room=gameRoom))
-                elif (player_id["result"] == None):
-                    print("WAARNING", flush=True)
-            
-        for gr in listofExpired:
-            all_players = Player.objects.filter(game_room = gr)
-            for player_id in all_players:
-                player_id.refresh_from_db()
-                if (player_id.result == "Disconnected"):
+            if gameRoom.status == GameRoom.Status.COMPLETED:
+                allPlayers = json.loads(r.hget(f"game_room_data:{gameRoom.id}", "players"))
+            else:
+                allPlayers = Player.objects.filter(game_room = gameRoom)    
+            for p in allPlayers:
+                if gameRoom.status == GameRoom.Status.COMPLETED:
+                    result = p["result"]
+                    player = Player.objects.get(user__id=p["user"]["id"], game_room=gameRoom)
+                else:
+                    result = p.result
+                    player = p
 
-                    allData.append(Player.objects.get(user__id=player_id.user.id, game_room=gr))
+                if result == Player.Result.WIN:
+                    winners.append(player)
+                if result in [Player.Result.WIN, Player.Result.DISCONNECTED]: 
+                    allData.append(player)
                 
-                if (player_id.result == "win"):
-                    allData.append(Player.objects.get(user__id=player_id.user.id, game_room=gr))
-                    winners.append(Player.objects.get(user__id=player_id.user.id, game_room=gr))
+
+
         print("Winners =>   ",winners, flush=True)
         print("allData =>   ",allData, flush=True)
-        return winners, allData  # 2 winners
+  
+        return winners, allData  
  
     def isComplete(self):
         return not GameRoom.objects.filter(

@@ -78,22 +78,33 @@ class TournamentManager:
         for user in users:
             self.send_game_notif(user, game_room.id)
             
-    def send_game_notif(self, receiver, game_room_id):
-        notification, is_new = Notifications.objects.get_or_create(
-            notifType="IT",
-            userId=receiver,
-            senderId=self.tournament.creator,
-            game=self.tournament.game.name,
-            senderUsername=self.tournament.creator.username,
-            targetId=str(game_room_id),
-        )
+    def send_game_notif(self, receiver, game_room_id=None, message = None):
+        if message != None:
+                notification, is_new = Notifications.objects.get_or_create(
+                notifType="IT",
+                userId=receiver,
+                senderId=self.tournament.creator,
+                game=self.tournament.game.name,
+                notifMessage = message,
+                senderUsername=self.tournament.creator.username,
+               
+            )
+        else:
+            notification, is_new = Notifications.objects.get_or_create(
+                notifType="IT",
+                userId=receiver,
+                senderId=self.tournament.creator,
+                game=self.tournament.game.name,
+                senderUsername=self.tournament.creator.username,
+                targetId=str(game_room_id),
+            )
 
         if not is_new and notification.isRead:
             notification.updateRead()
             group_name = f"notifications_{receiver.id}"
             self._send_ws_notification(group_name)
 
-    def _send_ws_notification(self, group_name):
+    def _send_ws_notification(self, group_name, messsage = None):
         async_to_sync(self.channel_layer.group_send)(
             group_name,
             {
@@ -201,6 +212,7 @@ class TournamentManager:
                 skippingPlayer = allData[element]
                 skippingPlayer.should_skip_next = True
                 skippingPlayer.save()
+                self.send_game_notif(skippingPlayer.user, message = "You've been skipped to next bracket, wait a while ...")
                 playersToMatch = activePlayerss
         else:
             playersToMatch = winners
