@@ -15,28 +15,10 @@ r = redis.Redis(
     decode_responses=True,
 )
 
-# @contextmanager
-# def redis_lock(lock_name, expires=20):
-#     """
-#     Context manager for Redis lock.
-    
-#     Args:
-#         lock_name (str): Name of the lock
-#         expires (int): Lock expiration time in seconds
-        
-#     Yields:
-#         bool: True if lock was acquired, False otherwise
-#     """
-#     lock = f"lock:{lock_name}"
-#     acquired = r.set(lock, "locked", ex=expires, nx=True)
-#     try:
-#         yield acquired
-#     finally:
-#         if acquired:
-#             r.delete(lock)
+
 
 # each game room => id => task
-@shared_task
+# @shared_task
 def processGameResult(game_room_id):
 
     game_room = GameRoom.objects.select_related("bracket__tournament").get(
@@ -50,7 +32,7 @@ def processGameResult(game_room_id):
     manager.handle_game_completion(game_room_id)
 
 
-@shared_task
+
 def manageTournament(tournamentID):
 
     manager = TournamentManager(tournamentID["id"])

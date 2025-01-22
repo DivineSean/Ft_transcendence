@@ -3,6 +3,7 @@ from authentication.models import User
 from games.models import GameRoom, Player, Game
 import uuid
 import redis
+import json
 from django.conf import settings
 
 r = redis.Redis(
@@ -82,7 +83,7 @@ class Bracket(models.Model):
     )
     round_number = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
-
+    
     def getWinners(self):
         listofGameRooms = GameRoom.objects.filter(bracket = self, status=GameRoom.Status.COMPLETED)
         # 1 2 
@@ -94,16 +95,19 @@ class Bracket(models.Model):
         allData = []
 
         for gameRoom in listofGameRooms:
-            all_players = Player.objects.filter(game_room = gameRoom)
+            # all_players = Player.objects.filter(game_room = gameRoom)
+            all_players = json.loads(r.hget(f"game_room_data:{gameRoom.id}", "players"))
             
             for player_id in all_players:
-                player_id.refresh_from_db()
-                print("THIS IS PLAYER RESULT THAT I RECEIVED : ",player_id.result, flush=True)
-                if (player_id.result == "win"):
+                # player_id.refresh_from_db()
+                print("THIS IS PLAYER RESULT THAT I RECEIVED : ",player_id["result"], flush=True)
+                if (player_id["result"]== "win"):
                     print("HEERE WIIN", flush=True)
-                    winners.append(Player.objects.get(user__id=player_id.user.id, game_room=gameRoom))
-                    allData.append(Player.objects.get(user__id=player_id.user.id, game_room=gameRoom))
-   
+                    winners.append(Player.objects.get(user__id=player_id["user"]["id"], game_room=gameRoom))
+                    allData.append(Player.objects.get(user__id=player_id["user"]["id"], game_room=gameRoom))
+                elif (player_id["result"] == None):
+                    print("WAARNING", flush=True)
+            
         for gr in listofExpired:
             all_players = Player.objects.filter(game_room = gr)
             for player_id in all_players:

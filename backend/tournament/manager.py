@@ -103,12 +103,27 @@ class TournamentManager:
         )
 
     def handle_game_completion(self, gameRoomID):
+        
         print("I m in HGC")
         game_room = GameRoom.objects.select_related("bracket").get(id=gameRoomID)
         current_bracket = game_room.bracket
+        
+        lock = r.get(f"bracket_data:{current_bracket.id}:lock")
+        # lock = r.get(f"bracket_data:{current_bracket.id}:lock")
+        print(f"ha dak lock t*b: {lock}", flush=True)
+        if lock is not None:
+            print("ACCESS DENIED", flush=True)
+            return
+        print("ANA DEZT WALAYNI NOT COMPLETE", flush=True)
         if current_bracket.isComplete():
-            print("im in complete")  
-            winners, disconnected = current_bracket.getWinners() # disconnected must be winners + disconneceted
+            
+            lock = r.set(f"bracket_data:{current_bracket.id}:lock","", nx=True, ex=5)
+            if lock is False:
+                print("NADAFAK BRO", flush=True)
+                return
+
+            print("im in complete",flush=True)
+            winners, allData = current_bracket.getWinners() # allData must be winners + disconneceted
         
 
             skippedPlayerss = (
@@ -117,6 +132,9 @@ class TournamentManager:
                     should_skip_next=True,
                 ).select_related("user")
             )
+        
+            winners = winners + list(skippedPlayerss)
+            
             # totalPlayers = len(winners) + len(skippedPlayerss) #maybe khsni nchecki bhadi not sure
             if len(winners) == 0:  # maybe khsni n checki 3la skipped players hna
                 self.tournament.refresh_from_db()
@@ -133,20 +151,13 @@ class TournamentManager:
             nextBrackeet = self.tournament.advanceRound()
             if nextBrackeet:
                 print("Im in next Bracket")
-                if len(skippedPlayerss) > 0:
-                    for skipped in skippedPlayerss:
+                self.createNextBracketGames(winners ,  allData, nextBrackeet)
+            
 
-                        skipped.should_skip_next = False
-                        skipped.save()
-                        winners.append(skipped)
-                        print("I m in next skipped")
-                
-                self.createNextBracketGames(winners ,  disconnected, nextBrackeet)
-
-    def PlayerSkip(self, winners):
+    def PlayerSkip(self, allData):
         skipIndex = []
         pattern = [
-            "W" if w.result == Player.Result.WIN else "D" for w in winners
+            "W" if w.result == Player.Result.WIN else "D" for w in allData
         ]  # kan converti lista
 
         for i in range(len(pattern) - 1):
@@ -164,26 +175,30 @@ class TournamentManager:
                 else:
                     continue
 
-                # kanakhed ga3 l winners ila li khshom yt skipaw
+                # kanakhed ga3 l allData ila li khshom yt skipaw
                 activePlayers = [
-                    w for w in winners
-                    if w.result == Player.Result.WIN and winners.index(w) != skipIndex
+                    w for w in allData
+                    if w.result == Player.Result.WIN and allData.index(w) not in skipIndex
                 ]
                 return skipIndex, activePlayers
-        return None, winners
+        return None, allData
 
-    def createNextBracketGames(self, winners, disconnected, nextBrackeet):
+    def createNextBracketGames(self, winners, allData, nextBrackeet):
         print("IMM in creaateNEXT BRACKKEET", flush=True)
         skipIndex = None
         playersToMatch = None
-
-        if (len(winners) + len(disconnected)) % 2 != 0 :
-            skipIndex, activePlayerss = self.PlayerSkip(winners + disconnected)
-        
+        print("UPDATED ALL DATA => ",allData, flush=True)
+        if (len(winners)) % 2 != 0 :
+            skipIndex, activePlayerss = self.PlayerSkip(allData)
+            print("ACTIVEPLAYEEERS : ", activePlayerss, flush=True)
         if skipIndex is not None:
             for element in skipIndex:
+                try:
+                    print("IM BEING SKIPPED ", allData[element].user.username, flush=True)
+                except:
+                    print("PRINT KHSRAAT", flush=True)
             # khona li khso ytskipa (hadi bach ntfker nzid skipp player f player model)
-                skippingPlayer = winners[element]
+                skippingPlayer = allData[element]
                 skippingPlayer.should_skip_next = True
                 skippingPlayer.save()
                 playersToMatch = activePlayerss

@@ -168,7 +168,7 @@ class Tournaments(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             tournamentID = TournamentSerializer(lobby).data
-            manageTournament.delay(tournamentID)
+            manageTournament(tournamentID)
             lobby.isStarted = True
             lobby.save()
         return response

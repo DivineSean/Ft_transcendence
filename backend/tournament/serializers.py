@@ -75,11 +75,14 @@ class TournamentDataSerializer(serializers.Serializer):
         currentPlayerCount = instance.get("currentPlayerCount")
         isCompleted = instance.get("isCompleted")
         bracketCounter = 0
+        
         if maxPlayers == currentPlayerCount:
             for bracket in brackets:
                 gameRooms = GameRoom.objects.filter(bracket=bracket)
                 bracketData = {}
+                gameRoomCounter =  0
                 for gameRoom in gameRooms:
+                    gameRoomCounter  += 1
                     gameRoomiD = str(gameRoom.id)
 
                     playersData = TournamentPlayerSerializer(
@@ -87,15 +90,30 @@ class TournamentDataSerializer(serializers.Serializer):
                     ).data
 
                     bracketData[gameRoomiD] = playersData
-
-                # print(bracketData, flush=True)
+                if gameRoomCounter  < 2:
+                    # add dummydata
+                    bracketData[str(uuid4())] = [
+                    {
+                        "id": "",
+                        "result": "",
+                        "score": "",
+                        "username": "",
+                        "profile_image": "",
+                    },
+                    {
+                        "id": "",
+                        "result": "",
+                        "score": "",
+                        "username": "",
+                        "profile_image": "",
+                    },
+                ]
                 data.append(bracketData)
-
                 bracketCounter += 1
-
+        
         while bracketCounter < totalRounds:
-
-            totalGamesPerRound = int(maxPlayers / pow(2, bracketCounter + 1))
+             
+            totalGamesPerRound = int(maxPlayers / pow(2, bracketCounter + 1)) 
             big = {}
             for i in range(0, totalGamesPerRound):
 

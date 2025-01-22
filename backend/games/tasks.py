@@ -75,7 +75,7 @@ def mark_game_abandoned(game_room_id, user_id):
 
         if game_room.bracket is not None:
             print("ABANDONED TASK CALLED", flush=True)
-            processGameResult.delay(game_room_id)
+            processGameResult(game_room_id)
 
         return f"GameRoom {game_room_id} marked as abandoned"
     else:
@@ -87,29 +87,28 @@ def mark_game_room_as_expired(game_room_id):
     from tournament.tasks import processGameResult  
     
     try:
-        with transaction.atomic():
-            game_room = GameRoom.objects.select_for_update().get(id=game_room_id)
-            
-            if game_room.status != "waiting":
-                return f"GameRoom {game_room_id} is not in waiting status."        
-            
-            game_room.status = "expired"
-            game_room.save()
-            r.hset(f"game_room_data:{game_room_id}", "status", "expired")
-            
-            
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                f"game_room_{game_room_id}",
-                {
-                    "type": "broadcast",
-                    "info": "game_manager",
-                    "message": {
-                        "status": "expired",
-                    },
-                },
-            )
+        game_room = GameRoom.objects.get(id=game_room_id)
         
+        if game_room.status != "waiting":
+            return f"GameRoom {game_room_id} is not in waiting status."        
+        
+        game_room.status = "expired"
+        game_room.save()
+        r.hset(f"game_room_data:{game_room_id}", "status", "expired")
+        
+        
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"game_room_{game_room_id}",
+            {
+                "type": "broadcast",
+                "info": "game_manager",
+                "message": {
+                    "status": "expired",
+                },
+            },
+        )
+        with transaction.atomic():
             if game_room.bracket is not None:
                 players = Player.objects.select_for_update().filter(game_room=game_room)
                 
@@ -130,7 +129,7 @@ def mark_game_room_as_expired(game_room_id):
                 print("game_room_id = " ,gr, type(gr), flush=True)
                 print("result = ", res, type(res), flush=True)
                 print("COMMITED====", flush=True)
-                on_commit(lambda: processGameResult.delay(game_room_id))
+                on_commit(lambda: processGameResult(game_room_id))
                 print("ON_COMMIT CALLED", flush=True)
                 
             return f"GameRoom {game_room_id} marked as expired."
