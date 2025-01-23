@@ -36,7 +36,7 @@ class sAuthMiddleWare(MiddlewareMixin):
             if not accessToken and not refreshToken:
                 return JsonResponse(
                     {
-                        "error": f"Invalid Tokens{request.path}",
+                        "error": f"Invalid Tokens {request.path}",
                     },
                     status=401,
                 )

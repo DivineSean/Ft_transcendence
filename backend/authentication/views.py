@@ -100,13 +100,13 @@ def resend2FACode(request):
 
 # if the 2fa_code is not set in the body of the request the POST function behave as follow:
 # -> make sure that the user who send the request is not an Oauth user,
-#    if it's then return an error (because he can logged in using email and password)
+# if it's then return an error (because he can logged in using email and password)
 # -> logged in the user if the user logged in successfully, then generate the 2FA code and send it the user email
 
 
 # otherwise the POST behave as follow:
 # -> check the email for the user if user found then, verify the 2fa_code is valid if it's set the cookies
-#    and navigate to the home page.
+# and navigate to the home page.
 class CustomTokenObtainPairView(TokenObtainPairView):
 
     def generate_2fa_code(self, user, codeType):
@@ -122,11 +122,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             )
 
         with get_connection(
-            host=os.environ.get("EMAIL_HOST"),
-            port=os.environ.get("EMAIL_PORT"),
-            username=os.environ.get("EMAIL_HOST_USER"),
-            password=os.environ.get("EMAIL_HOST_PASSWORD"),
-            use_tls=True,
+                host=os.environ.get("EMAIL_HOST"),
+                port=os.environ.get("EMAIL_PORT"),
+                username=os.environ.get("EMAIL_HOST_USER"),
+                password=os.environ.get("EMAIL_HOST_PASSWORD"),
+                use_tls=True,
         ) as connection:
 
             subject = "2FA CODE"
@@ -481,12 +481,20 @@ class Profile(APIView):
         new_username = request.data.get("username", None)
 
         if new_username:
+            if not isinstance(new_username, str):
+                return Response(
+                    {
+                        "username": "invalid username, examples user, user1, user-12, user_12, and less than 13 character"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             new_username = new_username.lower()
             username_regex = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]{3,}$")
             if not username_regex.match(new_username):
                 return Response(
                     {
-                        "username": "invalid username, examples user, user1, user-12, user_12"
+                        "username": "invalid username, examples user, user1, user-12, user_12, and less than 13 character"
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
@@ -546,6 +554,14 @@ def setUpUsername(request):
     if not username:
         return Response(
             {"error": "no username provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if not isinstance(username, str):
+        return Response(
+            {
+                "error": "invalid username, examples user, user1, user-12, user_12, and less than 13 character"
+            },
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     username = username.lower()
