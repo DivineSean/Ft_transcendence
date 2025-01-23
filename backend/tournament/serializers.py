@@ -63,61 +63,86 @@ class TournamentPlayerSerializer(serializers.ModelSerializer):
 class TournamentDataSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
-        data = []
+        self.data_ = []
+        self.bracketsCount = instance.get("bracketsCount")
         brackets = instance.get("brackets")
-        totalRounds = instance.get("totalRounds")
-        maxPlayers = instance.get("maxPlayers")
+        self.totalRounds = instance.get("totalRounds")
+        self.maxPlayers = instance.get("maxPlayers")
         currentPlayerCount = instance.get("currentPlayerCount")
         isCompleted = instance.get("isCompleted")
-        bracketCounter = 0
-        draw_lines = True
-      
-        if maxPlayers == currentPlayerCount:
-            for bracket in brackets:
-                gameRooms = GameRoom.objects.filter(bracket=bracket).order_by("created_at")
-                bracketData = {}
-                gameRoomCounter = 0
-                for gameRoom in gameRooms:
-                    gameRoomCounter += 1
-                    gameRoomiD = str(gameRoom.id)
+        self.bracketCounter = 0
+        self.draw_lines = True
+        
+       
+        
+        if self.maxPlayers == currentPlayerCount:
+            # for self.bracketCounter in range(0, self.totalRounds):
+                for bracket in brackets:  
+                    print("BRACKET COUNTER === ",self.bracketCounter, flush=True)
+                    if bracket.round_number != self.bracketCounter + 1:
+                        self.advanceBracket()
+                        self.bracketCounter +=  1
+                        
+                    if bracket.round_number == self.bracketCounter:
+                        print("here", flush=True)
+                        gameRooms = GameRoom.objects.filter(bracket=bracket).order_by("created_at")
+                        bracketData = {}
+                        gameRoomCounter = 0
+                        for gameRoom in gameRooms:
+                            gameRoomCounter += 1
+                            gameRoomiD = str(gameRoom.id)
 
-                    playersData = TournamentPlayerSerializer(
-                        Player.objects.filter(game_room=gameRoom).order_by("created_at"), many=True
-                    ).data
+                            playersData = TournamentPlayerSerializer(
+                                Player.objects.filter(game_room=gameRoom).order_by("created_at"), many=True
+                            ).data
 
-                    bracketData[gameRoomiD] = playersData
+                            bracketData[gameRoomiD] = playersData
 
-                totalGamesPerRound = int(
-                    maxPlayers / pow(2, bracketCounter + 1))
-                for i in range(gameRoomCounter, totalGamesPerRound):
+                        totalGamesPerRound = int(
+                            self.maxPlayers / pow(2, self.bracketCounter + 1))
+                        for i in range(gameRoomCounter, totalGamesPerRound):
 
-                    draw_lines = False
-                    bracketData[str(uuid4())] = [
-                        {
-                            "id": "",
-                            "result": "",
-                            "score": "",
-                            "username": "",
-                            "profile_image": "",
-                        },
-                        {
-                            "id": "",
-                            "result": "",
-                            "score": "",
-                            "username": "",
-                            "profile_image": "",
-                        },
-                    ]
+                            self.draw_lines = False
+                            bracketData[str(uuid4())] = [
+                                {
+                                    "id": "",
+                                    "result": "",
+                                    "score": "",
+                                    "username": "",
+                                    "profile_image": "",
+                                },
+                                {
+                                    "id": "",
+                                    "result": "",
+                                    "score": "",
+                                    "username": "",
+                                    "profile_image": "",
+                                },
+                            ]
 
-                data.append(bracketData)
-                bracketCounter += 1
+                        self.data_.append(bracketData)
+                        self.bracketCounter += 1                     
 
-        while bracketCounter < totalRounds:
+
+        while self.bracketCounter < self.totalRounds:
+            self.advanceBracket()
+          
+        
+        return {
+            "isCompleted": isCompleted,
+            "currentPlayerCount": currentPlayerCount,
+            "maxPlayers": self.maxPlayers,
+            "drawLines": self.draw_lines,
+            "region": self.data_,
+        }
+
+    def advanceBracket(self):
+            
             # should be in func
-            totalGamesPerRound = int(maxPlayers / pow(2, bracketCounter + 1))
+            totalGamesPerRound = int(self.maxPlayers / pow(2, self.bracketCounter + 1))
             big = {}
 
-            draw_lines = False
+            self.draw_lines = False
             for i in range(0, totalGamesPerRound):
 
                 big[str(uuid4())] = [
@@ -137,13 +162,7 @@ class TournamentDataSerializer(serializers.Serializer):
                     },
                 ]
 
-            data.append(big)
-            bracketCounter += 1
+            self.data_.append(big)
+            
 
-        return {
-            "isCompleted": isCompleted, # this need to be changed in the future (because we have an issue the player always get a random places even from the second round)
-            "currentPlayerCount": currentPlayerCount,
-            "maxPlayers": maxPlayers,
-            "drawLines": draw_lines,
-            "region": data,
-        }
+      

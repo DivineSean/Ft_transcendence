@@ -5,6 +5,7 @@ from django.conf import settings
 import uuid
 import redis
 import json
+import math
 
 r = redis.Redis(
     host=settings.REDIS_CONNECTION["host"],
@@ -62,13 +63,14 @@ class Tournament(models.Model):
     def createBracket(self, round_number):
         return Bracket.objects.create(tournament=self, round_number=round_number)
 
-    def advanceRound(self):
+    def advanceRound(self, lenWinners):
         print("Im in advanceRound")
-        if self.current_round < self.total_rounds:
-            self.current_round += 1
-            self.save()
-            return self.createBracket(self.current_round)
-        return None
+        
+        self.current_round = int(math.log2(self.maxPlayers))   - int(math.log2(lenWinners)) + 1
+        print(int(math.log2(self.maxPlayers)), int(math.log2(lenWinners)) , int(math.log2(self.maxPlayers))  -  int(math.log2(lenWinners)) + 1)
+        self.save()
+        return self.createBracket(self.current_round)
+        
 
 
 class tournamentPlayer(models.Model):
