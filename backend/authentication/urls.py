@@ -1,10 +1,6 @@
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from . import views
 from . import oauth
-from django.contrib.auth import views as auth_views
-import re
-import os
 
 urlpatterns = [
     path(

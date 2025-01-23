@@ -1,26 +1,20 @@
-from django.shortcuts import render
 import requests
-from django.shortcuts import redirect
 from django.http import HttpResponse
-from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.contrib.auth.models import User
-from django.db import IntegrityError
+from rest_framework import serializers
 from .models import User
-from django.contrib.auth.hashers import make_password
-from .views import CustomTokenObtainPairView, registerView
+from .views import CustomTokenObtainPairView
 from .serializers import RegisterOAuthSerializer
-from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.files.base import ContentFile
 from rest_framework import status
-import requests
-import os, json
-import uuid
+import os
+import json
 
 CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
-REDIRECT_URL = os.environ.get("REDIRECT_URL")  # change reedirect url
+REDIRECT_URL = os.environ.get("REDIRECT_URL")
 
 G_CLIENT_ID = os.environ.get("G_CLIENT_ID")
 G_CLIENT_SECRET = os.environ.get("G_CLIENT_SECRET")
@@ -36,8 +30,6 @@ def download_providers_images(url, userId):
 
 def CreateUserIfNotExists(user_data, isIntra):
 
-    userID = user_data.get("id")
-    login = user_data.get("login")
     email = user_data.get("email")
 
     if isIntra:
@@ -154,12 +146,16 @@ def callback(request):
 
         if not is_new_user:
             serializer = RegisterOAuthSerializer(data=data)
-            # serializer.is_valid()
-            if serializer.is_valid():
-                serializer.save()
-            else:
+            try:
+                if serializer.is_valid(raise_exception=True):
+                    serializer.save()
+            except serializers.ValidationError:
                 return Response(
                     {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+                )
+            except:
+                return Response(
+                    {"error": "User already exists"}, status=status.HTTP_400_BAD_REQUEST
                 )
 
         user = User.objects.get(email=user_data.get("email"))
@@ -189,7 +185,6 @@ def callback(request):
                     "username": username,
                     "uid": str(user.id),
                 }
-                dump = json.dumps(data)
                 return Response(data, status=status.HTTP_200_OK)
 
             else:

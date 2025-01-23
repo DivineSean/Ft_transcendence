@@ -1,9 +1,7 @@
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from django.http import HttpResponse
 from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializers import (
     RegisterSerializer,
     PasswordUpdateSerializer,
@@ -13,35 +11,22 @@ from .serializers import (
 )
 from django.core.mail import get_connection, EmailMessage
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth.views import PasswordResetView
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
-from django.forms.models import model_to_dict
 from rest_framework import exceptions, status
-from rest_framework.response import Response
 from .models import User, TwoFactorCode
 from friendship.models import FriendshipRequest, Friendship
 from rest_framework.views import APIView
-from django.shortcuts import render
-from django.core.cache import cache
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-from django.contrib.auth.hashers import check_password
-import json
-from django.utils import timezone
 import os
 import uuid
-import jwt
 import re
 from PIL import Image
-from django.db.models import Prefetch, OuterRef, Subquery, F, Q
+from django.db.models import Q
 from rest_framework.exceptions import ValidationError
-from rest_framework_simplejwt.tokens import RefreshToken
-from games.models import Game, PlayerAchievement
-from games.serializers import GameAchievementSerializer, UserAchievementSerializer
-from django.contrib.postgres.search import SearchVector, TrigramSimilarity
+from games.models import Game
+from games.serializers import GameAchievementSerializer
+from django.contrib.postgres.search import TrigramSimilarity
 
 
 @api_view(["POST"])
@@ -225,7 +210,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 if user.isTwoFa:
 
                     two_factor_code = self.generate_2fa_code(user, "twoFa")
-                    self.send_2fa_code(user.email, two_factor_code.code, "twoFa")
+                    self.send_2fa_code(
+                        user.email, two_factor_code.code, "twoFa")
 
                     return Response(
                         {
@@ -272,7 +258,8 @@ class CustomTokenRefreshView(TokenRefreshView):
 
         refresh_token = request.COOKIES.get("refreshToken")
         if not refresh_token:
-            raise exceptions.AuthenticationFailed("no refresh token found in cookie")
+            raise exceptions.AuthenticationFailed(
+                "no refresh token found in cookie")
 
         data = request.data.copy()
         data["refresh"] = refresh_token
@@ -317,7 +304,6 @@ def logout(request):
 
         response.delete_cookie("accessToken")
         response.delete_cookie("refreshToken")
-        jwtObj = JWTAuthentication()
 
         try:
             token.blacklist()
@@ -395,13 +381,14 @@ class CheckPasswordChange(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        if TwoFactorCode.validate_code(user, code, "password") == False:
+        if TwoFactorCode.validate_code(user, code, "password") is False:
             return Response(
                 {"error": "code provided is invalid"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        serializer = PasswordUpdateSerializer(user, data={"new_password": newPassword})
+        serializer = PasswordUpdateSerializer(
+            user, data={"new_password": newPassword})
 
         if serializer.is_valid():
             user.set_password(newPassword)
@@ -436,7 +423,8 @@ class Profile(APIView):
 
         if user.profile_image:
 
-            imagePath = os.path.join(settings.MEDIA_ROOT, str(user.profile_image))
+            imagePath = os.path.join(
+                settings.MEDIA_ROOT, str(user.profile_image))
             if not os.path.exists(imagePath):
                 user.profile_image = None
                 user.save()
@@ -445,7 +433,8 @@ class Profile(APIView):
 
         if foundedUser and user != request._user:
 
-            isBlockedByUser = str(request._user.id) in user.blockedUsers or False
+            isBlockedByUser = str(
+                request._user.id) in user.blockedUsers or False
             if isBlockedByUser:
                 return Response(
                     {"error": "you are blocked by the user"},
@@ -453,7 +442,8 @@ class Profile(APIView):
                 )
 
             isFriend = Friendship.objects.filter(
-                Q(user1=user, user2=request._user) | Q(user1=request._user, user2=user)
+                Q(user1=user, user2=request._user) | Q(
+                    user1=request._user, user2=user)
             ).exists()
 
             isSentRequest = FriendshipRequest.objects.filter(
@@ -516,7 +506,8 @@ class Profile(APIView):
             except Exception:
                 pass
 
-            fs = FileSystemStorage(location=settings.MEDIA_ROOT + "/profile_images")
+            fs = FileSystemStorage(
+                location=settings.MEDIA_ROOT + "/profile_images")
 
             if fs.exists(file.name):
                 fs.delete(file.name)
@@ -525,7 +516,8 @@ class Profile(APIView):
             user.profile_image = f"profile_images/{savedFile}"
             user.save()
 
-        serializer = UpdateUserSerializer(user, data=request.data, partial=True)
+        serializer = UpdateUserSerializer(
+            user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             print("User updated successfully", flush=True)
@@ -623,10 +615,9 @@ def search_users(request):
                 {"error": "no query provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        search_vector = SearchVector("username")
-
         users = (
-            User.objects.annotate(similarity=TrigramSimilarity("username", query))
+            User.objects.annotate(
+                similarity=TrigramSimilarity("username", query))
             .filter(similarity__gt=0.1)
             .exclude(blockedUsers__contains=[str(request._user.id)])
             .order_by("-similarity")
