@@ -38,8 +38,8 @@ class TournamentManager:
                 ).select_related("user")
             )
 
-            random.shuffle(players)  # katdmes l carta
-            print("*********************************8**8****", flush=True)
+            random.shuffle(players)
+            # print("*********************************8**8****", flush=True)
             for i in range(0, len(players), 2):
                 if i + 1 < len(players):
                     self.create_game_pair(
@@ -58,9 +58,8 @@ class TournamentManager:
                 {"user": users[1].id, "role": 2},
             ],
         }
-        # kansifet lik bracket, zidha f serializer
         serializer = GameRoomSerializer(data=data)
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", flush=True)
+        # print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", flush=True)
 
         if serializer.is_valid():
             game_room = serializer.create(serializer.validated_data)
@@ -77,17 +76,17 @@ class TournamentManager:
     def notify_players(self, users, game_room):
         for user in users:
             self.send_game_notif(user, game_room.id)
-            
-    def send_game_notif(self, receiver, game_room_id=None, message = None):
-        if message != None:
-                notification, is_new = Notifications.objects.get_or_create(
+
+    def send_game_notif(self, receiver, game_room_id=None, message=None):
+        if message is not None:
+            notification, is_new = Notifications.objects.get_or_create(
                 notifType="IT",
                 userId=receiver,
                 senderId=self.tournament.creator,
                 game=self.tournament.game.name,
-                notifMessage = message,
+                notifMessage=message,
                 senderUsername=self.tournament.creator.username,
-               
+
             )
         else:
             notification, is_new = Notifications.objects.get_or_create(
@@ -104,7 +103,7 @@ class TournamentManager:
             group_name = f"notifications_{receiver.id}"
             self._send_ws_notification(group_name)
 
-    def _send_ws_notification(self, group_name, messsage = None):
+    def _send_ws_notification(self, group_name, messsage=None):
         async_to_sync(self.channel_layer.group_send)(
             group_name,
             {
@@ -114,45 +113,40 @@ class TournamentManager:
         )
 
     def handle_game_completion(self, gameRoomID):
-        
         print("I m in HGC")
-        game_room = GameRoom.objects.select_related("bracket").get(id=gameRoomID)
+        game_room = GameRoom.objects.select_related(
+            "bracket").get(id=gameRoomID)
         current_bracket = game_room.bracket
-        
-        lock = r.get(f"bracket_data:{current_bracket.id}:lock")
-        # lock = r.get(f"bracket_data:{current_bracket.id}:lock")
-        print(f"ha dak lock t*b: {lock}", flush=True)
-        if lock is not None:
-            print("ACCESS DENIED", flush=True)
-            return
-        print("ANA DEZT WALAYNI NOT COMPLETE", flush=True)
-        if current_bracket.isComplete():
-            
-            lock = r.set(f"bracket_data:{current_bracket.id}:lock","", nx=True, ex=5)
-            if lock is False:
-                print("NADAFAK BRO", flush=True)
+
+        if not current_bracket.isComplete():
+            print("ANA DEZT WALAYNI NOT COMPLETE", flush=True)
+        else:
+            lock = r.lock(f"bracket_data:{current_bracket.id}:lock",
+                          timeout=10)
+            print(f"Lock {lock}", flush=True)
+            if not lock.acquire(blocking=False):
+                print("ACCESS DENIED", flush=True)
                 return
 
-            print("im in complete",flush=True)
-            winners, allData = current_bracket.getWinners() # allData must be winners + disconneceted
-        
+            print("im in complete", flush=True)
+            winners, allData = current_bracket.getWinners()
 
             skippedPlayerss = (
-                Player.objects.filter(  # normalement hadi makhshach trowi error
+                Player.objects.filter(
                     game_room__bracket__round_number=current_bracket.round_number - 1,
                     should_skip_next=True,
                 ).select_related("user")
             )
-        
+
             winners = winners + list(skippedPlayerss)
-            
-            # totalPlayers = len(winners) + len(skippedPlayerss) #maybe khsni nchecki bhadi not sure
-            if len(winners) == 0:  # maybe khsni n checki 3la skipped players hna
+
+            # totalPlayers = len(winners) + len(skippedPlayerss)
+            if len(winners) == 0:
                 self.tournament.refresh_from_db()
                 self.tournament.isCanceled = True
                 self.tournament.save()
                 return
-            elif len(winners) == 1:  # w ta hna not sure
+            elif len(winners) == 1:
                 self.tournament.refresh_from_db()
                 self.tournament.winner = winners[0].user
                 self.tournament.isCompleted = True
@@ -161,9 +155,8 @@ class TournamentManager:
 
             nextBrackeet = self.tournament.advanceRound()
             if nextBrackeet:
-                print("Im in next Bracket")
-                self.createNextBracketGames(winners ,  allData, nextBrackeet)
-            
+                print("Im in next Bracket", flush=True)
+                self.createNextBracketGames(winners,  allData, nextBrackeet)
 
     def PlayerSkip(self, allData):
         skipIndex = []
@@ -172,15 +165,15 @@ class TournamentManager:
         ]  # kan converti lista
 
         for i in range(len(pattern) - 1):
-            if pattern[i : i + 2] == ["D", "D"]:  #  l9it joj li deconectaw
+            if pattern[i: i + 2] == ["D", "D"]:  # l9it joj li deconectaw
 
                 if (
-                    i > 0 and pattern[i - 1] == "W"
+                        i > 0 and pattern[i - 1] == "W"
                 ):  # la kan l winner 9bel dissconnected game
-                    skipIndex.append(i - 1) 
+                    skipIndex.append(i - 1)
 
                 elif (
-                    i + 2 < len(pattern) and pattern[i + 2] == "W"
+                        i + 2 < len(pattern) and pattern[i + 2] == "W"
                 ):  # la kan l winner mn b3d dissconnected game
                     skipIndex.append(i + 2)
                 else:
@@ -198,31 +191,31 @@ class TournamentManager:
         print("IMM in creaateNEXT BRACKKEET", flush=True)
         skipIndex = None
         playersToMatch = None
-        print("UPDATED ALL DATA => ",allData, flush=True)
-        if (len(winners)) % 2 != 0 :
+        print(f"UPDATED ALL DATA => {allData}", flush=True)
+        if (len(winners)) % 2 != 0:
             skipIndex, activePlayerss = self.PlayerSkip(allData)
-            print("ACTIVEPLAYEEERS : ", activePlayerss, flush=True)
+            print(f"ACTIVEPLAYEEERS : {activePlayerss}", flush=True)
         if skipIndex is not None:
             for element in skipIndex:
                 try:
-                    print("IM BEING SKIPPED ", allData[element].user.username, flush=True)
+                    print(f"IM BEING SKIPPED  {allData[element].user.username}",
+                          flush=True)
                 except:
                     print("PRINT KHSRAAT", flush=True)
             # khona li khso ytskipa (hadi bach ntfker nzid skipp player f player model)
                 skippingPlayer = allData[element]
                 skippingPlayer.should_skip_next = True
                 skippingPlayer.save()
-                self.send_game_notif(skippingPlayer.user, message = "You've been skipped to next bracket, wait a while ...")
+                self.send_game_notif(
+                    skippingPlayer.user, message="You've been skipped to next bracket, wait a while ...")
                 playersToMatch = activePlayerss
         else:
             playersToMatch = winners
-    
-        print("PLAYERS TO MATCH : \n",len(playersToMatch), flush=True)
+
+        print(f"PLAYERS TO MATCH : {len(playersToMatch)}", flush=True)
         # kan creati l games normally
         for i in range(0, len(playersToMatch), 2):
             if i + 1 < len(playersToMatch):
                 self.create_game_pair(
                     [playersToMatch[i].user, playersToMatch[i + 1].user], nextBrackeet
                 )
-
-

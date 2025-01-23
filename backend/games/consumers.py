@@ -10,25 +10,8 @@ from datetime import datetime
 import json
 import redis
 import time
-from functools import wraps
-from django.db import transaction
-from django.db.transaction import on_commit
 
-def redis_lock(func):
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        lock_key = f"game_room_data:{self.game_uuid}:lock"
-        lock = r.set(lock_key, self.user_id, nx=True, ex=5)
-        
-        if lock:
-            try:
-                return func(self, *args, **kwargs)
-            finally:
-                r.delete(lock_key)
-        else:
-            time.sleep(1) 
-            return wrapper(self, *args, **kwargs)  
-    return wrapper
+
 r = redis.Redis(
     host=settings.REDIS_CONNECTION["host"],
     port=settings.REDIS_CONNECTION["port"],
@@ -52,7 +35,8 @@ class GameConsumer(WebsocketConsumer):
         self.game_uuid = self.scope["url_route"]["kwargs"]["room_uuid"]
         self.group_name = f"game_room_{self.game_uuid}"
 
-        async_to_sync(self.channel_layer.group_add)(self.group_name, self.channel_name)
+        async_to_sync(self.channel_layer.group_add)(
+            self.group_name, self.channel_name)
         self.connect_player()
 
     def disconnect(self, code):
@@ -63,7 +47,11 @@ class GameConsumer(WebsocketConsumer):
         try:
             # Remove the player from the Redis list
             if self.error is False:
-                r.lrem(f"game_room_data:{self.game_uuid}:players", 0, self.user_id)
+                r.lrem(
+                    f"game_room_data:{self.game_uuid}:players",
+                    0,
+                    self.user_id
+                )
         except Exception as e:
             print(f"Error while disconnecting player: {e}")
 
@@ -118,7 +106,8 @@ class GameConsumer(WebsocketConsumer):
             )
             if str(self.user_id) in existing_players:
                 self.error = True
-                self.close(code=4001, reason="Already connected from another client")
+                self.close(
+                    code=4001, reason="Already connected from another client")
                 return
             game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
             if not game_data:
@@ -126,7 +115,8 @@ class GameConsumer(WebsocketConsumer):
                 serializer = GameRoomSerializer(game)
                 game_data = serializer.data
                 r.hset(f"game_room_data:{self.game_uuid}", mapping=game_data)
-            self.players = game_data["players"] = json.loads(game_data["players"])
+            self.players = game_data["players"] = json.loads(
+                game_data["players"])
             self.me = next(
                 (
                     index
@@ -145,82 +135,12 @@ class GameConsumer(WebsocketConsumer):
         if game_data["status"] == "paused" and self.me is not None:
             self.handle_reconnect(game_data)
 
-        self.send(text_data=json.dumps({"type": "game_manager", "message": game_data}))
-
-    # @redis_lock
-    # def check_results(self):
-    #     try:
-    #         all_players = r.lrange(f"game_room_data:{self.game_uuid}:players", 0, -1)
-    #         total_results = sum(
-    #             1 for player_id in all_players
-    #             if r.llen(f"game_room_data:{self.game_uuid}:players:{player_id}:result") > 0
-    #         )
-            
-    #         player_login = r.lindex(
-    #             f"game_room_data:{self.game_uuid}:players:{self.user_id}:login",
-    #             0
-    #         )
-            
-    #         if total_results == 2 and player_login == "No":
-    #             print("Starting Tournament Result Processing", flush=True)
-                
-    #             with transaction.atomic():
-        
-    #                 r.rpush(f"game_room_data:{self.game_uuid}:players:{self.user_id}:login", "Yes")
-    #                 on_commit(lambda: processGameResult.delay(self.game_uuid))
-                    
-    #     except Exception as e:
-    #         print(f"Error in check_results: {e}", flush=True)
-    #         raise
-
-    # def update_result(self, message):
-    #     with transaction.atomic():
-    #         self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
-    #         is_tournament = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "bracket"))
-
-    #         player = self.players[self.me]
-    #         player["result"] = message
-
-    #         game = Game.objects.select_for_update().get(name=self.game_name)
-    #         PlayerRating.handle_rating(self.user, game, player)
-            
-    #         self.user.status = User.Status.ONLINE
-    #         self.user.save()
-            
-    #         self.save_game_data(
-    #             players=json.dumps(self.players),
-    #             status="completed",
-    #             countdown=0
-    #         )
-            
-    #         if is_tournament:
-    #             message = str(message)
-    #             player_key = f"game_room_data:{self.game_uuid}:players:{self.user_id}"
-    #             r.rpush(f"{player_key}:result", message)
-    #             r.rpush(f"{player_key}:login", "No")
-                
-    #             self.user.increase_exp(XP_GAIN_TN)
- 
-    #             on_commit(lambda: self.check_results())
-    #         else:
-    #             self.user.increase_exp(XP_GAIN_NORMAL)
-            
-    #         on_commit(lambda: self.send_completion_notification())
-    
-    # def send_completion_notification(self):
-    #     async_to_sync(self.channel_layer.group_send)(
-    #                 self.group_name,
-    #                 {
-    #                     "type": "broadcast",
-    #                     "info": "game_manager",
-    #                     "message": {
-    #                         "status": "completed",
-    #                     },
-    #                 },
-    #             )
+        self.send(text_data=json.dumps(
+            {"type": "game_manager", "message": game_data}))
 
     def update_result(self, message):
-        self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
+        self.players = json.loads(
+            r.hget(f"game_room_data:{self.game_uuid}", "players"))
 
         player = self.players[self.me]
         player["result"] = message
@@ -234,20 +154,18 @@ class GameConsumer(WebsocketConsumer):
             players=json.dumps(self.players), status="completed", countdown=0
         )
 
+        for player in self.players:
+            # print(f"HERE:\t{player['result']}", flush=True)
+            if player["result"] is None:
+                # print("ERROR:\tchi w9 ma3ndoch result", flush=True)
+                return
+
         is_tournament = json.loads(
             r.hget(f"game_room_data:{self.game_uuid}", "bracket")
         )
         if is_tournament:
-            # print("TYYYYPE  ",type(message), flush=True)
-            # message = str(message) 
-            # key = f"game_room_data:{self.game_uuid}:players:{self.user_id}:result"
-            # print("Message is ====> ", message, flush=True)
-            # r.rpush(key, message)
-            r.rpush(f"game_room_data:{self.game_uuid}:login", "No")
-            # list_length = r.llen(key)
-            # print(f"Key used: {key}", flush=True)
-            # print("Here is the result: ", list_length, flush=True)
-            self.check_results()
+            print("processing Game Result ...", flush=True)
+            processGameResult(self.game_uuid)
             self.user.increase_exp(XP_GAIN_TN)
         else:
             self.user.increase_exp(XP_GAIN_NORMAL)
@@ -258,36 +176,43 @@ class GameConsumer(WebsocketConsumer):
                 "type": "broadcast",
                 "info": "game_manager",
                 "message": {
-                    "status": "completed",
+                        "status": "completed",
                 },
             },
         )
 
-    def check_results(self):
-            lock = r.set(f"game_room_data:{self.game_uuid}:lock", self.user_id, nx=True, ex=5)
-
-            if lock:
-                try:
-                    all_players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
-                    # all_players = r.lrange(f"game_room_data:{self.game_uuid}:players", 0, -1)
-                    total_results = 0
-                    for player in all_players:
-                        count = len(player["result"]) if player["result"] else 0
-                        print("EEEEEEEEEEY WHAT ==> ", player["result"], flush=True)
-                        if (count > 0):
-                            total_results += 1
-                        print("EEEEEEEEEEY count ==> ", total_results, flush=True)
-                    if total_results == 2 and r.lindex(f"game_room_data:{self.game_uuid}:login", 0) == "No":
-                        print("Start Tournament", flush=True)
-                        processGameResult(self.game_uuid)
-                        r.rpush(f"game_room_data:{self.game_uuid}:login", "Yes")
-                finally:
-                    #khsk deleti players
-                    r.delete(f"game_room_data:{self.game_uuid}:lock")
-            else:
-                print("im sleeping zzzzzzzzzzzzz", flush=True)
-                time.sleep(5)
-                self.check_results()
+    # def check_results(self):
+    #     lock = r.set(f"game_room_data:{self.game_uuid}:lock",
+    #                  self.user_id,
+    #                  nx=True,
+    #                  ex=5
+    #                  )
+    #
+    #     if lock:
+    #         print(f"{self.user_id} is here", flush=True)
+    #         try:
+    #             all_players = json.loads(
+    #                 r.hget(f"game_room_data:{self.game_uuid}", "players"))
+    #             # all_players = r.lrange(f"game_room_data:{self.game_uuid}:players", 0, -1)
+    #             total_results = 0
+    #             for player in all_players:
+    #                 count = len(player["result"]) if player["result"] else 0
+    #                 print("EEEEEEEEEEY WHAT ==> ",
+    #                       player["result"], flush=True)
+    #                 if (count > 0):
+    #                     total_results += 1
+    #                 print("EEEEEEEEEEY count ==> ", total_results, flush=True)
+    #             if total_results == 2 and r.lindex(f"game_room_data:{self.game_uuid}:login", 0) == "No":
+    #                 print("Start Tournament", flush=True)
+    #                 processGameResult(self.game_uuid)
+    #                 r.rpush(f"game_room_data:{self.game_uuid}:login", "Yes")
+    #         finally:
+    #             # khsk deleti players
+    #             r.delete(f"game_room_data:{self.game_uuid}:lock")
+    #     else:
+    #         print("im sleeping zzzzzzzzzzzzz", flush=True)
+    #         time.sleep(5)
+    #         self.check_results()
 
     def update_achievements(self, message):
 
@@ -301,20 +226,23 @@ class GameConsumer(WebsocketConsumer):
             print(e, flush=True)
 
     def update_score(self):
-        self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
+        self.players = json.loads(
+            r.hget(f"game_room_data:{self.game_uuid}", "players"))
         player = self.players[self.me]
         player["score"] += 1
-        scores = {player["role"]: str(player["score"]) for player in self.players}
+        scores = {player["role"]: str(player["score"])
+                  for player in self.players}
 
-        self.save_game_data(turn=player["role"], players=json.dumps(self.players))
+        self.save_game_data(turn=player["role"],
+                            players=json.dumps(self.players))
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
             {
                 "type": "broadcast",
                 "info": "score",
                 "message": {
-                    "role": player["role"],
-                    "scores": json.dumps(scores),
+                        "role": player["role"],
+                        "scores": json.dumps(scores),
                 },
             },
         )
@@ -326,7 +254,7 @@ class GameConsumer(WebsocketConsumer):
                 "type": "broadcast",
                 "info": "game_manager",
                 "message": {
-                    "r": "no",
+                        "r": "no",
                 },
             },
         )
@@ -339,7 +267,8 @@ class GameConsumer(WebsocketConsumer):
             print("Failed To Delete GameRoom", str(e), flush=True)
 
     def update_readiness(self):
-        self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
+        self.players = json.loads(
+            r.hget(f"game_room_data:{self.game_uuid}", "players"))
 
         player = self.players[self.me]
         if not player["ready"]:
@@ -350,25 +279,26 @@ class GameConsumer(WebsocketConsumer):
                     "type": "broadcast",
                     "info": "game_manager",
                     "message": {
-                        "players": self.players,
-                        "r": "yes",
+                            "players": self.players,
+                            "r": "yes",
                     },
                 },
             )
 
-        self.save_game_data(players=json.dumps(self.players))
+        self.save_game_data(players=json.dumps(self.players), countdown=0)
         all_ready = all(player.get("ready", False) for player in self.players)
         if all_ready:
             start_time = int(time.time() * 1000)
-            self.save_game_data(status="ongoing", started_at=start_time, countdown=0)
+            self.save_game_data(
+                status="ongoing", started_at=start_time, countdown=0)
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
                 {
                     "type": "broadcast",
                     "info": "game_manager",
                     "message": {
-                        "status": "ongoing",
-                        "players": self.players,
+                            "status": "ongoing",
+                            "players": self.players,
                     },
                 },
             )
@@ -417,7 +347,7 @@ class GameConsumer(WebsocketConsumer):
             self.save_game_data(state=json.dumps(game_data["state"]))
 
     def handle_timeout(self):
-        if not hasattr(self , "players") or not self.players or self.me is None:
+        if not hasattr(self, "players") or not self.players or self.me is None:
             return
 
         game_data = r.hgetall(f"game_room_data:{self.game_uuid}")
@@ -454,8 +384,8 @@ class GameConsumer(WebsocketConsumer):
                     "type": "broadcast",
                     "info": "game_manager",
                     "message": {
-                        "status": "paused",
-                        "players": self.players,
+                            "status": "paused",
+                            "players": self.players,
                     },
                 },
             )
@@ -465,7 +395,8 @@ class GameConsumer(WebsocketConsumer):
         if countdown == 0:
             sync_game_room_data.delay(self.game_uuid)
         else:
-            sync_game_room_data.apply_async(args=[self.game_uuid], countdown=countdown)
+            sync_game_room_data.apply_async(
+                args=[self.game_uuid], countdown=countdown)
 
     def whisper(self, event):
         if event["sender"] != self.channel_name:
@@ -477,90 +408,6 @@ class GameConsumer(WebsocketConsumer):
 
     def broadcast(self, event):
         self.send(
-            text_data=json.dumps({"type": event["info"], "message": event["message"]})
+            text_data=json.dumps(
+                {"type": event["info"], "message": event["message"]})
         )
-
-    
-# hada your code (existing code gha kan testi wahed solution)
-"""
-def update_result(self, message):
-        self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
-
-        player = self.players[self.me]
-        player["result"] = message
-        PlayerRating.handle_rating(
-            self.user, Game.objects.get(name=self.game_name), player
-        )
-
-        self.user.status = User.Status.ONLINE
-        self.user.save()
-        self.save_game_data(
-            players=json.dumps(self.players), status="completed", countdown=0
-        )
-
-        is_tournament = json.loads(
-            r.hget(f"game_room_data:{self.game_uuid}", "bracket")
-        )
-        if is_tournament:
-            # print("message is ====> ", message, flush=True)
-            # r.rpush(f"game_room_data:{self.game_uuid}:players{self.user_id}:result", message)
-            # print("here is the result ",r.llen(f"game_room_data:{self.game_uuid}:players:{self.user_id}:result"), flush=True)
-            print("TYYYYPE  ",type(message), flush=True)
-            message = str(message)  # Ensure the message is a string
-            key = f"game_room_data:{self.game_uuid}:players:{self.user_id}:result"  # Correct key format
-
-            # Add the message to the Redis list
-            print("Message is ====> ", message, flush=True)
-            r.rpush(key, message)
-            r.rpush(f"game_room_data:{self.game_uuid}:players:{self.user_id}:login", "No")
-
-            # Check the list length
-            list_length = r.llen(key)
-            print(f"Key used: {key}", flush=True)
-            print("Here is the result: ", list_length, flush=True)
-
-            #once the game is finished
-            # user a user b,
-            self.check_results()
-            # processGameResult.apply_async(args=[self.game_uuid], countdown = 5) # 5 => save db
-            # print("IM increasing the xp of this game ", self.game_uuid, flush=True)
-            self.user.increase_exp(XP_GAIN_TN)
-        else:
-            self.user.increase_exp(XP_GAIN_NORMAL)
-
-        async_to_sync(self.channel_layer.group_send)(
-            self.group_name,
-            {
-                "type": "broadcast",
-                "info": "game_manager",
-                "message": {
-                    "status": "completed",
-                },
-            },
-        )
-
-def check_results(self):
-        lock = r.set(f"game_room_data:{self.game_uuid}:lock", self.user_id, nx=True, ex=5)
-
-        if lock:
-            try:
-                all_players = r.lrange(f"game_room_data:{self.game_uuid}:players", 0, -1)
-                total_results = 0
-                for player_id in all_players:
-                    count = r.llen(f"game_room_data:{self.game_uuid}:players:{player_id}:result")
-                    print("EEEEEEEEEEY WHAT ==> ", r.lindex(f"game_room_data:{self.game_uuid}:players:{player_id}:result", 0), flush=True)
-                    if (count > 0):
-                        total_results += 1
-                    print("EEEEEEEEEEY count ==> ", total_results, flush=True)
-                if total_results == 2 and r.lindex(f"game_room_data:{self.game_uuid}:players:{self.user_id}:login", 0) == "No":
-                    print("Start Tournament", flush=True)
-                    processGameResult.delay(self.game_uuid)
-                    r.rpush(f"game_room_data:{self.game_uuid}:players:{self.user_id}:login", "Yes")
-            finally:
-                #khsk deleti players
-                r.delete(f"game_room_data:{self.game_uuid}:lock")
-        else:
-            print("im sleeping zzzzzzzzzzzzz", flush=True)
-            time.sleep(5)
-            self.check_results()
-"""

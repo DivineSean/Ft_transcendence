@@ -71,7 +71,7 @@ const Brackets = () => {
   }, []);
 
   useEffect(() => {
-    if (canvasRef && canvasRef.current && regionRef && regionRef.current) {
+    if (bracket && bracket.drawLines && canvasRef && canvasRef.current && regionRef && regionRef.current) {
       const tournament = new Tournament(canvasRef.current);
       tournament.init();
     }

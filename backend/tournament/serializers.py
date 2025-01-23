@@ -1,9 +1,7 @@
 from rest_framework import serializers
-from .models import Tournament, Bracket
+from .models import Tournament
 from games.models import GameRoom, Player
-from games.serializers import GameSerializer, PlayerSerializer
-from .serializers import PlayerSerializer
-import math
+from games.serializers import GameSerializer
 from uuid import uuid4
 
 
@@ -39,9 +37,6 @@ class getTournamentSerializer(serializers.ModelSerializer):
         return False
 
 
-# from authentication.serializers import UserSerializer
-
-
 class TournamentPlayerSerializer(serializers.ModelSerializer):
 
     username = serializers.CharField(source="user.username")
@@ -75,14 +70,15 @@ class TournamentDataSerializer(serializers.Serializer):
         currentPlayerCount = instance.get("currentPlayerCount")
         isCompleted = instance.get("isCompleted")
         bracketCounter = 0
-        
+        draw_lines = True
+
         if maxPlayers == currentPlayerCount:
             for bracket in brackets:
                 gameRooms = GameRoom.objects.filter(bracket=bracket)
                 bracketData = {}
-                gameRoomCounter =  0
+                gameRoomCounter = 0
                 for gameRoom in gameRooms:
-                    gameRoomCounter  += 1
+                    gameRoomCounter += 1
                     gameRoomiD = str(gameRoom.id)
 
                     playersData = TournamentPlayerSerializer(
@@ -90,31 +86,38 @@ class TournamentDataSerializer(serializers.Serializer):
                     ).data
 
                     bracketData[gameRoomiD] = playersData
-                if gameRoomCounter  < 2:
-                    # add dummydata
+
+                totalGamesPerRound = int(
+                    maxPlayers / pow(2, bracketCounter + 1))
+                for i in range(gameRoomCounter, totalGamesPerRound):
+
+                    draw_lines = False
                     bracketData[str(uuid4())] = [
-                    {
-                        "id": "",
-                        "result": "",
-                        "score": "",
-                        "username": "",
-                        "profile_image": "",
-                    },
-                    {
-                        "id": "",
-                        "result": "",
-                        "score": "",
-                        "username": "",
-                        "profile_image": "",
-                    },
-                ]
+                        {
+                            "id": "",
+                            "result": "",
+                            "score": "",
+                            "username": "",
+                            "profile_image": "",
+                        },
+                        {
+                            "id": "",
+                            "result": "",
+                            "score": "",
+                            "username": "",
+                            "profile_image": "",
+                        },
+                    ]
+
                 data.append(bracketData)
                 bracketCounter += 1
-        
+
         while bracketCounter < totalRounds:
-             
-            totalGamesPerRound = int(maxPlayers / pow(2, bracketCounter + 1)) 
+
+            totalGamesPerRound = int(maxPlayers / pow(2, bracketCounter + 1))
             big = {}
+
+            draw_lines = False
             for i in range(0, totalGamesPerRound):
 
                 big[str(uuid4())] = [
@@ -141,5 +144,6 @@ class TournamentDataSerializer(serializers.Serializer):
             "isCompleted": isCompleted,
             "currentPlayerCount": currentPlayerCount,
             "maxPlayers": maxPlayers,
+            "drawLines": draw_lines,
             "region": data,
         }

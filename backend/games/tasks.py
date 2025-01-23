@@ -51,7 +51,6 @@ def mark_game_abandoned(game_room_id, user_id):
             else:
                 user.increase_exp(XP_GAIN_NORMAL)
         # Back to Being Online Again
-        r.rpush(f"game_room_data:{game_room_id}:players:{user_id}:result", player["result"])
         PlayerRating.handle_rating(
             user, Game.objects.get(pk=game_room_data["game"]), player
         )
@@ -59,7 +58,8 @@ def mark_game_abandoned(game_room_id, user_id):
         user.save()
 
     game_room_data["status"] = GameRoom.Status.COMPLETED
-    serializer = GameRoomSerializer(game_room, data=game_room_data, partial=True)
+    serializer = GameRoomSerializer(
+        game_room, data=game_room_data, partial=True)
     if serializer.is_valid():
         serializer.save()
         r.hset(f"game_room_data:{game_room_id}", mapping=serializer.data)
@@ -84,19 +84,46 @@ def mark_game_abandoned(game_room_id, user_id):
 
 @shared_task
 def mark_game_room_as_expired(game_room_id):
-    from tournament.tasks import processGameResult  
-    
+    from tournament.tasks import processGameResult
+
     try:
         game_room = GameRoom.objects.get(id=game_room_id)
-        
+
         if game_room.status != "waiting":
-            return f"GameRoom {game_room_id} is not in waiting status."        
-        
-        game_room.status = "expired"
-        game_room.save()
-        r.hset(f"game_room_data:{game_room_id}", "status", "expired")
-        
-        
+            return f"GameRoom {game_room_id} is not in waiting status."
+
+        if game_room.bracket is not None:
+            try:
+                with transaction.atomic():
+                    players = Player.objects.select_for_update().filter(game_room=game_room)
+
+                    for player in players:
+                        player.result = (
+                            Player.Result.WIN if player.ready
+                            else Player.Result.DISCONNECTED
+                        )
+                        # gr = str(game_room_id)
+                        # id = str(player.user.id)
+                        # res = str(player.result)
+                        player.save()
+
+                    game_room.status = "expired"
+                    game_room.save()
+                    r.hset(
+                        f"game_room_data:{game_room_id}",
+                        "status",
+                        "expired"
+                    )
+
+                    # print("PLAYERR = ", id, type(id), flush=True)
+                    # print("game_room_id = ", gr, type(gr), flush=True)
+                    # print("result = ", res, type(res), flush=True)
+                    print("COMMITED====", flush=True)
+                    on_commit(lambda: processGameResult(game_room_id))
+                    print("ON_COMMIT CALLED", flush=True)
+            except Exception as e:
+                return f"Unexpected exception while trying to save players result: {str(e)}"
+
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             f"game_room_{game_room_id}",
@@ -108,32 +135,9 @@ def mark_game_room_as_expired(game_room_id):
                 },
             },
         )
-        with transaction.atomic():
-            if game_room.bracket is not None:
-                players = Player.objects.select_for_update().filter(game_room=game_room)
-                
-                for player in players:
-                    player.result = (
-                        Player.Result.WIN if player.ready 
-                        else Player.Result.DISCONNECTED
-                    )
-                    gr = str(game_room_id)
-                    id = str(player.user.id)
-                    res= str(player.result)
-                    r.rpush(
-                        f"game_room_data:{gr}:players:{id}:result", 
-                        str(r)
-                    )
-                    player.save()
-                print("PLAYERR = " ,id, type(id), flush=True)
-                print("game_room_id = " ,gr, type(gr), flush=True)
-                print("result = ", res, type(res), flush=True)
-                print("COMMITED====", flush=True)
-                on_commit(lambda: processGameResult(game_room_id))
-                print("ON_COMMIT CALLED", flush=True)
-                
-            return f"GameRoom {game_room_id} marked as expired."
-            
+
+        return f"GameRoom {game_room_id} marked as expired."
+
     except GameRoom.DoesNotExist:
         return f"GameRoom {game_room_id} does not exist."
 
@@ -152,7 +156,8 @@ def sync_game_room_data(game_room_id):
     game_room_data["state"] = json.loads(game_room_data["state"])
     game_room_data["players"] = json.loads(game_room_data["players"])
     game_room_data["bracket"] = json.loads(game_room_data["bracket"])
-    serializer = GameRoomSerializer(game_room, data=game_room_data, partial=True)
+    serializer = GameRoomSerializer(
+        game_room, data=game_room_data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return f"GameRoom {game_room_id} synched successfully"

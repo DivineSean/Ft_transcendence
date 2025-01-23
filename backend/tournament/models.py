@@ -1,10 +1,10 @@
 from django.db import models
 from authentication.models import User
 from games.models import GameRoom, Player, Game
+from django.conf import settings
 import uuid
 import redis
 import json
-from django.conf import settings
 
 r = redis.Redis(
     host=settings.REDIS_CONNECTION["host"],
@@ -41,7 +41,6 @@ class Tournament(models.Model):
     )
 
     def addPlayer(self, user):
-        # random
         if self.currentPlayerCount >= self.maxPlayers:  # 4 / 8 / 16
             return ["Tournament is full", 400]
 
@@ -76,46 +75,48 @@ class tournamentPlayer(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-#pls mat9is walo mn hadchi tanji ngado 
+
 class Bracket(models.Model):
     tournament = models.ForeignKey(
         "Tournament", related_name="brackets", on_delete=models.CASCADE
     )
     round_number = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
-    
-    def getWinners(self):
-        listofGameRooms = GameRoom.objects.filter(bracket = self, status__in=[GameRoom.Status.COMPLETED, GameRoom.Status.EXPIRED])
 
-        
+    def getWinners(self):
+        game_rooms = GameRoom.objects.filter(
+            bracket=self,
+            status__in=[GameRoom.Status.COMPLETED, GameRoom.Status.EXPIRED]
+        )
+
         winners = []
         allData = []
 
-        for gameRoom in listofGameRooms:
-            if gameRoom.status == GameRoom.Status.COMPLETED:
-                allPlayers = json.loads(r.hget(f"game_room_data:{gameRoom.id}", "players"))
+        for game_room in game_rooms:
+            if game_room.status == GameRoom.Status.COMPLETED:
+                allPlayers = json.loads(
+                    r.hget(f"game_room_data:{game_room.id}", "players"))
             else:
-                allPlayers = Player.objects.filter(game_room = gameRoom)    
+                allPlayers = Player.objects.filter(game_room=game_room)
             for p in allPlayers:
-                if gameRoom.status == GameRoom.Status.COMPLETED:
+                if game_room.status == GameRoom.Status.COMPLETED:
                     result = p["result"]
-                    player = Player.objects.get(user__id=p["user"]["id"], game_room=gameRoom)
+                    player = Player.objects.get(
+                        user__id=p["user"]["id"], game_room=game_room)
                 else:
                     result = p.result
                     player = p
 
                 if result == Player.Result.WIN:
                     winners.append(player)
-                if result in [Player.Result.WIN, Player.Result.DISCONNECTED]: 
+                if result in [Player.Result.WIN, Player.Result.DISCONNECTED]:
                     allData.append(player)
-                
 
+        print(f"Winners =>  {winners}", flush=True)
+        print(f"allData =>  {allData}", flush=True)
 
-        print("Winners =>   ",winners, flush=True)
-        print("allData =>   ",allData, flush=True)
-  
-        return winners, allData  
- 
+        return winners, allData
+
     def isComplete(self):
         return not GameRoom.objects.filter(
             bracket=self,
