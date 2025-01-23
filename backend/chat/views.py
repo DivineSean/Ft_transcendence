@@ -1,17 +1,12 @@
-from django.shortcuts import render
+from django.contrib.postgres.search import TrigramSimilarity
 from rest_framework.decorators import APIView
-
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import OuterRef, Subquery
+from django.db.models import OuterRef, Subquery, Q
 from chat.models import Conversation
 from authentication.models import User
 from chat.models import Message
-from django.db import connection
-from django.db.models import Prefetch, OuterRef, Subquery, F, Q
-from django.db.models.functions import Coalesce
-from rest_framework.pagination import PageNumberPagination, BasePagination
-from django.conf import settings
+from rest_framework.pagination import PageNumberPagination
 from .serializers import ConversationSerializer, UserSerializerOne
 
 from channels.layers import get_channel_layer
@@ -29,7 +24,8 @@ class ChatConversation(APIView):
         ).order_by("-timestamp")
 
         conversations = (
-            Conversation.objects.filter(Q(Sender_id=user_id) | Q(Receiver_id=user_id))
+            Conversation.objects.filter(
+                Q(Sender_id=user_id) | Q(Receiver_id=user_id))
             .annotate(
                 latest_message=Subquery(latest_messages.values("message")[:1]),
                 latest_message_timestamp=Subquery(
@@ -49,7 +45,8 @@ class ChatConversation(APIView):
                     "isBlocked": conversation.isBlocked,
                     "lastMessage": conversation.latest_message,
                     "messageDate": (
-                        conversation.latest_message_timestamp.strftime("%b %d, %H:%M")
+                        conversation.latest_message_timestamp.strftime(
+                            "%b %d, %H:%M")
                         if conversation.latest_message_timestamp
                         else None
                     ),
@@ -197,11 +194,12 @@ class getMessages(APIView):
         try:
             paginator.page_size = int(request.data.get("limit", 20))
         except ValueError:
-            response.data = {"Error": "Either Offeset or limit is not a Number"}
+            response.data = {
+                "Error": "Either Offeset or limit is not a Number"}
             response.status_code = 400
             return response
 
-        paginated_messages = messages[offset : offset + paginator.page_size]
+        paginated_messages = messages[offset: offset + paginator.page_size]
 
         for message in reversed(paginated_messages):
             if message.sender.email == request._user.email:
@@ -242,14 +240,6 @@ class getMessages(APIView):
         }
 
         return response
-
-
-from django.contrib.postgres.search import (
-    SearchQuery,
-    SearchVector,
-    SearchRank,
-    TrigramSimilarity,
-)
 
 
 @api_view(["GET"])
