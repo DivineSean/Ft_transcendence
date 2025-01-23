@@ -5,8 +5,6 @@ from django.dispatch import receiver
 from django.utils.timezone import now
 from authentication.models import User as User
 import uuid
-import time
-from datetime import datetime
 
 
 class Game(models.Model):
@@ -146,7 +144,8 @@ class Achievement(models.Model):
         try:
             current_index = levels.index(current_level)
             return (
-                levels[current_index + 1] if current_index + 1 < len(levels) else None
+                levels[current_index + 1] if current_index +
+                1 < len(levels) else None
             )
         except ValueError:
             return None

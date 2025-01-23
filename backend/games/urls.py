@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from . import views
 
 urlpatterns = [
@@ -13,7 +13,8 @@ urlpatterns = [
         views.get_rankings,
         name="updateRankingsPage",
     ),
-    path("api/profile/stats/<str:game_name>", views.getStats, name="ProfileStats"),
+    path("api/profile/stats/<str:game_name>",
+         views.getStats, name="ProfileStats"),
     path(
         "api/profile/stats/<str:game_name>/<str:username>",
         views.getStats,
