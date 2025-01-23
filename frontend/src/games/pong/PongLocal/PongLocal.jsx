@@ -33,7 +33,7 @@ const PongLocal = () => {
       navigator.userAgent || window.opera,
     );
   }, []);
-  
+
   useEffect(() => {
     loaderTRef.current = new GLTFLoader();
     loaderRef.current = new GLTFLoader();
@@ -222,31 +222,30 @@ const PongLocal = () => {
           onClose={authContextData.setGlobalMessage}
         />
       )}
-      {!isMobile.current && 
-        <canvas id="pong"></canvas>
-      }
-      {isMobile.current &&
+      {!isMobile.current && <canvas id="pong"></canvas>}
+      {isMobile.current && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
           <div className="w-[90%] secondary-glass p-8 py-16 flex flex-col gap-16">
             <div className="text-center px-4">
               <div className="flex justify-center">
                 <PiWarningBold className="text-txt-2xl text-red" />
               </div>
-              <h1 className="text-txt-2xl text-red uppercase">
-                Warning:
-              </h1>
+              <h1 className="text-txt-2xl text-red uppercase">Warning:</h1>
               <h2 className="text-txt-1xl text-white uppercase">
                 Unsupported Mode
               </h2>
             </div>
 
             <p className="text-gray/80 text-md text-center px-8 lowercase">
-              Please ensure your device meets the necessary requirements to run this mode.
+              Please ensure your device meets the necessary requirements to run
+              this mode.
             </p>
 
             <div className="flex gap-8 justify-center px-4 mt-8">
               <button
-                onClick={() => {navigate(`/games/pong`);}}
+                onClick={() => {
+                  navigate(`/games/pong`);
+                }}
                 className="secondary-glass grow p-8 sm:px-16 transition-all flex gap-4 justify-center items-center
                         rounded-md font-semibold tracking-wide hover:bg-red/60 hover:text-white text-red"
               >
@@ -255,7 +254,7 @@ const PongLocal = () => {
             </div>
           </div>
         </div>
-      }
+      )}
       {isOver && <Gameover status={Players1} />}
     </div>
   );
