@@ -56,11 +56,11 @@ const PongLocal = () => {
         space: "Space",
       },
       {
-        up: "ArrowUp",     // Player 2 - Arrow Up for up
+        up: "ArrowUp", // Player 2 - Arrow Up for up
         down: "ArrowDown", // Player 2 - Arrow Down for down
         left: "ArrowLeft", // Player 2 - Arrow Left for left
         right: "ArrowRight", // Player 2 - Arrow Right for right
-        space: "Numpad0", 
+        space: "Numpad0",
       },
     ];
     playersRef.current = [
