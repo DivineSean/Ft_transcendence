@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Friendship, FriendshipRequest
+from .models import FriendshipRequest
 from authentication.models import User
 
 

@@ -1,20 +1,15 @@
-from django.shortcuts import render
-
-from .models import FriendshipRequest, Friendship, ManageFriendship
+from .models import FriendshipRequest, Friendship
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from authentication.models import User
-from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.decorators import api_view
 from channels.layers import get_channel_layer
-from uuid import UUID
 from django.db.models import Q
 from authentication.serializers import UserFriendSerializer
 from chat.views import Conversation
 from asgiref.sync import async_to_sync
 from notification.models import Notifications
-import uuid
 
 
 class SendFriendRequest(APIView):
@@ -52,7 +47,6 @@ class SendFriendRequest(APIView):
                 friendRequest, isCreated = FriendshipRequest.objects.get_or_create(
                     fromUser=request._user,
                     toUser=receieverData,
-                    accepted_at=None,
                 )
                 # check if the friend request already sent return BAD REQUEST
                 if isCreated:
@@ -297,7 +291,7 @@ def getFriendRequests(request):
         data = [
             {
                 **UserFriendSerializer(friend_request.fromUser).data,
-                "requestId": str(friend_request.FriendshipRequestID),
+                "requestId": str(friend_request.id),
             }
             for friend_request in friendRequestList
         ]
@@ -341,7 +335,8 @@ def blockUser(request):
 
             request._user.blockedUsers.append(userId)
             request._user.save()
-            Friendship.objects.filter(Q(user1=userId) | Q(user2=userId)).delete()
+            Friendship.objects.filter(
+                Q(user1=userId) | Q(user2=userId)).delete()
 
         else:
             return Response(
