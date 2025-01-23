@@ -186,7 +186,7 @@ def getTournamentData(request, id=None):
             status=status.HTTP_400_BAD_REQUEST,
         )
     brackets = Bracket.objects.filter(tournament=tournamentObj)
-
+    # im expecting == tournament.maxRounds but i have only 2 instead 3
     serializer = TournamentDataSerializer(
         {
             "brackets": brackets,

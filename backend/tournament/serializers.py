@@ -71,7 +71,7 @@ class TournamentDataSerializer(serializers.Serializer):
         isCompleted = instance.get("isCompleted")
         bracketCounter = 0
         draw_lines = True
-
+      
         if maxPlayers == currentPlayerCount:
             for bracket in brackets:
                 gameRooms = GameRoom.objects.filter(bracket=bracket).order_by("created_at")
@@ -82,7 +82,7 @@ class TournamentDataSerializer(serializers.Serializer):
                     gameRoomiD = str(gameRoom.id)
 
                     playersData = TournamentPlayerSerializer(
-                        Player.objects.filter(game_room=gameRoom), many=True
+                        Player.objects.filter(game_room=gameRoom).order_by("created_at"), many=True
                     ).data
 
                     bracketData[gameRoomiD] = playersData
@@ -113,7 +113,7 @@ class TournamentDataSerializer(serializers.Serializer):
                 bracketCounter += 1
 
         while bracketCounter < totalRounds:
-
+            # should be in func
             totalGamesPerRound = int(maxPlayers / pow(2, bracketCounter + 1))
             big = {}
 

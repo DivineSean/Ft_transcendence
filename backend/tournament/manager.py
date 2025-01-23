@@ -41,7 +41,7 @@ class TournamentManager:
             print(f"INITIALIZING MATCHES {players}", flush=True)
             random.shuffle(players)
             print(f"SHUFFLE {players}", flush=True)
-            
+
             role = 1
             for player in players:
                 player.role = role
@@ -57,7 +57,8 @@ class TournamentManager:
             print(f"------------------i_m exception : {e}")
             pass
 
-    def create_game_pair(self, users, bracket):
+    def create_game_pair(self, users, bracket, message = None):
+        
         data = {
             "game": self.tournament.game.id,
             "bracket": bracket.id,
@@ -75,36 +76,35 @@ class TournamentManager:
                 args=[game_room.id], countdown=GAME_EXPIRATION
             )
             print("######################################", flush=True)
-            self.notify_players(users, game_room)
+            
+            self.notify_players(users, game_room, message= message)
         else:
             print("+++++++++++++++++++++++++++IM in else condition", flush=True)
             # chi wahed y dir chi raise wygol hada li lah 3aza wa jal
             pass
 
-    def notify_players(self, users, game_room):
+    def notify_players(self, users, game_room, message= None):
         for user in users:
-            self.send_game_notif(user, game_room.id)
+            self.send_game_notif(user, game_room.id, message)
 
     def send_game_notif(self, receiver, game_room_id=None, message=None):
-        if message is not None:
-            notification, is_new = Notifications.objects.get_or_create(
-                notifType="IT",
-                userId=receiver,
-                senderId=self.tournament.creator,
-                game=self.tournament.game.name,
-                notifMessage=message,
-                senderUsername=self.tournament.creator.username,
+   
+        notif_data = {
+            'notifType': "IT",
+            'userId': receiver,
+            'senderId': self.tournament.creator,
+            'game': self.tournament.game.name,
+            'senderUsername': self.tournament.creator.username,
+        }
 
-            )
-        else:
-            notification, is_new = Notifications.objects.get_or_create(
-                notifType="IT",
-                userId=receiver,
-                senderId=self.tournament.creator,
-                game=self.tournament.game.name,
-                senderUsername=self.tournament.creator.username,
-                targetId=str(game_room_id),
-            )
+      
+        if message is not None:
+            notif_data['notifMessage'] = message
+        if game_room_id is not None:
+            notif_data['targetId'] = str(game_room_id)
+
+        
+        notification, is_new = Notifications.objects.get_or_create(**notif_data)
 
         if not is_new and notification.isRead:
             notification.updateRead()
@@ -166,32 +166,36 @@ class TournamentManager:
                 print("Im in next Bracket", flush=True)
                 self.createNextBracketGames(winners,  allData, nextBrackeet)
 
+
+    def createActivePlayers(self, allData, skipIndex):
+        return [w for w in allData if w.result == Player.Result.WIN and allData.index(w) not in skipIndex]
     def PlayerSkip(self, allData):
         skipIndex = []
-        pattern = [
-            "W" if w.result == Player.Result.WIN else "D" for w in allData
-        ]  # kan converti lista
+        pattern = ["W" if w.result == Player.Result.WIN else "D" for w in allData] 
 
         for i in range(len(pattern) - 1):
-            if pattern[i: i + 2] == ["D", "D"]:  # l9it joj li deconectaw
+            if pattern[i: i + 2] == ["D", "D"]:  
+               
+                if (i - 1 >= 0 and pattern[i - 1] == "W"):  
+                    if (i -  2 >= 0 and pattern[i - 2] == "W"):
+                        if i + 2 == len(allData):
+                            skipIndex.append(i - 1)
+                            activePlayers = self.createActivePlayers(allData, skipIndex)
+                            
+                            return skipIndex, activePlayers
+                    else:
+                        skipIndex.append(i-1)
+                        activePlayers = self.createActivePlayers(allData, skipIndex)
+                        
+                        return skipIndex, activePlayers
 
-                if (
-                        i > 0 and pattern[i - 1] == "W"
-                ):  # la kan l winner 9bel dissconnected game
-                    skipIndex.append(i - 1)
-
-                elif (
-                        i + 2 < len(pattern) and pattern[i + 2] == "W"
-                ):  # la kan l winner mn b3d dissconnected game
+                if (i + 2 < len(pattern) and pattern[i + 2] == "W"):  
                     skipIndex.append(i + 2)
                 else:
                     continue
 
-                # kanakhed ga3 l allData ila li khshom yt skipaw
-                activePlayers = [
-                    w for w in allData
-                    if w.result == Player.Result.WIN and allData.index(w) not in skipIndex
-                ]
+                
+                activePlayers = self.createActivePlayers(allData, skipIndex)
                 return skipIndex, activePlayers
         return None, allData
 
@@ -222,12 +226,14 @@ class TournamentManager:
 
         print(f"PLAYERS TO MATCH : {len(playersToMatch)}", flush=True)
         # kan creati l games normally
-        ###############################################################by markik######################################################
-        print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH =======>", flush=True)
-        ###############################################################by markik######################################################
+        
         print("RECEIVED DATA PLAYERS = > ", playersToMatch, flush=True )
+        if nextBrackeet.round_number == self.tournament.total_rounds:
+            message = "It's the Final Bracket - give it everything you've got! "
+        else:
+            message = f"You're in Bracket {nextBrackeet.round_number}, time to shine!" 
         for i in range(0, len(playersToMatch), 2):
             if i + 1 < len(playersToMatch):
                 self.create_game_pair(
-                    [playersToMatch[i].user, playersToMatch[i + 1].user], nextBrackeet
-                )
+                    [playersToMatch[i].user, playersToMatch[i + 1].user], nextBrackeet, message)
+                        

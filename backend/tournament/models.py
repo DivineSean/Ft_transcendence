@@ -172,13 +172,20 @@ class Bracket(models.Model):
         )
         
         print("SORTED WINNERS ",sorted_winners, flush=True)
-        
+   
         # Similar sorting for all data
         all_players = Player.objects.filter(
             user_id__in=all_user_ids,
             game_room__bracket = self
         ).select_related('user').order_by()
+
+        #markik
         print("UPDATED ALL PLAYERS=> ",all_players, flush=True)
+        tournament_players = tournamentPlayer.objects.filter(
+                            tournament=self.tournament,
+                            user_id__in=all_user_ids
+                        ).select_related('user')
+        #markik
         sorted_all_data = sorted(
             all_players, 
             key=lambda player: next(
