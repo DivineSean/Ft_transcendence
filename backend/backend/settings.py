@@ -48,13 +48,13 @@ LOGGING = {
     },
     "handlers": {
         "file": {
-            "level": "WARNING",
+            "level": "INFO",
             "class": "logging.FileHandler",
             "filename": "/var/log/uvicorn/uvicorn.log",
             "formatter": "ecs",
         },
         "console": {
-            "level": "WARNING",
+            "level": "INFO",
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },

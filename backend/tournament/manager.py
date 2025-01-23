@@ -37,9 +37,17 @@ class TournamentManager:
                     tournament=self.tournament
                 ).select_related("user")
             )
-
+                
+            print(f"INITIALIZING MATCHES {players}", flush=True)
             random.shuffle(players)
-            # print("*********************************8**8****", flush=True)
+            print(f"SHUFFLE {players}", flush=True)
+            
+            role = 1
+            for player in players:
+                player.role = role
+                player.save()
+                role += 1
+
             for i in range(0, len(players), 2):
                 if i + 1 < len(players):
                     self.create_game_pair(
@@ -214,6 +222,10 @@ class TournamentManager:
 
         print(f"PLAYERS TO MATCH : {len(playersToMatch)}", flush=True)
         # kan creati l games normally
+        ###############################################################by markik######################################################
+        print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH =======>", flush=True)
+        ###############################################################by markik######################################################
+        print("RECEIVED DATA PLAYERS = > ", playersToMatch, flush=True )
         for i in range(0, len(playersToMatch), 2):
             if i + 1 < len(playersToMatch):
                 self.create_game_pair(

@@ -74,7 +74,7 @@ class TournamentDataSerializer(serializers.Serializer):
 
         if maxPlayers == currentPlayerCount:
             for bracket in brackets:
-                gameRooms = GameRoom.objects.filter(bracket=bracket)
+                gameRooms = GameRoom.objects.filter(bracket=bracket).order_by("created_at")
                 bracketData = {}
                 gameRoomCounter = 0
                 for gameRoom in gameRooms:
@@ -141,7 +141,7 @@ class TournamentDataSerializer(serializers.Serializer):
             bracketCounter += 1
 
         return {
-            "isCompleted": isCompleted,
+            "isCompleted": isCompleted, # this need to be changed in the future (because we have an issue the player always get a random places even from the second round)
             "currentPlayerCount": currentPlayerCount,
             "maxPlayers": maxPlayers,
             "drawLines": draw_lines,

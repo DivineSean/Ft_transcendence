@@ -115,12 +115,12 @@ const Brackets = () => {
                   {game.map((team, index) => (
                     <div
                       className={`transition-all flex items-center justify-between cursor-pointer gap-8
-											team z-10 md:p-8 p-4
-											${bracket.isCompleted && team.result === "win" ? "team-winner" : ""}
-											${bracket.isCompleted && (team.result === "loss" || team.result === "Disconnected") ? "team-loser" : ""}
-											team-${team.username} 
-											${index === 1 && "border-t-[0.5px] border-stroke-sc"}
-										`}
+                        team z-10 md:p-8 p-4
+                        ${bracket.isCompleted && team.result === "win" ? "team-winner" : ""}
+                        ${bracket.isCompleted && (team.result === "loss" || team.result === "Disconnected") ? "team-loser" : ""}
+                        team-${team.username} 
+                        ${index === 1 && "border-t-[0.5px] border-stroke-sc"}
+                      `}
                       data-team={team.username}
                       key={index}
                     >
