@@ -102,12 +102,12 @@ const ListTournaments = ({ tournaments, setTournaments }) => {
           isError: false,
         });
       } else if (res.status === 400) {
-				const data = await res.json();
-				authContextData.setGlobalMessage({
+        const data = await res.json();
+        authContextData.setGlobalMessage({
           message: data.error,
           isError: true,
         });
-			}
+      }
     } catch (error) {
       authContextData.setGlobalMessage({
         message: error.message,
