@@ -478,7 +478,7 @@ class Profile(APIView):
             if not isinstance(new_username, str):
                 return Response(
                     {
-                        "username": "invalid username, examples user, user1, user-12, user_12, and less than 13 character"
+                        "error": "invalid username, examples user, user1, user-12, user_12, and less than 13 character"
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
@@ -488,13 +488,13 @@ class Profile(APIView):
             if not username_regex.match(new_username):
                 return Response(
                     {
-                        "username": "invalid username, examples user, user1, user-12, user_12, and less than 13 character"
+                        "error": "invalid username, examples user, user1, user-12, user_12, and less than 13 character"
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             if User.objects.filter(username=new_username).exclude(id=user.id).exists():
                 return Response(
-                    {"username": "this username is already taken"},
+                    {"error": "this username is already taken"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             else:
