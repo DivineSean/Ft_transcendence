@@ -102,12 +102,10 @@ class TournamentManager:
         if game_room_id is not None:
             notif_data["targetId"] = str(game_room_id)
 
-        notification, is_new = Notifications.objects.get_or_create(**notif_data)
-
-        if not is_new and notification.isRead:
-            notification.updateRead()
-            group_name = f"notifications_{receiver.id}"
-            self._send_ws_notification(group_name)
+        notification = Notifications.objects.create(**notif_data)
+        notification.updateRead()
+        group_name = f"notifications_{receiver.id}"
+        self._send_ws_notification(group_name)
 
     def _send_ws_notification(self, group_name, messsage=None):
         async_to_sync(self.channel_layer.group_send)(
@@ -115,6 +113,7 @@ class TournamentManager:
             {
                 "type": "send_tournament_notification",
                 "sender": str(self.tournament.creator.id),
+                "sender_username": self.tournament.creator.username,
             },
         )
 
@@ -222,7 +221,7 @@ class TournamentManager:
                 skippingPlayer.save()
                 self.send_game_notif(
                     skippingPlayer.user,
-                    message="You've been skipped to next bracket, wait a while ...",
+                    message="You've been skipped to the next round!",
                 )
                 playersToMatch = activePlayerss
         else:
@@ -233,9 +232,9 @@ class TournamentManager:
 
         print("RECEIVED DATA PLAYERS = > ", playersToMatch, flush=True)
         if nextBrackeet.round_number == self.tournament.total_rounds:
-            message = "It's the Final Bracket - give it everything you've got! "
+            message = "You're in the final round!"
         else:
-            message = f"You're in Bracket {nextBrackeet.round_number}, time to shine!"
+            message = f"You're in round {nextBrackeet.round_number}!"
         for i in range(0, len(playersToMatch), 2):
             if i + 1 < len(playersToMatch):
                 self.create_game_pair(

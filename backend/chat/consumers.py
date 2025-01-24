@@ -301,15 +301,16 @@ class Chat(WebsocketConsumer):
             )
         )
 
-    # def send_tournament_notification(self, event):
-    #     self.send(
-    #         text_data=json.dumps(
-    #             {
-    #                 "type": "inviteTournament",
+    def send_tournament_notification(self, event):
+        self.send(
+            text_data=json.dumps(
+                {
+                    "type": "inviteTournament",
+                    "senderUsername": event["sender_username"],
+                }
+            )
+        )
 
-    #             }
-    #         )
-    #     )
     def convBlocked(self, event):
         self.send(
             text_data=json.dumps(
