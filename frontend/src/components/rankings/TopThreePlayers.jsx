@@ -19,7 +19,7 @@ const TopThreePlayers = ({ players }) => {
   const handleProfileClick = (username) => {
     navigate(`/profile/overview/${username}`);
   };
-  // console.log(players);
+
   return (
     <div className="grid grid-cols-3 md:gap-32 gap-16 items-end justify-center lg:px-64 md:px-16 px-8">
       {visualOrder.map((playerIndex, visualIndex) => {

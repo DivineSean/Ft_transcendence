@@ -8,9 +8,6 @@ import UserContext from "@/context/UserContext";
 const ProfileStatistics = () => {
   const userContextData = useContext(UserContext);
   const stats = userContextData.status.stats;
-  useEffect(() => {
-    console.log(userContextData.status);
-  }, []);
   return (
     <div className="flex flex-col gap-32 overflow-y-auto no-scrollbar">
       <div className="">

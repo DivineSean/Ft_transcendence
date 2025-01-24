@@ -1,9 +1,7 @@
 import {
   IoChatbubbleEllipsesOutline,
-  IoSettingsOutline,
   IoChevronBack,
 } from "react-icons/io5";
-import { MdOutlineExplore } from "react-icons/md";
 import AuthContext from "../context/AuthContext";
 import { RiGamepadLine } from "react-icons/ri";
 import { FaRegUser } from "react-icons/fa";
@@ -55,7 +53,6 @@ const Menu = ({ ...props }) => {
   const navigateToPage = (link) => {
     if (link.name === "profile") navigate(`/profile/overview`);
     else navigate(`/${link.name}`);
-    console.log(link.name);
     setDisplayMenuGl(false);
   };
   const links = [];

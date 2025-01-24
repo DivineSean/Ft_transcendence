@@ -11,7 +11,7 @@ const useWebSocket = (
     onMessage,
     onError,
     onClose,
-    debug = true,
+    debug = false,
   } = {},
 ) => {
   const websocketRef = useRef(null);

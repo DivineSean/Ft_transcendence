@@ -23,9 +23,6 @@ const Home = () => {
       authContextData.setGlobalMessage({ message: "", isError: false });
   }, []);
 
-  // useEffect(() => { }, [userContextData.onlineMatches]);
-
-  // console.log("here: ", userContextData);
   if (
     userContextData &&
     userContextData.userFriends &&

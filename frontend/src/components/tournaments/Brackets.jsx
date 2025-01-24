@@ -51,18 +51,16 @@ const Brackets = () => {
   const getBracket = async () => {
     try {
       const res = await FetchData.get(`api/tournament/${uid}/`);
-      console.log(res);
       if (res.ok) {
         const data = await res.json();
         setBracket(data);
         setRegion(data.region);
-        console.log(data);
       } else if (res.status === 400) {
         const data = await res.json();
-        console.log(data.error);
+        // console.log(data.error);
       }
     } catch (error) {
-      console.log(error.message);
+      // console.log(error.message);
     }
   };
 
@@ -84,7 +82,6 @@ const Brackets = () => {
     }
   }, [canvasRef && canvasRef.current, regionRef && regionRef.current]);
 
-  console.log(bracket);
 
   return (
     <>

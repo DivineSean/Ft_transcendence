@@ -10,8 +10,6 @@ const Toast = ({ duration = 3000, error = true, position = "topCenter" }) => {
   const [progress, setProgress] = useState(0);
   const authContextData = useContext(AuthContext);
 
-  //TODO: must to cleanup the toast if the component will unmount
-
   useEffect(() => {
     if (authContextData.globalMessage.message) {
       setIsVisible(true);

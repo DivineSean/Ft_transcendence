@@ -13,7 +13,6 @@ const OnlineGame = ({ game = "" }) => {
   const { send } = useWebSocket(`ws/matchmaking/${game}/`, {
     onMessage: (event) => {
       const data = JSON.parse(event.data);
-      console.log(data);
       if (data.type == "update") setPlayerCount(data.message);
       else if (data.type == "match_found") {
         navigate(data.message.room_id);
