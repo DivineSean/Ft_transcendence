@@ -95,7 +95,6 @@ class TournamentDataSerializer(serializers.Serializer):
         self.draw_lines = True
 
         if self.maxPlayers == currentPlayerCount:
-            # for self.bracketCounter in range(0, self.totalRounds):
 
             for bracket in brackets:
                 if bracket.round_number != self.bracketCounter + 1:
@@ -106,7 +105,7 @@ class TournamentDataSerializer(serializers.Serializer):
                 )
                 self.bracketData = {}
                 gameRoomCounter = 0
-                # gamrooms len  total < total : dummy => role 4
+
                 for gameRoom in gameRooms:
                     gameRoomCounter += 1
                     gameRoomiD = str(gameRoom.id)
@@ -138,7 +137,6 @@ class TournamentDataSerializer(serializers.Serializer):
 
     def advanceBracket(self):
 
-        # should be in func
         totalGamesPerRound = int(self.maxPlayers / pow(2, self.bracketCounter + 1))
         big = {}
 

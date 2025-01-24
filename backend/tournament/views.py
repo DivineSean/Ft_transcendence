@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from .models import Tournament
 from uuid import UUID
 import math
-from .tasks import manageTournament
+from .manager import manageTournament
 from .serializers import (
     getTournamentSerializer,
     TournamentDataSerializer,
@@ -112,7 +112,7 @@ class Tournaments(APIView):
             )
 
         existing_tournament = Tournament.objects.filter(
-            creator=request._user, isCompleted=False
+            creator=request._user
         ).first()
 
         if existing_tournament:
@@ -187,7 +187,7 @@ class Tournaments(APIView):
 
 @api_view(["GET"])
 def getTournamentData(request, id=None):
-    if id is None:
+    if not id:
         return Response(
             {"error": "No Tournament ID"}, status=status.HTTP_400_BAD_REQUEST
         )
@@ -201,8 +201,6 @@ def getTournamentData(request, id=None):
         )
 
     brackets = Bracket.objects.filter(tournament=tournamentObj).order_by("round_number")
-
-    # im expecting == tournament.maxRounds but i have only 2 instead 3
 
     serializer = TournamentDataSerializer(
         {
@@ -229,7 +227,6 @@ def getUpcomingTournament(request):
             .first()
         )
 
-        print(tournament, flush=True)
         if not tournament:
             return Response({}, status=status.HTTP_200_OK)
 
