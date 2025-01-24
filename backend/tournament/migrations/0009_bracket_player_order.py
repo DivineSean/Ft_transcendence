@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tournament', '0008_remove_bracket_iscompleted'),
+        ("tournament", "0008_remove_bracket_iscompleted"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='bracket',
-            name='player_order',
+            model_name="bracket",
+            name="player_order",
             field=models.JSONField(blank=True, null=True),
         ),
     ]

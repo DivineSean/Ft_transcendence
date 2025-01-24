@@ -71,7 +71,14 @@ const Brackets = () => {
   }, []);
 
   useEffect(() => {
-    if (bracket && bracket.drawLines && canvasRef && canvasRef.current && regionRef && regionRef.current) {
+    if (
+      bracket &&
+      bracket.drawLines &&
+      canvasRef &&
+      canvasRef.current &&
+      regionRef &&
+      regionRef.current
+    ) {
       const tournament = new Tournament(canvasRef.current);
       tournament.init();
     }
@@ -89,7 +96,8 @@ const Brackets = () => {
       {region && (
         <div
           ref={regionRef}
-          className="grow h-full region flex md:justify-center justify-start overflow-y-auto no-scrollbar gap-4">
+          className="grow h-full region flex md:justify-center justify-start overflow-y-auto no-scrollbar gap-4"
+        >
           <canvas
             ref={canvasRef}
             style={{ width: "100%", height: "100%" }}

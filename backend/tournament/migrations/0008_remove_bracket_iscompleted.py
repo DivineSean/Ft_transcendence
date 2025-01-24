@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tournament', '0007_bracket_iscompleted'),
+        ("tournament", "0007_bracket_iscompleted"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='bracket',
-            name='isCompleted',
+            model_name="bracket",
+            name="isCompleted",
         ),
     ]

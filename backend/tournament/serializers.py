@@ -63,9 +63,8 @@ class TournamentPlayerSerializer(serializers.ModelSerializer):
 class TournamentDataSerializer(serializers.Serializer):
 
     def dummyMatch(self, gameRoomCounter):
-        totalGamesPerRound = int(
-                        self.maxPlayers / pow(2, self.bracketCounter + 1))
-        for i in range(gameRoomCounter, totalGamesPerRound):                
+        totalGamesPerRound = int(self.maxPlayers / pow(2, self.bracketCounter + 1))
+        for i in range(gameRoomCounter, totalGamesPerRound):
             self.draw_lines = False
             self.bracketData[str(uuid4())] = [
                 {
@@ -97,34 +96,38 @@ class TournamentDataSerializer(serializers.Serializer):
 
         if self.maxPlayers == currentPlayerCount:
             # for self.bracketCounter in range(0, self.totalRounds):
-                
-                for bracket in brackets:   
-                    if bracket.round_number != self.bracketCounter + 1:
-                        self.advanceBracket()
-                    
-                    gameRooms = GameRoom.objects.filter(bracket=bracket).order_by("created_at")
-                    self.bracketData = {}
-                    gameRoomCounter = 0
-                    # gamrooms len  total < total : dummy => role 4  
-                    for gameRoom in gameRooms:
-                        gameRoomCounter += 1
-                        gameRoomiD = str(gameRoom.id)
 
-                        playersData = TournamentPlayerSerializer(
-                            Player.objects.filter(game_room=gameRoom).order_by("created_at"), many=True).data
-                        
-                        self.bracketData[gameRoomiD] = playersData
-                    
-                    self.dummyMatch(gameRoomCounter)
+            for bracket in brackets:
+                if bracket.round_number != self.bracketCounter + 1:
+                    self.advanceBracket()
 
-                    self.data_.append(self.bracketData)
-                    self.bracketCounter += 1                     
+                gameRooms = GameRoom.objects.filter(bracket=bracket).order_by(
+                    "created_at"
+                )
+                self.bracketData = {}
+                gameRoomCounter = 0
+                # gamrooms len  total < total : dummy => role 4
+                for gameRoom in gameRooms:
+                    gameRoomCounter += 1
+                    gameRoomiD = str(gameRoom.id)
 
+                    playersData = TournamentPlayerSerializer(
+                        Player.objects.filter(game_room=gameRoom).order_by(
+                            "created_at"
+                        ),
+                        many=True,
+                    ).data
+
+                    self.bracketData[gameRoomiD] = playersData
+
+                self.dummyMatch(gameRoomCounter)
+
+                self.data_.append(self.bracketData)
+                self.bracketCounter += 1
 
         while self.bracketCounter < self.totalRounds:
             self.advanceBracket()
-            
-        
+
         return {
             "isCompleted": isCompleted,
             "currentPlayerCount": currentPlayerCount,
@@ -134,32 +137,30 @@ class TournamentDataSerializer(serializers.Serializer):
         }
 
     def advanceBracket(self):
-            
-            # should be in func
-            totalGamesPerRound = int(self.maxPlayers / pow(2, self.bracketCounter + 1))
-            big = {}
 
-            self.draw_lines = False
-            for i in range(0, totalGamesPerRound):
+        # should be in func
+        totalGamesPerRound = int(self.maxPlayers / pow(2, self.bracketCounter + 1))
+        big = {}
 
-                big[str(uuid4())] = [
-                    {
-                        "id": "",
-                        "result": "",
-                        "score": "",
-                        "username": "",
-                        "profile_image": "",
-                    },
-                    {
-                        "id": "",
-                        "result": "",
-                        "score": "",
-                        "username": "",
-                        "profile_image": "",
-                    },
-                ]
+        self.draw_lines = False
+        for i in range(0, totalGamesPerRound):
 
-            self.data_.append(big)
-            self.bracketCounter += 1
+            big[str(uuid4())] = [
+                {
+                    "id": "",
+                    "result": "",
+                    "score": "",
+                    "username": "",
+                    "profile_image": "",
+                },
+                {
+                    "id": "",
+                    "result": "",
+                    "score": "",
+                    "username": "",
+                    "profile_image": "",
+                },
+            ]
 
-      
+        self.data_.append(big)
+        self.bracketCounter += 1

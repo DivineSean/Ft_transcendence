@@ -4,8 +4,10 @@ from games.models import GameRoom
 
 def processGameResult(game_room_id):
     try:
-        game_room = GameRoom.objects.select_related("bracket__tournament").get(id=game_room_id)
-        
+        game_room = GameRoom.objects.select_related("bracket__tournament").get(
+            id=game_room_id
+        )
+
     except:
         return "No Tournament"
     if not game_room.bracket:

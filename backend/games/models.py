@@ -75,8 +75,10 @@ class Player(models.Model):
     )
     should_skip_next = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return self.user.username
+
 
 class PlayerRating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
