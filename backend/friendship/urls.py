@@ -33,7 +33,7 @@ urlpatterns = [
         name="getFriends",
     ),
     path(
-        "api/friends/<str:username>",
+        "api/friends/<str:username>/",
         views.getFriendsView,
         name="getFriends",
     ),

@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from .models import User
 from django.conf import settings
-from chat.models import Conversation
-from django.core.exceptions import ValidationError
 import re
 
 

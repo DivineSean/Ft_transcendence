@@ -236,7 +236,6 @@ class Matchmaker:
 
         while len(self.queues):
             for _, game in self.queues.items():
-                print(f"{game['name']} --> {game['rating_tolerance']}", flush=True)
                 players = r.zrange(
                     f"{game['name']}_{QUEUE_KEY}", 0, -1, withscores=True
                 )

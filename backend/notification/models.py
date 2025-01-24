@@ -49,4 +49,4 @@ class Notifications(models.Model):
             "ME": "You have received a message from: ",
             "CC": "Conversation created by: ",
             "AF": "Your friend request has been accepted by: ",
-        }.get(self.notifType, "finahowa l message d notif al 3yan")
+        }.get(self.notifType, "You have a new notification: ")

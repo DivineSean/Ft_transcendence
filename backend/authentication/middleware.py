@@ -26,8 +26,8 @@ class sAuthMiddleWare(MiddlewareMixin):
         ]
 
     def process_request(self, request):
-        if hasattr(request, "path"):  # HTTP
-            if request.path in self.UnlockedPaths:  # hadok no need nchecki 3lihom
+        if hasattr(request, "path"):
+            if request.path in self.UnlockedPaths:
                 return None
 
             accessToken = request.COOKIES.get("accessToken")
@@ -36,7 +36,7 @@ class sAuthMiddleWare(MiddlewareMixin):
             if not accessToken and not refreshToken:
                 return JsonResponse(
                     {
-                        "error": f"Invalid Tokens{request.path}",
+                        "error": f"Invalid Tokens {request.path}",
                     },
                     status=401,
                 )
@@ -65,17 +65,14 @@ class sAuthMiddleWare(MiddlewareMixin):
                     request._user = user
 
                     request._new_access_token = new_access_token
-                    return None  # ched had l access token 3ndk f dak response a jawad
+                    return None
                 except:
                     return JsonResponse(
                         {
-                            "error": "ta wahed ma khdam",
+                            "error": "Unauthorized user",
                         },
                         status=401,
                     )
-
-        elif hasattr(request, "scope"):  # ASGI
-            return None
         return None
 
     def process_response(self, request, response):
@@ -84,9 +81,9 @@ class sAuthMiddleWare(MiddlewareMixin):
                 "accessToken",
                 request._new_access_token,
                 httponly=True,
-                samesite="Strict",
+                samesite="Lax",
             )
-        return response  # Dima rj3 l9lawi
+        return response
 
 
 class JwtMiddlware(BaseMiddleware):

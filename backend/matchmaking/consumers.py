@@ -1,5 +1,4 @@
 from channels.consumer import database_sync_to_async
-from django.db.models.base import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from games.models import Game, GameRoom
 from .matchmaker import Matchmaker
@@ -15,7 +14,6 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
         self.player = str(self.scope["user"].id)
         self.game_name = self.scope["url_route"]["kwargs"]["game_name"]
-        print(f"--- game --> {self.game_name} ---", flush=True)
         self.group_name = f"{self.game_name}_matchmaking_group"
         self.joined = False
         await self.channel_layer.group_add(self.group_name, self.channel_name)

@@ -9,6 +9,9 @@ import redis
 import json
 from django.db import transaction
 from django.db.transaction import on_commit
+import logging
+
+logger = logging.getLogger("uvicorn.error")
 
 r = redis.Redis(
     host=settings.REDIS_CONNECTION["host"],

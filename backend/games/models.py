@@ -5,8 +5,6 @@ from django.dispatch import receiver
 from django.utils.timezone import now
 from authentication.models import User as User
 import uuid
-import time
-from datetime import datetime
 
 
 class Game(models.Model):

@@ -1,10 +1,6 @@
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from . import views
 from . import oauth
-from django.contrib.auth import views as auth_views
-import re
-import os
 
 urlpatterns = [
     path(
@@ -45,11 +41,15 @@ urlpatterns = [
     path("api/profile/", views.Profile.as_view(), name="profile"),
     path("api/profile/<str:username>/", views.Profile.as_view(), name="profile"),
     path("api/profile/update/", views.Profile.as_view(), name="updateProfie"),
-    path("api/users/search/", views.search_users, name="updateProfie"),
-    path("api/user/achievements/", views.get_user_achievements, name="updateProfie"),
+    path("api/users/search/", views.search_users, name="search_users"),
+    path(
+        "api/user/achievements/",
+        views.get_user_achievements,
+        name="get_user_achievements",
+    ),
     path(
         "api/user/achievements/<str:username>/",
         views.get_user_achievements,
-        name="updateProfie",
+        name="get_user_achievements",
     ),
 ]

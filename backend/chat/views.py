@@ -1,17 +1,13 @@
-from django.shortcuts import render
+from django.contrib.postgres.search import TrigramSimilarity
 from rest_framework.decorators import APIView
-
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import OuterRef, Subquery
+from django.db.models import OuterRef, Subquery, Q
 from chat.models import Conversation
+from friendship.models import Friendship
 from authentication.models import User
 from chat.models import Message
-from django.db import connection
-from django.db.models import Prefetch, OuterRef, Subquery, F, Q
-from django.db.models.functions import Coalesce
-from rest_framework.pagination import PageNumberPagination, BasePagination
-from django.conf import settings
+from rest_framework.pagination import PageNumberPagination
 from .serializers import ConversationSerializer, UserSerializerOne
 
 from channels.layers import get_channel_layer
@@ -85,7 +81,7 @@ class ChatConversation(APIView):
 
             if str(request._user.id) in userData.blockedUsers:
                 return Response(
-                    {"error": f"you blocked by {userData.username}"},
+                    {"error": f"you are blocked by {userData.username}"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -103,6 +99,17 @@ class ChatConversation(APIView):
             response = Response(status=status.HTTP_200_OK)
 
             if not conversation:
+                friends = Friendship.objects.filter(
+                    Q(user1=request._user, user2=userData)
+                    | Q(user1=userData, user2=request._user)
+                ).exists()
+
+                if not friends:
+                    return Response(
+                        {"error": f"you must be friends with {userData.username}"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
                 newConversation = Conversation.objects.create(
                     Sender=request._user, Receiver=userData
                 )
@@ -182,7 +189,10 @@ class getMessages(APIView):
             )
 
         try:
-            conversation = Conversation.objects.get(ConversationId=convID)
+            conversation = Conversation.objects.get(
+                Q(Sender=request._user) | Q(Receiver=request._user),
+                ConversationId=convID,
+            )
         except Exception as e:
             return Response({"errro": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -244,14 +254,6 @@ class getMessages(APIView):
         return response
 
 
-from django.contrib.postgres.search import (
-    SearchQuery,
-    SearchVector,
-    SearchRank,
-    TrigramSimilarity,
-)
-
-
 @api_view(["GET"])
 def search_conversations(request):
     try:
@@ -291,9 +293,6 @@ def search_conversations(request):
             many=True,
         )
 
-        print(serializer.data)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
-        print(e, flush=True)
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

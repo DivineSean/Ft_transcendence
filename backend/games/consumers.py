@@ -10,6 +10,9 @@ from datetime import datetime
 import json
 import redis
 import time
+import logging
+
+logger = logging.getLogger("uvicorn.error")
 
 
 r = redis.Redis(
@@ -48,7 +51,7 @@ class GameConsumer(WebsocketConsumer):
             if self.error is False:
                 r.lrem(f"game_room_data:{self.game_uuid}:players", 0, self.user_id)
         except Exception as e:
-            print(f"Error while disconnecting player: {e}")
+            logger.error(f"Error while disconnecting player: {str(e)}")
 
         self.handle_timeout()
 
@@ -213,7 +216,7 @@ class GameConsumer(WebsocketConsumer):
                 achievement_name=message,
             )
         except Exception as e:
-            print(e, flush=True)
+            logger.error(str(e))
 
     def update_score(self):
         self.players = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "players"))
@@ -253,10 +256,10 @@ class GameConsumer(WebsocketConsumer):
                     user = User.objects.get(pk=player["user"]["id"])
                     user.update_status(User.Status.ONLINE)
                 except Exception as e:
-                    print(e, flush=True)
+                    logger.error(str(e))
 
         except Exception as e:
-            print("Failed To Delete GameRoom", str(e), flush=True)
+            logger.error("Failed To Delete GameRoom", str(e))
             return
 
         async_to_sync(self.channel_layer.group_send)(

@@ -1,9 +1,7 @@
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from django.http import HttpResponse
 from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializers import (
     RegisterSerializer,
     PasswordUpdateSerializer,
@@ -13,35 +11,22 @@ from .serializers import (
 )
 from django.core.mail import get_connection, EmailMessage
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth.views import PasswordResetView
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
-from django.forms.models import model_to_dict
 from rest_framework import exceptions, status
-from rest_framework.response import Response
 from .models import User, TwoFactorCode
 from friendship.models import FriendshipRequest, Friendship
 from rest_framework.views import APIView
-from django.shortcuts import render
-from django.core.cache import cache
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-from django.contrib.auth.hashers import check_password
-import json
-from django.utils import timezone
 import os
 import uuid
-import jwt
 import re
 from PIL import Image
-from django.db.models import Prefetch, OuterRef, Subquery, F, Q
+from django.db.models import Q
 from rest_framework.exceptions import ValidationError
-from rest_framework_simplejwt.tokens import RefreshToken
-from games.models import Game, PlayerAchievement
-from games.serializers import GameAchievementSerializer, UserAchievementSerializer
-from django.contrib.postgres.search import SearchVector, TrigramSimilarity
+from games.models import Game
+from games.serializers import GameAchievementSerializer
+from django.contrib.postgres.search import TrigramSimilarity
 
 
 @api_view(["POST"])
@@ -115,13 +100,13 @@ def resend2FACode(request):
 
 # if the 2fa_code is not set in the body of the request the POST function behave as follow:
 # -> make sure that the user who send the request is not an Oauth user,
-#    if it's then return an error (because he can logged in using email and password)
+# if it's then return an error (because he can logged in using email and password)
 # -> logged in the user if the user logged in successfully, then generate the 2FA code and send it the user email
 
 
 # otherwise the POST behave as follow:
 # -> check the email for the user if user found then, verify the 2fa_code is valid if it's set the cookies
-#    and navigate to the home page.
+# and navigate to the home page.
 class CustomTokenObtainPairView(TokenObtainPairView):
 
     def generate_2fa_code(self, user, codeType):
@@ -317,7 +302,6 @@ def logout(request):
 
         response.delete_cookie("accessToken")
         response.delete_cookie("refreshToken")
-        jwtObj = JWTAuthentication()
 
         try:
             token.blacklist()
@@ -395,7 +379,7 @@ class CheckPasswordChange(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        if TwoFactorCode.validate_code(user, code, "password") == False:
+        if TwoFactorCode.validate_code(user, code, "password") is False:
             return Response(
                 {"error": "code provided is invalid"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -491,18 +475,26 @@ class Profile(APIView):
         new_username = request.data.get("username", None)
 
         if new_username:
+            if not isinstance(new_username, str):
+                return Response(
+                    {
+                        "error": "invalid username, examples user, user1, user-12, user_12, and less than 13 character"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             new_username = new_username.lower()
             username_regex = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]{3,}$")
             if not username_regex.match(new_username):
                 return Response(
                     {
-                        "username": "invalid username, examples user, user1, user-12, user_12"
+                        "error": "invalid username, examples user, user1, user-12, user_12, and less than 13 character"
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             if User.objects.filter(username=new_username).exclude(id=user.id).exists():
                 return Response(
-                    {"username": "this username is already taken"},
+                    {"error": "this username is already taken"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             else:
@@ -514,7 +506,10 @@ class Profile(APIView):
             try:
                 Image.open(file).verify()
             except Exception:
-                pass
+                return Response(
+                    {"error": "invalid profile image"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             fs = FileSystemStorage(location=settings.MEDIA_ROOT + "/profile_images")
 
@@ -528,10 +523,11 @@ class Profile(APIView):
         serializer = UpdateUserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            print("User updated successfully", flush=True)
-
         else:
-            print("Error in serializer validation", flush=True)
+            return Response(
+                {"error": "invalid data"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         serializer = UserSerializer(user)
 
@@ -554,6 +550,14 @@ def setUpUsername(request):
     if not username:
         return Response(
             {"error": "no username provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if not isinstance(username, str):
+        return Response(
+            {
+                "error": "invalid username, examples user, user1, user-12, user_12, and less than 13 character"
+            },
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     username = username.lower()
@@ -622,8 +626,6 @@ def search_users(request):
             return Response(
                 {"error": "no query provided"}, status=status.HTTP_400_BAD_REQUEST
             )
-
-        search_vector = SearchVector("username")
 
         users = (
             User.objects.annotate(similarity=TrigramSimilarity("username", query))

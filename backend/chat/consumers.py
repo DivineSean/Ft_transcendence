@@ -1,6 +1,5 @@
 import json
 from channels.generic.websocket import WebsocketConsumer
-from django.shortcuts import get_object_or_404
 from django.db.models import Q, F
 from django.db import transaction
 from .models import Conversation, Message
@@ -9,7 +8,6 @@ from django.utils import timezone
 from asgiref.sync import async_to_sync
 from authentication.serializers import UserSerializer
 from rest_framework.serializers import ValidationError
-from notification.models import Notifications
 from games.models import GameRoom
 from django.db.models.expressions import RawSQL
 
@@ -322,9 +320,6 @@ class Chat(WebsocketConsumer):
             )
         )
 
-    def get_user(self):
-        return User.objects.get()  # should be modifed
-
     def get_room(self, convID):
         # Get object or 404
         return Conversation.objects.get(ConversationId=convID)
@@ -341,6 +336,3 @@ class Chat(WebsocketConsumer):
 
     def websocket_close(self, event):
         self.close()
-
-
-# TO DO => restrictions in jwt (password)

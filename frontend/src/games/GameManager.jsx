@@ -163,7 +163,7 @@ const GameManager = () => {
     return a >= b;
   }
   const { send, addMessageHandler, removeMessageHandler } = useWebSocket(
-    `ws/games/${game}/${uuid}`,
+    `ws/games/${game}/${uuid}/`,
     {
       onMessage: (event) => {
         const msg = JSON.parse(event.data);

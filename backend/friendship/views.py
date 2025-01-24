@@ -1,20 +1,15 @@
-from django.shortcuts import render
-
-from .models import FriendshipRequest, Friendship, ManageFriendship
+from .models import FriendshipRequest, Friendship
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from authentication.models import User
-from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.decorators import api_view
 from channels.layers import get_channel_layer
-from uuid import UUID
 from django.db.models import Q
 from authentication.serializers import UserFriendSerializer
 from chat.views import Conversation
 from asgiref.sync import async_to_sync
 from notification.models import Notifications
-import uuid
 
 
 class SendFriendRequest(APIView):
@@ -32,6 +27,18 @@ class SendFriendRequest(APIView):
                     )
 
                 receieverData = User.objects.get(id=userId)
+                friends = Friendship.objects.filter(
+                    Q(user1=request._user, user2=receieverData)
+                    | Q(user1=receieverData, user2=request._user)
+                ).exists()
+
+                if friends:
+                    return Response(
+                        {
+                            "error": f"You are already friends with {receieverData.username}"
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
             except Exception as e:  # error
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -52,7 +59,6 @@ class SendFriendRequest(APIView):
                 friendRequest, isCreated = FriendshipRequest.objects.get_or_create(
                     fromUser=request._user,
                     toUser=receieverData,
-                    accepted_at=None,
                 )
                 # check if the friend request already sent return BAD REQUEST
                 if isCreated:
@@ -118,7 +124,7 @@ class AcceptFriendRequest(APIView):
                     fromUser=userId, toUser=request._user.id
                 )
 
-                newFriendShip = Friendship.friends.get_or_create(
+                Friendship.friends.get_or_create(
                     user1=friendRequest.fromUser,
                     user2=friendRequest.toUser,
                 )
@@ -263,7 +269,7 @@ def cancelFriendRequest(request):
 @api_view(["GET"])
 def getFriendsView(request, username=None):
 
-    if username == None:
+    if username is None:
         user = request._user
     else:
         user = User.objects.filter(username=username).first()
@@ -275,6 +281,12 @@ def getFriendsView(request, username=None):
         )
 
     try:
+        isBlockedByUser = str(request._user.id) in user.blockedUsers or False
+        if isBlockedByUser:
+            return Response(
+                {"error": "you are blocked by the user"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         friends = Friendship.friends.getFriends(user)
         listOfFriends = {
@@ -290,14 +302,14 @@ def getFriendsView(request, username=None):
 def getFriendRequests(request):
 
     friendRequestList = FriendshipRequest.objects.filter(
-        Q(toUser=request._user)
+        toUser=request._user
     ).select_related("fromUser")
 
     try:
         data = [
             {
                 **UserFriendSerializer(friend_request.fromUser).data,
-                "requestId": str(friend_request.FriendshipRequestID),
+                "requestId": str(friend_request.id),
             }
             for friend_request in friendRequestList
         ]
@@ -339,9 +351,18 @@ def blockUser(request):
 
         if not isUserAlreadyBlocked:
 
+            try:
+                Friendship.objects.get(Q(user1=userId) | Q(user2=userId)).delete()
+            except Friendship.DoesNotExist:
+                return Response(
+                    {"error": "You are not friends with this user"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
             request._user.blockedUsers.append(userId)
             request._user.save()
-            Friendship.objects.filter(Q(user1=userId) | Q(user2=userId)).delete()
 
         else:
             return Response(

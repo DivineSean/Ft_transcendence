@@ -56,7 +56,7 @@ export const UserProvider = ({ children }) => {
     // i did this to make the username None (not undefined)
     // cause the backend trigger it as invalid username
     let url;
-    if (username) url = `api/profile/${username}`;
+    if (username) url = `api/profile/${username}/`;
     else url = `api/profile/`;
 
     try {
@@ -96,7 +96,7 @@ export const UserProvider = ({ children }) => {
   };
 
   const getFriends = async (username) => {
-    const url = username ? `api/friends/${username}` : `api/friends/`;
+    const url = username ? `api/friends/${username}/` : `api/friends/`;
     try {
       const res = await FetchData.get(url);
       if (res.ok) {
@@ -369,7 +369,7 @@ export const UserProvider = ({ children }) => {
 
   const getProfileAchievements = async (username) => {
     const url = username
-      ? `api/user/achievements/${username}`
+      ? `api/user/achievements/${username}/`
       : `api/user/achievements/`;
     try {
       const res = await FetchData.get(url);
@@ -438,8 +438,8 @@ export const UserProvider = ({ children }) => {
 
   const getStats = async (game, username) => {
     const url = username
-      ? `api/profile/stats/${game}/${username}`
-      : `api/profile/stats/${game}`;
+      ? `api/profile/stats/${game}/${username}/`
+      : `api/profile/stats/${game}/`;
     try {
       const res = await FetchData.get(url);
       if (res.ok) {
