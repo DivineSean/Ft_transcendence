@@ -69,7 +69,12 @@ export const NotifProvider = ({ children }) => {
         } else if (messageData.type === "gameInvite") {
           getNotfications();
           authContextData.setGlobalMessage({
-            message: `You have been invited by @${messageData.senderUsername} to play the ${messageData.game} game.`,
+            message: `You get invited by @${messageData.senderUsername} to play the ${messageData.game} game.`,
+          });
+        } else if (messageData.type === "inviteTournament") {
+          getNotfications();
+          authContextData.setGlobalMessage({
+            message: `You get invited by @${messageData.senderUsername} to play a tournament.`,
           });
         }
       }

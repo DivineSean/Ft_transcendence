@@ -101,7 +101,13 @@ const ListTournaments = ({ tournaments, setTournaments }) => {
           message: "The tournament has been successfully deleted",
           isError: false,
         });
-      }
+      } else if (res.status === 400) {
+				const data = await res.json();
+				authContextData.setGlobalMessage({
+          message: data.error,
+          isError: true,
+        });
+			}
     } catch (error) {
       authContextData.setGlobalMessage({
         message: error.message,
