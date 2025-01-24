@@ -65,9 +65,12 @@ class Tournament(models.Model):
 
     def advanceRound(self, lenWinners):
         print("Im in advanceRound")
+        logWinners = int(math.log2(lenWinners))
+        print("LOGWINNERS" , logWinners,  flush=True)
         
-        self.current_round = int(math.log2(self.maxPlayers))   - int(math.log2(lenWinners)) + 1
-        print(int(math.log2(self.maxPlayers)), int(math.log2(lenWinners)) , int(math.log2(self.maxPlayers))  -  int(math.log2(lenWinners)) + 1)
+        
+        self.current_round = int(math.log2(self.maxPlayers))  - logWinners + 1   
+        print("MAX PLAYERS = ",int(math.log2(self.maxPlayers)), "LENWIINERS = ", int(math.log2(lenWinners)) ,"TOTAL ",  int(math.log2(self.maxPlayers))  -  int(math.log2(lenWinners)) + 1, flush=True)
         self.save()
         return self.createBracket(self.current_round)
         

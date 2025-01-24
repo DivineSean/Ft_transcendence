@@ -160,8 +160,11 @@ class TournamentManager:
                 self.tournament.isCompleted = True
                 self.tournament.save()
                 return
-
-            nextBrackeet = self.tournament.advanceRound(len(winners))
+            if len(winners) % 2 == 1:
+                nextBrackeet = self.tournament.advanceRound(len(winners) + 1)
+            else:
+                nextBrackeet = self.tournament.advanceRound(len(winners))
+            
             if nextBrackeet:
                 print("Im in next Bracket", flush=True)
                 self.createNextBracketGames(winners,  allData, nextBrackeet)

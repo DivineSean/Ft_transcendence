@@ -94,7 +94,6 @@ class TournamentDataSerializer(serializers.Serializer):
         isCompleted = instance.get("isCompleted")
         self.bracketCounter = 0
         self.draw_lines = True
-        tournamentPlayers = instance.get("tournamentPlayers")
 
         if self.maxPlayers == currentPlayerCount:
             # for self.bracketCounter in range(0, self.totalRounds):
@@ -112,8 +111,7 @@ class TournamentDataSerializer(serializers.Serializer):
                         gameRoomiD = str(gameRoom.id)
 
                         playersData = TournamentPlayerSerializer(
-                            Player.objects.filter(game_room=gameRoom).order_by("created_at"), many=True
-                        ).data
+                            Player.objects.filter(game_room=gameRoom).order_by("created_at"), many=True).data
                         
                         self.bracketData[gameRoomiD] = playersData
                     
@@ -123,9 +121,9 @@ class TournamentDataSerializer(serializers.Serializer):
                     self.bracketCounter += 1                     
 
 
-        # while self.bracketCounter < self.totalRounds:
-        #     self.advanceBracket()
-        #     self.bracketCounter += 1
+        while self.bracketCounter < self.totalRounds:
+            self.advanceBracket()
+            
         
         return {
             "isCompleted": isCompleted,

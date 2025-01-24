@@ -54,14 +54,31 @@ class Tournaments(APIView):
 
     def delete(self, request):
         try:
-            tournament = Tournament.objects.filter(creator=request._user)
-        except:
+            tournament = Tournament.objects.filter(creator=request._user).first()
+            if not tournament:
+                return Response(
+                    "No tournament created by this user.",
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except Exception as e:
             return Response(
-                "no tournament created by this Uuser",
+                f"Error occurred: {str(e)}",
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        tournament.delete()
-        return Response({"Tournament Deleted"}, status=status.HTTP_200_OK)
+        
+       
+        if tournament.isCompleted or tournament.isCanceled:
+            tournament.delete()
+    
+        elif tournament.isStarted:
+            return Response(
+                {"error": "Can't delete a starting Tournament"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        else:
+            tournament.delete()
+
+        return Response({"message": "Tournament Deleted"}, status=status.HTTP_200_OK)
 
     def post(self, request):
         maxPlayers = request.data.get("maxPlayers")
@@ -185,8 +202,7 @@ def getTournamentData(request, id=None):
             {"error": "No such tournament with this id"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    tournamentPlayers = tournamentPlayer.objects.filter(tournament= tournamentObj)
-
+    
     brackets = Bracket.objects.filter(tournament=tournamentObj).order_by("round_number")
 
     # im expecting == tournament.maxRounds but i have only 2 instead 3
@@ -198,7 +214,7 @@ def getTournamentData(request, id=None):
             "maxPlayers": tournamentObj.maxPlayers,
             "currentPlayerCount": tournamentObj.currentPlayerCount,
             "isCompleted": tournamentObj.isCompleted,
-            "tournamentPlayers" : tournamentPlayers,
+  
         }
     )
     return Response(serializer.data, status=status.HTTP_200_OK)
