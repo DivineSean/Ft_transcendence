@@ -302,7 +302,6 @@ class Chat(WebsocketConsumer):
         )
 
     def send_tournament_notification(self, event):
-        print("hellooooooooooooooooooo", flush=True)
         self.send(
             text_data=json.dumps(
                 {
