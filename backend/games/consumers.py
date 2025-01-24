@@ -1,7 +1,7 @@
 from channels.generic.websocket import WebsocketConsumer, async_to_sync
 from games.serializers import GameRoomSerializer
 from .tasks import sync_game_room_data, mark_game_abandoned
-from tournament.tasks import processGameResult
+from tournament.manager import processGameResult
 from celery.result import AsyncResult
 from django.conf import settings
 from authentication.models import User

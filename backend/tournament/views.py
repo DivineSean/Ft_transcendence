@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from .models import Tournament
 from uuid import UUID
 import math
-from .tasks import manageTournament
+from .manager import manageTournament
 from .serializers import (
 		getTournamentSerializer,
 		TournamentDataSerializer,
@@ -186,6 +186,7 @@ class Tournaments(APIView):
 						tournament.isStarted = True
 						tournament.save()
 				return response
+
 
 
 @api_view(["GET"])

@@ -6,7 +6,7 @@ import TwoFaInput from "../../components/authentication/TwoFaInput";
 
 const ResetPassword = () => {
   const authContextData = useContext(AuthContext);
-  const [timer, setTimer] = useState(5);
+  const [timer, setTimer] = useState(120);
   const [isActive, setIsActive] = useState(false);
   const [values2FA, setValues2FA] = useState(Array(6).fill(""));
 

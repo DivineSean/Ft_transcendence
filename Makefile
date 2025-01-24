@@ -1,4 +1,4 @@
-PROFILE ?= dev
+PROFILE ?= prod
 COMPOSE_FILE = docker-compose.yml
 
 BASE_DIR := .
@@ -13,15 +13,29 @@ all: $(BASE_ENV) $(ELK_ENV) $(MONITORING_ENV) up
 
 $(BASE_ENV): $(BASE_DIR)/.env.example
 	@echo "Creating .env file in $(BASE_DIR) from .env.example"
-	cp $< $@
+	@if [ ! -f $@ ]; then \
+		echo "Creating .env file in $(BASE_DIR) from .env.example"; \
+		cp $< $@; \
+	else \
+		echo ".env file already exists in $(BASE_DIR)"; \
+	fi
 
 $(ELK_ENV): $(ELK_DIR)/.env.example
 	@echo "Creating .env file in $(ELK_DIR) from .env.example"
-	cp $< $@
+	@if [ ! -f $@ ]; then \
+		echo "Creating .env file in $(ELK_DIR) from .env.example"; \
+		cp $< $@; \
+	else \
+		echo ".env file already exists in $(ELK_DIR)"; \
+	fi
 
 $(MONITORING_ENV): $(MONITORING_DIR)/.env.example
-	@echo "Creating .env file in $(MONITORING_DIR) from .env.example"
-	cp $< $@
+	@if [ ! -f $@ ]; then \
+		echo "Creating .env file in $(MONITORING_DIR) from .env.example"; \
+		cp $< $@; \
+	else \
+		echo ".env file already exists in $(MONITORING_DIR)"; \
+	fi
 
 build: $(BASE_ENV)
 	@echo "Building services in $(BASE_DIR) with profile: $(PROFILE)"
