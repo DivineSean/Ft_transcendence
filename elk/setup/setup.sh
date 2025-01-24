@@ -49,7 +49,7 @@ echo "Waiting for Elasticsearch availability..."
 until curl -s -k https://elasticsearch:9200 | grep -q "missing authentication credentials"; do sleep 5; done
 
 echo "Setting up ILM policy"
-curl -s -X PUT "https://elasticsearch:9200/_ilm/policy/logs-policy" \
+until curl -s -X PUT "https://elasticsearch:9200/_ilm/policy/logs-policy" \
 	--cacert config/certs/ca/ca.crt \
 	-u "${ELASTIC_USERNAME}:${ELASTIC_PASSWORD}" \
 	-H "Content-Type: application/json" \
@@ -63,7 +63,7 @@ curl -s -X PUT "https://elasticsearch:9200/_ilm/policy/logs-policy" \
           },
           "_meta": {"description": "ILM policy using the hot, warm(2 days) and cold(7 days) phases with a retention of 30 days"}
         }
-      }' | grep -q '"acknowledged":true' || exit 1
+      }' | grep -q '"acknowledged":true'; do sleep 1; done
 
 echo "Setting up index template"
 curl -s -X PUT "https://elasticsearch:9200/_index_template/logs-template" \
