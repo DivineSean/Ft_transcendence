@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import OuterRef, Subquery, Q
 from chat.models import Conversation
+from friendship.models import Friendship
 from authentication.models import User
 from chat.models import Message
 from rest_framework.pagination import PageNumberPagination
@@ -82,7 +83,7 @@ class ChatConversation(APIView):
 
             if str(request._user.id) in userData.blockedUsers:
                 return Response(
-                    {"error": f"you blocked by {userData.username}"},
+                    {"error": f"you are blocked by {userData.username}"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -100,6 +101,17 @@ class ChatConversation(APIView):
             response = Response(status=status.HTTP_200_OK)
 
             if not conversation:
+                friends = Friendship.objects.filter(
+                    Q(user1=request._user, user2=userData)
+                    | Q(user1=userData, user2=request._user)
+                ).exists()
+
+                if not friends:
+                    return Response(
+                        {"error": f"you must be friends with {userData.username}"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
                 newConversation = Conversation.objects.create(
                     Sender=request._user, Receiver=userData
                 )
@@ -128,9 +140,9 @@ class ChatConversation(APIView):
                     {
                         "type": "create_conversation_room",
                         "convId": str(newConversation.ConversationId),
-                        "sender": str(request._user.id),
-                        "notifId": str(notification.notificationId),
-                        "targetId": str(newConversation.ConversationId),
+                                "sender": str(request._user.id),
+                                "notifId": str(notification.notificationId),
+                                "targetId": str(newConversation.ConversationId),
                     },
                 )
 
@@ -140,9 +152,9 @@ class ChatConversation(APIView):
                     {
                         "type": "create_conversation_room",
                         "convId": str(newConversation.ConversationId),
-                        "sender": str(request._user.id),
-                        "notifId": str(notification.notificationId),
-                        "targetId": str(newConversation.ConversationId),
+                                "sender": str(request._user.id),
+                                "notifId": str(notification.notificationId),
+                                "targetId": str(newConversation.ConversationId),
                     },
                 )
 
@@ -179,7 +191,11 @@ class getMessages(APIView):
             )
 
         try:
-            conversation = Conversation.objects.get(ConversationId=convID)
+            conversation = Conversation.objects.get(
+                Q(Sender=request._user)
+                | Q(Receiver=request._user),
+                ConversationId=convID,
+            )
         except Exception as e:
             return Response({"errro": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
