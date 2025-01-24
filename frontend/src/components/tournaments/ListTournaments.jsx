@@ -92,9 +92,9 @@ const ListTournaments = ({ tournaments, setTournaments }) => {
     }
   };
 
-  const deleteTournament = async () => {
+  const deleteTournament = async (id) => {
     try {
-      const res = await FetchData.delete("api/tournaments/");
+      const res = await FetchData.delete(`api/tournaments/${id}/`);
       if (res.ok) {
         setTournaments(null);
         authContextData.setGlobalMessage({
@@ -147,6 +147,7 @@ const ListTournaments = ({ tournaments, setTournaments }) => {
     navigate(`/tournaments/${tournament.id}`);
   };
 
+	console.log(tournaments);
   return (
     <div
       ref={tourContainerRef}
@@ -195,7 +196,7 @@ const ListTournaments = ({ tournaments, setTournaments }) => {
             </div>
             {tournament.isCreator && (
               <RxCross2
-                onClick={deleteTournament}
+                onClick={() => deleteTournament(tournament.id)}
                 className="text-red text-h-lg-md cursor-pointer"
               />
             )}
