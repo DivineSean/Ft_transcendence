@@ -9,8 +9,11 @@ import { useEffect, useRef, useState, useContext } from "react";
 import AuthContext from "../../../context/AuthContext";
 import Toast from "../../../components/Toast";
 import GameResultLan from "@/components/game/GameResultLan";
+import { PiWarningBold } from "react-icons/pi";
+import { useNavigate } from "react-router-dom";
 
 const PongLocal = () => {
+  const navigate = useNavigate();
   const sm = useRef(null);
   const loaderRef = useRef(null);
   const loaderTRef = useRef(null);
@@ -24,6 +27,12 @@ const PongLocal = () => {
   const netRef = useRef(null);
   const ballRef = useRef(null);
   const playersRef = useRef(null);
+  const isMobile = useRef(false);
+  useEffect(() => {
+    isMobile.current = /android|iphone|ipad|ipod/i.test(
+      navigator.userAgent || window.opera,
+    );
+  }, []);
 
   useEffect(() => {
     loaderTRef.current = new GLTFLoader();
@@ -47,11 +56,11 @@ const PongLocal = () => {
         space: "Space",
       },
       {
-        up: "Numpad8",
-        down: "Numpad2",
-        left: "Numpad4",
-        right: "Numpad6",
-        space: "ShiftRight",
+        up: "ArrowUp", // Player 2 - Arrow Up for up
+        down: "ArrowDown", // Player 2 - Arrow Down for down
+        left: "ArrowLeft", // Player 2 - Arrow Left for left
+        right: "ArrowRight", // Player 2 - Arrow Right for right
+        space: "Numpad0",
       },
     ];
     playersRef.current = [
@@ -213,7 +222,39 @@ const PongLocal = () => {
           onClose={authContextData.setGlobalMessage}
         />
       )}
-      <canvas id="pong"></canvas>
+      {!isMobile.current && <canvas id="pong"></canvas>}
+      {isMobile.current && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
+          <div className="w-[90%] secondary-glass p-8 py-16 flex flex-col gap-16">
+            <div className="text-center px-4">
+              <div className="flex justify-center">
+                <PiWarningBold className="text-txt-2xl text-red" />
+              </div>
+              <h1 className="text-txt-2xl text-red uppercase">Warning:</h1>
+              <h2 className="text-txt-1xl text-white uppercase">
+                Unsupported Mode
+              </h2>
+            </div>
+
+            <p className="text-gray/80 text-md text-center px-8 lowercase">
+              Please ensure your device meets the necessary requirements to run
+              this mode.
+            </p>
+
+            <div className="flex gap-8 justify-center px-4 mt-8">
+              <button
+                onClick={() => {
+                  navigate(`/games/pong`);
+                }}
+                className="secondary-glass grow p-8 sm:px-16 transition-all flex gap-4 justify-center items-center
+                        rounded-md font-semibold tracking-wide hover:bg-red/60 hover:text-white text-red"
+              >
+                I UNDERSTAND
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {isOver && <Gameover status={Players1} />}
     </div>
   );

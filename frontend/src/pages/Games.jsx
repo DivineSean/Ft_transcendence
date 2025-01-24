@@ -1,6 +1,6 @@
 import OnlineGame from "../games/OnlineGame";
 import Header from "../components/Header";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { ImArrowUp } from "react-icons/im";
 import {
   Routes,
@@ -322,6 +322,12 @@ const BmoDiskDrive = ({ games }) => {
 
 const Games = () => {
   const authContextData = useContext(AuthContext);
+  const isMobile = useRef(false);
+  useEffect(() => {
+    isMobile.current = /android|iphone|ipad|ipod/i.test(
+      navigator.userAgent || window.opera,
+    );
+  }, []);
   const games = [
     {
       id: 0,
@@ -331,7 +337,7 @@ const Games = () => {
       modes: {
         ai: false,
         online: true,
-        local: true,
+        local: !isMobile.current,
       },
     },
   ];
