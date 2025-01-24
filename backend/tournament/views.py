@@ -12,7 +12,8 @@ from .serializers import (
 )
 from rest_framework.pagination import PageNumberPagination
 from games.models import Game
-from .models import Bracket, tournamentPlayer
+from .models import Bracket
+from django.db.models import Q
 
 
 class Tournaments(APIView):
@@ -51,26 +52,27 @@ class Tournaments(APIView):
             status=status.HTTP_200_OK,
         )
 
-    def delete(self, request):
+    def delete(self, request, tournament_id=None):
+
+        if not tournament_id:
+            return Response(
+                "No tournament id provided",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         try:
-            tournament = Tournament.objects.filter(creator=request._user).first()
-            if not tournament:
-                return Response(
-                    "No tournament created by this user.",
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            tournament = Tournament.objects.get(pk=tournament_id)
         except Exception as e:
             return Response(
-                f"Error occurred: {str(e)}",
+                {"error": str(e)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if tournament.isCompleted or tournament.isCanceled:
+        if not tournament.isStarted:
             tournament.delete()
 
         elif tournament.isStarted:
             return Response(
-                {"error": "Can't delete a starting Tournament"},
+                {"error": "Can't delete a started Tournament"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         else:
@@ -111,7 +113,10 @@ class Tournaments(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        existing_tournament = Tournament.objects.filter(creator=request._user).first()
+        existing_tournament = Tournament.objects.filter(
+            Q(isCompleted=False) & Q(isCanceled=False),
+            creator=request._user,
+        ).first()
 
         if existing_tournament:
             return Response(
