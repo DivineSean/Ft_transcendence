@@ -7,6 +7,9 @@ from games.serializers import GameRoomSerializer
 from django.conf import settings
 import redis
 import json
+import logging
+
+logger = logging.getLogger("uvicorn.error")
 
 r = redis.Redis(
     host=settings.REDIS_CONNECTION["host"],
@@ -55,7 +58,8 @@ def mark_game_abandoned(game_room_id, user_id):
         user.update_status(User.Status.ONLINE)
 
     game_room_data["status"] = GameRoom.Status.COMPLETED
-    serializer = GameRoomSerializer(game_room, data=game_room_data, partial=True)
+    serializer = GameRoomSerializer(
+        game_room, data=game_room_data, partial=True)
     if serializer.is_valid():
         serializer.save()
         r.hset(f"game_room_data:{game_room_id}", mapping=serializer.data)
@@ -65,7 +69,7 @@ def mark_game_abandoned(game_room_id, user_id):
             {
                 "type": "broadcast",
                 "info": "game_manager",
-                "message": game_room_data,
+                        "message": game_room_data,
             },
         )
 
@@ -101,7 +105,7 @@ def mark_game_room_as_expired(game_room_id):
                     user = User.objects.get(pk=player.user.id)
                     user.update_status(User.Status.ONLINE)
                 except Exception as e:
-                    print(e, flush=True)
+                    logger.error(str(e))
 
             channel_layer = get_channel_layer()
             r.hset(f"game_room_data:{game_room_id}", "status", "expired")
@@ -110,9 +114,9 @@ def mark_game_room_as_expired(game_room_id):
                 {
                     "type": "broadcast",
                     "info": "game_manager",
-                    "message": {
-                        "status": "expired",
-                    },
+                            "message": {
+                                "status": "expired",
+                            },
                 },
             )
 
@@ -137,7 +141,8 @@ def sync_game_room_data(game_room_id):
     game_room_data["state"] = json.loads(game_room_data["state"])
     game_room_data["players"] = json.loads(game_room_data["players"])
     game_room_data["bracket"] = json.loads(game_room_data["bracket"])
-    serializer = GameRoomSerializer(game_room, data=game_room_data, partial=True)
+    serializer = GameRoomSerializer(
+        game_room, data=game_room_data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return f"GameRoom {game_room_id} synched successfully"

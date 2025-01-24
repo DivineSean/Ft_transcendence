@@ -42,7 +42,6 @@ def CreateUserIfNotExists(user_data, isIntra):
         first_name = user_data.get("given_name")
         last_name = user_data.get("family_name")
 
-    print(image_url, flush=True)
     password = None
 
     data = {
