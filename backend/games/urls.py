@@ -5,7 +5,7 @@ urlpatterns = [
     path(
         "api/games/<str:game_name>/invite/",
         views.inviteFriend,
-        name="getFr",
+        name="inviteFriend",
     ),
     path("api/matches/", views.getOnlineMatches, name="online matches"),
     path(

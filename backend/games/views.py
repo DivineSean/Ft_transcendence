@@ -244,10 +244,10 @@ def get_rankings(request, game_name=None, offset=1):
 
     except ObjectDoesNotExist:
         return Response(
-            {"error": f"Game '{game_name}' not found"}, status=status.HTTP_404_NOT_FOUND
+            {"error": f"Game '{game_name}' not found"}, status=status.HTTP_400_BAD_REQUEST
         )
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 def get_rank(rating):
@@ -292,7 +292,7 @@ def getStats(request, game_name=None, username=None):
         except ObjectDoesNotExist:
             return Response(
                 {"error": f"User '{username}' not found"},
-                status=status.HTTP_404_NOT_FOUND,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
     try:
@@ -300,7 +300,7 @@ def getStats(request, game_name=None, username=None):
     except ObjectDoesNotExist:
         return Response(
             {"error": f"Game '{game_name}' not found"},
-            status=status.HTTP_404_NOT_FOUND,
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     try:
@@ -322,7 +322,7 @@ def getStats(request, game_name=None, username=None):
     except Player.DoesNotExist:
         return Response(
             {"error": f"No Player records in game '{game_name}' were found"},
-            status=status.HTTP_404_NOT_FOUND,
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     try:
@@ -338,7 +338,7 @@ def getStats(request, game_name=None, username=None):
     except ObjectDoesNotExist:
         return Response(
             {"error": f"Player with id '{user_id}' in game '{game_name}' not found"},
-            status=status.HTTP_404_NOT_FOUND,
+            status=status.HTTP_400_BAD_REQUEST,
         )
     try:
         achie_vements = Achievement.objects.filter(game=game)
@@ -352,7 +352,7 @@ def getStats(request, game_name=None, username=None):
     except ObjectDoesNotExist:
         return Response(
             {"error": f"Achievements in game '{game_name}' not found"},
-            status=status.HTTP_404_NOT_FOUND,
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     total_games = len(results)

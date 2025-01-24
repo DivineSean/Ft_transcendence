@@ -512,7 +512,10 @@ class Profile(APIView):
             try:
                 Image.open(file).verify()
             except Exception:
-                pass
+                return Response(
+                    {"error": "invalid profile image"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             fs = FileSystemStorage(
                 location=settings.MEDIA_ROOT + "/profile_images")
@@ -528,10 +531,11 @@ class Profile(APIView):
             user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            print("User updated successfully", flush=True)
-
         else:
-            print("Error in serializer validation", flush=True)
+            return Response(
+                {"error": "invalid data"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         serializer = UserSerializer(user)
 
