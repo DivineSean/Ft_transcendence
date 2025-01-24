@@ -19,6 +19,7 @@ r = redis.Redis(
     decode_responses=True,
 )
 
+
 def processGameResult(game_room_id):
     try:
         game_room = GameRoom.objects.select_related("bracket__tournament").get(

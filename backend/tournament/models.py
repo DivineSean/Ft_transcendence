@@ -126,7 +126,7 @@ class Bracket(models.Model):
             .select_related("user")
             .order_by()
         )
-				
+
         sorted_winners = sorted(
             winners,
             key=lambda player: next(

@@ -111,9 +111,7 @@ class Tournaments(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        existing_tournament = Tournament.objects.filter(
-            creator=request._user
-        ).first()
+        existing_tournament = Tournament.objects.filter(creator=request._user).first()
 
         if existing_tournament:
             return Response(
