@@ -14,7 +14,10 @@ const RankedUsers = ({ rank, username, rating, lvl, ranked, isSelf }) => {
     >
       <p className="font-bold">{rank}</p>
       <p className="lowercase">
-        @{username && username.length > 10 ? `${username.substring(0, 10)}...` : username}
+        @
+        {username && username.length > 10
+          ? `${username.substring(0, 10)}...`
+          : username}
       </p>
       <p className="hidden lg:block">{lvl}</p>
       <p className="">{rating}</p>

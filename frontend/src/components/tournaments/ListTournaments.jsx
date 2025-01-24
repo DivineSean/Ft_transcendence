@@ -147,7 +147,7 @@ const ListTournaments = ({ tournaments, setTournaments }) => {
     navigate(`/tournaments/${tournament.id}`);
   };
 
-	console.log(tournaments);
+  console.log(tournaments);
   return (
     <div
       ref={tourContainerRef}

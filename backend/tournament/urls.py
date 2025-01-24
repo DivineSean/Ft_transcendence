@@ -10,7 +10,11 @@ urlpatterns = [
         name="getUpcomingTournament",
     ),
     path("api/tournaments/", views.Tournaments.as_view(), name="Tournaments"),
-    path("api/tournaments/<uuid:tournament_id>/", views.Tournaments.as_view(), name="Tournaments"),
+    path(
+        "api/tournaments/<uuid:tournament_id>/",
+        views.Tournaments.as_view(),
+        name="Tournaments",
+    ),
     path(
         "api/tournaments/<int:offset>/", views.Tournaments.as_view(), name="Tournaments"
     ),
