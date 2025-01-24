@@ -306,6 +306,15 @@ class Chat(WebsocketConsumer):
             )
         )
 
+    # def send_tournament_notification(self, event):
+    #     self.send(
+    #         text_data=json.dumps(
+    #             {
+    #                 "type": "inviteTournament",
+
+    #             }
+    #         )
+    #     )
     def convBlocked(self, event):
         self.send(
             text_data=json.dumps(

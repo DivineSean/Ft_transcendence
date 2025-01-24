@@ -1,21 +1,18 @@
-from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-
 from .models import Tournament
 from uuid import UUID
 import math
 from .tasks import manageTournament
 from .serializers import (
-    TournamentSerializer,
     getTournamentSerializer,
     TournamentDataSerializer,
 )
-from rest_framework.pagination import PageNumberPagination, BasePagination
-from games.models import Game, Player, GameRoom
-from .models import Bracket
+from rest_framework.pagination import PageNumberPagination
+from games.models import Game
+from .models import Bracket, tournamentPlayer
 
 
 class Tournaments(APIView):
@@ -56,14 +53,30 @@ class Tournaments(APIView):
 
     def delete(self, request):
         try:
-            tournament = Tournament.objects.filter(creator=request._user)
-        except:
+            tournament = Tournament.objects.filter(creator=request._user).first()
+            if not tournament:
+                return Response(
+                    "No tournament created by this user.",
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except Exception as e:
             return Response(
-                "no tournament created by this Uuser",
+                f"Error occurred: {str(e)}",
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        tournament.delete()
-        return Response({"Tournament Deleted"}, status=status.HTTP_200_OK)
+
+        if tournament.isCompleted or tournament.isCanceled:
+            tournament.delete()
+
+        elif tournament.isStarted:
+            return Response(
+                {"error": "Can't delete a starting Tournament"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        else:
+            tournament.delete()
+
+        return Response({"message": "Tournament Deleted"}, status=status.HTTP_200_OK)
 
     def post(self, request):
         maxPlayers = request.data.get("maxPlayers")
@@ -98,20 +111,20 @@ class Tournaments(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        existingLobby = Tournament.objects.filter(
+        existing_tournament = Tournament.objects.filter(
             creator=request._user, isCompleted=False
         ).first()
 
-        if existingLobby:
+        if existing_tournament:
             return Response(
                 {
                     "error": "User already has active tournament",
-                    "id": str(existingLobby.id),
+                    "id": str(existing_tournament.id),
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         try:
-            newLobby = Tournament.objects.create(
+            new_tournament = Tournament.objects.create(
                 creator=request._user,
                 maxPlayers=maxPlayers,
                 total_rounds=int(math.log2(maxPlayers)),
@@ -123,12 +136,12 @@ class Tournaments(APIView):
                 {"error": str(e)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        newLobby.addPlayer(request._user)
+        new_tournament.addPlayer(request._user)
 
         return Response(
             {
                 "message": "Tournament created successfully",
-                "id": str(newLobby.id),
+                "id": str(new_tournament.id),
             },
             status=status.HTTP_201_CREATED,
         )
@@ -145,14 +158,14 @@ class Tournaments(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            lobby = Tournament.objects.get(id=id)
+            tournament = Tournament.objects.get(id=id)
         except:
             return Response(
                 {"error": "No Tournament with this id"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        playerObj = lobby.addPlayer(request.user)
+        playerObj = tournament.addPlayer(request.user)
         if int(playerObj[1]) == 400:
             response = Response({"error": f"{playerObj[0]}"}, status=int(playerObj[1]))
         else:
@@ -160,17 +173,15 @@ class Tournaments(APIView):
                 {"message": f"{playerObj[0]}"}, status=int(playerObj[1])
             )
 
-        if lobby.currentPlayerCount == lobby.maxPlayers:
-
-            if lobby.isStarted == True:
+        if tournament.currentPlayerCount == tournament.maxPlayers:
+            if tournament.isStarted is True:
                 return Response(
                     {"error": "Player already in Tournament"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            tournamentID = TournamentSerializer(lobby).data
-            manageTournament.delay(tournamentID)
-            lobby.isStarted = True
-            lobby.save()
+            manageTournament(tournament.id)
+            tournament.isStarted = True
+            tournament.save()
         return response
 
 
@@ -188,7 +199,10 @@ def getTournamentData(request, id=None):
             {"error": str(e)},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    brackets = Bracket.objects.filter(tournament=tournamentObj)
+
+    brackets = Bracket.objects.filter(tournament=tournamentObj).order_by("round_number")
+
+    # im expecting == tournament.maxRounds but i have only 2 instead 3
 
     serializer = TournamentDataSerializer(
         {
