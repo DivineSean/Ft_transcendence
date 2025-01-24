@@ -1,9 +1,10 @@
-from django.urls import path, include
+from django.urls import path
 from . import views
 
 
 urlpatterns = [
-    path("api/tournament/<str:id>/", views.getTournamentData, name="getTournamentData"),
+    path("api/tournament/<str:id>/",
+         views.getTournamentData, name="getTournamentData"),
     path(
         "api/tournaments/upcoming/",
         views.getUpcomingTournament,
