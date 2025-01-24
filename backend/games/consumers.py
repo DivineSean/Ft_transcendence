@@ -11,6 +11,7 @@ import json
 import redis
 import time
 
+
 r = redis.Redis(
     host=settings.REDIS_CONNECTION["host"],
     port=settings.REDIS_CONNECTION["port"],
@@ -122,7 +123,6 @@ class GameConsumer(WebsocketConsumer):
             self.close(code=4004, reason=str(e))
             return
 
-        # Add the player to the connected clients list
         r.rpush(f"game_room_data:{self.game_uuid}:players", self.user_id)
 
         if game_data["status"] == "paused" and self.me is not None:
@@ -138,19 +138,27 @@ class GameConsumer(WebsocketConsumer):
         PlayerRating.handle_rating(
             self.user, Game.objects.get(name=self.game_name), player
         )
-        is_tournament = json.loads(
-            r.hget(f"game_room_data:{self.game_uuid}", "bracket")
-        )
-        if is_tournament:
-            processGameResult.delay(self.game_uuid)
-            self.user.increase_exp(XP_GAIN_TN)
-        else:
-            self.user.increase_exp(XP_GAIN_NORMAL)
 
         self.user.update_status(User.Status.ONLINE)
         self.save_game_data(
             players=json.dumps(self.players), status="completed", countdown=0
         )
+
+        for player in self.players:
+            # print(f"HERE:\t{player['result']}", flush=True)
+            if player["result"] is None:
+                # print("ERROR:\tchi w9 ma3ndoch result", flush=True)
+                return
+
+        is_tournament = json.loads(
+            r.hget(f"game_room_data:{self.game_uuid}", "bracket")
+        )
+        if is_tournament:
+            print("processing Game Result ...", flush=True)
+            processGameResult(self.game_uuid)
+            self.user.increase_exp(XP_GAIN_TN)
+        else:
+            self.user.increase_exp(XP_GAIN_NORMAL)
 
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
@@ -163,8 +171,41 @@ class GameConsumer(WebsocketConsumer):
             },
         )
 
+    # def check_results(self):
+    #     lock = r.set(f"game_room_data:{self.game_uuid}:lock",
+    #                  self.user_id,
+    #                  nx=True,
+    #                  ex=5
+    #                  )
+    #
+    #     if lock:
+    #         print(f"{self.user_id} is here", flush=True)
+    #         try:
+    #             all_players = json.loads(
+    #                 r.hget(f"game_room_data:{self.game_uuid}", "players"))
+    #             # all_players = r.lrange(f"game_room_data:{self.game_uuid}:players", 0, -1)
+    #             total_results = 0
+    #             for player in all_players:
+    #                 count = len(player["result"]) if player["result"] else 0
+    #                 print("EEEEEEEEEEY WHAT ==> ",
+    #                       player["result"], flush=True)
+    #                 if (count > 0):
+    #                     total_results += 1
+    #                 print("EEEEEEEEEEY count ==> ", total_results, flush=True)
+    #             if total_results == 2 and r.lindex(f"game_room_data:{self.game_uuid}:login", 0) == "No":
+    #                 print("Start Tournament", flush=True)
+    #                 processGameResult(self.game_uuid)
+    #                 r.rpush(f"game_room_data:{self.game_uuid}:login", "Yes")
+    #         finally:
+    #             # khsk deleti players
+    #             r.delete(f"game_room_data:{self.game_uuid}:lock")
+    #     else:
+    #         print("im sleeping zzzzzzzzzzzzz", flush=True)
+    #         time.sleep(5)
+    #         self.check_results()
+
     def update_achievements(self, message):
-        # Handle Achievements
+
         try:
             PlayerAchievement.add_progress(
                 user=self.user,
@@ -270,13 +311,12 @@ class GameConsumer(WebsocketConsumer):
             )
 
     def handle_reconnect(self, game_data):
-        # remove the current player since they are reconnecting
+
         leaver = game_data["state"].pop(self.user_id, None)
         if leaver:
             task = AsyncResult(leaver["task_id"])
             task.revoke(terminate=True)
 
-        # check if all players have reconnected, and resume the game
         if not game_data["state"]:
             game_data["status"] = "ongoing"
             start_time = int(game_data["started_at"])
