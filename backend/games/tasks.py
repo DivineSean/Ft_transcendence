@@ -24,7 +24,7 @@ r = redis.Redis(
 
 @shared_task
 def mark_game_abandoned(game_room_id, user_id):
-    from tournament.tasks import processGameResult
+    from tournament.manager import processGameResult
     from games.consumers import XP_GAIN_NORMAL, XP_GAIN_TN
 
     game_room_data = r.hgetall(f"game_room_data:{game_room_id}")
@@ -85,7 +85,7 @@ def mark_game_abandoned(game_room_id, user_id):
 
 @shared_task
 def mark_game_room_as_expired(game_room_id):
-    from tournament.tasks import processGameResult
+    from tournament.manager import processGameResult
 
     try:
         game_room = GameRoom.objects.get(id=game_room_id)

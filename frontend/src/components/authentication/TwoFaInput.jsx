@@ -6,7 +6,7 @@ const TwoFaInput = ({ type, saveValues }) => {
   const authContextData = useContext(AuthContext);
 
   const { uid } = useParams();
-  const [timer, setTimer] = useState(5);
+  const [timer, setTimer] = useState(120);
   const [isActive, setIsActive] = useState(false);
   const [values2FA, setValues2FA] = useState(Array(6).fill(""));
   const inputs = useRef([]);

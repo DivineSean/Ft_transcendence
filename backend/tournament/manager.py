@@ -20,6 +20,27 @@ r = redis.Redis(
 )
 
 
+def processGameResult(game_room_id):
+    try:
+        game_room = GameRoom.objects.select_related("bracket__tournament").get(
+            id=game_room_id
+        )
+
+    except:
+        return "No Tournament"
+    if not game_room.bracket:
+        return "Not a tournament game"
+
+    manager = TournamentManager(game_room.bracket.tournament.id)
+    manager.handle_game_completion(game_room_id)
+
+
+def manageTournament(tournament_id):
+
+    manager = TournamentManager(tournament_id)
+    manager.initialize_matches()
+
+
 class TournamentManager:
     def __init__(self, tournamentID):
 
@@ -38,9 +59,7 @@ class TournamentManager:
                 ).select_related("user")
             )
 
-            print(f"INITIALIZING MATCHES {players}", flush=True)
             random.shuffle(players)
-            print(f"SHUFFLE {players}", flush=True)
 
             role = 1
             for player in players:
@@ -54,7 +73,6 @@ class TournamentManager:
                         [players[i].user, players[i + 1].user], current_bracket
                     )
         except Exception as e:
-            print(f"------------------i_m exception : {e}")
             pass
 
     def create_game_pair(self, users, bracket, message=None):
@@ -68,19 +86,15 @@ class TournamentManager:
             ],
         }
         serializer = GameRoomSerializer(data=data)
-        # print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", flush=True)
 
         if serializer.is_valid():
             game_room = serializer.create(serializer.validated_data)
             mark_game_room_as_expired.apply_async(
                 args=[game_room.id], countdown=GAME_EXPIRATION
             )
-            print("######################################", flush=True)
 
             self.notify_players(users, game_room, message=message)
         else:
-            print("+++++++++++++++++++++++++++IM in else condition", flush=True)
-            # chi wahed y dir chi raise wygol hada li lah 3aza wa jal
             pass
 
     def notify_players(self, users, game_room, message=None):
@@ -118,20 +132,14 @@ class TournamentManager:
         )
 
     def handle_game_completion(self, gameRoomID):
-        print("I m in HGC")
         game_room = GameRoom.objects.select_related("bracket").get(id=gameRoomID)
         current_bracket = game_room.bracket
 
-        if not current_bracket.isComplete():
-            print("ANA DEZT WALAYNI NOT COMPLETE", flush=True)
-        else:
+        if current_bracket.isComplete():
             lock = r.lock(f"bracket_data:{current_bracket.id}:lock", timeout=10)
-            print(f"Lock {lock}", flush=True)
             if not lock.acquire(blocking=False):
-                print("ACCESS DENIED", flush=True)
                 return
 
-            print("im in complete", flush=True)
             winners, allData = current_bracket.getWinners()
 
             skippedPlayerss = Player.objects.filter(
@@ -141,7 +149,6 @@ class TournamentManager:
 
             winners = winners + list(skippedPlayerss)
 
-            # totalPlayers = len(winners) + len(skippedPlayerss)
             if len(winners) == 0:
                 self.tournament.refresh_from_db()
                 self.tournament.isCanceled = True
@@ -159,7 +166,6 @@ class TournamentManager:
                 nextBrackeet = self.tournament.advanceRound(len(winners))
 
             if nextBrackeet:
-                print("Im in next Bracket", flush=True)
                 self.createNextBracketGames(winners, allData, nextBrackeet)
 
     def createActivePlayers(self, allData, skipIndex):
@@ -199,23 +205,12 @@ class TournamentManager:
         return None, allData
 
     def createNextBracketGames(self, winners, allData, nextBrackeet):
-        print("IMM in creaateNEXT BRACKKEET", flush=True)
         skipIndex = None
         playersToMatch = None
-        print(f"UPDATED ALL DATA => {allData}", flush=True)
         if (len(winners)) % 2 != 0:
             skipIndex, activePlayerss = self.PlayerSkip(allData)
-            print(f"ACTIVEPLAYEEERS : {activePlayerss}", flush=True)
         if skipIndex is not None:
             for element in skipIndex:
-                try:
-                    print(
-                        f"IM BEING SKIPPED  {allData[element].user.username}",
-                        flush=True,
-                    )
-                except:
-                    print("PRINT KHSRAAT", flush=True)
-                # khona li khso ytskipa (hadi bach ntfker nzid skipp player f player model)
                 skippingPlayer = allData[element]
                 skippingPlayer.should_skip_next = True
                 skippingPlayer.save()
@@ -226,11 +221,6 @@ class TournamentManager:
                 playersToMatch = activePlayerss
         else:
             playersToMatch = winners
-
-        print(f"PLAYERS TO MATCH : {len(playersToMatch)}", flush=True)
-        # kan creati l games normally
-
-        print("RECEIVED DATA PLAYERS = > ", playersToMatch, flush=True)
         if nextBrackeet.round_number == self.tournament.total_rounds:
             message = "You're in the final round!"
         else:
