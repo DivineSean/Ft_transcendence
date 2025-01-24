@@ -33,7 +33,12 @@ class SendFriendRequest(APIView):
                 ).exists()
 
                 if friends:
-                    return Response({"error": f"You are already friends with {receieverData.username}"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response(
+                        {
+                            "error": f"You are already friends with {receieverData.username}"
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
             except Exception as e:  # error
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -276,8 +281,7 @@ def getFriendsView(request, username=None):
         )
 
     try:
-        isBlockedByUser = str(
-            request._user.id) in user.blockedUsers or False
+        isBlockedByUser = str(request._user.id) in user.blockedUsers or False
         if isBlockedByUser:
             return Response(
                 {"error": "you are blocked by the user"},
@@ -348,8 +352,7 @@ def blockUser(request):
         if not isUserAlreadyBlocked:
 
             try:
-                Friendship.objects.get(
-                    Q(user1=userId) | Q(user2=userId)).delete()
+                Friendship.objects.get(Q(user1=userId) | Q(user2=userId)).delete()
             except Friendship.DoesNotExist:
                 return Response(
                     {"error": "You are not friends with this user"},

@@ -25,8 +25,7 @@ class ChatConversation(APIView):
         ).order_by("-timestamp")
 
         conversations = (
-            Conversation.objects.filter(
-                Q(Sender_id=user_id) | Q(Receiver_id=user_id))
+            Conversation.objects.filter(Q(Sender_id=user_id) | Q(Receiver_id=user_id))
             .annotate(
                 latest_message=Subquery(latest_messages.values("message")[:1]),
                 latest_message_timestamp=Subquery(
@@ -46,8 +45,7 @@ class ChatConversation(APIView):
                     "isBlocked": conversation.isBlocked,
                     "lastMessage": conversation.latest_message,
                     "messageDate": (
-                        conversation.latest_message_timestamp.strftime(
-                            "%b %d, %H:%M")
+                        conversation.latest_message_timestamp.strftime("%b %d, %H:%M")
                         if conversation.latest_message_timestamp
                         else None
                     ),
@@ -140,9 +138,9 @@ class ChatConversation(APIView):
                     {
                         "type": "create_conversation_room",
                         "convId": str(newConversation.ConversationId),
-                                "sender": str(request._user.id),
-                                "notifId": str(notification.notificationId),
-                                "targetId": str(newConversation.ConversationId),
+                        "sender": str(request._user.id),
+                        "notifId": str(notification.notificationId),
+                        "targetId": str(newConversation.ConversationId),
                     },
                 )
 
@@ -152,9 +150,9 @@ class ChatConversation(APIView):
                     {
                         "type": "create_conversation_room",
                         "convId": str(newConversation.ConversationId),
-                                "sender": str(request._user.id),
-                                "notifId": str(notification.notificationId),
-                                "targetId": str(newConversation.ConversationId),
+                        "sender": str(request._user.id),
+                        "notifId": str(notification.notificationId),
+                        "targetId": str(newConversation.ConversationId),
                     },
                 )
 
@@ -192,8 +190,7 @@ class getMessages(APIView):
 
         try:
             conversation = Conversation.objects.get(
-                Q(Sender=request._user)
-                | Q(Receiver=request._user),
+                Q(Sender=request._user) | Q(Receiver=request._user),
                 ConversationId=convID,
             )
         except Exception as e:
@@ -210,12 +207,11 @@ class getMessages(APIView):
         try:
             paginator.page_size = int(request.data.get("limit", 20))
         except ValueError:
-            response.data = {
-                "Error": "Either Offeset or limit is not a Number"}
+            response.data = {"Error": "Either Offeset or limit is not a Number"}
             response.status_code = 400
             return response
 
-        paginated_messages = messages[offset: offset + paginator.page_size]
+        paginated_messages = messages[offset : offset + paginator.page_size]
 
         for message in reversed(paginated_messages):
             if message.sender.email == request._user.email:

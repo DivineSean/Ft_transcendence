@@ -122,11 +122,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             )
 
         with get_connection(
-                host=os.environ.get("EMAIL_HOST"),
-                port=os.environ.get("EMAIL_PORT"),
-                username=os.environ.get("EMAIL_HOST_USER"),
-                password=os.environ.get("EMAIL_HOST_PASSWORD"),
-                use_tls=True,
+            host=os.environ.get("EMAIL_HOST"),
+            port=os.environ.get("EMAIL_PORT"),
+            username=os.environ.get("EMAIL_HOST_USER"),
+            password=os.environ.get("EMAIL_HOST_PASSWORD"),
+            use_tls=True,
         ) as connection:
 
             subject = "2FA CODE"
@@ -210,8 +210,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 if user.isTwoFa:
 
                     two_factor_code = self.generate_2fa_code(user, "twoFa")
-                    self.send_2fa_code(
-                        user.email, two_factor_code.code, "twoFa")
+                    self.send_2fa_code(user.email, two_factor_code.code, "twoFa")
 
                     return Response(
                         {
@@ -258,8 +257,7 @@ class CustomTokenRefreshView(TokenRefreshView):
 
         refresh_token = request.COOKIES.get("refreshToken")
         if not refresh_token:
-            raise exceptions.AuthenticationFailed(
-                "no refresh token found in cookie")
+            raise exceptions.AuthenticationFailed("no refresh token found in cookie")
 
         data = request.data.copy()
         data["refresh"] = refresh_token
@@ -387,8 +385,7 @@ class CheckPasswordChange(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        serializer = PasswordUpdateSerializer(
-            user, data={"new_password": newPassword})
+        serializer = PasswordUpdateSerializer(user, data={"new_password": newPassword})
 
         if serializer.is_valid():
             user.set_password(newPassword)
@@ -423,8 +420,7 @@ class Profile(APIView):
 
         if user.profile_image:
 
-            imagePath = os.path.join(
-                settings.MEDIA_ROOT, str(user.profile_image))
+            imagePath = os.path.join(settings.MEDIA_ROOT, str(user.profile_image))
             if not os.path.exists(imagePath):
                 user.profile_image = None
                 user.save()
@@ -433,8 +429,7 @@ class Profile(APIView):
 
         if foundedUser and user != request._user:
 
-            isBlockedByUser = str(
-                request._user.id) in user.blockedUsers or False
+            isBlockedByUser = str(request._user.id) in user.blockedUsers or False
             if isBlockedByUser:
                 return Response(
                     {"error": "you are blocked by the user"},
@@ -442,8 +437,7 @@ class Profile(APIView):
                 )
 
             isFriend = Friendship.objects.filter(
-                Q(user1=user, user2=request._user) | Q(
-                    user1=request._user, user2=user)
+                Q(user1=user, user2=request._user) | Q(user1=request._user, user2=user)
             ).exists()
 
             isSentRequest = FriendshipRequest.objects.filter(
@@ -517,8 +511,7 @@ class Profile(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            fs = FileSystemStorage(
-                location=settings.MEDIA_ROOT + "/profile_images")
+            fs = FileSystemStorage(location=settings.MEDIA_ROOT + "/profile_images")
 
             if fs.exists(file.name):
                 fs.delete(file.name)
@@ -527,8 +520,7 @@ class Profile(APIView):
             user.profile_image = f"profile_images/{savedFile}"
             user.save()
 
-        serializer = UpdateUserSerializer(
-            user, data=request.data, partial=True)
+        serializer = UpdateUserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
         else:
@@ -636,8 +628,7 @@ def search_users(request):
             )
 
         users = (
-            User.objects.annotate(
-                similarity=TrigramSimilarity("username", query))
+            User.objects.annotate(similarity=TrigramSimilarity("username", query))
             .filter(similarity__gt=0.1)
             .exclude(blockedUsers__contains=[str(request._user.id)])
             .order_by("-similarity")

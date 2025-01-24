@@ -11,9 +11,7 @@ class FriendshipRequest(models.Model):
     fromUser = models.ForeignKey(
         User, related_name="fromUser", on_delete=models.CASCADE
     )
-    toUser = models.ForeignKey(
-        User, related_name="toUser", on_delete=models.CASCADE
-    )
+    toUser = models.ForeignKey(User, related_name="toUser", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -40,10 +38,8 @@ class Friendship(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
-    user1 = models.ForeignKey(User, related_name="f1",
-                              on_delete=models.CASCADE)
-    user2 = models.ForeignKey(User, related_name="f2",
-                              on_delete=models.CASCADE)
+    user1 = models.ForeignKey(User, related_name="f1", on_delete=models.CASCADE)
+    user2 = models.ForeignKey(User, related_name="f2", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

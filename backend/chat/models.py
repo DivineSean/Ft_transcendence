@@ -4,8 +4,7 @@ import uuid
 
 
 class Conversation(models.Model):
-    ConversationId = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, unique=True)
+    ConversationId = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True)
     Sender = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="sent_conversations"
     )
@@ -16,8 +15,7 @@ class Conversation(models.Model):
 
 
 class Message(models.Model):
-    MessageId = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, unique=True)
+    MessageId = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True)
     ConversationName = models.ForeignKey(
         Conversation, on_delete=models.CASCADE, related_name="ConversationName"
     )

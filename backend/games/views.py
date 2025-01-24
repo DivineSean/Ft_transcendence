@@ -228,7 +228,7 @@ def get_rankings(request, game_name=None, offset=1):
                 {"Error": "Either Offeset or limit is not a Number"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        paginatedRankings = rankings[offset: offset + paginator.page_size]
+        paginatedRankings = rankings[offset : offset + paginator.page_size]
 
         response_data = {
             "game": game_name,
@@ -244,7 +244,8 @@ def get_rankings(request, game_name=None, offset=1):
 
     except ObjectDoesNotExist:
         return Response(
-            {"error": f"Game '{game_name}' not found"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": f"Game '{game_name}' not found"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -342,8 +343,7 @@ def getStats(request, game_name=None, username=None):
         )
     try:
         achie_vements = Achievement.objects.filter(game=game)
-        player_achievements = PlayerAchievement.objects.filter(
-            user=user, game=game)
+        player_achievements = PlayerAchievement.objects.filter(user=user, game=game)
         progress = {achievement.name: 0 for achievement in achie_vements}
         for player_achievement in player_achievements:
             for achievement in achie_vements:

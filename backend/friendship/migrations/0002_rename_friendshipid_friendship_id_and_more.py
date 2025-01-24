@@ -6,26 +6,26 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('friendship', '0001_initial'),
+        ("friendship", "0001_initial"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='friendship',
-            old_name='friendshipID',
-            new_name='id',
+            model_name="friendship",
+            old_name="friendshipID",
+            new_name="id",
         ),
         migrations.RenameField(
-            model_name='friendshiprequest',
-            old_name='FriendshipRequestID',
-            new_name='id',
+            model_name="friendshiprequest",
+            old_name="FriendshipRequestID",
+            new_name="id",
         ),
         migrations.RemoveField(
-            model_name='friendshiprequest',
-            name='accepted_at',
+            model_name="friendshiprequest",
+            name="accepted_at",
         ),
         migrations.RemoveField(
-            model_name='friendshiprequest',
-            name='rejected_at',
+            model_name="friendshiprequest",
+            name="rejected_at",
         ),
     ]

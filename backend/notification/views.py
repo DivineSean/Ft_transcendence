@@ -20,9 +20,9 @@ class NotificationsUser(APIView):
             oneMonthAgo = timezone.now() - timedelta(days=30)
 
             Notifications.objects.filter(
-                Q(timestamp__lt=oneDayAgo, isRead=True) |
-                Q(timestamp__lt=oneMonthAgo, isRead=False),
-                userId=request._user.id
+                Q(timestamp__lt=oneDayAgo, isRead=True)
+                | Q(timestamp__lt=oneMonthAgo, isRead=False),
+                userId=request._user.id,
             ).delete()
 
             userNotifications = Notifications.objects.filter(
