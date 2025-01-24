@@ -38,8 +38,7 @@ class Tournaments(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        paginatedTournaments = tournamentsData[offset: offset +
-                                               paginator.page_size]
+        paginatedTournaments = tournamentsData[offset : offset + paginator.page_size]
 
         return Response(
             {
@@ -171,8 +170,7 @@ class Tournaments(APIView):
 
         playerObj = tournament.addPlayer(request.user)
         if int(playerObj[1]) == 400:
-            response = Response(
-                {"error": f"{playerObj[0]}"}, status=int(playerObj[1]))
+            response = Response({"error": f"{playerObj[0]}"}, status=int(playerObj[1]))
         else:
             response = Response(
                 {"message": f"{playerObj[0]}"}, status=int(playerObj[1])
@@ -205,8 +203,7 @@ def getTournamentData(request, id=None):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    brackets = Bracket.objects.filter(
-        tournament=tournamentObj).order_by("round_number")
+    brackets = Bracket.objects.filter(tournament=tournamentObj).order_by("round_number")
 
     serializer = TournamentDataSerializer(
         {

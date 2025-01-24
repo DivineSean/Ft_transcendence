@@ -3,8 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    path("api/tournament/<str:id>/",
-         views.getTournamentData, name="getTournamentData"),
+    path("api/tournament/<str:id>/", views.getTournamentData, name="getTournamentData"),
     path(
         "api/tournaments/upcoming/",
         views.getUpcomingTournament,
