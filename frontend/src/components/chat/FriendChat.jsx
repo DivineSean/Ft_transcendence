@@ -55,7 +55,7 @@ const FriendsChat = ({ uid, friendInfo }) => {
                 : "/images/default.jpeg"
             }
             alt="img"
-            className="grow object-cover"
+            className="grow object-cover pointer-events-none"
           />
         </div>
         {!friendInfo.isBlocked && friendInfo.status !== "in-game" && (

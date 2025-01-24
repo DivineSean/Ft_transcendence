@@ -63,7 +63,38 @@ class User(AbstractUser):
             creation_date = timezone.now().strftime("%b %d")
             self.exp_history = [{"date": creation_date, "exp": 0}]
 
+    def update_status(self, new_status):
+        from games.models import Player, GameRoom
+
+        self.refresh_from_db()
+
+        if new_status == self.Status.ONLINE:
+            if self.status == self.Status.OFFLINE:
+                player = (
+                    Player.objects.filter(
+                        user=self,
+                        game_room__status__in=[
+                            GameRoom.Status.WAITING,
+                            GameRoom.Status.ONGOING,
+                            GameRoom.Status.PAUSED,
+                        ],
+                    )
+                    .select_related("game_room")
+                    .first()
+                )
+                if player and player.ready is True:
+                    self.status = self.Status.IN_GAME
+                else:
+                    self.status = new_status
+            elif self.status == self.Status.IN_GAME:
+                self.status = new_status
+        else:
+            self.status = new_status
+
+        self.save()
+
     def increase_exp(self, added_exp):
+        self.refresh_from_db()
         creation_date = timezone.now().strftime("%b %d")
 
         if self.exp_history:

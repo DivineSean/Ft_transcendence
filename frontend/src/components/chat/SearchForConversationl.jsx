@@ -14,7 +14,7 @@ const SearchForConversation = ({ setDisplaySearch }) => {
   const searchConversations = async () => {
     try {
       const res = await FetchData.get(
-        `chat/conversations/search/?query=${searchQuery}`,
+        `api/chat/conversations/search/?query=${searchQuery}`,
       );
       if (res.ok) {
         const data = await res.json();
@@ -85,11 +85,11 @@ const SearchForConversation = ({ setDisplaySearch }) => {
                     <img
                       src={
                         conversation.user.profile_image
-                          ? `${BACKENDURL}${conversation.user.profile_image}?t=${new Date().getTime()}`
+                          ? `${BACKENDURL}${conversation.user.profile_image}`
                           : "/images/default.jpeg"
                       }
                       alt="img"
-                      className="grow object-cover"
+                      className="grow object-cover pointer-events-none"
                     />
                   </div>
                   <section className="flex flex-col justify-center normal-case">

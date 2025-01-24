@@ -59,9 +59,11 @@ class MatchmakingConsumer(AsyncWebsocketConsumer):
 
         try:
             searching = r.scard(f"{self.game_name}_players_in_queue")
-            await self.send(text_data=json.dumps({"type": "update", "message": searching}))
+            await self.send(
+                text_data=json.dumps({"type": "update", "message": searching})
+            )
         except:
-            return
+            pass
 
     async def join_queue(self):
         try:

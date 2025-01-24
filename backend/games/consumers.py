@@ -148,8 +148,7 @@ class GameConsumer(WebsocketConsumer):
             self.user, Game.objects.get(name=self.game_name), player
         )
 
-        self.user.status = User.Status.ONLINE
-        self.user.save()
+        self.user.update_status(User.Status.ONLINE)
         self.save_game_data(
             players=json.dumps(self.players), status="completed", countdown=0
         )
@@ -248,6 +247,30 @@ class GameConsumer(WebsocketConsumer):
         )
 
     def sending_decline(self):
+        try:
+            self.players = json.loads(
+                r.hget(f"game_room_data:{self.game_uuid}", "players")
+            )
+            bracket = json.loads(r.hget(f"game_room_data:{self.game_uuid}", "bracket"))
+
+            if bracket is not None or self.players[self.me]["ready"] is True:
+                return
+
+            GameRoom.objects.filter(pk=self.game_uuid).delete()
+            r.delete(f"game_room_data:{self.game_uuid}")
+            r.delete(f"game_room_data:{self.game_uuid}:players")
+
+            for player in self.players:
+                try:
+                    user = User.objects.get(pk=player["user"]["id"])
+                    user.update_status(User.Status.ONLINE)
+                except Exception as e:
+                    print(e, flush=True)
+
+        except Exception as e:
+            print("Failed To Delete GameRoom", str(e), flush=True)
+            return
+
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
             {
@@ -259,13 +282,6 @@ class GameConsumer(WebsocketConsumer):
             },
         )
 
-        try:
-            GameRoom.objects.filter(pk=self.game_uuid).delete()
-            r.delete(f"game_room_data:{self.game_uuid}")
-            r.delete(f"game_room_data:{self.game_uuid}:players")
-        except Exception as e:
-            print("Failed To Delete GameRoom", str(e), flush=True)
-
     def update_readiness(self):
         self.players = json.loads(
             r.hget(f"game_room_data:{self.game_uuid}", "players"))
@@ -273,6 +289,7 @@ class GameConsumer(WebsocketConsumer):
         player = self.players[self.me]
         if not player["ready"]:
             player["ready"] = True
+            self.user.update_status(User.Status.IN_GAME)
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
                 {

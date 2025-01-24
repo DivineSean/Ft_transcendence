@@ -4,10 +4,11 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { FontLoader } from "three/addons/loaders/FontLoader.js";
 
 export class SceneManager {
-  constructor(globalMessage, setIsOver) {
+  constructor(globalMessage, setIsOver, setPlayers1) {
     this.player = 1;
     this.globalMessage = globalMessage;
     this.setIsOver = setIsOver;
+    this.setPlayers1 = setPlayers1;
     // Camera
     this.camera = new THREE.PerspectiveCamera(
       80,
@@ -102,10 +103,6 @@ export class SceneManager {
     this.wall4 = undefined;
     this.wall5 = undefined;
     this.wall6 = undefined;
-
-    this.listener = new THREE.AudioListener();
-    this.camera.add(this.listener);
-    this.audioLoader = new THREE.AudioLoader();
   }
 
   FixLight(light, x, y, z) {
@@ -184,7 +181,7 @@ export class SceneManager {
   updateTextOnPlane(plane, text, x, y, z, color) {
     const loader = new FontLoader();
     loader.load(
-      `https://${window.location.hostname}:3000/public/games/Fonts/Font.json`,
+      `https://${window.location.hostname}:${window.location.port}/games/Fonts/Font.json`,
       (font) => {
         plane.children.forEach((child) => {
           if (child.isMesh && child.geometry instanceof TextGeometry) {
@@ -329,7 +326,7 @@ export class SceneManager {
     }
     if (P[0] === 6 || P[1] === 6) {
       ball.BackgroundMusic.setVolume(0.03);
-      if (!ball.ballMatchPoint.isPlaying) {
+      if (ball.audio && ball.ballMatchPoint && !ball.ballMatchPoint.isPlaying) {
         ball.ballMatchPoint.currentTime = 0;
         ball.ballMatchPoint.play();
       }
@@ -381,6 +378,7 @@ export class SceneManager {
         ball.Victory.play();
       }
       this.setIsOver(true);
+      this.setPlayers1(P[0] === 7);
     }
   }
 
@@ -725,7 +723,7 @@ export class SceneManager {
   addTextToPlane(plane, text, x, y, color) {
     const loader = new FontLoader();
     loader.load(
-      `https://${window.location.hostname}:3000/public/games/Fonts/Font.json`,
+      `https://${window.location.hostname}:${window.location.port}/games/Fonts/Font.json`,
       (font) => {
         const textGeometry = new TextGeometry(text, {
           font: font,

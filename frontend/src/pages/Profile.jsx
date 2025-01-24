@@ -90,7 +90,7 @@ const Profile = () => {
         contextData.setRefresh(false);
       }
     }
-  }, [contextData.refresh]);
+  }, [contextData.refresh, contextData.status]);
 
   return (
     <div className="flex flex-col w-full grow lg:gap-32 gap-16 relative">
@@ -125,7 +125,7 @@ const Profile = () => {
                         : "/images/default.jpeg"
                     }
                     alt="profile pic"
-                    className="object-cover w-full"
+                    className="object-cover w-full pointer-events-none"
                   />
                 </div>
                 <h1 className="text-h-lg-md font-bold max-w-[200px] truncate">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
@@ -142,13 +142,14 @@ const Profile = () => {
                     />
                   </div>
                 )}
-                {contextData.profileInfo && (
-                  <UserLevel
-                    exp={contextData.profileInfo.exp}
-                    level={contextData.profileInfo.level}
-                    percentage={contextData.profileInfo.percentage}
-                  />
-                )}
+                {contextData.profileInfo &&
+                  !contextData.profileInfo.isUserBlocked && (
+                    <UserLevel
+                      exp={contextData.profileInfo.exp}
+                      level={contextData.profileInfo.level}
+                      percentage={contextData.profileInfo.percentage}
+                    />
+                  )}
               </div>
 
               <div className="flex flex-col grow justify-between mt-16 overflow-y-auto no-scrollbar">
@@ -165,7 +166,7 @@ const Profile = () => {
                       </p>
                     </div>
                     <div className="bg-stroke-sc min-h-[1px] w-full"></div>
-                    <div>
+                    <div className="flex justify-center grayscale-[100%] contrast-10">
                       <img
                         className="w-[241px] h-[288px]"
                         src="/images/bmo.png"
@@ -175,8 +176,7 @@ const Profile = () => {
                   </>
                 ) : (
                   <p className="text-center text-txt-xs treacking-wide text-red normal-case grow flex items-center">
-                    you can't see the content of this user while you are
-                    blocking him
+                    You cannot view this user's profile while they are blocked.
                   </p>
                 )}
               </div>
@@ -194,7 +194,7 @@ const Profile = () => {
 											"
                   >
                     <FiEdit3 className="text-green" />
-                    <p className="text-txt-xs md:text-txt-md">edit profile</p>
+                    <p className="text-txt-xs md:text-txt-md">Edit Profile</p>
                   </button>
                 )}
                 <div className="w-full flex gap-16 flex-col items-center lg:hidden">
@@ -208,7 +208,7 @@ const Profile = () => {
                             : "/images/default.jpeg"
                         }
                         alt="profile pic"
-                        className="object-cover w-full"
+                        className="object-cover w-full pointer-events-none"
                       />
                     </div>
                     <h1 className="text-h-sm-sm font-bold max-w-[160px] truncate">{`${contextData.profileInfo.first_name} ${contextData.profileInfo.last_name}`}</h1>
@@ -225,21 +225,22 @@ const Profile = () => {
                     </div>
                   )}
                 </div>
-                {contextData.profileInfo && (
-                  <UserLevel
-                    exp={contextData.profileInfo.exp}
-                    level={contextData.profileInfo.level}
-                    percentage={contextData.profileInfo.percentage}
-                    isMobile={true}
-                  />
-                )}
+                {contextData.profileInfo &&
+                  !contextData.profileInfo.isUserBlocked && (
+                    <UserLevel
+                      exp={contextData.profileInfo.exp}
+                      level={contextData.profileInfo.level}
+                      percentage={contextData.profileInfo.percentage}
+                      isMobile={true}
+                    />
+                  )}
                 {!contextData.profileInfo.isUserBlocked && (
                   <div className="flex md:flex-row flex-col-reverse gap-16 grow lg:hidden w-full items-center">
                     <div className="flex w-[213px] items-center justify-center">
                       <img
-                        className="flex w-[140px] h-[166px]"
+                        className="flex w-[140px] h-[166px] pointer-events-none"
                         src="/images/bmo.png"
-                        alt="Player Caractere"
+                        alt="Player Caracter"
                       />
                     </div>
                     <div className="flex flex-col gap-16 max-w-[432px] md:items-start items-center md:text-left text-center">
@@ -263,7 +264,6 @@ const Profile = () => {
                         key={menu}
                         className={`grow flex flex-col gap-8 items-center cursor-pointer md:text-h-lg-sm text-txt-xs font-bold`}
                         onClick={() => handleNavigation(menu)}
-                        // onClick={() => setSelectedMenu(menu)}
                       >
                         <span>{menu}</span>
                         {selectedMenu === menu && (
@@ -272,19 +272,22 @@ const Profile = () => {
                       </div>
                     ))}
                   </div>
-                  {selectedMenu === "overview" && <ProfileOverview />}
-                  {selectedMenu === "statistics" && <ProfileStatistics />}
-                  {selectedMenu === "achievements" && (
+                  {selectedMenu === "overview" && contextData.status && (
+                    <ProfileOverview />
+                  )}
+                  {selectedMenu === "statistics" && contextData.status && (
+                    <ProfileStatistics />
+                  )}
+                  {selectedMenu === "achievements" && contextData.status && (
                     <ProfileAchievements username={username} />
                   )}
-                  {selectedMenu === "friends" && (
+                  {selectedMenu === "friends" && contextData.status && (
                     <ProfileFriends username={username} />
                   )}
                 </>
               ) : (
                 <p className="h-full flex flex-col text-center text-txt-xs text-red justify-center normal-case">
-                  you can't see the content of this user while you are blocking
-                  him
+                  You cannot view this user's profile while they are blocked.
                 </p>
               )}
             </div>

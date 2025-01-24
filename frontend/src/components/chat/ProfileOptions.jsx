@@ -40,7 +40,7 @@ const ProfileOptions = ({
                 : "/images/default.jpeg"
             }
             alt="profile"
-            className="grow object-cover"
+            className="grow object-cover pointer-events-none"
           />
         </div>
         <h2 className="text-h-lg-md font-bold max-w-[200px] text-center truncate">

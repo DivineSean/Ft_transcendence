@@ -27,7 +27,8 @@ class Chat(WebsocketConsumer):
             return
 
         # change the status to online if the user is connected to the socket
-        self.scope["user"].status = "online"
+        self.scope["user"].refresh_from_db()
+        self.scope["user"].update_status(User.Status.ONLINE)
         self.scope["user"].connect_count += 1
         self.scope["user"].save()
 
@@ -56,14 +57,16 @@ class Chat(WebsocketConsumer):
         # change the status to offline if the user is connected to the socket
         with transaction.atomic():
 
-            self.scope["user"].connect_count = F("connect_count") - 1
-            self.scope["user"].save()
             self.scope["user"].refresh_from_db()
+            if self.scope["user"].connect_count > 0:
+                self.scope["user"].connect_count = F("connect_count") - 1
+                self.scope["user"].save()
 
+            self.scope["user"].refresh_from_db()
             if self.scope["user"].connect_count == 0:
-                self.scope["user"].status = "offline"
-
-            self.scope["user"].save()
+                self.scope["user"].update_status(User.Status.OFFLINE)
+                self.scope["user"].last_login = timezone.now()
+                self.scope["user"].save()
 
         async_to_sync(self.channel_layer.group_discard)(
             self.notif_room_name, self.channel_name
@@ -322,7 +325,8 @@ class Chat(WebsocketConsumer):
         return User.objects.get()  # should be modifed
 
     def get_room(self, convID):
-        return Conversation.objects.get(ConversationId=convID)  # Get object or 404
+        # Get object or 404
+        return Conversation.objects.get(ConversationId=convID)
 
     def create_message(self, message):
         conversation = self.get_room(self.convName)

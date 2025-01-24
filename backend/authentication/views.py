@@ -1,3 +1,5 @@
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.http import HttpResponse
 from rest_framework.response import Response
@@ -298,10 +300,6 @@ class CustomTokenRefreshView(TokenRefreshView):
         return response
 
 
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-
-
 @api_view(["POST"])
 def logout(request):
 
@@ -322,9 +320,6 @@ def logout(request):
         jwtObj = JWTAuthentication()
 
         try:
-            user = jwtObj.get_user(token)
-            user.last_login = timezone.now()
-            user.save()
             token.blacklist()
         except:
             pass

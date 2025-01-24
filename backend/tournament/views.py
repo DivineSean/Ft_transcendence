@@ -197,9 +197,9 @@ def getTournamentData(request, id=None):
 
     try:
         tournamentObj = Tournament.objects.get(id=id)
-    except Tournament.DoesNotExist:
+    except Exception as e:
         return Response(
-            {"error": "No such tournament with this id"},
+            {"error": str(e)},
             status=status.HTTP_400_BAD_REQUEST,
         )
     
@@ -218,3 +218,33 @@ def getTournamentData(request, id=None):
         }
     )
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def getUpcomingTournament(request):
+    try:
+        tournament = (
+            Tournament.objects.filter(
+                isStarted=False,
+                isCanceled=False,
+                isCompleted=False,
+            )
+            .order_by("-currentPlayerCount")
+            .first()
+        )
+
+        print(tournament, flush=True)
+        if not tournament:
+            return Response({}, status=status.HTTP_200_OK)
+
+        tournamentData = getTournamentSerializer(
+            tournament,
+            context=request._user,
+        ).data
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(
+        tournamentData,
+        status=status.HTTP_200_OK,
+    )

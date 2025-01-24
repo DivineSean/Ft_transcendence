@@ -134,7 +134,7 @@ const Brackets = () => {
                                   : "/images/default.jpeg"
                               }
                               alt="img"
-                              className="object-cover grow"
+                              className="object-cover grow pointer-events-none"
                             />
                           )}
                         </div>

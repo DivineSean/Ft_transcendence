@@ -1,10 +1,3 @@
-/**
-	=> nadi f serve
-	=> kay3sser flwe9t
-	=> rimontada
-	=> lmlawi la markiti 3lih
- */
-
 import { useContext, useEffect } from "react";
 import UserContext from "../../context/UserContext";
 
@@ -37,14 +30,14 @@ const ProfileAchievements = ({ username }) => {
                             <img
                               src={`/images/achievement/icons/${achievement.name}.png`}
                               alt={`achivement image of ${achievement.name}`}
-                              className="grow"
+                              className="grow pointer-events-none"
                             />
                           </div>
                           <div className="flex flex-col">
                             <h2 className="font-semibold text-white/90 tracking-wider">
                               {achievement.name}
                             </h2>
-                            <p className="text-gray/60 text-txt-sm">
+                            <p className="text-gray/60 text-txt-xs md:text-txt-sm">
                               {achievement.description}
                             </p>
                           </div>
@@ -61,7 +54,7 @@ const ProfileAchievements = ({ username }) => {
                                 className={`flex gap-16 items-center ${!userAchievement.threshold && "grayscale-[100%] contrast-50"}`}
                               >
                                 <div className="flex gap-8 items-end">
-                                  <div className="h-40 w-40 flex">
+                                  <div className="h-40 w-40 flex pointer-events-none">
                                     <img
                                       src={`/images/achievement/badges/${userAchievement.level}.png`}
                                       alt=""
@@ -99,6 +92,9 @@ const ProfileAchievements = ({ username }) => {
             </div>
           ))}
         </>
+      )}
+      {!contextData.profileAchievements && (
+        <p className="text-center py-32 text-stroke-sc">no achivements.</p>
       )}
     </div>
   );

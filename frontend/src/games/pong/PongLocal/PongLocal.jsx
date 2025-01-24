@@ -6,11 +6,11 @@ import Ball from "./BallLocal";
 import { Clock } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { useEffect, useRef, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import AuthContext from "../../../context/AuthContext";
 import Toast from "../../../components/Toast";
 import GameResultLan from "@/components/game/GameResultLan";
-import GameResult from "@/components/game/GameResult";
+import { PiWarningBold } from "react-icons/pi";
+import { useNavigate } from "react-router-dom";
 
 const PongLocal = () => {
   const navigate = useNavigate();
@@ -27,12 +27,22 @@ const PongLocal = () => {
   const netRef = useRef(null);
   const ballRef = useRef(null);
   const playersRef = useRef(null);
+  const isMobile = useRef(false);
+  useEffect(() => {
+    isMobile.current = /android|iphone|ipad|ipod/i.test(
+      navigator.userAgent || window.opera,
+    );
+  }, []);
 
   useEffect(() => {
     loaderTRef.current = new GLTFLoader();
     loaderRef.current = new GLTFLoader();
     loaderBRef.current = new GLTFLoader();
-    sm.current = new SceneManager(authContextData.setGlobalMessage, setIsOver);
+    sm.current = new SceneManager(
+      authContextData.setGlobalMessage,
+      setIsOver,
+      setPlayers1,
+    );
     tableRef.current = new Table(sm.current.scene, loaderTRef.current);
     netRef.current = new Net(sm.current.scene, loaderRef.current);
     ballRef.current = new Ball(sm.current.scene, loaderBRef.current);
@@ -46,11 +56,11 @@ const PongLocal = () => {
         space: "Space",
       },
       {
-        up: "Numpad8",
-        down: "Numpad2",
-        left: "Numpad4",
-        right: "Numpad6",
-        space: "ShiftRight",
+        up: "ArrowUp", // Player 2 - Arrow Up for up
+        down: "ArrowDown", // Player 2 - Arrow Down for down
+        left: "ArrowLeft", // Player 2 - Arrow Left for left
+        right: "ArrowRight", // Player 2 - Arrow Right for right
+        space: "Numpad0",
       },
     ];
     playersRef.current = [
@@ -75,11 +85,12 @@ const PongLocal = () => {
     sm.current.render();
     tableRef.current.render();
     netRef.current.render();
-    ballRef.current.render(sm.current);
+    ballRef.current.render();
     playersRef.current[0].render();
     playersRef.current[1].render();
 
     const handleKeyDown = (event) => {
+      ballRef.current.audioLoading(sm.current);
       keyboard.current[event.code] = true;
     };
 
@@ -109,7 +120,7 @@ const PongLocal = () => {
     window.addEventListener("resize", onWindowResize, false);
 
     return () => {
-      sm.current.listener.setMasterVolume(0);
+      if (ballRef.audio) sm.current.listener.setMasterVolume(0);
       ballRef.current.cleanup();
       sm.current.cleanup();
       tableRef.current.cleanup();
@@ -149,18 +160,7 @@ const PongLocal = () => {
         !table.boundingBoxTable ||
         !players[0].boundingBox ||
         !players[1].boundingBox ||
-        !ball.boundingSphere ||
-        !ball.bounceSound ||
-        !ball.netHitSound ||
-        !ball.paddleHitSound ||
-        !ball.onlyHit ||
-        !ball.swing ||
-        !ball.scoreSound ||
-        !ball.BackgroundMusic ||
-        !ball.lostSound ||
-        !ball.ballMatchPoint ||
-        !ball.Defeat ||
-        !ball.Victory
+        !ball.boundingSphere
       ) {
         return;
       }
@@ -200,8 +200,6 @@ const PongLocal = () => {
     };
   }, [isOver]);
 
-  if (isOver && ballRef.scoreboard[0] === 7) setPlayers1(true);
-
   const Gameover = ({ status }) => {
     const playersData = [
       { user: { username: "Player1", profile_image: null } },
@@ -224,8 +222,40 @@ const PongLocal = () => {
           onClose={authContextData.setGlobalMessage}
         />
       )}
-      <canvas id="pong"></canvas>
-      {!isOver && <Gameover status={Players1} />}
+      {!isMobile.current && <canvas id="pong"></canvas>}
+      {isMobile.current && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
+          <div className="w-[90%] secondary-glass p-8 py-16 flex flex-col gap-16">
+            <div className="text-center px-4">
+              <div className="flex justify-center">
+                <PiWarningBold className="text-txt-2xl text-red" />
+              </div>
+              <h1 className="text-txt-2xl text-red uppercase">Warning:</h1>
+              <h2 className="text-txt-1xl text-white uppercase">
+                Unsupported Mode
+              </h2>
+            </div>
+
+            <p className="text-gray/80 text-md text-center px-8 lowercase">
+              Please ensure your device meets the necessary requirements to run
+              this mode.
+            </p>
+
+            <div className="flex gap-8 justify-center px-4 mt-8">
+              <button
+                onClick={() => {
+                  navigate(`/games/pong`);
+                }}
+                className="secondary-glass grow p-8 sm:px-16 transition-all flex gap-4 justify-center items-center
+                        rounded-md font-semibold tracking-wide hover:bg-red/60 hover:text-white text-red"
+              >
+                I UNDERSTAND
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {isOver && <Gameover status={Players1} />}
     </div>
   );
 };

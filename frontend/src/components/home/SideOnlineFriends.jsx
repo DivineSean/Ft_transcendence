@@ -17,7 +17,7 @@ const SideOnlineFriends = ({ ...props }) => {
         <img
           src={
             props.friend.profile_image
-              ? `${BACKENDURL}${props.friend.profile_image}?t=${new Date().getTime()}`
+              ? `${BACKENDURL}${props.friend.profile_image}`
               : "/images/default.jpeg"
           }
           alt="profile"

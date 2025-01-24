@@ -50,12 +50,11 @@ def mark_game_abandoned(game_room_id, user_id):
                 user.increase_exp(XP_GAIN_TN)
             else:
                 user.increase_exp(XP_GAIN_NORMAL)
-        # Back to Being Online Again
         PlayerRating.handle_rating(
             user, Game.objects.get(pk=game_room_data["game"]), player
         )
-        user.status = User.Status.ONLINE
-        user.save()
+        # Back to Being Online Again
+        user.update_status(User.Status.ONLINE)
 
     game_room_data["status"] = GameRoom.Status.COMPLETED
     serializer = GameRoomSerializer(
@@ -88,50 +87,71 @@ def mark_game_room_as_expired(game_room_id):
 
     try:
         game_room = GameRoom.objects.get(id=game_room_id)
+        if game_room.status == "waiting":
+            game_room.status = "expired"
+            players = Player.objects.filter(game_room=game_room)
+            if game_room.bracket is not None:
+                try:
+                  with transaction.atomic():
+                      players = Player.objects.select_for_update().filter(game_room=game_room)
 
-        if game_room.status != "waiting":
-            return f"GameRoom {game_room_id} is not in waiting status."
+                      for player in players:
+                          player.result = (
+                              Player.Result.WIN if player.ready
+                              else Player.Result.DISCONNECTED
+                          )
+                          # gr = str(game_room_id)
+                          # id = str(player.user.id)
+                          # res = str(player.result)
+                          player.save()
 
-        if game_room.bracket is not None:
-            try:
-                with transaction.atomic():
-                    players = Player.objects.select_for_update().filter(game_room=game_room)
+                      game_room.status = "expired"
+                      game_room.save()
+                      r.hset(
+                          f"game_room_data:{game_room_id}",
+                          "status",
+                          "expired"
+                      )
 
-                    for player in players:
-                        player.result = (
-                            Player.Result.WIN if player.ready
-                            else Player.Result.DISCONNECTED
-                        )
-                        # gr = str(game_room_id)
-                        # id = str(player.user.id)
-                        # res = str(player.result)
-                        player.save()
+                  
+                      # Change user status (in-game -> online/offline)
+                      for player in players:
+                        try:
+                          user = User.objects.get(pk=player.user.id)
+                          user.update_status(User.Status.ONLINE)
+                        except Exception as e:
+                          print(e, flush=True)
+                  
+                      # print("PLAYERR = ", id, type(id), flush=True)
+                      # print("game_room_id = ", gr, type(gr), flush=True)
+                      # print("result = ", res, type(res), flush=True)
+                      print("COMMITED====", flush=True)
+                      on_commit(lambda: processGameResult(game_room_id))
+                      print("ON_COMMIT CALLED", flush=True)
+                      return
+                except Exception as e:
+                    return f"Unexpected exception while trying to save players result: {str(e)}"
+               
+            game_room.save()
 
-                    game_room.status = "expired"
-                    game_room.save()
-                    r.hset(
-                        f"game_room_data:{game_room_id}",
-                        "status",
-                        "expired"
-                    )
+            # Change user status (in-game -> online/offline)
+            for player in players:
+                try:
+                    user = User.objects.get(pk=player.user.id)
+                    user.update_status(User.Status.ONLINE)
+                except Exception as e:
+                    print(e, flush=True)
 
-                    # print("PLAYERR = ", id, type(id), flush=True)
-                    # print("game_room_id = ", gr, type(gr), flush=True)
-                    # print("result = ", res, type(res), flush=True)
-                    print("COMMITED====", flush=True)
-                    on_commit(lambda: processGameResult(game_room_id))
-                    print("ON_COMMIT CALLED", flush=True)
-            except Exception as e:
-                return f"Unexpected exception while trying to save players result: {str(e)}"
-
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            f"game_room_{game_room_id}",
-            {
-                "type": "broadcast",
-                "info": "game_manager",
-                "message": {
-                    "status": "expired",
+            channel_layer = get_channel_layer()
+            r.hset(f"game_room_data:{game_room_id}", "status", "expired")
+            async_to_sync(channel_layer.group_send)(
+                f"game_room_{game_room_id}",
+                {
+                    "type": "broadcast",
+                    "info": "game_manager",
+                    "message": {
+                        "status": "expired",
+                    },
                 },
             },
         )

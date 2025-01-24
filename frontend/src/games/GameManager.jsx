@@ -8,6 +8,7 @@ import WaitingGame from "../components/game/WaitingGame.jsx";
 import GameStatus from "../components/game/GameStatus.jsx";
 import AuthContext from "../context/AuthContext.jsx";
 import GameResult from "../components/game/GameResult.jsx";
+import LoadingPage from "@/pages/LoadingPage";
 
 const GameOverlay = ({
   data,
@@ -86,7 +87,7 @@ const GameOverlay = ({
         </>
       );
     default:
-      navigate(`/games/${game}/online`);
+      () => navigate(`/games/${game}/online`);
   }
 };
 
@@ -202,6 +203,14 @@ const GameManager = () => {
   useEffect(() => {
     contextData.getUserInfo();
   }, []);
+
+  if (!contextData || !contextData.userInfo || !playersRef.current) {
+    return (
+      <div className="flex flex-col grow lg:gap-32 gap-16">
+        <LoadingPage />
+      </div>
+    );
+  }
 
   console.log(game);
   return (

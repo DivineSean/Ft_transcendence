@@ -65,7 +65,7 @@ const ProfileOverview = () => {
           </div>
         </div>
         <div className="flex sc-overview-glass md:px-32 px-16 py-16 gap-32 items-center justify-between">
-          <div className="w-48">
+          <div className="w-48 pointer-events-none">
             <img src={`/images/rating/${stats.elo}.png`} alt="Rating level" />
           </div>
           <div className="flex gap-40 justify-between grow">
