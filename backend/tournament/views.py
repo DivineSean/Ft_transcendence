@@ -12,7 +12,7 @@ from .serializers import (
 )
 from rest_framework.pagination import PageNumberPagination
 from games.models import Game
-from .models import Bracket
+from .models import Bracket, tournamentPlayer
 
 
 class Tournaments(APIView):
@@ -185,6 +185,8 @@ def getTournamentData(request, id=None):
             {"error": "No such tournament with this id"},
             status=status.HTTP_400_BAD_REQUEST,
         )
+    tournamentPlayers = tournamentPlayer.objects.filter(tournament= tournamentObj)
+
     brackets = Bracket.objects.filter(tournament=tournamentObj).order_by("round_number")
 
     # im expecting == tournament.maxRounds but i have only 2 instead 3
@@ -196,6 +198,7 @@ def getTournamentData(request, id=None):
             "maxPlayers": tournamentObj.maxPlayers,
             "currentPlayerCount": tournamentObj.currentPlayerCount,
             "isCompleted": tournamentObj.isCompleted,
+            "tournamentPlayers" : tournamentPlayers,
         }
     )
     return Response(serializer.data, status=status.HTTP_200_OK)
