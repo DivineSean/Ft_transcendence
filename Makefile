@@ -12,7 +12,6 @@ MONITORING_ENV := $(MONITORING_DIR)/.env
 all: $(BASE_ENV) $(ELK_ENV) $(MONITORING_ENV) up
 
 $(BASE_ENV): $(BASE_DIR)/.env.example
-	@echo "Creating .env file in $(BASE_DIR) from .env.example"
 	@if [ ! -f $@ ]; then \
 		echo "Creating .env file in $(BASE_DIR) from .env.example"; \
 		cp $< $@; \
@@ -21,7 +20,6 @@ $(BASE_ENV): $(BASE_DIR)/.env.example
 	fi
 
 $(ELK_ENV): $(ELK_DIR)/.env.example
-	@echo "Creating .env file in $(ELK_DIR) from .env.example"
 	@if [ ! -f $@ ]; then \
 		echo "Creating .env file in $(ELK_DIR) from .env.example"; \
 		cp $< $@; \
