@@ -174,39 +174,6 @@ class GameConsumer(WebsocketConsumer):
             },
         )
 
-    # def check_results(self):
-    #     lock = r.set(f"game_room_data:{self.game_uuid}:lock",
-    #                  self.user_id,
-    #                  nx=True,
-    #                  ex=5
-    #                  )
-    #
-    #     if lock:
-    #         print(f"{self.user_id} is here", flush=True)
-    #         try:
-    #             all_players = json.loads(
-    #                 r.hget(f"game_room_data:{self.game_uuid}", "players"))
-    #             # all_players = r.lrange(f"game_room_data:{self.game_uuid}:players", 0, -1)
-    #             total_results = 0
-    #             for player in all_players:
-    #                 count = len(player["result"]) if player["result"] else 0
-    #                 print("EEEEEEEEEEY WHAT ==> ",
-    #                       player["result"], flush=True)
-    #                 if (count > 0):
-    #                     total_results += 1
-    #                 print("EEEEEEEEEEY count ==> ", total_results, flush=True)
-    #             if total_results == 2 and r.lindex(f"game_room_data:{self.game_uuid}:login", 0) == "No":
-    #                 print("Start Tournament", flush=True)
-    #                 processGameResult(self.game_uuid)
-    #                 r.rpush(f"game_room_data:{self.game_uuid}:login", "Yes")
-    #         finally:
-    #             # khsk deleti players
-    #             r.delete(f"game_room_data:{self.game_uuid}:lock")
-    #     else:
-    #         print("im sleeping zzzzzzzzzzzzz", flush=True)
-    #         time.sleep(5)
-    #         self.check_results()
-
     def update_achievements(self, message):
 
         try:
