@@ -6,6 +6,7 @@ import re
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    email = serializers.EmailField()
 
     class Meta:
         model = User
@@ -28,6 +29,11 @@ class RegisterSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value.lower()).exists():
+            raise serializers.ValidationError("email already exists!")
+        return value.lower()
 
 
 class PasswordUpdateSerializer(serializers.Serializer):

@@ -407,7 +407,9 @@ export const AuthProvider = ({ children }) => {
           isError: false,
         });
         setDisplayMenuGl(false);
-      } else setGlobalMessage({ message: data.error, isError: true });
+      } else {
+        navigate("/login");
+      }
     } catch (error) {
       setGlobalMessage({ message: `error: ${error}`, isError: true });
     }

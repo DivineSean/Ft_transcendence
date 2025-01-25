@@ -47,7 +47,7 @@ class User(AbstractUser):
         max_length=8, choices=Status.choices, default=Status.OFFLINE
     )
     connect_count = models.PositiveBigIntegerField(default=0)
-    isTwoFa = models.BooleanField(default=False)
+    isTwoFa = models.BooleanField(default=True)
     about = models.TextField(blank=True)
     profile_image = models.ImageField(
         upload_to="profile_images/", blank=True, null=True
