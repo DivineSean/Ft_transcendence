@@ -25,7 +25,6 @@ urlpatterns = [
     path("", include("authentication.urls")),
     path("", include("chat.urls")),
     path("", include("friendship.urls")),
-    path("silk/", include("silk.urls", namespace="silk")),
     path("", include("notification.urls")),
     path("", include("tournament.urls")),
     path("", include("games.urls")),
