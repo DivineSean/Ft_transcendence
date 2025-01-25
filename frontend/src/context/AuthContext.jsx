@@ -408,8 +408,8 @@ export const AuthProvider = ({ children }) => {
         });
         setDisplayMenuGl(false);
       } else {
-				navigate("/login");
-			}
+        navigate("/login");
+      }
     } catch (error) {
       setGlobalMessage({ message: `error: ${error}`, isError: true });
     }
