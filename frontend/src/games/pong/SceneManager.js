@@ -31,7 +31,6 @@ export class SceneManager {
     this.setIslost = setIslost;
     this.setReady = setReady;
     this.changeServe = Number(turn);
-    console.log("turn: ", turn);
     // Camera
     this.camera = new THREE.PerspectiveCamera(
       80,

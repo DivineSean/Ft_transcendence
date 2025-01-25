@@ -169,9 +169,7 @@ const GameManager = () => {
         const msg = JSON.parse(event.data);
 
         if (msg.type === "game_manager") {
-          // INFO: check if the objects are the same to avoid unnecessary rerenders
           if (msg.message.status) setReady(msg.message.status === "ongoing");
-          console.log(msg);
           if (msg.message.players) playersRef.current = msg.message.players;
           if (msg.message.r && msg.message.r === "no")
             declineRef.current = "yes";
@@ -183,7 +181,6 @@ const GameManager = () => {
       },
       onClose: (event) => {
         if (strictGreaterThanOrEqual(event.code, 4000)) {
-          console.log("Navigating...");
           navigate(`/games/${game}/online`);
           authContextData.setGlobalMessage({
             message: event.reason,
@@ -193,11 +190,6 @@ const GameManager = () => {
       },
     },
   );
-
-  useEffect(() => {
-    console.log("this nigga's readiness: ", ready);
-    console.log("this wonlost is : ==> ", isS);
-  }, [ready]);
 
   const contextData = useContext(UserContext);
   useEffect(() => {
@@ -212,7 +204,6 @@ const GameManager = () => {
     );
   }
 
-  console.log(game);
   return (
     <div className="relative w-full">
       {contextData.userInfo && playersRef.current && (

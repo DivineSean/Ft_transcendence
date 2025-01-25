@@ -5,7 +5,6 @@ const GamePaused = ({ game, image, isS, isRanked }) => {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(28);
   const [isQuitConfirmed, setIsQuitConfirmed] = useState(false);
-  console.log("isRanked", isRanked);
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown((prevCountdown) => {
