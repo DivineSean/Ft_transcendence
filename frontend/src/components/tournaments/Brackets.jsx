@@ -82,7 +82,6 @@ const Brackets = () => {
     }
   }, [canvasRef && canvasRef.current, regionRef && regionRef.current]);
 
-
   return (
     <>
       {/* {region && bracket.maxPlayers !== bracket.currentPlayerCount && 

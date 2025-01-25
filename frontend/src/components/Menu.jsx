@@ -1,7 +1,4 @@
-import {
-  IoChatbubbleEllipsesOutline,
-  IoChevronBack,
-} from "react-icons/io5";
+import { IoChatbubbleEllipsesOutline, IoChevronBack } from "react-icons/io5";
 import AuthContext from "../context/AuthContext";
 import { RiGamepadLine } from "react-icons/ri";
 import { FaRegUser } from "react-icons/fa";
