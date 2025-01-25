@@ -99,6 +99,7 @@ INSTALLED_APPS = [
     "games",
     "matchmaking",
     "friendship",
+    "silk",
     "notification",
     "tournament",
 ]
@@ -157,6 +158,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "authentication.middleware.sAuthMiddleWare",
+    "silk.middleware.SilkyMiddleware",
 ]
 
 
