@@ -83,9 +83,7 @@ const TopThreePlayers = ({ players }) => {
             <div key={visualIndex} className="flex flex-col gap-16">
               <div
                 className="flex flex-col items-center gap-8 cursor-pointer"
-                onClick={() =>
-                  handleProfileClick(players[playerIndex].username)
-                }
+                onClick={() => {}}
               >
                 <div
                   className={`${imgSizes[visualIndex]} rounded-full
