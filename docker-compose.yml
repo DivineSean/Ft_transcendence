@@ -42,7 +42,7 @@ services:
       target: prod
     container_name: frontend
     volumes:
-      - ./frontend/dist/:/home/app/dist:w
+      - ./frontend/dist/:/home/app/dist:rw
     networks:
         - ft_transcendence
     profiles:
