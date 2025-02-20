@@ -1,4 +1,4 @@
-PROFILE ?= dev
+PROFILE ?= prod
 COMPOSE_FILE = docker-compose.yml
 
 BASE_DIR := .
